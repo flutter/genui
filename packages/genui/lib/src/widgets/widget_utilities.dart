@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 import '../model/data_model.dart';
 import '../primitives/logging.dart';
 
+export '../model/data_model.dart' show resolveContext;
+
 /// A builder widget that simplifies handling of nullable `ValueListenable`s.
 ///
 /// This widget listens to a `ValueListenable<T?>` and rebuilds its child

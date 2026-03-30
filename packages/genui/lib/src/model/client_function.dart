@@ -43,9 +43,6 @@ abstract interface class ExecutionContext {
 
   /// Evaluates a dynamic boolean condition and returns a [Stream<bool>].
   Stream<bool> evaluateConditionStream(Object? condition);
-
-  /// Resolves a map of dynamic values into a map of literal values.
-  Future<JsonMap> resolveMap(JsonMap? map);
 }
 
 /// A function that can be invoked by the GenUI expression system.

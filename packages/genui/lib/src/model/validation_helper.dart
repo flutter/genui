@@ -63,7 +63,7 @@ class ValidationHelper {
     final List<ValidationError> errors = [];
 
     // Resolve schema constraints that might be expressions
-    final JsonMap resolvedSchema = await dataContext.resolveMap(schema);
+    final JsonMap resolvedSchema = await resolveContext(dataContext, schema);
 
     // simple validation for now, delegating to json_schema_builder would be
     // ideal, but for now we just check basic constraints we support in genui

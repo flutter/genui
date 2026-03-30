@@ -7,6 +7,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
+import '../../model/data_model.dart';
 import '../../model/ui_models.dart';
 import '../../model/validation_helper.dart';
 import '../../primitives/logging.dart';
@@ -204,7 +205,8 @@ Future<void> _handlePress(
     final actionName = eventMap['name'] as String;
     final contextDefinition = eventMap['context'] as JsonMap?;
 
-    final JsonMap resolvedContext = await itemContext.dataContext.resolveMap(
+    final JsonMap resolvedContext = await resolveContext(
+      itemContext.dataContext,
       contextDefinition,
     );
     itemContext.dispatchEvent(
