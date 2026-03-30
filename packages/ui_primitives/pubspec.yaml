@@ -1,0 +1,21 @@
+# Copyright 2025 The Flutter Authors.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+name: ui_primitives
+description: Highly experimental package.
+repository: https://github.com/flutter/genui/tree/main/packages/ui_primitives
+version: 0.0.1-dev-005
+
+resolution: workspace
+
+environment:
+  sdk: ">=3.9.2 <4.0.0"
+
+dependencies:
+  leak_tracker: ^11.0.2
+  meta: ^1.17.0
+  web: ^1.1.1
+
+dev_dependencies:
+  test: ^1.26.2
