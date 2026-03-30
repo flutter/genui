@@ -8,10 +8,10 @@ library;
 
 import 'package:meta/meta.dart';
 
-import 'primitives.dart';
-import 'private_leak_tracking.dart';
 import 'error_reporter.dart';
 import 'listenable.dart';
+import 'primitives.dart';
+import 'private_leak_tracking.dart';
 
 /// A class that can be extended or mixed in that provides a change notification
 /// API using [VoidCallback] for notifications.
@@ -319,14 +319,7 @@ class _ChangeNotifier implements Listenable {
           FrameworkErrorDetails(
             exception: exception,
             stack: stack,
-            library: libraryName,
             dispatchingObject: runtimeType,
-            contextCollector: () => <ValueContext>[
-              ValueContext(
-                context: 'The $runtimeType sending notification was',
-                value: toString(),
-              ),
-            ],
           ),
         );
       }

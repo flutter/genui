@@ -24,10 +24,8 @@ final class FrameworkErrorDetails extends Error {
     required this.exception,
     this.dispatchingObject,
     this.stack,
-    this.library,
   });
 
-  final String? library;
   final Object? dispatchingObject;
   final Object exception;
   final StackTrace? stack;

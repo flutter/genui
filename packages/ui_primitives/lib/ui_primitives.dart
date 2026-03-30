@@ -3,12 +3,7 @@
 // found in the LICENSE file.
 
 export 'src/error_reporter.dart'
-    show
-        ContextCollector,
-        FrameworkError,
-        FrameworkErrorDetails,
-        FrameworkErrorReporter,
-        ValueContext;
+    show FrameworkError, FrameworkErrorDetails, FrameworkErrorReporter;
 export 'src/listenable.dart' show Listenable, ValueListenable;
 export 'src/primitives.dart' show VoidCallback;
 export 'src/value_notifier.dart' show ValueNotifier;
