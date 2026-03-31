@@ -5,6 +5,7 @@
 - **Fix**: Remove `package:intl` dependency (#682, #686).
 - **Internal**: Enable stricter dynamic-related analysis (#652).
 - **Internal**: Use null-aware elements per latest lint update (#690).
+- **Internal**: Update test_and_fix script and json_schema_builder infrastructure.
 
 ## 0.1.3
 

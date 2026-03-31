@@ -1,6 +1,9 @@
 # `genui_a2a` Changelog
 
-## 0.7.1 (in progress)
+## 0.8.0
+
+- **Fix**: Filter whitespace-only AI text responses (#759).
+- **Refactor**: Rename `genui_a2ui` package to `genui_a2a` (#774).
 
 ## 0.7.0
 
