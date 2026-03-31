@@ -94,7 +94,7 @@ mixin class ChangeNotifier implements Listenable {
   static bool debugAssertNotDisposed(ChangeNotifier notifier) {
     assert(() {
       if (notifier._debugDisposed) {
-        throw FlutterError(
+        throw FrameworkErrorReporter.instance.createError(
           'A ${notifier.runtimeType} was used after being disposed.\n'
           'Once you have called dispose() on a ${notifier.runtimeType}, it '
           'can no longer be used.',
@@ -147,9 +147,8 @@ mixin class ChangeNotifier implements Listenable {
   @protected
   static void maybeDispatchObjectCreation(ChangeNotifier object) {
     assert(() {
-      if (!object._debugCreationDispatched) {
-        debugMaybeDispatchCreated('foundation', 'ChangeNotifier', object);
-        object._debugCreationDispatched = true;
+      if (kTrackMemoryLeaks) {
+        debugMaybeDispatchCreated(object.runtimeType.toString(), object);
       }
       return true;
     }());
@@ -185,9 +184,7 @@ mixin class ChangeNotifier implements Listenable {
   void addListener(VoidCallback listener) {
     assert(ChangeNotifier.debugAssertNotDisposed(this));
 
-    if (kFlutterMemoryAllocationsEnabled) {
-      maybeDispatchObjectCreation(this);
-    }
+    maybeDispatchObjectCreation(this);
 
     if (_count == _listeners.length) {
       if (_count == 0) {
@@ -299,8 +296,8 @@ mixin class ChangeNotifier implements Listenable {
     );
     assert(() {
       _debugDisposed = true;
-      if (_debugCreationDispatched) {
-        assert(debugMaybeDispatchDisposed(this));
+      if (kTrackMemoryLeaks && _debugCreationDispatched) {
+        debugMaybeDispatchDisposed(this);
       }
       return true;
     }());
@@ -350,21 +347,11 @@ mixin class ChangeNotifier implements Listenable {
       try {
         _listeners[i]?.call();
       } catch (exception, stack) {
-        FlutterError.reportError(
-          FlutterErrorDetails(
+        FrameworkErrorReporter.instance.report(
+          FrameworkErrorDetails(
             exception: exception,
             stack: stack,
-            library: 'foundation library',
-            context: ErrorDescription(
-              'while dispatching notifications for $runtimeType',
-            ),
-            informationCollector: () => <DiagnosticsNode>[
-              DiagnosticsProperty<ChangeNotifier>(
-                'The $runtimeType sending notification was',
-                this,
-                style: DiagnosticsTreeStyle.errorProperty,
-              ),
-            ],
+            dispatchingObject: runtimeType,
           ),
         );
       }
