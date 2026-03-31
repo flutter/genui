@@ -5,12 +5,12 @@
 name: ui_primitives
 description: Highly experimental package.
 repository: https://github.com/flutter/genui/tree/main/packages/ui_primitives
-version: 0.1.0
+version: 0.2.0
 
 resolution: workspace
 
 environment:
-  sdk: ">=3.9.2 <4.0.0"
+  sdk: ">=3.10.0 <4.0.0"
 
 dependencies:
   leak_tracker: ^11.0.2

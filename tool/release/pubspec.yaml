@@ -7,7 +7,7 @@ description: A tool for managing releases in the genui monorepo.
 publish_to: none
 
 environment:
-  sdk: ">=3.9.2 <4.0.0"
+  sdk: ">=3.10.0 <4.0.0"
 
 resolution: workspace
 

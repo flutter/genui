@@ -12,7 +12,7 @@ issue_tracker: https://github.com/flutter/genui/issues
 # This package is not included in monorepo to avoid circular dependencies and unrelated updates.
 
 environment:
-  sdk: ">=3.9.2 <4.0.0"
+  sdk: ">=3.10.0 <4.0.0"
 
 dependencies:
   collection: ^1.19.1
