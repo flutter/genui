@@ -93,7 +93,7 @@ class _ChangeNotifier implements Listenable {
   static bool debugAssertNotDisposed(_ChangeNotifier notifier) {
     assert(() {
       if (notifier._debugDisposed) {
-        throw FrameworkErrorReporter.instance.error(
+        throw FrameworkErrorReporter.instance.createError(
           'A ${notifier.runtimeType} was used after being disposed.\n'
           'Once you have called dispose() on a ${notifier.runtimeType}, it '
           'can no longer be used.',
@@ -385,7 +385,7 @@ class _ChangeNotifier implements Listenable {
 ///
 /// Because of this behavior, [ValueNotifier] is best used with immutable data
 /// types.
-class ValueNotifier<T> implements ValueListenable<T> {
+class ValueNotifier<T> implements ValueListenable<T>, Listenable {
   final _ChangeNotifier _changeNotifier = _ChangeNotifier();
 
   /// Creates a [_ChangeNotifier] that wraps this value.
@@ -403,7 +403,7 @@ class ValueNotifier<T> implements ValueListenable<T> {
   static bool debugAssertNotDisposed<T>(ValueNotifier<T> notifier) {
     assert(() {
       if (notifier._debugDisposed) {
-        throw FrameworkErrorReporter.instance.error(
+        throw FrameworkErrorReporter.instance.createError(
           'A ${notifier.runtimeType} was used after being disposed.\n'
           'Once you have called dispose() on a ${notifier.runtimeType}, it '
           'can no longer be used.',

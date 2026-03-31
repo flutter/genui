@@ -6,7 +6,9 @@ class FrameworkErrorReporter {
   /// Set this instance to customize error reporting for the framework.
   static FrameworkErrorReporter instance = FrameworkErrorReporter();
 
-  Error error(String message) => _FrameworkError(message: message);
+  /// Creates a the framework specific error with the given message.
+  Error createError(String message, {FrameworkErrorDetails? details}) =>
+      _FrameworkError(message: message, details: details);
 
   /// Reports [FrameworkErrorDetails] according to the framework settings.
   ///
@@ -21,6 +23,11 @@ final class _FrameworkError extends Error {
 
   final FrameworkErrorDetails? details;
   final String? message;
+
+  @override
+  String toString() {
+    return [message, details].where((e) => e != null).join('\n');
+  }
 }
 
 final class FrameworkErrorDetails {
@@ -33,4 +40,9 @@ final class FrameworkErrorDetails {
   final Object? dispatchingObject;
   final Object exception;
   final StackTrace? stack;
+
+  @override
+  String toString() {
+    return '$dispatchingObject reported $exception\n$stack';
+  }
 }
