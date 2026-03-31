@@ -34,10 +34,8 @@ import 'private_leak_tracking.dart';
 ///
 /// Because of this behavior, [ValueNotifier] is best used with immutable data
 /// types.
-class ValueNotifier<T>
-    implements ValueListenable<T>, Listenable, ChangeNotifier {
-  final ChangeNotifier _changeNotifier = ChangeNotifier();
-
+class ValueNotifier<T> extends ChangeNotifier
+    implements ValueListenable<T>, Listenable {
   /// Creates a [ChangeNotifier] that wraps this value.
   ValueNotifier(this._value) {
     assert(() {
@@ -77,7 +75,7 @@ class ValueNotifier<T>
       return;
     }
     _value = newValue;
-    _changeNotifier.notifyListeners();
+    notifyListeners();
   }
 
   @override
@@ -91,22 +89,6 @@ class ValueNotifier<T>
       return true;
     }());
 
-    _changeNotifier.dispose();
+    super.dispose();
   }
-
-  @override
-  void addListener(VoidCallback listener) =>
-      _changeNotifier.addListener(listener);
-
-  @override
-  void removeListener(VoidCallback listener) =>
-      _changeNotifier.removeListener(listener);
-
-  @override
-  @protected
-  bool get hasListeners => _changeNotifier.hasListeners;
-
-  @override
-  @protected
-  void notifyListeners() => _changeNotifier.notifyListeners();
 }
