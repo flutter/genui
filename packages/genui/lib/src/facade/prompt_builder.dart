@@ -311,7 +311,7 @@ To update an existing UI:
       _fenced('''
 When constructing UI, you must output a VALID A2UI JSON object representing one of the A2UI message types ($_operationsFormatted).
 - You can treat the A2UI schema as a specification for the JSON you typically output.
-- You may include a brief conversational explanation before or after the JSON block if it helps the user, but the JSON block must be valid and complete.
+- The JSON block must be valid and complete.
 - Ensure your JSON is fenced with ```json and ```.
 ''', sectionName: 'OUTPUT FORMAT'),
     );
