@@ -4,6 +4,6 @@
 
 export 'src/error_reporter.dart'
     show FrameworkErrorDetails, FrameworkErrorReporter;
-export 'src/listenable.dart' show Listenable, ValueListenable;
+export 'src/interfaces.dart' show Listenable, ValueListenable;
 export 'src/primitives.dart' show VoidCallback;
 export 'src/value_notifier.dart' show ValueNotifier;
