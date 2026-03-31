@@ -117,8 +117,8 @@ class _ChatSessionTester {
 
     reporter.expect(errors.isEmpty, 'No errors should occur');
     reporter.expect(
-      updated.isEmpty,
-      'In chat setup surfaces should not be updated',
+      updated.length == created.length,
+      'In chat setup surfaces should not be updated after initial creation',
     );
   }
 

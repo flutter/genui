@@ -107,6 +107,8 @@ One component MUST have `id: "root"`.
 To create a new UI:
 1. Output a `createSurface` message with a unique `surfaceId` and `catalogId` (use the catalog ID provided in system instructions).
 2. Output an `updateComponents` message with the `surfaceId` and the component definitions.
+
+IMPORTANT: DO NOT update or modify surfaces created in previous turns. If the UI needs to change, you MUST create a NEW surface with a new unique `surfaceId`. You may only use `updateComponents` to populate the components of a freshly created surface.
 -----CONTROLLING_THE_UI_END-----
 
 -------------------------------------
