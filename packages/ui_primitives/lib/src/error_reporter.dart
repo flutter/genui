@@ -7,8 +7,7 @@ class FrameworkErrorReporter {
   static FrameworkErrorReporter instance = FrameworkErrorReporter();
 
   /// Creates a the framework specific error with the given message.
-  Error createError(String message, {FrameworkErrorDetails? details}) =>
-      _FrameworkError(message: message, details: details);
+  Error createError(String message) => _FrameworkError(message: message);
 
   /// Reports [FrameworkErrorDetails] according to the framework settings.
   ///
