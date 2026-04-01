@@ -287,10 +287,7 @@ To create a new UI:
 1. Output a ${ProtocolMessages.createSurface.tickedName} message with a unique `surfaceId` and `catalogId` (use the catalog ID provided in system instructions).
 2. Output an ${ProtocolMessages.updateComponents.tickedName} message with the `surfaceId` and the component definitions.
 ''',
-    if (!update)
-      '''
-IMPORTANT: DO NOT update or modify surfaces created in previous turns. If the UI needs to change, you MUST create a NEW surface with a new unique `surfaceId`. You may only use `${ProtocolMessages.updateComponents.name}` to populate the components of a freshly created surface.
-''',
+IMPORTANT: DO NOT update or modify surfaces created in previous turns. If the UI needs to change, you MUST create a NEW surface with a new unique `surfaceId`. You may only use ${ProtocolMessages.updateComponents.tickedName} to populate the components of a freshly created surface.
     if (update)
       '''
 To update an existing UI:
