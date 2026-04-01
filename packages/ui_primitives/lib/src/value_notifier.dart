@@ -6,8 +6,6 @@
 /// @docImport 'package:flutter/widgets.dart';
 library;
 
-import 'package:meta/meta.dart';
-
 import 'change_notifier.dart';
 import 'error_reporter.dart';
 import 'interfaces.dart';
