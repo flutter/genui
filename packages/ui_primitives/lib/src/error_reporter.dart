@@ -7,25 +7,24 @@ class FrameworkErrorReporter {
   static FrameworkErrorReporter instance = FrameworkErrorReporter();
 
   /// Creates a the framework specific error with the given message.
-  Error createError(String message) => _FrameworkError(message: message);
+  Error createError(String message) =>
+      _FrameworkError(FrameworkErrorDetails(exception: message));
 
   /// Reports [FrameworkErrorDetails] according to the framework settings.
   ///
   /// Depending on settings, it may throw an exception, log an error,
   /// or debug-stop the execution.
-  void report(FrameworkErrorDetails details) =>
-      throw _FrameworkError(details: details);
+  void report(FrameworkErrorDetails details) => throw _FrameworkError(details);
 }
 
 final class _FrameworkError extends Error {
-  _FrameworkError({this.message, this.details});
+  _FrameworkError(this.details);
 
-  final FrameworkErrorDetails? details;
-  final String? message;
+  final FrameworkErrorDetails details;
 
   @override
   String toString() {
-    return [message, details].where((e) => e != null).join('\n');
+    return details.toString();
   }
 }
 
