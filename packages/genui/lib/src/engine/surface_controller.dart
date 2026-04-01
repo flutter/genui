@@ -234,6 +234,9 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
         final DataModel model = _store.getDataModel(surfaceId);
         model.update(path, value);
 
+        // Note: We don't trigger a surface update here to avoid full UI refreshes
+        // on data changes. Components should listen to the DataModel directly.
+
       case DeleteSurface(:final surfaceId):
         _pendingUpdates.remove(surfaceId);
         _pendingUpdateTimers.remove(surfaceId)?.cancel();
