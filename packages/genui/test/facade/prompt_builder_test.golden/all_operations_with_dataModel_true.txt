@@ -101,9 +101,9 @@ Supported messages are: `createSurface`, `updateComponents`, `deleteSurface`, `u
 Properties:
 
 - `createSurface`: Requires `surfaceId` (you must always use a unique ID for each created surface),
-`catalogId` (use the catalog ID provided in system instructions), 
+`catalogId` (use the catalog ID provided in system instructions),
 and `sendDataModel: true`.
-- `updateComponents`: Requires `surfaceId` and a list of `components`. 
+- `updateComponents`: Requires `surfaceId` and a list of `components`.
 One component MUST have `id: "root"`.
 - `deleteSurface`: Requires `surfaceId`.
 - `updateDataModel`: Requires `surfaceId`, `path` and `value`.

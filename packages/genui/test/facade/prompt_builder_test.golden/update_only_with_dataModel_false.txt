@@ -97,7 +97,7 @@ Supported messages are: `updateComponents`.
 
 Properties:
 
-- `updateComponents`: Requires `surfaceId` and a list of `components`. 
+- `updateComponents`: Requires `surfaceId` and a list of `components`.
 One component MUST have `id: "root"`.
 
 To update an existing UI:

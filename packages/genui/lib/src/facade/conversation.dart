@@ -57,7 +57,8 @@ final class ConversationContentReceived extends ConversationEvent {
   final String text;
 }
 
-/// Fired when the conversation is waiting for a response.
+/// Fired when a request is sent to the LLM and the conversation is waiting
+/// for an AI response.
 final class ConversationWaiting extends ConversationEvent {}
 
 /// Fired when an error occurs during the conversation.

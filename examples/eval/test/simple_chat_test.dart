@@ -90,22 +90,48 @@ class _ChatSessionTester {
     var content = 0;
     var waiting = 0;
     final errors = <String>[];
+
+    var currentTurnCreates = 0;
+    var currentTurnUpdates = 0;
+    var turnCount = 0;
+
+    void verifyTurn() {
+      if (turnCount > 0) {
+        reporter.expect(
+          currentTurnCreates <= 1,
+          'Turn $turnCount should create at most 1 surface',
+        );
+        reporter.expect(
+          currentTurnUpdates == currentTurnCreates,
+          'Turn $turnCount should have matching creates ($currentTurnCreates) '
+          'and updates ($currentTurnUpdates)',
+        );
+      }
+    }
+
     for (final ConversationEvent event in events) {
       switch (event) {
         case ConversationSurfaceAdded():
           created.add(event.surfaceId);
+          currentTurnCreates++;
         case ConversationComponentsUpdated():
           updated.add(event.surfaceId);
+          currentTurnUpdates++;
         case ConversationSurfaceRemoved():
           removed.add(event.surfaceId);
         case ConversationContentReceived():
           content++;
         case ConversationWaiting():
+          verifyTurn();
+          turnCount++;
           waiting++;
+          currentTurnCreates = 0;
+          currentTurnUpdates = 0;
         case ConversationError():
           errors.add(event.error.toString());
       }
     }
+    verifyTurn();
 
     print('Conversation summary:');
     print('  Created surfaces: $created');
@@ -120,6 +146,13 @@ class _ChatSessionTester {
       updated.length == created.length,
       'In chat setup surfaces should not be updated after initial creation',
     );
+    for (final id in created) {
+      final int updateCount = updated.where((u) => u == id).length;
+      reporter.expect(
+        updateCount == 1,
+        'Surface $id should be updated exactly once',
+      );
+    }
   }
 
   void failIfIssuesFound() => reporter.failIfIssuesFound();
