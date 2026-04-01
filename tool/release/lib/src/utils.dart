@@ -6,7 +6,11 @@ import 'package:file/file.dart';
 import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
 
-const excludedPackages = ['json_schema_builder', 'genai_primitives'];
+const excludedPackages = [
+  'json_schema_builder',
+  'ui_primitives',
+  'genai_primitives',
+];
 
 Future<List<Directory>> findPackages(
   Directory repoRoot,

@@ -1,5 +1,7 @@
 # `genui_a2a` Changelog
 
+## 0.8.1 (in progress)
+
 ## 0.8.0
 
 - **Fix**: Filter whitespace-only AI text responses (#759).
