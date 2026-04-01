@@ -147,6 +147,10 @@ mixin class ChangeNotifier implements Listenable {
   @protected
   static void maybeDispatchObjectCreation(ChangeNotifier object) {
     assert(() {
+      if (object._debugCreationDispatched) {
+        return true;
+      }
+      object._debugCreationDispatched = true;
       if (kTrackMemoryLeaks) {
         debugMaybeDispatchCreated(object.runtimeType.toString(), object);
       }
