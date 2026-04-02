@@ -12,6 +12,7 @@ on:
 
 jobs:
   eval-job:
+    if: github.repository == 'flutter/genui'
     runs-on: ubuntu-latest
     environment: eval
     steps:
