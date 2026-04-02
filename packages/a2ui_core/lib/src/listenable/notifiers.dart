@@ -19,8 +19,8 @@ abstract class GenUiListenable {
   /// they can be used in const expressions.
   const GenUiListenable();
 
-  /// Return a [GenUiListenable] that triggers when any of the given [GenUiListenable]s
-  /// themselves trigger.
+  /// Return a [GenUiListenable] that triggers when any of the given
+  /// [GenUiListenable]s themselves trigger.
   ///
   /// Once the factory is called, items must not be added
   /// or removed from the iterable.

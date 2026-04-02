@@ -27,7 +27,7 @@ class A {
 }
 
 class B extends A with ChangeNotifier {
-  B() {}
+  B();
 
   @override
   void test() {
@@ -37,7 +37,7 @@ class B extends A with ChangeNotifier {
 }
 
 class Counter with ChangeNotifier {
-  Counter() {}
+  Counter();
 
   int get value => _value;
   int _value = 0;
@@ -232,29 +232,27 @@ void main() {
     expect(log, <String>['listener1', 'selfRemovingListener', 'listener1']);
   });
 
-  test(
-    'If the first listener removes itself, notifyListeners still notify all listeners',
-    () {
-      final source = TestNotifier();
-      final log = <String>[];
+  test('If the first listener removes itself, notifyListeners still notify all'
+      ' listeners', () {
+    final source = TestNotifier();
+    final log = <String>[];
 
-      void selfRemovingListener() {
-        log.add('selfRemovingListener');
-        source.removeListener(selfRemovingListener);
-      }
+    void selfRemovingListener() {
+      log.add('selfRemovingListener');
+      source.removeListener(selfRemovingListener);
+    }
 
-      void listener1() {
-        log.add('listener1');
-      }
+    void listener1() {
+      log.add('listener1');
+    }
 
-      source.addListener(selfRemovingListener);
-      source.addListener(listener1);
+    source.addListener(selfRemovingListener);
+    source.addListener(listener1);
 
-      source.notifyListeners();
+    source.notifyListeners();
 
-      expect(log, <String>['selfRemovingListener', 'listener1']);
-    },
-  );
+    expect(log, <String>['selfRemovingListener', 'listener1']);
+  });
 
   test('Merging change notifiers', () {
     final source1 = TestNotifier();
@@ -418,7 +416,8 @@ void main() {
     ]);
     expect(
       listenableUnderTest.toString(),
-      "Listenable.merge([Instance of 'TestNotifier', Instance of 'TestNotifier'])",
+      "Listenable.merge([Instance of 'TestNotifier',"
+      " Instance of 'TestNotifier'])",
     );
 
     listenableUnderTest = GenUiListenable.merge(<GenUiListenable?>[
@@ -593,7 +592,8 @@ void main() {
     expect(log, expectedLog);
 
     log.clear();
-    // We expect to have the same result after the removal of previous listeners.
+    // We expect to have the same result after the removal of previous
+    // listeners.
     test.notify();
     expect(log, expectedLog);
 
