@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-class ListenablesErrorReporting {
+class ListenableErrorReporting {
   /// Creates an error with the given message.
   static Error createError(String message, {ListenableErrorDetails? details}) =>
-      _ListenableError(message: message, details: details);
+      ListenableError(message: message, details: details);
 
   /// Reports an error.
   ///
@@ -15,11 +15,11 @@ class ListenablesErrorReporting {
   /// In current implementation it just throws an error,
   /// but it may be reconsidered in future.
   static void report(ListenableErrorDetails details) =>
-      throw _ListenableError(details: details);
+      throw ListenableError(details: details);
 }
 
-final class _ListenableError extends Error {
-  _ListenableError({this.message, this.details});
+final class ListenableError extends Error {
+  ListenableError({this.message, this.details});
 
   final ListenableErrorDetails? details;
   final String? message;

@@ -77,7 +77,7 @@ void main() {
     var count = 0;
     notifier.addListener(() => count++);
 
-    expect(notifier, isA<Listenable>());
+    expect(notifier, isA<GenUiListenable>());
     expect(count, 0);
 
     // ignore: invalid_use_of_protected_member

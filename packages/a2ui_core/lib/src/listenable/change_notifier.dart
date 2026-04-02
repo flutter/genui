@@ -18,19 +18,19 @@ import 'primitives.dart';
 ///
 /// There are two variants of this interface:
 ///
-///  * [ValueListenable], an interface that augments the [Listenable] interface
+///  * [GenUiValueListenable], an interface that augments the [GenUiListenable] interface
 ///    with the concept of a _current value_.
 ///
-///  * [Animation], an interface that augments the [ValueListenable] interface
+///  * [Animation], an interface that augments the [GenUiValueListenable] interface
 ///    to add the concept of direction (forward or reverse).
 ///
 /// Many classes in the Flutter API use or implement these interfaces. The
 /// following subclasses are especially relevant:
 ///
 ///  * [ChangeNotifier], which can be subclassed or mixed in to create objects
-///    that implement the [Listenable] interface.
+///    that implement the [GenUiListenable] interface.
 ///
-///  * [ValueNotifier], which implements the [ValueListenable] interface with
+///  * [ValueNotifier], which implements the [GenUiValueListenable] interface with
 ///    a mutable value that triggers the notifications when modified.
 ///
 /// The terms "notify clients", "send notifications", "trigger notifications",
@@ -39,26 +39,26 @@ import 'primitives.dart';
 /// See also:
 ///
 ///  * [AnimatedBuilder], a widget that uses a builder callback to rebuild
-///    whenever a given [Listenable] triggers its notifications. This widget is
+///    whenever a given [GenUiListenable] triggers its notifications. This widget is
 ///    commonly used with [Animation] subclasses, hence its name, but is by no
-///    means limited to animations, as it can be used with any [Listenable]. It
+///    means limited to animations, as it can be used with any [GenUiListenable]. It
 ///    is a subclass of [AnimatedWidget], which can be used to create widgets
-///    that are driven from a [Listenable].
+///    that are driven from a [GenUiListenable].
 ///  * [ValueListenableBuilder], a widget that uses a builder callback to
-///    rebuild whenever a [ValueListenable] object triggers its notifications,
+///    rebuild whenever a [GenUiValueListenable] object triggers its notifications,
 ///    providing the builder with the value of the object.
 ///  * [InheritedNotifier], an abstract superclass for widgets that use a
-///    [Listenable]'s notifications to trigger rebuilds in descendant widgets
+///    [GenUiListenable]'s notifications to trigger rebuilds in descendant widgets
 ///    that declare a dependency on them, using the [InheritedWidget] mechanism.
-///  * [Listenable.merge], which creates a [Listenable] that triggers
-///    notifications whenever any of a list of other [Listenable]s trigger their
+///  * [Listenable.merge], which creates a [GenUiListenable] that triggers
+///    notifications whenever any of a list of other [GenUiListenable]s trigger their
 ///    notifications.
-abstract class Listenable {
+abstract class GenUiListenable {
   /// This constructor enables subclasses to provide const constructors so that
   /// they can be used in const expressions.
-  const Listenable();
+  const GenUiListenable();
 
-  /// Return a [Listenable] that triggers when any of the given [Listenable]s
+  /// Return a [GenUiListenable] that triggers when any of the given [GenUiListenable]s
   /// themselves trigger.
   ///
   /// Once the factory is called, items must not be added
@@ -66,7 +66,7 @@ abstract class Listenable {
   /// Doing so will lead to memory leaks or exceptions.
   ///
   /// The iterable may contain nulls; they are ignored.
-  factory Listenable.merge(Iterable<Listenable?> listenables) =
+  factory GenUiListenable.merge(Iterable<GenUiListenable?> listenables) =
       _MergingListenable;
 
   /// Register a closure to be called when the object notifies its listeners.
@@ -77,7 +77,7 @@ abstract class Listenable {
   void removeListener(VoidCallback listener);
 }
 
-/// An interface for subclasses of [Listenable] that expose a [value].
+/// An interface for subclasses of [GenUiListenable] that expose a [value].
 ///
 /// This interface is implemented by [ValueNotifier<T>] and [Animation<T>], and
 /// allows other APIs to accept either of those implementations interchangeably.
@@ -85,12 +85,12 @@ abstract class Listenable {
 /// See also:
 ///
 ///  * [ValueListenableBuilder], a widget that uses a builder callback to
-///    rebuild whenever a [ValueListenable] object triggers its notifications,
+///    rebuild whenever a [GenUiValueListenable] object triggers its notifications,
 ///    providing the builder with the value of the object.
-abstract class ValueListenable<T> extends Listenable {
+abstract class GenUiValueListenable<T> extends GenUiListenable {
   /// This constructor enables subclasses to provide const constructors so that
   /// they can be used in const expressions.
-  const ValueListenable();
+  const GenUiValueListenable();
 
   /// The current value of the object.
   ///
@@ -108,8 +108,8 @@ abstract class ValueListenable<T> extends Listenable {
 /// ## Using ChangeNotifier subclasses for data models
 ///
 /// A data structure can extend or mix in [ChangeNotifier] to implement the
-/// [Listenable] interface and thus become usable with widgets that listen for
-/// changes to [Listenable]s, such as [ListenableBuilder].
+/// [GenUiListenable] interface and thus become usable with widgets that listen for
+/// changes to [GenUiListenable]s, such as [ListenableBuilder].
 ///
 /// {@tool dartpad}
 /// The following example implements a simple counter that utilizes a
@@ -132,7 +132,7 @@ abstract class ValueListenable<T> extends Listenable {
 /// See also:
 ///
 ///  * [ValueNotifier], which is a [ChangeNotifier] that wraps a single value.
-mixin class ChangeNotifier implements Listenable {
+mixin class ChangeNotifier implements GenUiListenable {
   int _count = 0;
   // The _listeners is intentionally set to a fixed-length _GrowableList instead
   // of const [].
@@ -173,7 +173,7 @@ mixin class ChangeNotifier implements Listenable {
   static bool debugAssertNotDisposed(ChangeNotifier notifier) {
     assert(() {
       if (notifier._debugDisposed) {
-        throw ListenablesErrorReporting.createError(
+        throw ListenableErrorReporting.createError(
           'A ${notifier.runtimeType} was used after being disposed.\n'
           'Once you have called dispose() on a ${notifier.runtimeType}, it '
           'can no longer be used.',
@@ -394,7 +394,7 @@ mixin class ChangeNotifier implements Listenable {
       try {
         _listeners[i]?.call();
       } catch (exception, stack) {
-        ListenablesErrorReporting.report(
+        ListenableErrorReporting.report(
           ListenableErrorDetails(
             exception: exception,
             stack: stack,
@@ -444,21 +444,21 @@ mixin class ChangeNotifier implements Listenable {
   }
 }
 
-class _MergingListenable extends Listenable {
+class _MergingListenable extends GenUiListenable {
   _MergingListenable(this._children);
 
-  final Iterable<Listenable?> _children;
+  final Iterable<GenUiListenable?> _children;
 
   @override
   void addListener(VoidCallback listener) {
-    for (final Listenable? child in _children) {
+    for (final GenUiListenable? child in _children) {
       child?.addListener(listener);
     }
   }
 
   @override
   void removeListener(VoidCallback listener) {
-    for (final Listenable? child in _children) {
+    for (final GenUiListenable? child in _children) {
       child?.removeListener(listener);
     }
   }
@@ -491,7 +491,8 @@ class _MergingListenable extends Listenable {
 ///
 /// For mutable data types, consider extending [ChangeNotifier] directly and
 /// calling [notifyListeners] manually when changes occur.
-class ValueNotifier<T> extends ChangeNotifier implements ValueListenable<T> {
+class ValueNotifier<T> extends ChangeNotifier
+    implements GenUiValueListenable<T> {
   /// Creates a [ChangeNotifier] that wraps this value.
   ValueNotifier(this._value);
 

@@ -2,9 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-export 'src/listenables/change_notifier.dart'
-    show ChangeNotifier, ValueNotifier;
-export 'src/listenables/error_reporting.dart'
-    show ListenableErrorDetails, ListenablesErrorReporting;
-export 'src/listenables/listenable.dart' show Listenable, ValueListenable;
-export 'src/listenables/primitives.dart' show VoidCallback;
+export 'src/listenable/change_notifier.dart'
+    show ChangeNotifier, GenUiListenable, GenUiValueListenable, ValueNotifier;
+export 'src/listenable/error_reporting.dart'
+    show ListenableError, ListenableErrorDetails;
+export 'src/listenable/primitives.dart' show VoidCallback;
