@@ -1,4 +1,4 @@
-// Copyright 2025 The Flutter Authors.
+// Copyright 2014 The Flutter Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -9,14 +9,99 @@ library;
 import 'package:meta/meta.dart';
 
 import 'error_reporting.dart';
-import 'listenable.dart';
 import 'primitives.dart';
+
+/// An object that maintains a list of listeners.
+///
+/// The listeners are typically used to notify clients that the object has been
+/// updated.
+///
+/// There are two variants of this interface:
+///
+///  * [ValueListenable], an interface that augments the [Listenable] interface
+///    with the concept of a _current value_.
+///
+///  * [Animation], an interface that augments the [ValueListenable] interface
+///    to add the concept of direction (forward or reverse).
+///
+/// Many classes in the Flutter API use or implement these interfaces. The
+/// following subclasses are especially relevant:
+///
+///  * [ChangeNotifier], which can be subclassed or mixed in to create objects
+///    that implement the [Listenable] interface.
+///
+///  * [ValueNotifier], which implements the [ValueListenable] interface with
+///    a mutable value that triggers the notifications when modified.
+///
+/// The terms "notify clients", "send notifications", "trigger notifications",
+/// and "fire notifications" are used interchangeably.
+///
+/// See also:
+///
+///  * [AnimatedBuilder], a widget that uses a builder callback to rebuild
+///    whenever a given [Listenable] triggers its notifications. This widget is
+///    commonly used with [Animation] subclasses, hence its name, but is by no
+///    means limited to animations, as it can be used with any [Listenable]. It
+///    is a subclass of [AnimatedWidget], which can be used to create widgets
+///    that are driven from a [Listenable].
+///  * [ValueListenableBuilder], a widget that uses a builder callback to
+///    rebuild whenever a [ValueListenable] object triggers its notifications,
+///    providing the builder with the value of the object.
+///  * [InheritedNotifier], an abstract superclass for widgets that use a
+///    [Listenable]'s notifications to trigger rebuilds in descendant widgets
+///    that declare a dependency on them, using the [InheritedWidget] mechanism.
+///  * [Listenable.merge], which creates a [Listenable] that triggers
+///    notifications whenever any of a list of other [Listenable]s trigger their
+///    notifications.
+abstract class Listenable {
+  /// This constructor enables subclasses to provide const constructors so that
+  /// they can be used in const expressions.
+  const Listenable();
+
+  /// Return a [Listenable] that triggers when any of the given [Listenable]s
+  /// themselves trigger.
+  ///
+  /// Once the factory is called, items must not be added or removed from the iterable.
+  /// Doing so will lead to memory leaks or exceptions.
+  ///
+  /// The iterable may contain nulls; they are ignored.
+  factory Listenable.merge(Iterable<Listenable?> listenables) =
+      _MergingListenable;
+
+  /// Register a closure to be called when the object notifies its listeners.
+  void addListener(VoidCallback listener);
+
+  /// Remove a previously registered closure from the list of closures that the
+  /// object notifies.
+  void removeListener(VoidCallback listener);
+}
+
+/// An interface for subclasses of [Listenable] that expose a [value].
+///
+/// This interface is implemented by [ValueNotifier<T>] and [Animation<T>], and
+/// allows other APIs to accept either of those implementations interchangeably.
+///
+/// See also:
+///
+///  * [ValueListenableBuilder], a widget that uses a builder callback to
+///    rebuild whenever a [ValueListenable] object triggers its notifications,
+///    providing the builder with the value of the object.
+abstract class ValueListenable<T> extends Listenable {
+  /// This constructor enables subclasses to provide const constructors so that
+  /// they can be used in const expressions.
+  const ValueListenable();
+
+  /// The current value of the object.
+  ///
+  /// When the value changes, the callbacks registered with [addListener] will be
+  /// invoked.
+  T get value;
+}
 
 /// A class that can be extended or mixed in that provides a change notification
 /// API using [VoidCallback] for notifications.
 ///
-/// It is O(1) for adding listeners and O(N) for removing listeners and
-/// dispatching
+/// It is O(1) for adding listeners and O(N) for removing listeners and dispatching
 /// notifications (where N is the number of listeners).
 ///
 /// ## Using ChangeNotifier subclasses for data models
@@ -28,30 +113,25 @@ import 'primitives.dart';
 /// {@tool dartpad}
 /// The following example implements a simple counter that utilizes a
 /// [ListenableBuilder] to limit rebuilds to only the [Text] widget containing
-/// the count. The current count is stored in a [ChangeNotifier] subclass,
-/// which
+/// the count. The current count is stored in a [ChangeNotifier] subclass, which
 /// rebuilds the [ListenableBuilder]'s contents when its value is changed.
 ///
-/// ** See code in
-/// examples/api/lib/widgets/transitions/listenable_builder.2.dart **
+/// ** See code in examples/api/lib/widgets/transitions/listenable_builder.2.dart **
 /// {@end-tool}
 ///
 /// {@tool dartpad}
-/// In this case, the [ChangeNotifier] subclass encapsulates a list, and
-/// notifies
-/// the clients any time an item is added to the list. This example only
-/// supports
+/// In this case, the [ChangeNotifier] subclass encapsulates a list, and notifies
+/// the clients any time an item is added to the list. This example only supports
 /// adding items; as an exercise, consider adding buttons to remove items from
 /// the list as well.
 ///
-/// ** See code in
-/// examples/api/lib/widgets/transitions/listenable_builder.3.dart **
+/// ** See code in examples/api/lib/widgets/transitions/listenable_builder.3.dart **
 /// {@end-tool}
 ///
 /// See also:
 ///
 ///  * [ValueNotifier], which is a [ChangeNotifier] that wraps a single value.
-class ChangeNotifier implements Listenable {
+mixin class ChangeNotifier implements Listenable {
   int _count = 0;
   // The _listeners is intentionally set to a fixed-length _GrowableList instead
   // of const [].
@@ -69,6 +149,13 @@ class ChangeNotifier implements Listenable {
   int _notificationCallStackDepth = 0;
   int _reentrantlyRemovedListeners = 0;
   bool _debugDisposed = false;
+
+  /// If true, the event [ObjectCreated] for this instance was dispatched to
+  /// [FlutterMemoryAllocations].
+  ///
+  /// As [ChangeNotifier] is used as mixin, it does not have constructor,
+  /// so we use [addListener] to dispatch the event.
+  bool _debugCreationDispatched = false;
 
   /// Used by subclasses to assert that the [ChangeNotifier] has not yet been
   /// disposed.
@@ -219,8 +306,7 @@ class ChangeNotifier implements Listenable {
   void removeListener(VoidCallback listener) {
     // This method is allowed to be called on disposed instances for usability
     // reasons. Due to how our frame scheduling logic between render objects and
-    // overlays, it is common that the owner of this instance would be disposed
-    // a
+    // overlays, it is common that the owner of this instance would be disposed a
     // frame earlier than the listeners. Allowing calls to this method after it
     // is disposed makes it easier for listeners to properly clean up.
     for (var i = 0; i < _count; i++) {
@@ -246,8 +332,7 @@ class ChangeNotifier implements Listenable {
   /// Discards any resources used by the object.
   ///
   /// After this is called, the object is not in a usable state and should be
-  /// discarded (calls to [addListener] will throw after the object is
-  /// disposed).
+  /// discarded (calls to [addListener] will throw after the object is disposed).
   ///
   /// This method should only be called by the object's owner.
   ///
@@ -279,7 +364,7 @@ class ChangeNotifier implements Listenable {
   /// not be visited after they are removed.
   ///
   /// Exceptions thrown by listeners will be caught and reported using
-  /// [ListenablesErrorReporting.instance].
+  /// [FlutterError.reportError].
   ///
   /// This method must not be called after [dispose] has been called.
   ///
@@ -302,8 +387,7 @@ class ChangeNotifier implements Listenable {
 
     // To allow potential listeners to recursively call notifyListener, we track
     // the number of times this method is called in _notificationCallStackDepth.
-    // Once every recursive iteration is finished (i.e. when
-    // _notificationCallStackDepth == 0),
+    // Once every recursive iteration is finished (i.e. when _notificationCallStackDepth == 0),
     // we can safely shrink our list so that it will only contain not null
     // listeners.
 
@@ -318,7 +402,7 @@ class ChangeNotifier implements Listenable {
           ListenableErrorDetails(
             exception: exception,
             stack: stack,
-            dispatchingObject: runtimeType,
+            dispatchingObject: this,
           ),
         );
       }
@@ -362,4 +446,75 @@ class ChangeNotifier implements Listenable {
       _count = newLength;
     }
   }
+}
+
+class _MergingListenable extends Listenable {
+  _MergingListenable(this._children);
+
+  final Iterable<Listenable?> _children;
+
+  @override
+  void addListener(VoidCallback listener) {
+    for (final Listenable? child in _children) {
+      child?.addListener(listener);
+    }
+  }
+
+  @override
+  void removeListener(VoidCallback listener) {
+    for (final Listenable? child in _children) {
+      child?.removeListener(listener);
+    }
+  }
+
+  @override
+  String toString() {
+    return 'Listenable.merge([${_children.join(", ")}])';
+  }
+}
+
+/// A [ChangeNotifier] that holds a single value.
+///
+/// When [value] is replaced with a new value that is **not equal** to the old
+/// value as evaluated by the equality operator (`==`), this class notifies its
+/// listeners.
+///
+/// ## Limitations
+///
+/// Notifications are triggered based on **equality (`==`)**, not on mutations
+/// within the value itself. As a result, changes to mutable objects that do not
+/// affect their equality will not cause listeners to be notified.
+///
+/// For example, a `ValueNotifier<List<int>>` will not notify listeners when
+/// the contents of the existing list are modified in-place; it only notifies
+/// when a new value is assigned to the `value` property (i.e. `value = newValue`),
+/// where equality is determined by `==`.
+///
+/// Because of this behavior, [ValueNotifier] is best used with immutable data
+/// types.
+///
+/// For mutable data types, consider extending [ChangeNotifier] directly and
+/// calling [notifyListeners] manually when changes occur.
+class ValueNotifier<T> extends ChangeNotifier implements ValueListenable<T> {
+  /// Creates a [ChangeNotifier] that wraps this value.
+  ValueNotifier(this._value);
+
+  /// The current value stored in this notifier.
+  ///
+  /// When the value is replaced with something that is not equal to the old
+  /// value as evaluated by the equality operator ==, this class notifies its
+  /// listeners.
+  @override
+  T get value => _value;
+  T _value;
+  set value(T newValue) {
+    if (_value == newValue) {
+      return;
+    }
+    _value = newValue;
+    notifyListeners();
+  }
+
+  @override
+  String toString() => '${describeIdentity(this)}($value)';
 }
