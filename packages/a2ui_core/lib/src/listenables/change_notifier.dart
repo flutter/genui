@@ -8,10 +8,9 @@ library;
 
 import 'package:meta/meta.dart';
 
-import 'error_reporter.dart';
+import 'error_reporting.dart';
 import 'listenable.dart';
 import 'primitives.dart';
-import 'private_leak_tracking.dart';
 
 /// A class that can be extended or mixed in that provides a change notification
 /// API using [VoidCallback] for notifications.
@@ -22,14 +21,14 @@ import 'private_leak_tracking.dart';
 ///
 /// ## Using ChangeNotifier subclasses for data models
 ///
-/// A data structure can extend or mix in [_ChangeNotifier] to implement the
+/// A data structure can extend or mix in [ChangeNotifier] to implement the
 /// [Listenable] interface and thus become usable with widgets that listen for
 /// changes to [Listenable]s, such as [ListenableBuilder].
 ///
 /// {@tool dartpad}
 /// The following example implements a simple counter that utilizes a
 /// [ListenableBuilder] to limit rebuilds to only the [Text] widget containing
-/// the count. The current count is stored in a [_ChangeNotifier] subclass,
+/// the count. The current count is stored in a [ChangeNotifier] subclass,
 /// which
 /// rebuilds the [ListenableBuilder]'s contents when its value is changed.
 ///
@@ -38,7 +37,7 @@ import 'private_leak_tracking.dart';
 /// {@end-tool}
 ///
 /// {@tool dartpad}
-/// In this case, the [_ChangeNotifier] subclass encapsulates a list, and
+/// In this case, the [ChangeNotifier] subclass encapsulates a list, and
 /// notifies
 /// the clients any time an item is added to the list. This example only
 /// supports
@@ -51,8 +50,8 @@ import 'private_leak_tracking.dart';
 ///
 /// See also:
 ///
-///  * [ValueNotifier], which is a [_ChangeNotifier] that wraps a single value.
-class _ChangeNotifier implements Listenable {
+///  * [ValueNotifier], which is a [ChangeNotifier] that wraps a single value.
+class ChangeNotifier implements Listenable {
   int _count = 0;
   // The _listeners is intentionally set to a fixed-length _GrowableList instead
   // of const [].
@@ -71,7 +70,7 @@ class _ChangeNotifier implements Listenable {
   int _reentrantlyRemovedListeners = 0;
   bool _debugDisposed = false;
 
-  /// Used by subclasses to assert that the [_ChangeNotifier] has not yet been
+  /// Used by subclasses to assert that the [ChangeNotifier] has not yet been
   /// disposed.
   ///
   /// {@tool snippet}
@@ -90,10 +89,10 @@ class _ChangeNotifier implements Listenable {
   // This is static and not an instance method because too many people try to
   // implement ChangeNotifier instead of extending it (and so it is too breaking
   // to add a method, especially for debug).
-  static bool debugAssertNotDisposed(_ChangeNotifier notifier) {
+  static bool debugAssertNotDisposed(ChangeNotifier notifier) {
     assert(() {
       if (notifier._debugDisposed) {
-        throw FrameworkErrorReporter.instance.createError(
+        throw ListenablesErrorReporting.createError(
           'A ${notifier.runtimeType} was used after being disposed.\n'
           'Once you have called dispose() on a ${notifier.runtimeType}, it '
           'can no longer be used.',
@@ -137,7 +136,7 @@ class _ChangeNotifier implements Listenable {
   /// (e.g. in response to a notification), it will still be called again. If,
   /// on the other hand, it is removed as many times as it was registered, then
   /// it will no longer be called. This odd behavior is the result of the
-  /// [_ChangeNotifier] not being able to determine which listener is being
+  /// [ChangeNotifier] not being able to determine which listener is being
   /// removed, since they are identical, therefore it will conservatively still
   /// call all the listeners when it knows that any are still registered.
   ///
@@ -152,7 +151,7 @@ class _ChangeNotifier implements Listenable {
   ///    the list of closures that are notified when the object changes.
   @override
   void addListener(VoidCallback listener) {
-    assert(_ChangeNotifier.debugAssertNotDisposed(this));
+    assert(ChangeNotifier.debugAssertNotDisposed(this));
 
     if (_count == _listeners.length) {
       if (_count == 0) {
@@ -257,7 +256,7 @@ class _ChangeNotifier implements Listenable {
   /// listeners or not immediately before disposal.
   @mustCallSuper
   void dispose() {
-    assert(_ChangeNotifier.debugAssertNotDisposed(this));
+    assert(ChangeNotifier.debugAssertNotDisposed(this));
     assert(
       _notificationCallStackDepth == 0,
       'The "dispose()" method on $this was called during the call to '
@@ -280,7 +279,7 @@ class _ChangeNotifier implements Listenable {
   /// not be visited after they are removed.
   ///
   /// Exceptions thrown by listeners will be caught and reported using
-  /// [FrameworkErrorReporter.instance].
+  /// [ListenablesErrorReporting.instance].
   ///
   /// This method must not be called after [dispose] has been called.
   ///
@@ -291,7 +290,7 @@ class _ChangeNotifier implements Listenable {
   @visibleForTesting
   @pragma('vm:notify-debugger-on-exception')
   void notifyListeners() {
-    assert(_ChangeNotifier.debugAssertNotDisposed(this));
+    assert(ChangeNotifier.debugAssertNotDisposed(this));
     if (_count == 0) {
       return;
     }
@@ -315,8 +314,8 @@ class _ChangeNotifier implements Listenable {
       try {
         _listeners[i]?.call();
       } catch (exception, stack) {
-        FrameworkErrorReporter.instance.report(
-          FrameworkErrorDetails(
+        ListenablesErrorReporting.report(
+          ListenableErrorDetails(
             exception: exception,
             stack: stack,
             dispatchingObject: runtimeType,
@@ -363,97 +362,4 @@ class _ChangeNotifier implements Listenable {
       _count = newLength;
     }
   }
-}
-
-/// A [_ChangeNotifier] that holds a single value.
-///
-/// When [value] is replaced with a new value that is **not equal** to the old
-/// value as evaluated by the equality operator (`==`), this class notifies its
-/// listeners.
-///
-/// ## Limitations
-///
-/// Notifications are triggered based on **equality (`==`)**, not on mutations
-/// within the value itself. As a result, changes to mutable objects that do not
-/// affect their equality will not cause listeners to be notified.
-///
-/// For example, a `ValueNotifier<List<int>>` will not notify listeners when
-/// the contents of the existing list are modified in-place; it only notifies
-/// when a new value is assigned to the `value` property (i.e. `value =
-/// newValue`),
-/// where equality is determined by `==`.
-///
-/// Because of this behavior, [ValueNotifier] is best used with immutable data
-/// types.
-class ValueNotifier<T> implements ValueListenable<T>, Listenable {
-  final _ChangeNotifier _changeNotifier = _ChangeNotifier();
-
-  /// Creates a [_ChangeNotifier] that wraps this value.
-  ValueNotifier(this._value) {
-    assert(() {
-      if (kTrackMemoryLeaks) {
-        debugMaybeDispatchCreated(runtimeType.toString(), this);
-      }
-      return true;
-    }());
-  }
-
-  bool _debugDisposed = false;
-
-  static bool debugAssertNotDisposed<T>(ValueNotifier<T> notifier) {
-    assert(() {
-      if (notifier._debugDisposed) {
-        throw FrameworkErrorReporter.instance.createError(
-          'A ${notifier.runtimeType} was used after being disposed.\n'
-          'Once you have called dispose() on a ${notifier.runtimeType}, it '
-          'can no longer be used.',
-        );
-      }
-      return true;
-    }());
-    return true;
-  }
-
-  /// The current value stored in this notifier.
-  ///
-  /// When the value is replaced with something that is not equal to the old
-  /// value as evaluated by the equality operator ==, this class notifies its
-  /// listeners.
-  @override
-  T get value => _value;
-  T _value;
-  set value(T newValue) {
-    if (_value == newValue) {
-      return;
-    }
-    _value = newValue;
-    _changeNotifier.notifyListeners();
-  }
-
-  @override
-  String toString() => '${describeIdentity(this)}($value)';
-
-  void dispose() {
-    assert(() {
-      _debugDisposed = true;
-      if (kTrackMemoryLeaks) debugMaybeDispatchDisposed(this);
-      return true;
-    }());
-
-    _changeNotifier.dispose();
-  }
-
-  @override
-  void addListener(VoidCallback listener) =>
-      _changeNotifier.addListener(listener);
-
-  @override
-  void removeListener(VoidCallback listener) =>
-      _changeNotifier.removeListener(listener);
-
-  @protected
-  bool get hasListeners => _changeNotifier.hasListeners;
-
-  @protected
-  void notifyListeners() => _changeNotifier.notifyListeners();
 }
