@@ -360,12 +360,8 @@ void main() {
     expect(() {
       source.addListener(() {});
     }, throwsA(isA<ListenableError>()));
-    expect(() {
-      source.dispose();
-    }, throwsA(isA<ListenableError>()));
-    expect(() {
-      source.notify();
-    }, throwsA(isA<ListenableError>()));
+    expect(source.dispose, throwsA(isA<ListenableError>()));
+    expect(source.notify, throwsA(isA<ListenableError>()));
   });
 
   test('Can remove listener on a disposed ChangeNotifier', () {
