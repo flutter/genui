@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 
 name: a2ui_core
-description: Core package for (a2ui protocol)[https://a2ui.org/].
+description: Core package for A2UI protocol.
 repository: https://github.com/flutter/genui/tree/main/packages/a2uicore
 version: 0.0.1-dev001
 
