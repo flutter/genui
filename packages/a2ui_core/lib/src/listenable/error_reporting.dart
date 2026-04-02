@@ -4,8 +4,8 @@
 
 class ListenableErrorReporting {
   /// Creates an error with the given message.
-  static Error createError(String message, {ListenableErrorDetails? details}) =>
-      ListenableError(message: message, details: details);
+  static Error createError(String message) =>
+      ListenableError(ListenableErrorDetails(exception: message));
 
   /// Reports an error.
   ///
@@ -15,18 +15,17 @@ class ListenableErrorReporting {
   /// In current implementation it just throws an error,
   /// but it may be reconsidered in future.
   static void report(ListenableErrorDetails details) =>
-      throw ListenableError(details: details);
+      throw ListenableError(details);
 }
 
 final class ListenableError extends Error {
-  ListenableError({this.message, this.details});
+  ListenableError(this.details);
 
-  final ListenableErrorDetails? details;
-  final String? message;
+  final ListenableErrorDetails details;
 
   @override
   String toString() {
-    return [message, details].where((e) => e != null).join('\n');
+    return details.toString();
   }
 }
 

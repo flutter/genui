@@ -369,13 +369,13 @@ void main() {
     source.dispose();
     expect(() {
       source.addListener(() {});
-    }, throwsFlutterError);
+    }, throwsA(isA<ListenableError>()));
     expect(() {
       source.dispose();
-    }, throwsFlutterError);
+    }, throwsA(isA<ListenableError>()));
     expect(() {
       source.notify();
-    }, throwsFlutterError);
+    }, throwsA(isA<ListenableError>()));
   });
 
   test('Can remove listener on a disposed ChangeNotifier', () {
@@ -507,22 +507,21 @@ void main() {
   test('Throws FlutterError when disposed and called', () {
     final testNotifier = TestNotifier();
     testNotifier.dispose();
-    FlutterError? error;
+    ListenableError? error;
     try {
       testNotifier.dispose();
-    } on FlutterError catch (e) {
+      // ignore: avoid_catching_errors
+    } on ListenableError catch (e) {
       error = e;
     }
     expect(error, isNotNull);
-    expect(error, isFlutterError);
+    expect(error, isA<ListenableError>());
     expect(
-      error!.toStringDeep(),
-      equalsIgnoringHashCodes(
-        'FlutterError\n'
-        '   A TestNotifier was used after being disposed.\n'
-        '   Once you have called dispose() on a TestNotifier, it can no\n'
-        '   longer be used.\n',
-      ),
+      error!.details.exception,
+
+      '   A TestNotifier was used after being disposed.\n'
+      '   Once you have called dispose() on a TestNotifier, it can no\n'
+      '   longer be used.\n',
     );
   });
 
@@ -530,22 +529,21 @@ void main() {
     final testNotifier = TestNotifier();
     expect(ChangeNotifier.debugAssertNotDisposed(testNotifier), isTrue);
     testNotifier.dispose();
-    FlutterError? error;
+    ListenableError? error;
     try {
       ChangeNotifier.debugAssertNotDisposed(testNotifier);
-    } on FlutterError catch (e) {
+      // ignore: avoid_catching_errors
+    } on ListenableError catch (e) {
       error = e;
     }
     expect(error, isNotNull);
-    expect(error, isFlutterError);
+    expect(error, isA<ListenableError>());
     expect(
-      error!.toStringDeep(),
-      equalsIgnoringHashCodes(
-        'FlutterError\n'
-        '   A TestNotifier was used after being disposed.\n'
-        '   Once you have called dispose() on a TestNotifier, it can no\n'
-        '   longer be used.\n',
-      ),
+      error!.details.exception,
+
+      '   A TestNotifier was used after being disposed.\n'
+      '   Once you have called dispose() on a TestNotifier, it can no\n'
+      '   longer be used.\n',
     );
   });
 
