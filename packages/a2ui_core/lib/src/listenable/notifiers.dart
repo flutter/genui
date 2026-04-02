@@ -13,46 +13,7 @@ import 'primitives.dart';
 
 /// An object that maintains a list of listeners.
 ///
-/// The listeners are typically used to notify clients that the object has been
-/// updated.
-///
-/// There are two variants of this interface:
-///
-///  * [GenUiValueListenable], an interface that augments the [GenUiListenable] interface
-///    with the concept of a _current value_.
-///
-///  * [Animation], an interface that augments the [GenUiValueListenable] interface
-///    to add the concept of direction (forward or reverse).
-///
-/// Many classes in the Flutter API use or implement these interfaces. The
-/// following subclasses are especially relevant:
-///
-///  * [ChangeNotifier], which can be subclassed or mixed in to create objects
-///    that implement the [GenUiListenable] interface.
-///
-///  * [ValueNotifier], which implements the [GenUiValueListenable] interface with
-///    a mutable value that triggers the notifications when modified.
-///
-/// The terms "notify clients", "send notifications", "trigger notifications",
-/// and "fire notifications" are used interchangeably.
-///
-/// See also:
-///
-///  * [AnimatedBuilder], a widget that uses a builder callback to rebuild
-///    whenever a given [GenUiListenable] triggers its notifications. This widget is
-///    commonly used with [Animation] subclasses, hence its name, but is by no
-///    means limited to animations, as it can be used with any [GenUiListenable]. It
-///    is a subclass of [AnimatedWidget], which can be used to create widgets
-///    that are driven from a [GenUiListenable].
-///  * [ValueListenableBuilder], a widget that uses a builder callback to
-///    rebuild whenever a [GenUiValueListenable] object triggers its notifications,
-///    providing the builder with the value of the object.
-///  * [InheritedNotifier], an abstract superclass for widgets that use a
-///    [GenUiListenable]'s notifications to trigger rebuilds in descendant widgets
-///    that declare a dependency on them, using the [InheritedWidget] mechanism.
-///  * [Listenable.merge], which creates a [GenUiListenable] that triggers
-///    notifications whenever any of a list of other [GenUiListenable]s trigger their
-///    notifications.
+/// Dart replica of Flutter's [Listenable](https://api.flutter.dev/flutter/foundation/Listenable-class.html)
 abstract class GenUiListenable {
   /// This constructor enables subclasses to provide const constructors so that
   /// they can be used in const expressions.
@@ -79,14 +40,7 @@ abstract class GenUiListenable {
 
 /// An interface for subclasses of [GenUiListenable] that expose a [value].
 ///
-/// This interface is implemented by [ValueNotifier<T>] and [Animation<T>], and
-/// allows other APIs to accept either of those implementations interchangeably.
-///
-/// See also:
-///
-///  * [ValueListenableBuilder], a widget that uses a builder callback to
-///    rebuild whenever a [GenUiValueListenable] object triggers its notifications,
-///    providing the builder with the value of the object.
+/// Dart replica of Flutter's [ValueListenable](https://api.flutter.dev/flutter/foundation/ValueListenable-class.html)
 abstract class GenUiValueListenable<T> extends GenUiListenable {
   /// This constructor enables subclasses to provide const constructors so that
   /// they can be used in const expressions.
@@ -100,38 +54,8 @@ abstract class GenUiValueListenable<T> extends GenUiListenable {
 }
 
 /// A class that can be extended or mixed in that provides a change notification
-/// API using [VoidCallback] for notifications.
 ///
-/// It is O(1) for adding listeners and O(N) for removing listeners and
-/// dispatching notifications (where N is the number of listeners).
-///
-/// ## Using ChangeNotifier subclasses for data models
-///
-/// A data structure can extend or mix in [ChangeNotifier] to implement the
-/// [GenUiListenable] interface and thus become usable with widgets that listen for
-/// changes to [GenUiListenable]s, such as [ListenableBuilder].
-///
-/// {@tool dartpad}
-/// The following example implements a simple counter that utilizes a
-/// [ListenableBuilder] to limit rebuilds to only the [Text] widget containing
-/// the count. The current count is stored in a [ChangeNotifier] subclass, which
-/// rebuilds the [ListenableBuilder]'s contents when its value is changed.
-///
-/// ** See code in examples/api/lib/widgets/transitions/listenable_builder.2.dart **
-/// {@end-tool}
-///
-/// {@tool dartpad}
-/// In this case, the [ChangeNotifier] subclass encapsulates a list, and
-/// notifies the clients any time an item is added to the list. This example
-/// only supports adding items; as an exercise, consider adding buttons to
-/// remove items from the list as well.
-///
-/// ** See code in examples/api/lib/widgets/transitions/listenable_builder.3.dart **
-/// {@end-tool}
-///
-/// See also:
-///
-///  * [ValueNotifier], which is a [ChangeNotifier] that wraps a single value.
+/// Dart replica of Flutter's [ChangeNotifier](https://api.flutter.dev/flutter/foundation/ChangeNotifier-class.html)
 mixin class ChangeNotifier implements GenUiListenable {
   int _count = 0;
   // The _listeners is intentionally set to a fixed-length _GrowableList instead
@@ -472,26 +396,7 @@ class _MergingListenable extends GenUiListenable {
 
 /// A [ChangeNotifier] that holds a single value.
 ///
-/// When [value] is replaced with a new value that is **not equal** to the old
-/// value as evaluated by the equality operator (`==`), this class notifies its
-/// listeners.
-///
-/// ## Limitations
-///
-/// Notifications are triggered based on **equality (`==`)**, not on mutations
-/// within the value itself. As a result, changes to mutable objects that do not
-/// affect their equality will not cause listeners to be notified.
-///
-/// For example, a `ValueNotifier<List<int>>` will not notify listeners when
-/// the contents of the existing list are modified in-place; it only notifies
-/// when a new value is assigned to the `value` property
-/// (i.e. `value = newValue`), where equality is determined by `==`.
-///
-/// Because of this behavior, [ValueNotifier] is best used with immutable data
-/// types.
-///
-/// For mutable data types, consider extending [ChangeNotifier] directly and
-/// calling [notifyListeners] manually when changes occur.
+/// Dart replica of Flutter's [ValueNotifier](https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html)
 class ValueNotifier<T> extends ChangeNotifier
     implements GenUiValueListenable<T> {
   /// Creates a [ChangeNotifier] that wraps this value.
