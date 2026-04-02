@@ -169,7 +169,6 @@ jobs:
           fi
 
       - name: Check for cycles
-        if: matrix.package.path != 'packages/ui_primitives'
         working-directory: ${{ matrix.package.path }}
         run: |
           dart pub global activate layerlens

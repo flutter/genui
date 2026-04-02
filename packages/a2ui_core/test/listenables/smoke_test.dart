@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:test/test.dart';
-import '../lib/a2ui_core.dart';
+import '../../lib/a2ui_core.dart';
 
 // ignore: unused_element, tests that ValueNotifier can be implemented.
 class _ValueNotifierImplementaion<T> implements ValueNotifier<T> {

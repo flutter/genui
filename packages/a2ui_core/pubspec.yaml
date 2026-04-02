@@ -2,10 +2,10 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-name: ui_primitives
-description: Highly experimental package.
-repository: https://github.com/flutter/genui/tree/main/packages/ui_primitives
-version: 0.2.0
+name: a2ui_core
+description: Core package for (a2ui protocol)[https://a2ui.org/].
+repository: https://github.com/flutter/genui/tree/main/packages/a2uicore
+version: 0.0.1-dev001
 
 resolution: workspace
 
@@ -13,7 +13,6 @@ environment:
   sdk: ">=3.10.0 <4.0.0"
 
 dependencies:
-  leak_tracker: ^11.0.2
   meta: ^1.17.0
 
 dev_dependencies:

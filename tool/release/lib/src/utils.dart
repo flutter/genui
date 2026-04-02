@@ -8,7 +8,7 @@ import 'package:yaml/yaml.dart';
 
 const excludedPackages = [
   'json_schema_builder',
-  'ui_primitives',
+  'a2ui_core',
   'genai_primitives',
 ];
 
