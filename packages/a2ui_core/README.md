@@ -1,4 +1,4 @@
-# UI Primitives
+# A2UI Core
 
 Highly experimental package.
 
