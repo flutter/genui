@@ -337,12 +337,13 @@ mixin class ChangeNotifier implements GenUiListenable {
   @mustCallSuper
   void dispose() {
     assert(ChangeNotifier.debugAssertNotDisposed(this));
-    assert(
-      _notificationCallStackDepth == 0,
-      'The "dispose()" method on $this was called during the call to '
-      '"notifyListeners()". This is likely to cause errors since it modifies '
-      'the list of listeners while the list is being used.',
-    );
+    if (_notificationCallStackDepth > 0) {
+      throw ListenableErrorReporting.createError(
+        'The "dispose()" method on $this was called during the call to '
+        '"notifyListeners()". This is likely to cause errors since it modifies '
+        'the list of listeners while the list is being used.',
+      );
+    }
     assert(() {
       _debugDisposed = true;
       return true;

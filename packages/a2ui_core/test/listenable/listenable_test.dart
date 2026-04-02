@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:a2ui_core/a2ui_core.dart';
+import 'package:a2ui_core/src/listenable/error_reporting.dart';
 import 'package:test/test.dart';
 
 class TestNotifier extends ChangeNotifier {
@@ -53,21 +54,6 @@ class Counter with ChangeNotifier {
 }
 
 void main() {
-  test('ChangeNotifier can not dispose in callback', () async {
-    final test = TestNotifier();
-    addTearDown(test.dispose);
-    var callbackDidFinish = false;
-    void foo() {
-      test.dispose();
-      callbackDidFinish = true;
-    }
-
-    test.addListener(foo);
-
-    expect(test.notify, throwsA(isA<ListenableErrorDetails>()));
-    expect(callbackDidFinish, isFalse);
-  });
-
   test('ChangeNotifier', () async {
     final log = <String>[];
     void listener() {
@@ -136,8 +122,10 @@ void main() {
     log.clear();
 
     test.addListener(badListener);
-    expect(test.notify, throwsA(isA<ListenableError>()));
+    test.notify();
     expect(log, <String>['listener', 'listener2', 'listener1', 'badListener']);
+    expect(ListenableErrorReporting.reportedErrors.length, 1);
+    ListenableErrorReporting.clearReportedErrors();
     log.clear();
 
     test.addListener(listener1);
@@ -145,8 +133,10 @@ void main() {
     test.removeListener(listener1);
     test.removeListener(listener2);
     test.addListener(listener2);
-    expect(test.notify, throwsA(isA<ListenableError>()));
+    test.notify();
     expect(log, <String>['badListener', 'listener1', 'listener2']);
+    expect(ListenableErrorReporting.reportedErrors.length, 1);
+    ListenableErrorReporting.clearReportedErrors();
     log.clear();
     test.dispose();
   });
@@ -519,9 +509,9 @@ void main() {
     expect(
       error!.details.exception,
 
-      '   A TestNotifier was used after being disposed.\n'
-      '   Once you have called dispose() on a TestNotifier, it can no\n'
-      '   longer be used.\n',
+      'A TestNotifier was used after being disposed.\n'
+      'Once you have called dispose() on a TestNotifier, it can no '
+      'longer be used.',
     );
   });
 
@@ -541,9 +531,9 @@ void main() {
     expect(
       error!.details.exception,
 
-      '   A TestNotifier was used after being disposed.\n'
-      '   Once you have called dispose() on a TestNotifier, it can no\n'
-      '   longer be used.\n',
+      'A TestNotifier was used after being disposed.\n'
+      'Once you have called dispose() on a TestNotifier, it can no '
+      'longer be used.',
     );
   });
 

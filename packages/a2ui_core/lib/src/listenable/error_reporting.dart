@@ -15,7 +15,12 @@ class ListenableErrorReporting {
   /// In current implementation it just throws an error,
   /// but it may be reconsidered in future.
   static void report(ListenableErrorDetails details) =>
-      throw ListenableError(details);
+      _reportedErrors.add(details);
+
+  static Iterable<ListenableErrorDetails> get reportedErrors => _reportedErrors;
+  static final _reportedErrors = <ListenableErrorDetails>[];
+
+  static void clearReportedErrors() => _reportedErrors.clear();
 }
 
 final class ListenableError extends Error {
