@@ -12,6 +12,8 @@ on:
 
 jobs:
   eval-job:
+    # Do not run on forked branches,
+    #because the test does not have access to secrets in forks.
     if: github.repository == 'flutter/genui'
     runs-on: ubuntu-latest
     environment: eval
