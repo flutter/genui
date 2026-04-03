@@ -10,6 +10,9 @@ class ListenableErrorReporting {
   /// Reports an error.
   ///
   /// Adds the error to [reportedErrors].
+  ///
+  /// The list of errors should be verified and cleaned regularly
+  /// by the framework or application.
   static void report(ListenableErrorDetails details) =>
       _reportedErrors.add(details);
 
