@@ -192,6 +192,8 @@ interface class Conversation {
     const ConversationState(surfaces: [], latestText: '', isWaiting: false),
   );
 
+  int _pendingRequests = 0;
+
   StreamSubscription<dynamic>? _transportSubscription;
   StreamSubscription<dynamic>? _textSubscription;
   StreamSubscription<dynamic>? _engineSubscription;
@@ -205,15 +207,22 @@ interface class Conversation {
 
   /// Sends a request to the LLM.
   Future<void> sendRequest(ChatMessage message) async {
+    _pendingRequests++;
     _eventController.add(ConversationWaiting());
     _updateState((s) => s.copyWith(isWaiting: true));
     try {
       await transport.sendRequest(message);
     } catch (exception, stackTrace) {
-      _eventController.add(ConversationError(exception, stackTrace));
+      if (!_eventController.isClosed) {
+        _eventController.add(ConversationError(exception, stackTrace));
+      }
     } finally {
-      _updateState((s) => s.copyWith(isWaiting: false));
-      _eventController.add(ConversationReady());
+      _pendingRequests--;
+      if (_pendingRequests == 0) {
+        _updateState((s) => s.copyWith(isWaiting: false));
+        if (!_eventController.isClosed)
+          _eventController.add(ConversationReady());
+      }
     }
   }
 

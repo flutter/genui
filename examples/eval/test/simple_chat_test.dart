@@ -130,7 +130,7 @@ class _ChatSessionTester {
         case ConversationError():
           errors.add(event.error.toString());
         case ConversationReady():
-          // No-op for now
+          verifyTurn();
           break;
       }
     }
