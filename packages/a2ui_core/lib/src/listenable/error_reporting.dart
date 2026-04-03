@@ -9,17 +9,15 @@ class ListenableErrorReporting {
 
   /// Reports an error.
   ///
-  /// Depending on settings, it may throw an exception, log an error,
-  /// or debug-stop the execution.
-  ///
-  /// In current implementation it just throws an error,
-  /// but it may be reconsidered in future.
+  /// Adds the error to [reportedErrors].
   static void report(ListenableErrorDetails details) =>
       _reportedErrors.add(details);
 
+  /// Returns the list of reported errors.
   static Iterable<ListenableErrorDetails> get reportedErrors => _reportedErrors;
   static final _reportedErrors = <ListenableErrorDetails>[];
 
+  /// Clears the list of reported errors.
   static void clearReportedErrors() => _reportedErrors.clear();
 }
 
