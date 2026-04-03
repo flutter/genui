@@ -2,6 +2,9 @@
 
 ## 0.8.1 (in progress)
 
+- **Feature**: Added `ConversationTurn` enum and `turn` getter on `ConversationState` to clearly observe whose turn it is in a conversation (#847).
+- **Feature**: Added `ConversationReady` event, emitted when the agent finishes responding, complementing the existing `ConversationWaiting` event (#847).
+
 ## 0.8.0
 
 - **BREAKING**: Updated package to align with A2UI v0.9 protocol and introduced extensive architectural changes.
