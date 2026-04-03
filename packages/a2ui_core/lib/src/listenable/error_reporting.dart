@@ -45,6 +45,11 @@ final class ListenableErrorDetails {
 
   @override
   String toString() {
-    return '$dispatchingObject reported $exception\n$stack';
+    final parts = [
+      if (dispatchingObject != null) '$dispatchingObject reported $exception'
+      else '$exception',
+      if (stack != null) '$stack',
+    ];
+    return parts.join('\n');
   }
 }
