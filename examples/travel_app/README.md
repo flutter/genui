@@ -34,7 +34,7 @@ This application can be run using either the **Google Generative AI** API direct
 
 ### Option 1: Google Generative AI (Default)
 
-Follow the instructions in the [run_app_with_gemini_key.md](../../docs/run_app_with_gemini_key.md).
+Follow the instructions in the [run_app_with_gemini_key.md](../../docs/usage/run_app_with_gemini_key.md).
 
 ### Option 2: Firebase Vertex AI
 
