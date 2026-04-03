@@ -30,8 +30,8 @@ class _ValueNotifierImplementation<T> implements ValueNotifier<T> {
 }
 
 // ignore: unused_element, tests that ValueNotifier can be extended.
-class _ValueNotifierExtention<T> extends ValueNotifier<T> {
-  _ValueNotifierExtention(super.value);
+class _ValueNotifierExtension<T> extends ValueNotifier<T> {
+  _ValueNotifierExtension(super.value);
 }
 
 // ignore: unused_element, tests that ChangeNotifier can be implemented.
