@@ -284,7 +284,7 @@ mixin class ChangeNotifier implements GenUiListenable {
   /// not be visited after they are removed.
   ///
   /// Exceptions thrown by listeners will be caught and reported using
-  /// [FlutterError.reportError].
+  /// [ListenableErrorReporting.report].
   ///
   /// This method must not be called after [dispose] has been called.
   ///
