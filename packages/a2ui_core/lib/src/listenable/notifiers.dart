@@ -14,6 +14,9 @@ import 'primitives.dart';
 /// An object that maintains a list of listeners.
 ///
 /// Dart replica of Flutter's [Listenable](https://api.flutter.dev/flutter/foundation/Listenable-class.html)
+///
+/// This class should not be modified, because it is temporary and should be
+/// replaced with dash-wide alternative.
 abstract class GenUiListenable {
   /// This constructor enables subclasses to provide const constructors so that
   /// they can be used in const expressions.
@@ -41,6 +44,9 @@ abstract class GenUiListenable {
 /// An interface for subclasses of [GenUiListenable] that expose a [value].
 ///
 /// Dart replica of Flutter's [ValueListenable](https://api.flutter.dev/flutter/foundation/ValueListenable-class.html)
+///
+/// This class should not be modified, because it is temporary and should be
+/// replaced with dash-wide alternative.
 abstract class GenUiValueListenable<T> extends GenUiListenable {
   /// This constructor enables subclasses to provide const constructors so that
   /// they can be used in const expressions.
@@ -56,6 +62,9 @@ abstract class GenUiValueListenable<T> extends GenUiListenable {
 /// A class that can be extended or mixed in that provides a change notification
 ///
 /// Dart replica of Flutter's [ChangeNotifier](https://api.flutter.dev/flutter/foundation/ChangeNotifier-class.html)
+///
+/// This class should not be modified, because it is temporary and should be
+/// replaced with dash-wide alternative.
 mixin class ChangeNotifier implements GenUiListenable {
   int _count = 0;
   // The _listeners is intentionally set to a fixed-length _GrowableList instead
@@ -397,6 +406,9 @@ class _MergingListenable extends GenUiListenable {
 /// A [ChangeNotifier] that holds a single value.
 ///
 /// Dart replica of Flutter's [ValueNotifier](https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html)
+///
+/// This class should not be modified, because it is temporary and should be
+/// replaced with dash-wide alternative.
 class ValueNotifier<T> extends ChangeNotifier
     implements GenUiValueListenable<T> {
   /// Creates a [ChangeNotifier] that wraps this value.
