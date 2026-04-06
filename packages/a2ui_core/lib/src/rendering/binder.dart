@@ -1,5 +1,6 @@
 import 'package:json_schema_builder/json_schema_builder.dart';
 import '../common/reactivity.dart';
+import '../listenable/notifiers.dart' show ChangeNotifier;
 import '../protocol/common.dart';
 import 'contexts.dart';
 
@@ -33,6 +34,7 @@ class GenericBinder {
 
   final _resolvedProps = ValueNotifier<Map<String, dynamic>>({});
   final List<void Function()> _dataListeners = [];
+  final List<ChangeNotifier> _ownedNotifiers = [];
   bool _isConnected = false;
 
   ValueListenable<Map<String, dynamic>> get resolvedProps => _resolvedProps;
@@ -58,15 +60,36 @@ class GenericBinder {
   }
 
   void _rebuildAllBindings() {
-    for (final void Function() unsub in _dataListeners) {
-      unsub();
-    }
-    _dataListeners.clear();
+    _disposeOwnedResources();
 
     final Map<String, dynamic> props = context.componentModel.properties;
     _resolvedProps.value =
         _resolveAndBind(props, _behaviorTree, [], false)
             as Map<String, dynamic>;
+  }
+
+  void _disposeOwnedResources() {
+    for (final void Function() unsub in _dataListeners) {
+      unsub();
+    }
+    _dataListeners.clear();
+    for (final ChangeNotifier notifier in _ownedNotifiers) {
+      notifier.dispose();
+    }
+    _ownedNotifiers.clear();
+  }
+
+  /// Resolves a dynamic value to a [ValueListenable], tracking any
+  /// [ComputedNotifier]s created so they can be disposed on rebuild.
+  /// DataModel.watch notifiers are shared/cached and must not be disposed
+  /// by the binder; only [ComputedNotifier]s (from function calls) hold
+  /// internal subscriptions that leak if not cleaned up.
+  ValueListenable<dynamic> _resolveAndTrack(Object? value) {
+    final listenable = context.dataContext.resolveListenable(value);
+    if (listenable is ComputedNotifier) {
+      _ownedNotifiers.add(listenable);
+    }
+    return listenable;
   }
 
   dynamic _resolveAndBind(
@@ -79,8 +102,7 @@ class GenericBinder {
 
     switch (behavior.type) {
       case Behavior.dynamic:
-        final ValueListenable<dynamic> listenable = context.dataContext
-            .resolveListenable(value);
+        final ValueListenable<dynamic> listenable = _resolveAndTrack(value);
         if (!isSync) {
           void listener() {
             _updateDeepValue(path, listenable.value);
@@ -112,8 +134,8 @@ class GenericBinder {
           final tpl = ChildListTemplate.fromJson(
             Map<String, dynamic>.from(value),
           );
-          final ValueListenable<dynamic> listenable = context.dataContext
-              .resolveListenable({'path': tpl.path});
+          final ValueListenable<dynamic> listenable =
+              _resolveAndTrack({'path': tpl.path});
 
           List<ChildNode> resolveChildren(Object? val) {
             final List<dynamic> list = val is List ? val : [];
@@ -165,8 +187,8 @@ class GenericBinder {
         for (var i = 0; i < rules.length; i++) {
           final Object? condition =
               (rules[i] as Map<String, dynamic>)['condition'] ?? rules[i];
-          final ValueListenable<dynamic> listenable = context.dataContext
-              .resolveListenable(condition);
+          final ValueListenable<dynamic> listenable =
+              _resolveAndTrack(condition);
           results[i] = listenable.value == true;
 
           if (!isSync) {
@@ -391,10 +413,7 @@ class GenericBinder {
   }
 
   void dispose() {
-    for (final void Function() unsub in _dataListeners) {
-      unsub();
-    }
-    _dataListeners.clear();
+    _disposeOwnedResources();
     context.componentModel.onUpdated.removeListener(_rebuildAllBindings);
     _resolvedProps.dispose();
   }
