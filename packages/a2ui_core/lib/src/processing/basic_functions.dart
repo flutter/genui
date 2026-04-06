@@ -14,7 +14,7 @@ class FormatStringFunction extends FunctionImplementation {
   String get name => 'formatString';
 
   @override
-  String get returnType => 'any';
+  String get returnType => 'string';
 
   @override
   Schema get argumentSchema => Schema.object(
