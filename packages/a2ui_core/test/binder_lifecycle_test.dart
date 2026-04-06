@@ -89,6 +89,42 @@ void main() {
         binder.dispose();
       },
     );
+    test(
+      'construction resolves function-call properties exactly once',
+      () {
+        int callCount = 0;
+        final trackingCatalog = _TrackingCatalog(
+          onExecute: () => callCount++,
+        );
+        final trackingSurface = SurfaceModel<ComponentApi>(
+          's1',
+          catalog: trackingCatalog,
+        );
+
+        final comp = ComponentModel('c1', 'Text', {
+          'text': {
+            'call': 'trackingFn',
+            'args': {
+              'value': {'path': '/val'},
+            },
+            'returnType': 'any',
+          },
+        });
+        trackingSurface.componentsModel.addComponent(comp);
+        trackingSurface.dataModel.set('/val', 'hello');
+
+        callCount = 0;
+        final context = ComponentContext(trackingSurface, comp);
+        GenericBinder(context, MinimalTextApi().schema);
+
+        expect(
+          callCount,
+          1,
+          reason: 'Function should be evaluated once during '
+              'construction, not $callCount times',
+        );
+      },
+    );
   });
 }
 

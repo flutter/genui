@@ -41,14 +41,7 @@ class GenericBinder {
 
   GenericBinder(this.context, this.schema) {
     _behaviorTree = _scrapeSchemaBehavior(schema);
-    _resolveInitialProps();
     connect();
-  }
-
-  void _resolveInitialProps() {
-    final Map<String, dynamic> props = context.componentModel.properties;
-    _resolvedProps.value =
-        _resolveAndBind(props, _behaviorTree, [], true) as Map<String, dynamic>;
   }
 
   /// Connects to the component model for updates.
