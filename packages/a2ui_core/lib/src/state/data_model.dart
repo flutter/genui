@@ -178,7 +178,7 @@ class DataModel {
     if (identical(oldValue, newValue)) {
       // The value is the same object reference (e.g. a mutated Map/List).
       // Force notification since the setter's equality check would skip it.
-      notifier.notifyListeners();
+      notifier.forceNotify();
     } else {
       notifier.value = newValue;
     }

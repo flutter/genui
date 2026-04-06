@@ -28,7 +28,7 @@ void batch(void Function() callback) {
     final List<ValueNotifier<dynamic>> toNotify = _pendingNotifiers.toList();
     _pendingNotifiers.clear();
     for (final notifier in toNotify) {
-      notifier.notifyListeners();
+      notifier.forceNotify();
     }
   }
 }
@@ -53,6 +53,18 @@ class ValueNotifier<T> extends notifiers.ChangeNotifier
   set value(T newValue) {
     if (_value == newValue) return;
     _value = newValue;
+    if (_inBatch) {
+      _pendingNotifiers.add(this);
+      return;
+    }
+    notifyListeners();
+  }
+
+  /// Notifies listeners unconditionally, even if the value hasn't changed.
+  ///
+  /// Use this when the held value is a mutable container (e.g. a [Map] or
+  /// [List]) whose contents changed in place without changing the reference.
+  void forceNotify() {
     if (_inBatch) {
       _pendingNotifiers.add(this);
       return;

@@ -27,6 +27,9 @@ class _ValueNotifierImplementation<T> implements ValueNotifier<T> {
 
   @override
   void notifyListeners() {}
+
+  @override
+  void forceNotify() {}
 }
 
 // ignore: unused_element, tests that ValueNotifier can be extended.
