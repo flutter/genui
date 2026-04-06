@@ -1,3 +1,5 @@
+import 'package:collection/collection.dart';
+
 /// A class for handling JSON Pointer (RFC 6901) paths.
 class DataPath {
   final List<String> segments;
@@ -68,16 +70,8 @@ class DataPath {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is DataPath &&
-          segments.length == other.segments.length &&
-          _listEquals(segments, other.segments);
+          const ListEquality<String>().equals(segments, other.segments);
 
   @override
-  int get hashCode => segments.join('/').hashCode;
-
-  static bool _listEquals(List<String> a, List<String> b) {
-    for (int i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) return false;
-    }
-    return true;
-  }
+  int get hashCode => const ListEquality<String>().hash(segments);
 }
