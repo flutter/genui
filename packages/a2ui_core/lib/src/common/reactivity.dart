@@ -1,0 +1,133 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+import '../listenable/notifiers.dart' as notifiers;
+
+/// Alias for [notifiers.GenUiListenable].
+typedef Listenable = notifiers.GenUiListenable;
+
+/// Alias for [notifiers.GenUiValueListenable].
+typedef ValueListenable<T> = notifiers.GenUiValueListenable<T>;
+
+bool _inBatch = false;
+final _pendingNotifiers = <ValueNotifier<dynamic>>{};
+
+/// Executes [callback] and defers notifications until it completes.
+void batch(void Function() callback) {
+  if (_inBatch) {
+    callback();
+    return;
+  }
+
+  _inBatch = true;
+  try {
+    callback();
+  } finally {
+    _inBatch = false;
+    final toNotify = _pendingNotifiers.toList();
+    _pendingNotifiers.clear();
+    for (final notifier in toNotify) {
+      notifier.notifyListeners();
+    }
+  }
+}
+
+/// A value holder that notifies listeners when the value changes.
+///
+/// Extends [notifiers.ChangeNotifier] for robust listener management and adds
+/// batch-aware notification and automatic dependency tracking for use with
+/// [ComputedNotifier].
+class ValueNotifier<T> extends notifiers.ChangeNotifier
+    implements notifiers.GenUiValueListenable<T> {
+  T _value;
+
+  ValueNotifier(this._value);
+
+  @override
+  T get value {
+    _DependencyTracker.instance?._reportRead(this);
+    return _value;
+  }
+
+  set value(T newValue) {
+    if (_value == newValue) return;
+    _value = newValue;
+    if (_inBatch) {
+      _pendingNotifiers.add(this);
+      return;
+    }
+    notifyListeners();
+  }
+}
+
+/// A derived notifier that automatically tracks and listens to other
+/// [ValueListenable] dependencies, recalculating its value only when they
+/// change.
+class ComputedNotifier<T> extends ValueNotifier<T> {
+  final T Function() _compute;
+  final Set<notifiers.GenUiValueListenable<dynamic>> _dependencies = {};
+
+  ComputedNotifier(this._compute) : super(_compute()) {
+    _updateDependencies();
+  }
+
+  void _updateDependencies() {
+    final tracker = _DependencyTracker();
+    final newValue = tracker.track(_compute);
+
+    final newDeps = tracker.dependencies;
+
+    // Unsubscribe from old dependencies no longer needed.
+    for (final dep in _dependencies.difference(newDeps)) {
+      dep.removeListener(_onDependencyChanged);
+    }
+
+    // Subscribe to new dependencies.
+    for (final dep in newDeps.difference(_dependencies)) {
+      dep.addListener(_onDependencyChanged);
+    }
+
+    _dependencies.clear();
+    _dependencies.addAll(newDeps);
+
+    super.value = newValue;
+  }
+
+  void _onDependencyChanged() {
+    _updateDependencies();
+  }
+
+  @override
+  T get value {
+    return super.value;
+  }
+
+  @override
+  void dispose() {
+    for (final dep in _dependencies) {
+      dep.removeListener(_onDependencyChanged);
+    }
+    _dependencies.clear();
+    super.dispose();
+  }
+}
+
+class _DependencyTracker {
+  static _DependencyTracker? instance;
+  final Set<notifiers.GenUiValueListenable<dynamic>> dependencies = {};
+
+  T track<T>(T Function() callback) {
+    final previous = instance;
+    instance = this;
+    try {
+      return callback();
+    } finally {
+      instance = previous;
+    }
+  }
+
+  void _reportRead(notifiers.GenUiValueListenable<dynamic> listenable) {
+    dependencies.add(listenable);
+  }
+}

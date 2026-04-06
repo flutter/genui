@@ -1,0 +1,48 @@
+import 'package:test/test.dart';
+import 'package:a2ui_core/src/common/data_path.dart';
+
+void main() {
+  group('DataPath', () {
+    test('parses root path', () {
+      final path = DataPath.parse('/');
+      expect(path.segments, isEmpty);
+      expect(path.toString(), '/');
+    });
+
+    test('parses simple path', () {
+      final path = DataPath.parse('/foo/bar');
+      expect(path.segments, ['foo', 'bar']);
+      expect(path.toString(), '/foo/bar');
+    });
+
+    test('parses escaped segments', () {
+      final path = DataPath.parse('/foo~1bar/baz~0qux');
+      expect(path.segments, ['foo/bar', 'baz~qux']);
+      expect(path.toString(), '/foo~1bar/baz~0qux');
+    });
+
+    test('appends segments', () {
+      final path = DataPath.parse('/foo').append('bar');
+      expect(path.segments, ['foo', 'bar']);
+      expect(path.toString(), '/foo/bar');
+    });
+
+    test('appends numeric segments', () {
+      final path = DataPath.parse('/foo').append(0);
+      expect(path.segments, ['foo', '0']);
+      expect(path.toString(), '/foo/0');
+    });
+
+    test('parent path', () {
+      final path = DataPath.parse('/foo/bar');
+      expect(path.parent?.toString(), '/foo');
+      expect(path.parent?.parent?.toString(), '/');
+      expect(path.parent?.parent?.parent, isNull);
+    });
+
+    test('equality', () {
+      expect(DataPath.parse('/a/b'), equals(DataPath.parse('/a/b')));
+      expect(DataPath.parse('/a/b'), isNot(equals(DataPath.parse('/a/c'))));
+    });
+  });
+}
