@@ -82,7 +82,8 @@ class GenericBinder {
   /// by the binder; only [ComputedNotifier]s (from function calls) hold
   /// internal subscriptions that leak if not cleaned up.
   ValueListenable<Object?> _resolveAndTrack(Object? value) {
-    final listenable = context.dataContext.resolveListenable(value);
+    final ValueListenable<Object?> listenable = context.dataContext
+        .resolveListenable(value);
     if (listenable is ComputedNotifier) {
       _ownedNotifiers.add(listenable);
     }
@@ -131,8 +132,9 @@ class GenericBinder {
           final tpl = ChildListTemplate.fromJson(
             Map<String, dynamic>.from(value),
           );
-          final ValueListenable<Object?> listenable =
-              _resolveAndTrack({'path': tpl.path});
+          final ValueListenable<Object?> listenable = _resolveAndTrack({
+            'path': tpl.path,
+          });
 
           List<ChildNode> resolveChildren(Object? val) {
             final List<Object?> list = val is List ? val.cast<Object?>() : [];
@@ -184,8 +186,9 @@ class GenericBinder {
         for (var i = 0; i < rules.length; i++) {
           final Object? condition =
               (rules[i] as Map<String, dynamic>)['condition'] ?? rules[i];
-          final ValueListenable<Object?> listenable =
-              _resolveAndTrack(condition);
+          final ValueListenable<Object?> listenable = _resolveAndTrack(
+            condition,
+          );
           results[i] = listenable.value == true;
 
           if (!isSync) {
@@ -219,11 +222,12 @@ class GenericBinder {
 
         // Inject validation properties if 'checks' is present in shape
         if (shape.containsKey('checks') && result.containsKey('checks')) {
-          final List<Object?> rules = (value['checks'] as List?)?.cast<Object?>() ?? [];
+          final List<Object?> rules =
+              (value['checks'] as List?)?.cast<Object?>() ?? [];
           var isValid = true;
           final errors = <String>[];
-          final List<Map<String, dynamic>> typedRules =
-              rules.cast<Map<String, dynamic>>();
+          final List<Map<String, dynamic>> typedRules = rules
+              .cast<Map<String, dynamic>>();
           for (final rule in typedRules) {
             final Object? condition = rule['condition'] ?? rule;
             final Object? val = context.dataContext.resolveSync(condition);
@@ -240,8 +244,7 @@ class GenericBinder {
         for (final MapEntry<String, BehaviorNode> entry in shape.entries) {
           if (entry.value.type == Behavior.dynamic) {
             final String key = entry.key;
-            final setterName =
-                'set${key[0].toUpperCase()}${key.substring(1)}';
+            final setterName = 'set${key[0].toUpperCase()}${key.substring(1)}';
             final Object? rawValue = value[key];
             if (rawValue is Map && rawValue.containsKey('path')) {
               result[setterName] = (Object? newValue) {

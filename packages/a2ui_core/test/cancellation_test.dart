@@ -41,8 +41,7 @@ void main() {
       signal.throwIfCancelled(); // should not throw
 
       signal.cancel();
-      expect(() => signal.throwIfCancelled(),
-          throwsA(isA<CancellationException>()));
+      expect(signal.throwIfCancelled, throwsA(isA<CancellationException>()));
     });
   });
 }

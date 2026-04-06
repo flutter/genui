@@ -30,10 +30,7 @@ void main() {
     test('parses createSurface with defaults', () {
       final msg = A2uiMessage.fromJson({
         'version': 'v0.9',
-        'createSurface': {
-          'surfaceId': 's1',
-          'catalogId': 'cat1',
-        },
+        'createSurface': {'surfaceId': 's1', 'catalogId': 'cat1'},
       });
 
       final cs = msg as CreateSurfaceMessage;
@@ -79,9 +76,7 @@ void main() {
     test('parses updateDataModel without path or value', () {
       final msg = A2uiMessage.fromJson({
         'version': 'v0.9',
-        'updateDataModel': {
-          'surfaceId': 's1',
-        },
+        'updateDataModel': {'surfaceId': 's1'},
       });
 
       final ud = msg as UpdateDataModelMessage;
@@ -92,9 +87,7 @@ void main() {
     test('parses deleteSurface', () {
       final msg = A2uiMessage.fromJson({
         'version': 'v0.9',
-        'deleteSurface': {
-          'surfaceId': 's1',
-        },
+        'deleteSurface': {'surfaceId': 's1'},
       });
 
       expect(msg, isA<DeleteSurfaceMessage>());

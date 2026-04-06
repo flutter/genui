@@ -106,8 +106,7 @@ void main() {
 
       final Map<String, dynamic>? dataModel = processor.getClientDataModel();
       expect(dataModel, isNotNull);
-      final surfaces =
-          dataModel?['surfaces'] as Map<String, dynamic>?;
+      final surfaces = dataModel?['surfaces'] as Map<String, dynamic>?;
       expect(surfaces, contains('s1'));
       expect(surfaces, isNot(contains('s2')));
       expect(surfaces?['s1'], {'foo': 'bar'});

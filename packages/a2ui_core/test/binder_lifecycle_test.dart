@@ -38,97 +38,89 @@ void main() {
       );
     });
 
-    test(
-      'rebuilding bindings disposes old ComputedNotifiers '
-      'from function calls',
-      () {
-        int callCount = 0;
-        final trackingCatalog = _TrackingCatalog(
-          onExecute: () => callCount++,
-        );
-        final trackingSurface = SurfaceModel<ComponentApi>(
-          's1',
-          catalog: trackingCatalog,
-        );
+    test('rebuilding bindings disposes old ComputedNotifiers '
+        'from function calls', () {
+      var callCount = 0;
+      final trackingCatalog = _TrackingCatalog(onExecute: () => callCount++);
+      final trackingSurface = SurfaceModel<ComponentApi>(
+        's1',
+        catalog: trackingCatalog,
+      );
 
-        final comp = ComponentModel('c1', 'Text', {
-          'text': {
-            'call': 'trackingFn',
-            'args': {
-              'value': {'path': '/val'},
-            },
-            'returnType': 'any',
+      final comp = ComponentModel('c1', 'Text', {
+        'text': {
+          'call': 'trackingFn',
+          'args': {
+            'value': {'path': '/val'},
           },
-        });
-        trackingSurface.componentsModel.addComponent(comp);
-        trackingSurface.dataModel.set('/val', 'a');
+          'returnType': 'any',
+        },
+      });
+      trackingSurface.componentsModel.addComponent(comp);
+      trackingSurface.dataModel.set('/val', 'a');
 
-        final context = ComponentContext(trackingSurface, comp);
-        final binder = GenericBinder(context, MinimalTextApi().schema);
+      final context = ComponentContext(trackingSurface, comp);
+      final binder = GenericBinder(context, MinimalTextApi().schema);
 
-        // Trigger a rebuild by updating component properties.
-        comp.properties = {
-          'text': {
-            'call': 'trackingFn',
-            'args': {
-              'value': {'path': '/val'},
-            },
-            'returnType': 'any',
+      // Trigger a rebuild by updating component properties.
+      comp.properties = {
+        'text': {
+          'call': 'trackingFn',
+          'args': {
+            'value': {'path': '/val'},
           },
-        };
+          'returnType': 'any',
+        },
+      };
 
-        // Now update the data model. If old ComputedNotifiers leaked,
-        // the function will be called more than once.
-        callCount = 0;
-        trackingSurface.dataModel.set('/val', 'b');
+      // Now update the data model. If old ComputedNotifiers leaked,
+      // the function will be called more than once.
+      callCount = 0;
+      trackingSurface.dataModel.set('/val', 'b');
 
-        expect(
-          callCount,
-          1,
-          reason: 'Old ComputedNotifiers should be disposed '
-              'after rebuild, but function was called '
-              '$callCount times',
-        );
+      expect(
+        callCount,
+        1,
+        reason:
+            'Old ComputedNotifiers should be disposed '
+            'after rebuild, but function was called '
+            '$callCount times',
+      );
 
-        binder.dispose();
-      },
-    );
-    test(
-      'construction resolves function-call properties exactly once',
-      () {
-        int callCount = 0;
-        final trackingCatalog = _TrackingCatalog(
-          onExecute: () => callCount++,
-        );
-        final trackingSurface = SurfaceModel<ComponentApi>(
-          's1',
-          catalog: trackingCatalog,
-        );
+      binder.dispose();
+    });
+    test('construction resolves function-call properties exactly once', () {
+      var callCount = 0;
+      final trackingCatalog = _TrackingCatalog(onExecute: () => callCount++);
+      final trackingSurface = SurfaceModel<ComponentApi>(
+        's1',
+        catalog: trackingCatalog,
+      );
 
-        final comp = ComponentModel('c1', 'Text', {
-          'text': {
-            'call': 'trackingFn',
-            'args': {
-              'value': {'path': '/val'},
-            },
-            'returnType': 'any',
+      final comp = ComponentModel('c1', 'Text', {
+        'text': {
+          'call': 'trackingFn',
+          'args': {
+            'value': {'path': '/val'},
           },
-        });
-        trackingSurface.componentsModel.addComponent(comp);
-        trackingSurface.dataModel.set('/val', 'hello');
+          'returnType': 'any',
+        },
+      });
+      trackingSurface.componentsModel.addComponent(comp);
+      trackingSurface.dataModel.set('/val', 'hello');
 
-        callCount = 0;
-        final context = ComponentContext(trackingSurface, comp);
-        GenericBinder(context, MinimalTextApi().schema);
+      callCount = 0;
+      final context = ComponentContext(trackingSurface, comp);
+      GenericBinder(context, MinimalTextApi().schema);
 
-        expect(
-          callCount,
-          1,
-          reason: 'Function should be evaluated once during '
-              'construction, not $callCount times',
-        );
-      },
-    );
+      expect(
+        callCount,
+        1,
+        reason:
+            'Function should be evaluated once during '
+            'construction, not $callCount times',
+      );
+    });
   });
 }
 
@@ -152,9 +144,9 @@ class _TrackingFunction extends FunctionImplementation {
 
   @override
   Schema get argumentSchema => Schema.object(
-        properties: {'value': CommonSchemas.dynamicString},
-        required: ['value'],
-      );
+    properties: {'value': CommonSchemas.dynamicString},
+    required: ['value'],
+  );
 
   @override
   Object? execute(

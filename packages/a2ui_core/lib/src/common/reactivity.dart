@@ -87,17 +87,18 @@ class ComputedNotifier<T> extends ValueNotifier<T> {
   // Stack-based pending deps to handle reentrant ComputedNotifier creation
   // (e.g. when _compute itself creates a nested ComputedNotifier).
   static final List<Set<notifiers.GenUiValueListenable<Object?>>>
-      _pendingDepsStack = [];
+  _pendingDepsStack = [];
 
   static T _initialValue<T>(T Function() compute) {
     final tracker = _DependencyTracker();
-    final value = tracker.track(compute);
+    final T value = tracker.track(compute);
     _pendingDepsStack.add(tracker.dependencies);
     return value;
   }
 
   void _subscribePendingDeps() {
-    final deps = _pendingDepsStack.removeLast();
+    final Set<notifiers.GenUiValueListenable<Object?>> deps = _pendingDepsStack
+        .removeLast();
     for (final dep in deps) {
       dep.addListener(_onDependencyChanged);
     }

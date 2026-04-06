@@ -14,8 +14,7 @@ abstract class A2uiMessage {
     final String version = json['version'] as String? ?? 'v0.9';
 
     if (json.containsKey('createSurface')) {
-      final Map<String, dynamic> body =
-          json['createSurface'] as Map<String, dynamic>;
+      final body = json['createSurface'] as Map<String, dynamic>;
       return CreateSurfaceMessage(
         version: version,
         surfaceId: body['surfaceId'] as String,
@@ -26,19 +25,16 @@ abstract class A2uiMessage {
     }
 
     if (json.containsKey('updateComponents')) {
-      final Map<String, dynamic> body =
-          json['updateComponents'] as Map<String, dynamic>;
+      final body = json['updateComponents'] as Map<String, dynamic>;
       return UpdateComponentsMessage(
         version: version,
         surfaceId: body['surfaceId'] as String,
-        components: (body['components'] as List)
-            .cast<Map<String, dynamic>>(),
+        components: (body['components'] as List).cast<Map<String, dynamic>>(),
       );
     }
 
     if (json.containsKey('updateDataModel')) {
-      final Map<String, dynamic> body =
-          json['updateDataModel'] as Map<String, dynamic>;
+      final body = json['updateDataModel'] as Map<String, dynamic>;
       return UpdateDataModelMessage(
         version: version,
         surfaceId: body['surfaceId'] as String,
@@ -48,8 +44,7 @@ abstract class A2uiMessage {
     }
 
     if (json.containsKey('deleteSurface')) {
-      final Map<String, dynamic> body =
-          json['deleteSurface'] as Map<String, dynamic>;
+      final body = json['deleteSurface'] as Map<String, dynamic>;
       return DeleteSurfaceMessage(
         version: version,
         surfaceId: body['surfaceId'] as String,

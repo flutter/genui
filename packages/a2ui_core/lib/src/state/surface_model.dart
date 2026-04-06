@@ -111,6 +111,7 @@ class SurfaceGroupModel<T extends ComponentApi> {
         _onAction.value = action;
       }
     }
+
     surface.onAction.addListener(forwarder);
     _actionForwarders[surface.id] = forwarder;
     _onSurfaceCreated.value = surface;
