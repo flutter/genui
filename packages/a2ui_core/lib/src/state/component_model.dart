@@ -19,7 +19,9 @@ class ComponentModel {
 
   set properties(Map<String, dynamic> newProperties) {
     _properties = Map.from(newProperties);
-    _onUpdated.value = this;
+    // Use forceNotify because the value is always `this` — ValueNotifier's
+    // equality check would silently skip every notification after the first.
+    _onUpdated.forceNotify();
   }
 
   /// Disposes of the component and its resources.
