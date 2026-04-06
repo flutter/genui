@@ -13,7 +13,8 @@ class A2uiError implements Exception {
 class A2uiValidationError extends A2uiError {
   final dynamic details;
 
-  A2uiValidationError(String message, {this.details}) : super(message, 'VALIDATION_ERROR');
+  A2uiValidationError(String message, {this.details})
+    : super(message, 'VALIDATION_ERROR');
 }
 
 /// Thrown during DataModel mutations (invalid paths, type mismatches).
@@ -29,10 +30,11 @@ class A2uiExpressionError extends A2uiError {
   final dynamic details;
 
   A2uiExpressionError(String message, {this.expression, this.details})
-      : super(message, 'EXPRESSION_ERROR');
+    : super(message, 'EXPRESSION_ERROR');
 }
 
-/// Thrown for structural issues in the UI tree (missing surfaces, duplicate components).
+/// Thrown for structural issues in the UI tree (missing surfaces, duplicate
+/// components).
 class A2uiStateError extends A2uiError {
   A2uiStateError(String message) : super(message, 'STATE_ERROR');
 }

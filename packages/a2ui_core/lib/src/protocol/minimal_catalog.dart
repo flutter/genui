@@ -1,8 +1,9 @@
 import 'package:json_schema_builder/json_schema_builder.dart';
+
+import '../common/cancellation.dart';
+import '../rendering/contexts.dart';
 import 'catalog.dart';
 import 'common_schemas.dart';
-import '../rendering/contexts.dart';
-import '../common/reactivity.dart';
 
 class MinimalTextApi extends ComponentApi {
   @override
@@ -12,7 +13,9 @@ class MinimalTextApi extends ComponentApi {
   Schema get schema => Schema.object(
     properties: {
       'text': CommonSchemas.dynamicString,
-      'variant': Schema.string(enumValues: ['h1', 'h2', 'h3', 'h4', 'h5', 'caption', 'body']),
+      'variant': Schema.string(
+        enumValues: ['h1', 'h2', 'h3', 'h4', 'h5', 'caption', 'body'],
+      ),
     },
     required: ['text'],
   );
@@ -26,7 +29,17 @@ class MinimalRowApi extends ComponentApi {
   Schema get schema => Schema.object(
     properties: {
       'children': CommonSchemas.childList,
-      'justify': Schema.string(enumValues: ['center', 'end', 'spaceAround', 'spaceBetween', 'spaceEvenly', 'start', 'stretch']),
+      'justify': Schema.string(
+        enumValues: [
+          'center',
+          'end',
+          'spaceAround',
+          'spaceBetween',
+          'spaceEvenly',
+          'start',
+          'stretch',
+        ],
+      ),
       'align': Schema.string(enumValues: ['start', 'center', 'end', 'stretch']),
     },
     required: ['children'],
@@ -41,7 +54,17 @@ class MinimalColumnApi extends ComponentApi {
   Schema get schema => Schema.object(
     properties: {
       'children': CommonSchemas.childList,
-      'justify': Schema.string(enumValues: ['start', 'center', 'end', 'spaceBetween', 'spaceAround', 'spaceEvenly', 'stretch']),
+      'justify': Schema.string(
+        enumValues: [
+          'start',
+          'center',
+          'end',
+          'spaceBetween',
+          'spaceAround',
+          'spaceEvenly',
+          'stretch',
+        ],
+      ),
       'align': Schema.string(enumValues: ['center', 'end', 'start', 'stretch']),
     },
     required: ['children'],
@@ -80,7 +103,9 @@ class MinimalTextFieldApi extends ComponentApi {
         properties: {
           'label': CommonSchemas.dynamicString,
           'value': CommonSchemas.dynamicString,
-          'variant': Schema.string(enumValues: ['longText', 'number', 'shortText', 'obscured']),
+          'variant': Schema.string(
+            enumValues: ['longText', 'number', 'shortText', 'obscured'],
+          ),
           'validationRegexp': Schema.string(),
         },
         required: ['label'],
@@ -98,38 +123,39 @@ class CapitalizeFunction extends FunctionImplementation {
 
   @override
   Schema get argumentSchema => Schema.object(
-    properties: {
-      'value': CommonSchemas.dynamicString,
-    },
+    properties: {'value': CommonSchemas.dynamicString},
     required: ['value'],
   );
 
   @override
-  dynamic execute(Map<String, dynamic> args, DataContext context, [dynamic cancellationSignal]) {
-    final val = args['value']?.toString() ?? '';
+  dynamic execute(
+    Map<String, dynamic> args,
+    DataContext context, [
+    CancellationSignal? cancellationSignal,
+  ]) {
+    final String val = args['value']?.toString() ?? '';
     if (val.isEmpty) return '';
     return val[0].toUpperCase() + val.substring(1);
   }
 }
 
 class MinimalCatalog extends Catalog<ComponentApi> {
-  MinimalCatalog() : super(
-    id: 'https://a2ui.org/specification/v0_9/catalogs/minimal/minimal_catalog.json',
-    components: [
-      MinimalTextApi(),
-      MinimalRowApi(),
-      MinimalColumnApi(),
-      MinimalButtonApi(),
-      MinimalTextFieldApi(),
-    ],
-    functions: [
-      CapitalizeFunction(),
-    ],
-    themeSchema: Schema.object(
-      properties: {
-        'primaryColor': Schema.string(pattern: r'^#[0-9a-fA-F]{6}$'),
-      },
-      additionalProperties: true,
-    ),
-  );
+  MinimalCatalog()
+    : super(
+        id: 'https://a2ui.org/specification/v0_9/catalogs/minimal/minimal_catalog.json',
+        components: [
+          MinimalTextApi(),
+          MinimalRowApi(),
+          MinimalColumnApi(),
+          MinimalButtonApi(),
+          MinimalTextFieldApi(),
+        ],
+        functions: [CapitalizeFunction()],
+        themeSchema: Schema.object(
+          properties: {
+            'primaryColor': Schema.string(pattern: r'^#[0-9a-fA-F]{6}$'),
+          },
+          additionalProperties: true,
+        ),
+      );
 }

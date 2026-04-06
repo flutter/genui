@@ -1,11 +1,12 @@
 import '../common/errors.dart';
-import '../protocol/common.dart';
 
-/// A parser for A2UI expressions, supporting string interpolation and function calls.
+/// A parser for A2UI expressions, supporting string interpolation
+/// and function calls.
 class ExpressionParser {
   static const int maxDepth = 10;
 
-  /// Parses an input string into a list of components (literals or [Map] representations of expressions).
+  /// Parses an input string into a list of components (literals or
+  /// [Map] representations of expressions).
   List<dynamic> parse(String input, [int depth = 0]) {
     if (depth > maxDepth) {
       throw A2uiExpressionError('Max recursion depth reached in parse');
@@ -20,28 +21,28 @@ class ExpressionParser {
     while (!scanner.isAtEnd) {
       if (scanner.matches('\${')) {
         scanner.advance(2);
-        final content = _extractInterpolationContent(scanner);
-        final parsed = parseExpression(content, depth + 1);
+        final String content = _extractInterpolationContent(scanner);
+        final Object? parsed = parseExpression(content, depth + 1);
         parts.add(parsed);
       } else if (scanner.matches('\\\${')) {
         scanner.advance(1); // skip \
-        final start = scanner.pos;
+        final int start = scanner.pos;
         scanner.advance(2); // skip ${
-        final literal = scanner.substring(start, scanner.pos);
+        final String literal = scanner.substring(start, scanner.pos);
         if (parts.isNotEmpty && parts.last is String) {
           parts[parts.length - 1] = (parts.last as String) + literal;
         } else {
           parts.add(literal);
         }
       } else {
-        final start = scanner.pos;
+        final int start = scanner.pos;
         while (!scanner.isAtEnd) {
           if (scanner.matches('\${') || scanner.matches('\\\${')) {
             break;
           }
           scanner.advance();
         }
-        final literal = scanner.substring(start, scanner.pos);
+        final String literal = scanner.substring(start, scanner.pos);
         if (parts.isNotEmpty && parts.last is String) {
           parts[parts.length - 1] = (parts.last as String) + literal;
         } else {
@@ -53,11 +54,11 @@ class ExpressionParser {
   }
 
   String _extractInterpolationContent(_Scanner scanner) {
-    final start = scanner.pos;
-    int braceBalance = 1;
+    final int start = scanner.pos;
+    var braceBalance = 1;
 
     while (!scanner.isAtEnd && braceBalance > 0) {
-      final char = scanner.advance();
+      final String char = scanner.advance();
       if (char == '{') {
         braceBalance++;
       } else if (char == '}') {
@@ -65,7 +66,7 @@ class ExpressionParser {
       } else if (char == "'" || char == '"') {
         final quote = char;
         while (!scanner.isAtEnd) {
-          final c = scanner.advance();
+          final String c = scanner.advance();
           if (c == '\\') {
             scanner.advance();
           } else if (c == quote) {
@@ -84,14 +85,17 @@ class ExpressionParser {
 
   /// Parses a single expression string into its DynamicValue representation.
   dynamic parseExpression(String expr, [int depth = 0]) {
-    final trimmed = expr.trim();
+    final String trimmed = expr.trim();
     if (trimmed.isEmpty) return '';
 
     final scanner = _Scanner(trimmed);
-    final result = _parseExpressionInternal(scanner, depth);
+    final Object? result = _parseExpressionInternal(scanner, depth);
     scanner.skipWhitespace();
     if (!scanner.isAtEnd) {
-      throw A2uiExpressionError("Unexpected characters at end of expression: '${scanner.input.substring(scanner.pos)}'");
+      throw A2uiExpressionError(
+        'Unexpected characters at end of expression: '
+        "'${scanner.input.substring(scanner.pos)}'",
+      );
     }
     return result;
   }
@@ -103,7 +107,7 @@ class ExpressionParser {
     // Nested interpolation
     if (scanner.matches('\${')) {
       scanner.advance(2);
-      final content = _extractInterpolationContent(scanner);
+      final String content = _extractInterpolationContent(scanner);
       return parseExpression(content, depth + 1);
     }
 
@@ -119,7 +123,7 @@ class ExpressionParser {
     if (scanner.matchesKeyword('null')) return null;
 
     // Identifiers (Function calls or Path starts)
-    final token = _scanPathOrIdentifier(scanner);
+    final String token = _scanPathOrIdentifier(scanner);
     scanner.skipWhitespace();
 
     if (scanner.peek() == '(') {
@@ -131,9 +135,9 @@ class ExpressionParser {
   }
 
   String _scanPathOrIdentifier(_Scanner scanner) {
-    final start = scanner.pos;
+    final int start = scanner.pos;
     while (!scanner.isAtEnd) {
-      final c = scanner.peek();
+      final String c = scanner.peek();
       if (_isAlnum(c) || c == '/' || c == '.' || c == '_' || c == '-') {
         scanner.advance();
       } else {
@@ -150,10 +154,12 @@ class ExpressionParser {
     final args = <String, dynamic>{};
 
     while (!scanner.isAtEnd && scanner.peek() != ')') {
-      final argName = _scanIdentifier(scanner);
+      final String argName = _scanIdentifier(scanner);
       scanner.skipWhitespace();
       if (!scanner.match(':')) {
-        throw A2uiExpressionError("Expected ':' after argument name '$argName' in function '$funcName'");
+        throw A2uiExpressionError(
+          "Expected ':' after argument name '$argName' in function '$funcName'",
+        );
       }
       scanner.skipWhitespace();
 
@@ -167,35 +173,39 @@ class ExpressionParser {
     }
 
     if (!scanner.match(')')) {
-      throw A2uiExpressionError("Expected ')' after function arguments for '$funcName'");
+      throw A2uiExpressionError(
+        "Expected ')' after function arguments for '$funcName'",
+      );
     }
 
-    return {
-      'call': funcName,
-      'args': args,
-      'returnType': 'any',
-    };
+    return {'call': funcName, 'args': args, 'returnType': 'any'};
   }
 
   String _scanIdentifier(_Scanner scanner) {
-    final start = scanner.pos;
-    while (!scanner.isAtEnd && (_isAlnum(scanner.peek()) || scanner.peek() == '_')) {
+    final int start = scanner.pos;
+    while (!scanner.isAtEnd &&
+        (_isAlnum(scanner.peek()) || scanner.peek() == '_')) {
       scanner.advance();
     }
     return scanner.input.substring(start, scanner.pos);
   }
 
   String _parseStringLiteral(_Scanner scanner) {
-    final quote = scanner.advance();
+    final String quote = scanner.advance();
     final result = StringBuffer();
     while (!scanner.isAtEnd) {
-      final c = scanner.advance();
+      final String c = scanner.advance();
       if (c == '\\') {
-        final next = scanner.advance();
-        if (next == 'n') result.write('\n');
-        else if (next == 't') result.write('\t');
-        else if (next == 'r') result.write('\r');
-        else result.write(next);
+        final String next = scanner.advance();
+        if (next == 'n') {
+          result.write('\n');
+        } else if (next == 't') {
+          result.write('\t');
+        } else if (next == 'r') {
+          result.write('\r');
+        } else {
+          result.write(next);
+        }
       } else if (c == quote) {
         break;
       } else {
@@ -206,8 +216,9 @@ class ExpressionParser {
   }
 
   num _parseNumberLiteral(_Scanner scanner) {
-    final start = scanner.pos;
-    while (!scanner.isAtEnd && (_isDigit(scanner.peek()) || scanner.peek() == '.')) {
+    final int start = scanner.pos;
+    while (!scanner.isAtEnd &&
+        (_isDigit(scanner.peek()) || scanner.peek() == '.')) {
       scanner.advance();
     }
     return num.parse(scanner.input.substring(start, scanner.pos));
@@ -236,7 +247,7 @@ class _Scanner {
   }
 
   String advance([int count = 1]) {
-    final result = input.substring(pos, pos + count);
+    final String result = input.substring(pos, pos + count);
     pos += count;
     return result;
   }
@@ -255,7 +266,7 @@ class _Scanner {
 
   bool matchesKeyword(String keyword) {
     if (input.startsWith(keyword, pos)) {
-      final next = peek(keyword.length);
+      final String next = peek(keyword.length);
       if (!RegExp(r'[a-zA-Z0-9_]').hasMatch(next)) {
         advance(keyword.length);
         return true;

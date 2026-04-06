@@ -1,11 +1,12 @@
 import 'dart:async';
+
 import '../common/reactivity.dart';
 import '../protocol/catalog.dart';
-import '../protocol/messages.dart';
 import '../protocol/common.dart';
+import '../protocol/messages.dart';
 import '../rendering/contexts.dart';
-import 'data_model.dart';
 import 'component_model.dart';
+import 'data_model.dart';
 
 /// The state model for a single UI surface.
 class SurfaceModel<T extends ComponentApi> {
@@ -31,25 +32,34 @@ class SurfaceModel<T extends ComponentApi> {
     required this.catalog,
     this.theme = const {},
     this.sendDataModel = false,
-  })  : dataModel = DataModel(),
-        componentsModel = SurfaceComponentsModel();
+  }) : dataModel = DataModel(),
+       componentsModel = SurfaceComponentsModel();
 
   /// Dispatches an action from this surface.
-  Future<void> dispatchAction(Map<String, dynamic> payload, String sourceComponentId) async {
+  Future<void> dispatchAction(
+    Map<String, dynamic> payload,
+    String sourceComponentId,
+  ) async {
     if (payload.containsKey('event')) {
       final event = payload['event'] as Map<String, dynamic>;
       final action = A2uiClientAction(
-        name: event['name'] ?? 'unknown',
+        name: (event['name'] as String?) ?? 'unknown',
         surfaceId: id,
         sourceComponentId: sourceComponentId,
         timestamp: DateTime.now(),
-        context: Map<String, dynamic>.from(event['context'] ?? {}),
+        context: Map<String, dynamic>.from(
+          (event['context'] ?? <String, dynamic>{}) as Map,
+        ),
       );
       _onAction.value = action;
     } else if (payload.containsKey('functionCall')) {
       final callJson = payload['functionCall'] as Map<String, dynamic>;
       final call = FunctionCall.fromJson(callJson);
-      catalog.invoker(call.call, Map<String, dynamic>.from(call.args), DataContext(this, '/'));
+      catalog.invoker(
+        call.call,
+        Map<String, dynamic>.from(call.args),
+        DataContext(this, '/'),
+      );
     }
   }
 
@@ -70,15 +80,17 @@ class SurfaceModel<T extends ComponentApi> {
 /// The root state model for the A2UI system.
 class SurfaceGroupModel<T extends ComponentApi> {
   final Map<String, SurfaceModel<T>> _surfaces = {};
-  
+
   final _onSurfaceCreated = ValueNotifier<SurfaceModel<T>?>(null);
   final _onSurfaceDeleted = ValueNotifier<String?>(null);
   final _onAction = ValueNotifier<A2uiClientAction?>(null);
 
   /// Fires when a new surface is added.
   ValueListenable<SurfaceModel<T>?> get onSurfaceCreated => _onSurfaceCreated;
+
   /// Fires when a surface is removed.
   ValueListenable<String?> get onSurfaceDeleted => _onSurfaceDeleted;
+
   /// Fires when an action is dispatched from ANY surface in the group.
   ValueListenable<A2uiClientAction?> get onAction => _onAction;
 
@@ -89,7 +101,7 @@ class SurfaceGroupModel<T extends ComponentApi> {
     }
     _surfaces[surface.id] = surface;
     surface.onAction.addListener(() {
-      final action = surface.onAction.value;
+      final A2uiClientAction? action = surface.onAction.value;
       if (action != null) {
         _onAction.value = action;
       }
@@ -99,7 +111,7 @@ class SurfaceGroupModel<T extends ComponentApi> {
 
   /// Removes a surface from the group by its ID.
   void deleteSurface(String id) {
-    final surface = _surfaces.remove(id);
+    final SurfaceModel<T>? surface = _surfaces.remove(id);
     if (surface != null) {
       surface.dispose();
       _onSurfaceDeleted.value = id;

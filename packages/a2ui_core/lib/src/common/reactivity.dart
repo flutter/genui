@@ -25,7 +25,7 @@ void batch(void Function() callback) {
     callback();
   } finally {
     _inBatch = false;
-    final toNotify = _pendingNotifiers.toList();
+    final List<ValueNotifier<dynamic>> toNotify = _pendingNotifiers.toList();
     _pendingNotifiers.clear();
     for (final notifier in toNotify) {
       notifier.notifyListeners();
@@ -74,17 +74,20 @@ class ComputedNotifier<T> extends ValueNotifier<T> {
 
   void _updateDependencies() {
     final tracker = _DependencyTracker();
-    final newValue = tracker.track(_compute);
+    final T newValue = tracker.track(_compute);
 
-    final newDeps = tracker.dependencies;
+    final Set<notifiers.GenUiValueListenable<dynamic>> newDeps =
+        tracker.dependencies;
 
     // Unsubscribe from old dependencies no longer needed.
-    for (final dep in _dependencies.difference(newDeps)) {
+    for (final notifiers.GenUiValueListenable<dynamic> dep
+        in _dependencies.difference(newDeps)) {
       dep.removeListener(_onDependencyChanged);
     }
 
     // Subscribe to new dependencies.
-    for (final dep in newDeps.difference(_dependencies)) {
+    for (final notifiers.GenUiValueListenable<dynamic> dep
+        in newDeps.difference(_dependencies)) {
       dep.addListener(_onDependencyChanged);
     }
 
@@ -99,13 +102,8 @@ class ComputedNotifier<T> extends ValueNotifier<T> {
   }
 
   @override
-  T get value {
-    return super.value;
-  }
-
-  @override
   void dispose() {
-    for (final dep in _dependencies) {
+    for (final notifiers.GenUiValueListenable<dynamic> dep in _dependencies) {
       dep.removeListener(_onDependencyChanged);
     }
     _dependencies.clear();
@@ -118,7 +116,7 @@ class _DependencyTracker {
   final Set<notifiers.GenUiValueListenable<dynamic>> dependencies = {};
 
   T track<T>(T Function() callback) {
-    final previous = instance;
+    final _DependencyTracker? previous = instance;
     instance = this;
     try {
       return callback();

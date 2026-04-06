@@ -1,5 +1,5 @@
-import 'package:test/test.dart';
 import 'package:a2ui_core/src/common/data_path.dart';
+import 'package:test/test.dart';
 
 void main() {
   group('DataPath', () {
@@ -22,13 +22,13 @@ void main() {
     });
 
     test('appends segments', () {
-      final path = DataPath.parse('/foo').append('bar');
+      final DataPath path = DataPath.parse('/foo').append('bar');
       expect(path.segments, ['foo', 'bar']);
       expect(path.toString(), '/foo/bar');
     });
 
     test('appends numeric segments', () {
-      final path = DataPath.parse('/foo').append(0);
+      final DataPath path = DataPath.parse('/foo').append(0);
       expect(path.segments, ['foo', '0']);
       expect(path.toString(), '/foo/0');
     });

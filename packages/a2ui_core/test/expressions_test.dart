@@ -1,5 +1,5 @@
-import 'package:test/test.dart';
 import 'package:a2ui_core/src/processing/expressions.dart';
+import 'package:test/test.dart';
 
 void main() {
   group('ExpressionParser', () {
@@ -14,11 +14,17 @@ void main() {
     });
 
     test('parses simple interpolation', () {
-      expect(parser.parse('hello \${foo}'), ['hello ', {'path': 'foo'}]);
+      expect(parser.parse('hello \${foo}'), [
+        'hello ',
+        {'path': 'foo'},
+      ]);
     });
 
     test('parses absolute paths', () {
-      expect(parser.parse('value is \${/user/name}'), ['value is ', {'path': '/user/name'}]);
+      expect(parser.parse('value is \${/user/name}'), [
+        'value is ',
+        {'path': '/user/name'},
+      ]);
     });
 
     test('parses function calls', () {
@@ -27,13 +33,13 @@ void main() {
         {
           'call': 'add',
           'args': {'a': 10, 'b': 20},
-          'returnType': 'any'
-        }
+          'returnType': 'any',
+        },
       ]);
     });
 
     test('parses nested interpolation', () {
-      expect(parser.parse('\${\${\"hello\"}}'), ['hello']);
+      expect(parser.parse('\${\${"hello"}}'), ['hello']);
     });
 
     test('handles escaped interpolation', () {
@@ -41,11 +47,13 @@ void main() {
     });
 
     test('parses complex paths', () {
-      expect(parser.parseExpression('my-path.with_underscores'), {'path': 'my-path.with_underscores'});
+      expect(parser.parseExpression('my-path.with_underscores'), {
+        'path': 'my-path.with_underscores',
+      });
     });
 
     test('parses string literals with spaces', () {
-      expect(parser.parseExpression('\"hello world\"'), 'hello world');
+      expect(parser.parseExpression('"hello world"'), 'hello world');
     });
 
     test('throws on unclosed interpolation', () {

@@ -1,5 +1,3 @@
-import 'package:json_schema_builder/json_schema_builder.dart';
-
 /// A JSON Pointer path to a value in the data model.
 class DataBinding {
   final String path;
@@ -50,7 +48,11 @@ class Action {
     if (json.containsKey('event')) {
       return Action(event: json['event'] as Map<String, dynamic>);
     } else if (json.containsKey('functionCall')) {
-      return Action(functionCall: FunctionCall.fromJson(json['functionCall'] as Map<String, dynamic>));
+      return Action(
+        functionCall: FunctionCall.fromJson(
+          json['functionCall'] as Map<String, dynamic>,
+        ),
+      );
     }
     throw ArgumentError('Invalid action JSON: $json');
   }
@@ -75,8 +77,5 @@ class ChildListTemplate {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    'componentId': componentId,
-    'path': path,
-  };
+  Map<String, dynamic> toJson() => {'componentId': componentId, 'path': path};
 }

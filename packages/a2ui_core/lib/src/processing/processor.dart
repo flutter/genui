@@ -1,9 +1,10 @@
+import 'package:json_schema_builder/json_schema_builder.dart';
+
 import '../common/errors.dart';
 import '../protocol/catalog.dart';
 import '../protocol/messages.dart';
-import '../state/surface_model.dart';
 import '../state/component_model.dart';
-import 'package:json_schema_builder/json_schema_builder.dart';
+import '../state/surface_model.dart';
 
 /// The central processor for A2UI messages.
 class MessageProcessor<T extends ComponentApi> {
@@ -16,7 +17,7 @@ class MessageProcessor<T extends ComponentApi> {
   }) : groupModel = SurfaceGroupModel<T>() {
     if (onAction != null) {
       groupModel.onAction.addListener(() {
-        final action = groupModel.onAction.value;
+        final A2uiClientAction? action = groupModel.onAction.value;
         if (action != null) {
           onAction(action);
         }
@@ -44,9 +45,10 @@ class MessageProcessor<T extends ComponentApi> {
   }
 
   void _processCreateSurface(CreateSurfaceMessage message) {
-    final catalog = catalogs.firstWhere(
+    final Catalog<T> catalog = catalogs.firstWhere(
       (c) => c.id == message.catalogId,
-      orElse: () => throw A2uiStateError('Catalog not found: ${message.catalogId}'),
+      orElse: () =>
+          throw A2uiStateError('Catalog not found: ${message.catalogId}'),
     );
 
     if (groupModel.getSurface(message.surfaceId) != null) {
@@ -63,12 +65,12 @@ class MessageProcessor<T extends ComponentApi> {
   }
 
   void _processUpdateComponents(UpdateComponentsMessage message) {
-    final surface = groupModel.getSurface(message.surfaceId);
+    final SurfaceModel<T>? surface = groupModel.getSurface(message.surfaceId);
     if (surface == null) {
       throw A2uiStateError('Surface not found: ${message.surfaceId}');
     }
 
-    for (final compJson in message.components) {
+    for (final Map<String, dynamic> compJson in message.components) {
       final id = compJson['id'] as String?;
       final type = compJson['component'] as String?;
 
@@ -76,8 +78,10 @@ class MessageProcessor<T extends ComponentApi> {
         throw A2uiValidationError("Component missing an 'id'.");
       }
 
-      final existing = surface.componentsModel.get(id);
-      final props = Map<String, dynamic>.from(compJson)..remove('id')..remove('component');
+      final ComponentModel? existing = surface.componentsModel.get(id);
+      final props = Map<String, dynamic>.from(compJson)
+        ..remove('id')
+        ..remove('component');
 
       if (existing != null) {
         if (type != null && type != existing.type) {
@@ -89,7 +93,9 @@ class MessageProcessor<T extends ComponentApi> {
         }
       } else {
         if (type == null) {
-          throw A2uiValidationError("Cannot create component $id without a 'component' type.");
+          throw A2uiValidationError(
+            "Cannot create component $id without a 'component' type.",
+          );
         }
         surface.componentsModel.addComponent(ComponentModel(id, type, props));
       }
@@ -97,7 +103,7 @@ class MessageProcessor<T extends ComponentApi> {
   }
 
   void _processUpdateDataModel(UpdateDataModelMessage message) {
-    final surface = groupModel.getSurface(message.surfaceId);
+    final SurfaceModel<T>? surface = groupModel.getSurface(message.surfaceId);
     if (surface == null) {
       throw A2uiStateError('Surface not found: ${message.surfaceId}');
     }
@@ -110,24 +116,24 @@ class MessageProcessor<T extends ComponentApi> {
   }
 
   /// Generates client capabilities.
-  Map<String, dynamic> getClientCapabilities({bool includeInlineCatalogs = false}) {
+  Map<String, dynamic> getClientCapabilities({
+    bool includeInlineCatalogs = false,
+  }) {
     final v09 = <String, dynamic>{
       'supportedCatalogIds': catalogs.map((c) => c.id).toList(),
     };
 
     if (includeInlineCatalogs) {
-      v09['inlineCatalogs'] = catalogs.map((c) => _generateInlineCatalog(c)).toList();
+      v09['inlineCatalogs'] = catalogs.map(_generateInlineCatalog).toList();
     }
 
-    return {
-      'v0.9': v09,
-    };
+    return {'v0.9': v09};
   }
 
   Map<String, dynamic> _generateInlineCatalog(Catalog<T> catalog) {
     final components = <String, dynamic>{};
-    for (final entry in catalog.components.entries) {
-      final jsonSchema = entry.value.schema.toJsonMap();
+    for (final MapEntry<String, T> entry in catalog.components.entries) {
+      final Map<String, dynamic> jsonSchema = entry.value.schema.toJsonMap();
       _processRefs(jsonSchema);
 
       // Wrap in A2UI envelope
@@ -137,16 +143,18 @@ class MessageProcessor<T extends ComponentApi> {
           {
             'properties': {
               'component': {'const': entry.key},
-              ...?jsonSchema['properties'],
+              ...?(jsonSchema['properties'] as Map<String, dynamic>?),
             },
             'required': ['component', ...?(jsonSchema['required'] as List?)],
-          }
-        ]
+          },
+        ],
       };
     }
 
-    final functions = catalog.functions.values.map((f) {
-      final jsonSchema = f.argumentSchema.toJsonMap();
+    final List<Map<String, Object>> functions = catalog.functions.values.map((
+      f,
+    ) {
+      final Map<String, dynamic> jsonSchema = f.argumentSchema.toJsonMap();
       _processRefs(jsonSchema);
       return {
         'name': f.name,
@@ -166,18 +174,19 @@ class MessageProcessor<T extends ComponentApi> {
       'catalogId': catalog.id,
       'components': components,
       if (functions.isNotEmpty) 'functions': functions,
-      if (theme != null) 'theme': theme,
+      'theme': ?theme,
     };
   }
 
-  void _processRefs(dynamic node) {
+  void _processRefs(Object? node) {
     if (node is! Map) return;
 
-    if (node['description'] is String && (node['description'] as String).startsWith('REF:')) {
+    if (node['description'] is String &&
+        (node['description'] as String).startsWith('REF:')) {
       final desc = node['description'] as String;
-      final parts = desc.substring(4).split('|');
-      final ref = parts[0];
-      final actualDesc = parts.length > 1 ? parts[1] : null;
+      final List<String> parts = desc.substring(4).split('|');
+      final String ref = parts[0];
+      final String? actualDesc = parts.length > 1 ? parts[1] : null;
 
       node.clear();
       node['\$ref'] = ref;
@@ -191,7 +200,7 @@ class MessageProcessor<T extends ComponentApi> {
       if (value is Map) {
         _processRefs(value);
       } else if (value is List) {
-        for (final item in value) {
+        for (final Object? item in value) {
           if (item is Map) {
             _processRefs(item);
           }
@@ -203,7 +212,7 @@ class MessageProcessor<T extends ComponentApi> {
   /// Aggregates data models for surfaces with sendDataModel enabled.
   Map<String, dynamic>? getClientDataModel() {
     final surfaces = <String, dynamic>{};
-    for (final surface in groupModel.allSurfaces) {
+    for (final SurfaceModel<T> surface in groupModel.allSurfaces) {
       if (surface.sendDataModel) {
         surfaces[surface.id] = surface.dataModel.get('/');
       }
@@ -211,10 +220,7 @@ class MessageProcessor<T extends ComponentApi> {
 
     if (surfaces.isEmpty) return null;
 
-    return {
-      'version': 'v0.9',
-      'surfaces': surfaces,
-    };
+    return {'version': 'v0.9', 'surfaces': surfaces};
   }
 }
 

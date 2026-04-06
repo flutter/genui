@@ -1,19 +1,11 @@
-import 'dart:async';
 import 'package:json_schema_builder/json_schema_builder.dart';
 import '../common/reactivity.dart';
 import '../protocol/common.dart';
 import 'contexts.dart';
 
-/// Represents the intended runtime behavior of a property parsed from its schema.
-enum Behavior {
-  dynamic,
-  action,
-  structural,
-  checkable,
-  static,
-  object,
-  array,
-}
+/// Represents the intended runtime behavior of a property parsed from
+/// its schema.
+enum Behavior { dynamic, action, structural, checkable, static, object, array }
 
 class BehaviorNode {
   final Behavior type;
@@ -32,12 +24,13 @@ class ChildNode {
 }
 
 /// A framework-agnostic engine that transforms raw A2UI JSON payload
-/// configurations into a single, cohesive reactive stream of resolved properties.
+/// configurations into a single, cohesive reactive stream of resolved
+/// properties.
 class GenericBinder {
   final ComponentContext context;
   final Schema schema;
   late final BehaviorNode _behaviorTree;
-  
+
   final _resolvedProps = ValueNotifier<Map<String, dynamic>>({});
   final List<void Function()> _dataListeners = [];
   bool _isConnected = false;
@@ -51,8 +44,9 @@ class GenericBinder {
   }
 
   void _resolveInitialProps() {
-    final props = context.componentModel.properties;
-    _resolvedProps.value = _resolveAndBind(props, _behaviorTree, [], true);
+    final Map<String, dynamic> props = context.componentModel.properties;
+    _resolvedProps.value =
+        _resolveAndBind(props, _behaviorTree, [], true) as Map<String, dynamic>;
   }
 
   /// Connects to the component model for updates.
@@ -64,25 +58,34 @@ class GenericBinder {
   }
 
   void _rebuildAllBindings() {
-    for (final unsub in _dataListeners) {
+    for (final void Function() unsub in _dataListeners) {
       unsub();
     }
     _dataListeners.clear();
 
-    final props = context.componentModel.properties;
-    _resolvedProps.value = _resolveAndBind(props, _behaviorTree, [], false);
+    final Map<String, dynamic> props = context.componentModel.properties;
+    _resolvedProps.value =
+        _resolveAndBind(props, _behaviorTree, [], false)
+            as Map<String, dynamic>;
   }
 
-  dynamic _resolveAndBind(dynamic value, BehaviorNode behavior, List<String> path, bool isSync) {
+  dynamic _resolveAndBind(
+    Object? value,
+    BehaviorNode behavior,
+    List<String> path,
+    bool isSync,
+  ) {
     if (value == null) return null;
 
     switch (behavior.type) {
       case Behavior.dynamic:
-        final listenable = context.dataContext.resolveListenable(value);
+        final ValueListenable<dynamic> listenable = context.dataContext
+            .resolveListenable(value);
         if (!isSync) {
           void listener() {
             _updateDeepValue(path, listenable.value);
           }
+
           listenable.addListener(listener);
           _dataListeners.add(() => listenable.removeListener(listener));
         }
@@ -95,88 +98,116 @@ class GenericBinder {
           if (resolved is Map) {
             resolvedAction = Map<String, dynamic>.from(resolved);
           } else {
-            resolvedAction = {'event': {'name': value.toString()}};
+            resolvedAction = {
+              'event': {'name': value.toString()},
+            };
           }
           await context.dispatchAction(resolvedAction);
         };
 
       case Behavior.structural:
-        if (value is Map && value.containsKey('path') && value.containsKey('componentId')) {
-          final tpl = ChildListTemplate.fromJson(Map<String, dynamic>.from(value));
-          final listenable = context.dataContext.resolveListenable({'path': tpl.path});
-          
-          List<ChildNode> resolveChildren(dynamic val) {
-            final list = val is List ? val : [];
-            final nestedCtx = context.dataContext.nested(tpl.path);
-            return List.generate(list.length, (i) => ChildNode(tpl.componentId, nestedCtx.resolvePath(i.toString())));
+        if (value is Map &&
+            value.containsKey('path') &&
+            value.containsKey('componentId')) {
+          final tpl = ChildListTemplate.fromJson(
+            Map<String, dynamic>.from(value),
+          );
+          final ValueListenable<dynamic> listenable = context.dataContext
+              .resolveListenable({'path': tpl.path});
+
+          List<ChildNode> resolveChildren(Object? val) {
+            final List<dynamic> list = val is List ? val : [];
+            final DataContext nestedCtx = context.dataContext.nested(tpl.path);
+            return List.generate(
+              list.length,
+              (i) => ChildNode(
+                tpl.componentId,
+                nestedCtx.resolvePath(i.toString()),
+              ),
+            );
           }
 
           if (!isSync) {
             void listener() {
               _updateDeepValue(path, resolveChildren(listenable.value));
             }
+
             listenable.addListener(listener);
             _dataListeners.add(() => listenable.removeListener(listener));
           }
           return resolveChildren(listenable.value);
         }
         if (value is List) {
-          return value.map((id) => ChildNode(id.toString(), context.dataContext.path)).toList();
+          return value
+              .map((id) => ChildNode(id.toString(), context.dataContext.path))
+              .toList();
         }
         return value;
 
       case Behavior.checkable:
-        final rules = value is List ? value : [];
-        final results = List.filled(rules.length, true);
-        final messages = rules.map((r) => r['message']?.toString() ?? 'Validation failed').toList();
+        final List<dynamic> rules = value is List ? value : [];
+        final List<bool> results = List.filled(rules.length, true);
+        final List<String> messages = rules
+            .cast<Map<String, dynamic>>()
+            .map((r) => r['message']?.toString() ?? 'Validation failed')
+            .toList();
 
         void updateValidationState() {
           final errors = <String>[];
-          for (int i = 0; i < results.length; i++) {
+          for (var i = 0; i < results.length; i++) {
             if (!results[i]) errors.add(messages[i]);
           }
-          final parentPath = path.sublist(0, path.length - 1);
+          final List<String> parentPath = path.sublist(0, path.length - 1);
           _updateDeepValue([...parentPath, 'isValid'], errors.isEmpty);
           _updateDeepValue([...parentPath, 'validationErrors'], errors);
         }
 
-        for (int i = 0; i < rules.length; i++) {
-          final condition = rules[i]['condition'] ?? rules[i];
-          final listenable = context.dataContext.resolveListenable(condition);
+        for (var i = 0; i < rules.length; i++) {
+          final Object? condition =
+              (rules[i] as Map<String, dynamic>)['condition'] ?? rules[i];
+          final ValueListenable<dynamic> listenable = context.dataContext
+              .resolveListenable(condition);
           results[i] = listenable.value == true;
-          
+
           if (!isSync) {
             void listener() {
               results[i] = listenable.value == true;
               updateValidationState();
             }
+
             listenable.addListener(listener);
             _dataListeners.add(() => listenable.removeListener(listener));
           }
         }
-        
+
         // Return original rules for 'checks' property
         return value;
 
       case Behavior.object:
         if (value is! Map) return value;
         final result = <String, dynamic>{};
-        final shape = behavior.shape ?? {};
-        
-        for (final entry in value.entries) {
-          final key = entry.key;
-          final childBehavior = shape[key] ?? BehaviorNode(Behavior.static);
-          result[key] = _resolveAndBind(entry.value, childBehavior, [...path, key], isSync);
+        final Map<String, BehaviorNode> shape = behavior.shape ?? {};
+
+        for (final MapEntry<dynamic, dynamic> entry in value.entries) {
+          final key = entry.key as String;
+          final BehaviorNode childBehavior =
+              shape[key] ?? BehaviorNode(Behavior.static);
+          result[key] = _resolveAndBind(entry.value, childBehavior, [
+            ...path,
+            key,
+          ], isSync);
         }
 
         // Inject validation properties if 'checks' is present in shape
         if (shape.containsKey('checks') && result.containsKey('checks')) {
-          final rules = value['checks'] as List? ?? [];
-          bool isValid = true;
+          final List<dynamic> rules = value['checks'] as List? ?? [];
+          var isValid = true;
           final errors = <String>[];
-          for (final rule in rules) {
-            final condition = rule['condition'] ?? rule;
-            final val = context.dataContext.resolveSync(condition);
+          final List<Map<String, dynamic>> typedRules =
+              rules.cast<Map<String, dynamic>>();
+          for (final rule in typedRules) {
+            final Object? condition = rule['condition'] ?? rule;
+            final Object? val = context.dataContext.resolveSync(condition);
             if (val != true) {
               isValid = false;
               errors.add(rule['message']?.toString() ?? 'Validation failed');
@@ -187,13 +218,14 @@ class GenericBinder {
         }
 
         // Add setters for dynamic properties
-        for (final entry in shape.entries) {
+        for (final MapEntry<String, BehaviorNode> entry in shape.entries) {
           if (entry.value.type == Behavior.dynamic) {
-            final key = entry.key;
-            final setterName = 'set${key[0].toUpperCase()}${key.substring(1)}';
-            final rawValue = value[key];
+            final String key = entry.key;
+            final setterName =
+                'set${key[0].toUpperCase()}${key.substring(1)}';
+            final Object? rawValue = value[key];
             if (rawValue is Map && rawValue.containsKey('path')) {
-              result[setterName] = (dynamic newValue) {
+              result[setterName] = (Object? newValue) {
                 context.dataContext.set(rawValue['path'] as String, newValue);
               };
             }
@@ -203,49 +235,74 @@ class GenericBinder {
 
       case Behavior.array:
         if (value is! List) return value;
-        final elementBehavior = behavior.element ?? BehaviorNode(Behavior.static);
-        return value.asMap().entries.map((e) => _resolveAndBind(e.value, elementBehavior, [...path, e.key.toString()], isSync)).toList();
+        final BehaviorNode elementBehavior =
+            behavior.element ?? BehaviorNode(Behavior.static);
+        return value
+            .asMap()
+            .entries
+            .map(
+              (e) => _resolveAndBind(e.value, elementBehavior, [
+                ...path,
+                e.key.toString(),
+              ], isSync),
+            )
+            .toList();
 
       case Behavior.static:
-      default:
         return value;
     }
   }
 
-  void _updateDeepValue(List<String> path, dynamic newValue) {
-    _resolvedProps.value = _cloneAndUpdate(_resolvedProps.value, path, newValue);
+  void _updateDeepValue(List<String> path, Object? newValue) {
+    _resolvedProps.value = _cloneAndUpdate(
+      _resolvedProps.value,
+      path,
+      newValue,
+    );
   }
 
-  Map<String, dynamic> _cloneAndUpdate(Map<String, dynamic> map, List<String> path, dynamic newValue) {
+  Map<String, dynamic> _cloneAndUpdate(
+    Map<String, dynamic> map,
+    List<String> path,
+    Object? newValue,
+  ) {
     if (path.isEmpty) return newValue as Map<String, dynamic>;
-    
+
     final result = Map<String, dynamic>.from(map);
     dynamic current = result;
-    
-    for (int i = 0; i < path.length - 1; i++) {
-      final key = path[i];
+
+    for (var i = 0; i < path.length - 1; i++) {
+      final String key = path[i];
       if (current is Map) {
-        current[key] = current[key] is Map ? Map<String, dynamic>.from(current[key]) : (current[key] is List ? List.from(current[key]) : {});
+        current[key] = current[key] is Map
+            ? Map<String, dynamic>.from(current[key] as Map)
+            : (current[key] is List
+                  ? List<dynamic>.from(current[key] as Iterable)
+                  : <String, dynamic>{});
         current = current[key];
       } else if (current is List) {
-        final idx = int.parse(key);
-        current[idx] = current[idx] is Map ? Map<String, dynamic>.from(current[idx]) : (current[idx] is List ? List.from(current[idx]) : {});
+        final int idx = int.parse(key);
+        current[idx] = current[idx] is Map
+            ? Map<String, dynamic>.from(current[idx] as Map)
+            : (current[idx] is List
+                  ? List<dynamic>.from(current[idx] as Iterable)
+                  : <String, dynamic>{});
         current = current[idx];
       }
     }
-    
-    final lastKey = path.last;
+
+    final String lastKey = path.last;
     if (current is Map) {
       current[lastKey] = newValue;
     } else if (current is List) {
       current[int.parse(lastKey)] = newValue;
     }
-    
+
     return result;
   }
 
   BehaviorNode _scrapeSchemaBehavior(Schema schema, [String? propertyName]) {
-    final map = schema.value;
+    final Map<String, Object?> map = schema.value;
 
     if (propertyName == 'checks') return BehaviorNode(Behavior.checkable);
 
@@ -269,19 +326,37 @@ class GenericBinder {
         }
       }
     }
+
     collectSchemas(map.cast<String, dynamic>());
 
-    bool hasEvent = schemasToInspect.any((s) => s['properties'] != null && (s['properties'] as Map)['event'] != null);
-    bool hasFunctionCall = schemasToInspect.any((s) => s['properties'] != null && (s['properties'] as Map)['functionCall'] != null);
+    bool hasEvent = schemasToInspect.any(
+      (s) =>
+          s['properties'] != null && (s['properties'] as Map)['event'] != null,
+    );
+    bool hasFunctionCall = schemasToInspect.any(
+      (s) =>
+          s['properties'] != null &&
+          (s['properties'] as Map)['functionCall'] != null,
+    );
     if (hasEvent || hasFunctionCall) return BehaviorNode(Behavior.action);
 
-    bool hasPath = schemasToInspect.any((s) => s['properties'] != null && (s['properties'] as Map)['path'] != null && (s['properties'] as Map)['componentId'] == null);
+    bool hasPath = schemasToInspect.any(
+      (s) =>
+          s['properties'] != null &&
+          (s['properties'] as Map)['path'] != null &&
+          (s['properties'] as Map)['componentId'] == null,
+    );
     if (hasPath) return BehaviorNode(Behavior.dynamic);
 
-    bool hasStructural = schemasToInspect.any((s) => s['properties'] != null && (s['properties'] as Map)['componentId'] != null && (s['properties'] as Map)['path'] != null);
+    bool hasStructural = schemasToInspect.any(
+      (s) =>
+          s['properties'] != null &&
+          (s['properties'] as Map)['componentId'] != null &&
+          (s['properties'] as Map)['path'] != null,
+    );
     if (hasStructural) return BehaviorNode(Behavior.structural);
 
-    final type = map['type'];
+    final Object? type = map['type'];
     final Map<String, dynamic> allProperties = {};
     for (final s in schemasToInspect) {
       if (s['properties'] is Map) {
@@ -291,16 +366,24 @@ class GenericBinder {
 
     if (type == 'object' || allProperties.isNotEmpty) {
       final shape = <String, BehaviorNode>{};
-      for (final entry in allProperties.entries) {
-        shape[entry.key] = _scrapeSchemaBehavior(Schema.fromMap(entry.value as Map<String, Object?>), entry.key);
+      for (final MapEntry<String, dynamic> entry in allProperties.entries) {
+        shape[entry.key] = _scrapeSchemaBehavior(
+          Schema.fromMap(entry.value as Map<String, Object?>),
+          entry.key,
+        );
       }
       return BehaviorNode(Behavior.object, shape: shape);
     }
 
     if (type == 'array') {
-      final items = map['items'];
+      final Object? items = map['items'];
       if (items is Map) {
-        return BehaviorNode(Behavior.array, element: _scrapeSchemaBehavior(Schema.fromMap(items as Map<String, Object?>)));
+        return BehaviorNode(
+          Behavior.array,
+          element: _scrapeSchemaBehavior(
+            Schema.fromMap(items as Map<String, Object?>),
+          ),
+        );
       }
     }
 
@@ -308,7 +391,7 @@ class GenericBinder {
   }
 
   void dispose() {
-    for (final unsub in _dataListeners) {
+    for (final void Function() unsub in _dataListeners) {
       unsub();
     }
     _dataListeners.clear();

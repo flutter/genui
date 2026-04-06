@@ -12,11 +12,11 @@ class DataPath {
       return DataPath([]);
     }
 
-    String normalized = path;
+    var normalized = path;
     if (path.startsWith('/')) {
       normalized = path.substring(1);
     }
-    
+
     if (normalized.endsWith('/')) {
       normalized = normalized.substring(0, normalized.length - 1);
     }
@@ -25,7 +25,7 @@ class DataPath {
       return DataPath([]);
     }
 
-    final segments = normalized.split('/').map((s) {
+    final List<String> segments = normalized.split('/').map((s) {
       return s.replaceAll('~1', '/').replaceAll('~0', '~');
     }).toList();
 
@@ -39,10 +39,11 @@ class DataPath {
   bool get isEmpty => segments.isEmpty;
 
   /// Whether the path starts with a slash (is absolute).
-  bool get isAbsolute => true; // All parsed paths are treated as absolute for now in our context
+  bool get isAbsolute =>
+      true; // All parsed paths are treated as absolute for now in our context
 
   /// Joins this path with another path or segment.
-  DataPath append(dynamic other) {
+  DataPath append(Object? other) {
     if (other is DataPath) {
       return DataPath([...segments, ...other.segments]);
     } else if (other is String) {

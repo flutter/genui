@@ -19,7 +19,11 @@ abstract class FunctionApi {
 /// A function implementation that can be registered with a catalog.
 abstract class FunctionImplementation extends FunctionApi {
   /// Executes the function. Can return a static value or a [ValueListenable].
-  dynamic execute(Map<String, dynamic> args, DataContext context, [CancellationSignal? cancellationSignal]);
+  dynamic execute(
+    Map<String, dynamic> args,
+    DataContext context, [
+    CancellationSignal? cancellationSignal,
+  ]);
 }
 
 /// A collection of available components and functions.
@@ -34,6 +38,6 @@ class Catalog<T extends ComponentApi> {
     required List<T> components,
     List<FunctionImplementation> functions = const [],
     this.themeSchema,
-  })  : components = {for (var c in components) c.name: c},
-        functions = {for (var f in functions) f.name: f};
+  }) : components = {for (var c in components) c.name: c},
+       functions = {for (var f in functions) f.name: f};
 }

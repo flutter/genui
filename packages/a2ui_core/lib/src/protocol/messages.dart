@@ -1,5 +1,3 @@
-import 'package:json_schema_builder/json_schema_builder.dart';
-
 /// Base class for all A2UI messages.
 abstract class A2uiMessage {
   final String version;
@@ -49,10 +47,7 @@ class UpdateComponentsMessage extends A2uiMessage {
   @override
   Map<String, dynamic> toJson() => {
     'version': version,
-    'updateComponents': {
-      'surfaceId': surfaceId,
-      'components': components,
-    },
+    'updateComponents': {'surfaceId': surfaceId, 'components': components},
   };
 }
 
@@ -84,17 +79,12 @@ class UpdateDataModelMessage extends A2uiMessage {
 class DeleteSurfaceMessage extends A2uiMessage {
   final String surfaceId;
 
-  DeleteSurfaceMessage({
-    super.version,
-    required this.surfaceId,
-  });
+  DeleteSurfaceMessage({super.version, required this.surfaceId});
 
   @override
   Map<String, dynamic> toJson() => {
     'version': version,
-    'deleteSurface': {
-      'surfaceId': surfaceId,
-    },
+    'deleteSurface': {'surfaceId': surfaceId},
   };
 }
 

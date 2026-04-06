@@ -1,11 +1,11 @@
-import 'package:test/test.dart';
 import 'package:a2ui_core/src/common/reactivity.dart';
+import 'package:test/test.dart';
 
 void main() {
   group('Reactivity', () {
     test('ValueNotifier notifies listeners', () {
-      final notifier = ValueNotifier(10);
-      int callCount = 0;
+      final ValueNotifier<int> notifier = ValueNotifier(10);
+      var callCount = 0;
       notifier.addListener(() => callCount++);
 
       notifier.value = 20;
@@ -17,13 +17,15 @@ void main() {
     });
 
     test('ComputedNotifier tracks dependencies', () {
-      final a = ValueNotifier(1);
-      final b = ValueNotifier(2);
-      final sum = ComputedNotifier(() => a.value + b.value);
+      final ValueNotifier<int> a = ValueNotifier(1);
+      final ValueNotifier<int> b = ValueNotifier(2);
+      final ComputedNotifier<int> sum = ComputedNotifier(
+        () => a.value + b.value,
+      );
 
       expect(sum.value, 3);
 
-      int callCount = 0;
+      var callCount = 0;
       sum.addListener(() => callCount++);
 
       a.value = 10;
@@ -36,14 +38,16 @@ void main() {
     });
 
     test('ComputedNotifier updates dependencies dynamically', () {
-      final useA = ValueNotifier(true);
-      final a = ValueNotifier(1);
-      final b = ValueNotifier(2);
-      final result = ComputedNotifier(() => useA.value ? a.value : b.value);
+      final ValueNotifier<bool> useA = ValueNotifier(true);
+      final ValueNotifier<int> a = ValueNotifier(1);
+      final ValueNotifier<int> b = ValueNotifier(2);
+      final ComputedNotifier<int> result = ComputedNotifier(
+        () => useA.value ? a.value : b.value,
+      );
 
       expect(result.value, 1);
 
-      int callCount = 0;
+      var callCount = 0;
       result.addListener(() => callCount++);
 
       b.value = 10; // Should not notify as b is not a dependency yet
@@ -62,11 +66,13 @@ void main() {
     });
 
     test('batch defers notifications', () {
-      final a = ValueNotifier(1);
-      final b = ValueNotifier(2);
-      final sum = ComputedNotifier(() => a.value + b.value);
+      final ValueNotifier<int> a = ValueNotifier(1);
+      final ValueNotifier<int> b = ValueNotifier(2);
+      final ComputedNotifier<int> sum = ComputedNotifier(
+        () => a.value + b.value,
+      );
 
-      int callCount = 0;
+      var callCount = 0;
       sum.addListener(() => callCount++);
 
       batch(() {

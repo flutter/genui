@@ -1,5 +1,5 @@
-import '../common/reactivity.dart';
 import '../common/errors.dart';
+import '../common/reactivity.dart';
 
 /// Represents the state model for an individual UI component.
 class ComponentModel {
@@ -12,7 +12,7 @@ class ComponentModel {
   ValueListenable<ComponentModel?> get onUpdated => _onUpdated;
 
   ComponentModel(this.id, this.type, Map<String, dynamic> initialProperties)
-      : _properties = Map.from(initialProperties);
+    : _properties = Map.from(initialProperties);
 
   /// The current properties of the component.
   Map<String, dynamic> get properties => _properties;
@@ -29,11 +29,7 @@ class ComponentModel {
 
   /// Returns a JSON representation of the component tree.
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'component': type,
-      ..._properties,
-    };
+    return {'id': id, 'component': type, ..._properties};
   }
 }
 
@@ -45,7 +41,9 @@ class SurfaceComponentsModel {
 
   /// Fires when a new component is added to the model.
   ValueListenable<ComponentModel?> get onCreated => _onCreated;
-  /// Fires when a component is removed, providing the ID of the deleted component.
+
+  /// Fires when a component is removed, providing the ID of the deleted
+  /// component.
   ValueListenable<String?> get onDeleted => _onDeleted;
 
   /// Retrieves a component by its ID.
@@ -57,7 +55,9 @@ class SurfaceComponentsModel {
   /// Adds a component to the model.
   void addComponent(ComponentModel component) {
     if (_components.containsKey(component.id)) {
-      throw A2uiStateError("Component with id '${component.id}' already exists.");
+      throw A2uiStateError(
+        "Component with id '${component.id}' already exists.",
+      );
     }
     _components[component.id] = component;
     _onCreated.value = component;
@@ -65,7 +65,7 @@ class SurfaceComponentsModel {
 
   /// Removes a component from the model by its ID.
   void removeComponent(String id) {
-    final component = _components.remove(id);
+    final ComponentModel? component = _components.remove(id);
     if (component != null) {
       component.dispose();
       _onDeleted.value = id;
@@ -74,7 +74,7 @@ class SurfaceComponentsModel {
 
   /// Disposes of the model and all its components.
   void dispose() {
-    for (final component in _components.values) {
+    for (final ComponentModel component in _components.values) {
       component.dispose();
     }
     _components.clear();
