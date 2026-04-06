@@ -80,6 +80,7 @@ class SurfaceModel<T extends ComponentApi> {
 /// The root state model for the A2UI system.
 class SurfaceGroupModel<T extends ComponentApi> {
   final Map<String, SurfaceModel<T>> _surfaces = {};
+  final Map<String, void Function()> _actionForwarders = {};
 
   final _onSurfaceCreated = ValueNotifier<SurfaceModel<T>?>(null);
   final _onSurfaceDeleted = ValueNotifier<String?>(null);
@@ -100,12 +101,14 @@ class SurfaceGroupModel<T extends ComponentApi> {
       return;
     }
     _surfaces[surface.id] = surface;
-    surface.onAction.addListener(() {
+    void forwarder() {
       final A2uiClientAction? action = surface.onAction.value;
       if (action != null) {
         _onAction.value = action;
       }
-    });
+    }
+    surface.onAction.addListener(forwarder);
+    _actionForwarders[surface.id] = forwarder;
     _onSurfaceCreated.value = surface;
   }
 
@@ -113,6 +116,10 @@ class SurfaceGroupModel<T extends ComponentApi> {
   void deleteSurface(String id) {
     final SurfaceModel<T>? surface = _surfaces.remove(id);
     if (surface != null) {
+      final void Function()? forwarder = _actionForwarders.remove(id);
+      if (forwarder != null) {
+        surface.onAction.removeListener(forwarder);
+      }
       surface.dispose();
       _onSurfaceDeleted.value = id;
     }
