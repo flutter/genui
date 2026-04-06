@@ -157,7 +157,7 @@ class _TrackingFunction extends FunctionImplementation {
       );
 
   @override
-  dynamic execute(
+  Object? execute(
     Map<String, dynamic> args,
     DataContext context, [
     CancellationSignal? cancellationSignal,

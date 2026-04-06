@@ -81,7 +81,7 @@ class GenericBinder {
   /// DataModel.watch notifiers are shared/cached and must not be disposed
   /// by the binder; only [ComputedNotifier]s (from function calls) hold
   /// internal subscriptions that leak if not cleaned up.
-  ValueListenable<dynamic> _resolveAndTrack(Object? value) {
+  ValueListenable<Object?> _resolveAndTrack(Object? value) {
     final listenable = context.dataContext.resolveListenable(value);
     if (listenable is ComputedNotifier) {
       _ownedNotifiers.add(listenable);
@@ -89,7 +89,7 @@ class GenericBinder {
     return listenable;
   }
 
-  dynamic _resolveAndBind(
+  Object? _resolveAndBind(
     Object? value,
     BehaviorNode behavior,
     List<String> path,
@@ -99,7 +99,7 @@ class GenericBinder {
 
     switch (behavior.type) {
       case Behavior.dynamic:
-        final ValueListenable<dynamic> listenable = _resolveAndTrack(value);
+        final ValueListenable<Object?> listenable = _resolveAndTrack(value);
         if (!isSync) {
           void listener() {
             _updateDeepValue(path, listenable.value);
@@ -112,7 +112,7 @@ class GenericBinder {
 
       case Behavior.action:
         return () async {
-          final dynamic resolved = context.dataContext.resolveSync(value);
+          final Object? resolved = context.dataContext.resolveSync(value);
           final Map<String, dynamic> resolvedAction;
           if (resolved is Map) {
             resolvedAction = Map<String, dynamic>.from(resolved);
@@ -131,11 +131,11 @@ class GenericBinder {
           final tpl = ChildListTemplate.fromJson(
             Map<String, dynamic>.from(value),
           );
-          final ValueListenable<dynamic> listenable =
+          final ValueListenable<Object?> listenable =
               _resolveAndTrack({'path': tpl.path});
 
           List<ChildNode> resolveChildren(Object? val) {
-            final List<dynamic> list = val is List ? val : [];
+            final List<Object?> list = val is List ? val.cast<Object?>() : [];
             final DataContext nestedCtx = context.dataContext.nested(tpl.path);
             return List.generate(
               list.length,
@@ -164,7 +164,7 @@ class GenericBinder {
         return value;
 
       case Behavior.checkable:
-        final List<dynamic> rules = value is List ? value : [];
+        final List<Object?> rules = value is List ? value.cast<Object?>() : [];
         final List<bool> results = List.filled(rules.length, true);
         final List<String> messages = rules
             .cast<Map<String, dynamic>>()
@@ -184,7 +184,7 @@ class GenericBinder {
         for (var i = 0; i < rules.length; i++) {
           final Object? condition =
               (rules[i] as Map<String, dynamic>)['condition'] ?? rules[i];
-          final ValueListenable<dynamic> listenable =
+          final ValueListenable<Object?> listenable =
               _resolveAndTrack(condition);
           results[i] = listenable.value == true;
 
@@ -207,7 +207,7 @@ class GenericBinder {
         final result = <String, dynamic>{};
         final Map<String, BehaviorNode> shape = behavior.shape ?? {};
 
-        for (final MapEntry<dynamic, dynamic> entry in value.entries) {
+        for (final MapEntry<Object?, Object?> entry in value.entries) {
           final key = entry.key as String;
           final BehaviorNode childBehavior =
               shape[key] ?? BehaviorNode(Behavior.static);
@@ -219,7 +219,7 @@ class GenericBinder {
 
         // Inject validation properties if 'checks' is present in shape
         if (shape.containsKey('checks') && result.containsKey('checks')) {
-          final List<dynamic> rules = value['checks'] as List? ?? [];
+          final List<Object?> rules = (value['checks'] as List?)?.cast<Object?>() ?? [];
           var isValid = true;
           final errors = <String>[];
           final List<Map<String, dynamic>> typedRules =
@@ -288,7 +288,7 @@ class GenericBinder {
     if (path.isEmpty) return newValue as Map<String, dynamic>;
 
     final result = Map<String, dynamic>.from(map);
-    dynamic current = result;
+    Object? current = result;
 
     for (var i = 0; i < path.length - 1; i++) {
       final String key = path[i];
@@ -296,7 +296,7 @@ class GenericBinder {
         current[key] = current[key] is Map
             ? Map<String, dynamic>.from(current[key] as Map)
             : (current[key] is List
-                  ? List<dynamic>.from(current[key] as Iterable)
+                  ? List<Object?>.from(current[key] as Iterable)
                   : <String, dynamic>{});
         current = current[key];
       } else if (current is List) {
@@ -304,7 +304,7 @@ class GenericBinder {
         current[idx] = current[idx] is Map
             ? Map<String, dynamic>.from(current[idx] as Map)
             : (current[idx] is List
-                  ? List<dynamic>.from(current[idx] as Iterable)
+                  ? List<Object?>.from(current[idx] as Iterable)
                   : <String, dynamic>{});
         current = current[idx];
       }

@@ -27,14 +27,14 @@ class FormatStringFunction extends FunctionImplementation {
   );
 
   @override
-  dynamic execute(
+  Object? execute(
     Map<String, dynamic> args,
     DataContext context, [
     CancellationSignal? cancellationSignal,
   ]) {
     final template = args['value'] as String;
     final parser = ExpressionParser();
-    final List<dynamic> parts = parser.parse(template);
+    final List<Object?> parts = parser.parse(template);
 
     if (parts.isEmpty) return '';
     if (parts.length == 1 && parts[0] is String) return parts[0];
@@ -42,7 +42,7 @@ class FormatStringFunction extends FunctionImplementation {
     return ComputedNotifier(() {
       final Iterable<String> resolvedParts = parts.map((part) {
         if (part is String) return part;
-        final ValueListenable<dynamic> listenable = context.resolveListenable(
+        final ValueListenable<Object?> listenable = context.resolveListenable(
           part,
         );
         return listenable.value?.toString() ?? '';

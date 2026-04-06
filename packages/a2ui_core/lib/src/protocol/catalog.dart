@@ -23,7 +23,7 @@ abstract class FunctionApi {
 /// A function implementation that can be registered with a catalog.
 abstract class FunctionImplementation extends FunctionApi {
   /// Executes the function. Can return a static value or a [ValueListenable].
-  dynamic execute(
+  Object? execute(
     Map<String, dynamic> args,
     DataContext context, [
     CancellationSignal? cancellationSignal,

@@ -11,7 +11,7 @@ class ExpressionParser {
 
   /// Parses an input string into a list of components (literals or
   /// [Map] representations of expressions).
-  List<dynamic> parse(String input, [int depth = 0]) {
+  List<Object?> parse(String input, [int depth = 0]) {
     if (depth > maxDepth) {
       throw A2uiExpressionError('Max recursion depth reached in parse');
     }
@@ -19,7 +19,7 @@ class ExpressionParser {
       return [input];
     }
 
-    final parts = <dynamic>[];
+    final parts = <Object?>[];
     final scanner = _Scanner(input);
 
     while (!scanner.isAtEnd) {
@@ -88,7 +88,7 @@ class ExpressionParser {
   }
 
   /// Parses a single expression string into its DynamicValue representation.
-  dynamic parseExpression(String expr, [int depth = 0]) {
+  Object? parseExpression(String expr, [int depth = 0]) {
     final String trimmed = expr.trim();
     if (trimmed.isEmpty) return '';
 
@@ -104,7 +104,7 @@ class ExpressionParser {
     return result;
   }
 
-  dynamic _parseExpressionInternal(_Scanner scanner, int depth) {
+  Object? _parseExpressionInternal(_Scanner scanner, int depth) {
     scanner.skipWhitespace();
     if (scanner.isAtEnd) return '';
 
@@ -151,7 +151,7 @@ class ExpressionParser {
     return scanner.input.substring(start, scanner.pos);
   }
 
-  dynamic _parseFunctionCall(String funcName, _Scanner scanner, int depth) {
+  Object? _parseFunctionCall(String funcName, _Scanner scanner, int depth) {
     scanner.match('(');
     scanner.skipWhitespace();
 

@@ -15,7 +15,7 @@ class A2uiError implements Exception {
 
 /// Thrown when JSON validation fails or schemas are mismatched.
 class A2uiValidationError extends A2uiError {
-  final dynamic details;
+  final Object? details;
 
   A2uiValidationError(String message, {this.details})
     : super(message, 'VALIDATION_ERROR');
@@ -31,7 +31,7 @@ class A2uiDataError extends A2uiError {
 /// Thrown during string interpolation and function evaluation.
 class A2uiExpressionError extends A2uiError {
   final String? expression;
-  final dynamic details;
+  final Object? details;
 
   A2uiExpressionError(String message, {this.expression, this.details})
     : super(message, 'EXPRESSION_ERROR');

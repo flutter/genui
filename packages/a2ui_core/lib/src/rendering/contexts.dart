@@ -30,7 +30,7 @@ class DataContext {
   }
 
   /// Synchronously evaluates a dynamic value.
-  dynamic resolveSync(Object? value) {
+  Object? resolveSync(Object? value) {
     if (value is Map && value.containsKey('path')) {
       return dataModel.get(resolvePath(value['path'] as String));
     }
@@ -48,7 +48,7 @@ class DataContext {
     }
     if (value is Map) {
       final result = <String, dynamic>{};
-      for (final MapEntry<dynamic, dynamic> entry in value.entries) {
+      for (final MapEntry<Object?, Object?> entry in value.entries) {
         result[entry.key as String] = resolveSync(entry.value);
       }
       return result;
@@ -60,7 +60,7 @@ class DataContext {
   }
 
   /// Reactively evaluates a dynamic value.
-  ValueListenable<dynamic> resolveListenable(Object? value) {
+  ValueListenable<Object?> resolveListenable(Object? value) {
     if (value is Map && value.containsKey('path')) {
       return dataModel.watch(resolvePath(value['path'] as String));
     }
@@ -69,7 +69,7 @@ class DataContext {
       return ComputedNotifier(() {
         final args = <String, dynamic>{};
         for (final MapEntry<String, dynamic> entry in call.args.entries) {
-          final ValueListenable<dynamic> resolved = resolveListenable(
+          final ValueListenable<Object?> resolved = resolveListenable(
             entry.value,
           );
           args[entry.key] = resolved.value;
@@ -125,7 +125,7 @@ class ComponentContext {
 
 extension CatalogInvokerExtension on Catalog {
   /// Helper to invoke functions.
-  dynamic invoker(String name, Map<String, dynamic> args, DataContext context) {
+  Object? invoker(String name, Map<String, dynamic> args, DataContext context) {
     final FunctionImplementation? fn = functions[name];
     if (fn == null) {
       throw ArgumentError('Function not found: $name');

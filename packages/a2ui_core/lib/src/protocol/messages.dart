@@ -178,7 +178,7 @@ class A2uiClientError {
   final String code;
   final String surfaceId;
   final String message;
-  final dynamic details;
+  final Object? details;
 
   A2uiClientError({
     required this.code,

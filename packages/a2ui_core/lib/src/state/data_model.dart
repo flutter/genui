@@ -15,17 +15,17 @@ const int maxAutoVivifyIndex = 10000;
 /// A standalone, observable data store representing the client-side state.
 /// It handles JSON Pointer path resolution and subscription management.
 class DataModel {
-  dynamic _data;
-  final Map<String, WeakReference<ValueNotifier<dynamic>>> _notifiers = {};
+  Object? _data;
+  final Map<String, WeakReference<ValueNotifier<Object?>>> _notifiers = {};
 
   DataModel([Object? initialData]) : _data = initialData ?? <String, dynamic>{};
 
   /// Synchronously gets data at a specific JSON pointer path.
-  dynamic get(String path) {
+  Object? get(String path) {
     final dataPath = DataPath.parse(path);
     if (dataPath.isEmpty) return _data;
 
-    dynamic current = _data;
+    Object? current = _data;
     for (final String segment in dataPath.segments) {
       if (current == null) return null;
       if (current is Map) {
@@ -50,7 +50,7 @@ class DataModel {
         _data = value;
       } else {
         _data ??= <String, dynamic>{};
-        dynamic current = _data;
+        Object? current = _data;
         for (var i = 0; i < dataPath.segments.length - 1; i++) {
           final String segment = dataPath.segments[i];
           final String nextSegment = dataPath.segments[i + 1];
@@ -59,7 +59,7 @@ class DataModel {
           if (current is Map) {
             if (!current.containsKey(segment) || current[segment] == null) {
               current[segment] = isNextNumeric
-                  ? <dynamic>[]
+                  ? <Object?>[]
                   : <String, dynamic>{};
             }
             current = current[segment];
@@ -82,7 +82,7 @@ class DataModel {
             }
             if (current[index] == null) {
               current[index] = isNextNumeric
-                  ? <dynamic>[]
+                  ? <Object?>[]
                   : <String, dynamic>{};
             }
             current = current[index];
@@ -132,10 +132,10 @@ class DataModel {
   ValueListenable<T?> watch<T>(String path) {
     var normalizedPath = DataPath.parse(path).toString();
     if (normalizedPath == '') normalizedPath = '/';
-    final WeakReference<ValueNotifier<dynamic>>? ref =
+    final WeakReference<ValueNotifier<Object?>>? ref =
         _notifiers[normalizedPath];
     if (ref != null) {
-      final ValueNotifier<dynamic>? notifier = ref.target;
+      final ValueNotifier<Object?>? notifier = ref.target;
       if (notifier != null) {
         return notifier as ValueListenable<T?>;
       }
@@ -168,10 +168,10 @@ class DataModel {
   }
 
   void _getAndNotify(String path) {
-    final WeakReference<ValueNotifier<dynamic>>? ref = _notifiers[path];
+    final WeakReference<ValueNotifier<Object?>>? ref = _notifiers[path];
     if (ref == null) return;
 
-    final ValueNotifier<dynamic>? notifier = ref.target;
+    final ValueNotifier<Object?>? notifier = ref.target;
     if (notifier == null) {
       _notifiers.remove(path);
       return;
@@ -193,7 +193,7 @@ class DataModel {
   }
 
   void dispose() {
-    for (final WeakReference<ValueNotifier<dynamic>> ref in _notifiers.values) {
+    for (final WeakReference<ValueNotifier<Object?>> ref in _notifiers.values) {
       ref.target?.dispose();
     }
     _notifiers.clear();
