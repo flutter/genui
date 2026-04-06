@@ -225,11 +225,17 @@ class ExpressionParser {
   }
 
   bool _isAlnum(String c) {
-    return RegExp(r'[a-zA-Z0-9]').hasMatch(c);
+    if (c.isEmpty) return false;
+    final int u = c.codeUnitAt(0);
+    return (u >= 0x30 && u <= 0x39) || // 0-9
+        (u >= 0x41 && u <= 0x5A) || // A-Z
+        (u >= 0x61 && u <= 0x7A); // a-z
   }
 
   bool _isDigit(String c) {
-    return RegExp(r'[0-9]').hasMatch(c);
+    if (c.isEmpty) return false;
+    final int u = c.codeUnitAt(0);
+    return u >= 0x30 && u <= 0x39;
   }
 }
 
@@ -267,7 +273,7 @@ class _Scanner {
   bool matchesKeyword(String keyword) {
     if (input.startsWith(keyword, pos)) {
       final String next = peek(keyword.length);
-      if (!RegExp(r'[a-zA-Z0-9_]').hasMatch(next)) {
+      if (next.isEmpty || !_isWordChar(next.codeUnitAt(0))) {
         advance(keyword.length);
         return true;
       }
@@ -276,12 +282,23 @@ class _Scanner {
   }
 
   void skipWhitespace() {
-    while (!isAtEnd && RegExp(r'\s').hasMatch(peek())) {
+    while (!isAtEnd && _isWhitespace(peek().codeUnitAt(0))) {
       advance();
     }
   }
 
   String substring(int start, [int? end]) {
     return input.substring(start, end);
+  }
+
+  static bool _isWordChar(int u) {
+    return (u >= 0x30 && u <= 0x39) || // 0-9
+        (u >= 0x41 && u <= 0x5A) || // A-Z
+        (u >= 0x61 && u <= 0x7A) || // a-z
+        u == 0x5F; // _
+  }
+
+  static bool _isWhitespace(int u) {
+    return u == 0x20 || u == 0x09 || u == 0x0A || u == 0x0D; // space/tab/LF/CR
   }
 }
