@@ -1,7 +1,63 @@
+import '../common/errors.dart';
+
 /// Base class for all A2UI messages.
 abstract class A2uiMessage {
   final String version;
   A2uiMessage({this.version = 'v0.9'});
+
+  /// Deserializes a JSON envelope into a typed [A2uiMessage].
+  factory A2uiMessage.fromJson(Map<String, dynamic> json) {
+    final String version = json['version'] as String? ?? 'v0.9';
+
+    if (json.containsKey('createSurface')) {
+      final Map<String, dynamic> body =
+          json['createSurface'] as Map<String, dynamic>;
+      return CreateSurfaceMessage(
+        version: version,
+        surfaceId: body['surfaceId'] as String,
+        catalogId: body['catalogId'] as String,
+        theme: body['theme'] as Map<String, dynamic>?,
+        sendDataModel: body['sendDataModel'] as bool? ?? false,
+      );
+    }
+
+    if (json.containsKey('updateComponents')) {
+      final Map<String, dynamic> body =
+          json['updateComponents'] as Map<String, dynamic>;
+      return UpdateComponentsMessage(
+        version: version,
+        surfaceId: body['surfaceId'] as String,
+        components: (body['components'] as List)
+            .cast<Map<String, dynamic>>(),
+      );
+    }
+
+    if (json.containsKey('updateDataModel')) {
+      final Map<String, dynamic> body =
+          json['updateDataModel'] as Map<String, dynamic>;
+      return UpdateDataModelMessage(
+        version: version,
+        surfaceId: body['surfaceId'] as String,
+        path: body['path'] as String?,
+        value: body['value'],
+      );
+    }
+
+    if (json.containsKey('deleteSurface')) {
+      final Map<String, dynamic> body =
+          json['deleteSurface'] as Map<String, dynamic>;
+      return DeleteSurfaceMessage(
+        version: version,
+        surfaceId: body['surfaceId'] as String,
+      );
+    }
+
+    throw A2uiValidationError(
+      'Unknown A2UI message type. Expected one of: '
+      'createSurface, updateComponents, updateDataModel, deleteSurface.',
+      details: json,
+    );
+  }
 
   Map<String, dynamic> toJson();
 }
@@ -55,7 +111,7 @@ class UpdateComponentsMessage extends A2uiMessage {
 class UpdateDataModelMessage extends A2uiMessage {
   final String surfaceId;
   final String? path;
-  final dynamic value;
+  final Object? value;
 
   UpdateDataModelMessage({
     super.version,
