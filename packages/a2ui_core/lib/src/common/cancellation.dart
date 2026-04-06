@@ -14,6 +14,7 @@ class CancellationSignal {
     for (final void Function() listener in _listeners) {
       listener();
     }
+    _listeners.clear();
   }
 
   /// Adds a listener to be notified when the operation is cancelled.
