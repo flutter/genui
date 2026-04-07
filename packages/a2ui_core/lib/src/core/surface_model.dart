@@ -5,12 +5,12 @@
 import 'dart:async';
 
 import '../common/reactivity.dart';
-import '../protocol/catalog.dart';
-import '../protocol/common.dart';
-import '../protocol/messages.dart';
-import '../rendering/contexts.dart';
+import 'catalog.dart';
+import 'common.dart';
 import 'component_model.dart';
+import 'contexts.dart';
 import 'data_model.dart';
+import 'messages.dart';
 
 /// The state model for a single UI surface.
 class SurfaceModel<T extends ComponentApi> {

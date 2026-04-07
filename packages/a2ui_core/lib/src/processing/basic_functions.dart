@@ -5,8 +5,8 @@
 import 'package:json_schema_builder/json_schema_builder.dart';
 import '../common/cancellation.dart';
 import '../common/reactivity.dart';
-import '../protocol/catalog.dart';
-import '../rendering/contexts.dart';
+import '../core/catalog.dart';
+import '../core/contexts.dart';
 import 'expressions.dart';
 
 class FormatStringFunction extends FunctionImplementation {

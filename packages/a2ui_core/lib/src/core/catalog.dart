@@ -5,7 +5,7 @@
 import 'package:json_schema_builder/json_schema_builder.dart';
 import '../common/cancellation.dart';
 import '../common/reactivity.dart';
-import '../rendering/contexts.dart';
+import 'contexts.dart';
 
 /// A definition of a UI component's API.
 abstract class ComponentApi {

@@ -3,11 +3,11 @@
 // found in the LICENSE file.
 
 import '../common/reactivity.dart';
-import '../protocol/catalog.dart';
-import '../protocol/common.dart';
-import '../state/component_model.dart';
-import '../state/data_model.dart';
-import '../state/surface_model.dart';
+import 'catalog.dart';
+import 'common.dart';
+import 'component_model.dart';
+import 'data_model.dart';
+import 'surface_model.dart';
 
 /// A contextual view of the main DataModel.
 class DataContext {

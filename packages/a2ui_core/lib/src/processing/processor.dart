@@ -5,10 +5,10 @@
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../common/errors.dart';
-import '../protocol/catalog.dart';
-import '../protocol/messages.dart';
-import '../state/component_model.dart';
-import '../state/surface_model.dart';
+import '../core/catalog.dart';
+import '../core/component_model.dart';
+import '../core/messages.dart';
+import '../core/surface_model.dart';
 
 /// The central processor for A2UI messages.
 class MessageProcessor<T extends ComponentApi> {

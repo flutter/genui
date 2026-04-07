@@ -11,6 +11,18 @@ export 'src/common/data_path.dart';
 export 'src/common/errors.dart';
 // Reactivity layer (extends listenable primitives with batch + computed).
 export 'src/common/reactivity.dart';
+// Protocol models.
+export 'src/core/catalog.dart';
+export 'src/core/common.dart';
+export 'src/core/common_schemas.dart';
+export 'src/core/component_model.dart';
+// Rendering support.
+export 'src/core/contexts.dart';
+// State management.
+export 'src/core/data_model.dart';
+export 'src/core/messages.dart';
+export 'src/core/minimal_catalog.dart';
+export 'src/core/surface_model.dart';
 // Listenable primitives from the shared notifier layer.
 // ValueNotifier is intentionally excluded here because reactivity.dart provides
 // an enhanced version with batch and dependency-tracking support.
@@ -23,16 +35,4 @@ export 'src/processing/basic_functions.dart';
 export 'src/processing/expressions.dart';
 // Processing & expressions.
 export 'src/processing/processor.dart';
-// Protocol models.
-export 'src/protocol/catalog.dart';
-export 'src/protocol/common.dart';
-export 'src/protocol/common_schemas.dart';
-export 'src/protocol/messages.dart';
-export 'src/protocol/minimal_catalog.dart';
 export 'src/rendering/binder.dart';
-// Rendering support.
-export 'src/rendering/contexts.dart';
-export 'src/state/component_model.dart';
-// State management.
-export 'src/state/data_model.dart';
-export 'src/state/surface_model.dart';

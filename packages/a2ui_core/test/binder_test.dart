@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:a2ui_core/src/protocol/minimal_catalog.dart';
+import 'package:a2ui_core/src/core/component_model.dart';
+import 'package:a2ui_core/src/core/contexts.dart';
+import 'package:a2ui_core/src/core/minimal_catalog.dart';
+import 'package:a2ui_core/src/core/surface_model.dart';
 import 'package:a2ui_core/src/rendering/binder.dart';
-import 'package:a2ui_core/src/rendering/contexts.dart';
-import 'package:a2ui_core/src/state/component_model.dart';
-import 'package:a2ui_core/src/state/surface_model.dart';
 import 'package:test/test.dart';
 
 void main() {

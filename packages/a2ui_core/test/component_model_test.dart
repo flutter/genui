@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:a2ui_core/src/state/component_model.dart';
+import 'package:a2ui_core/src/core/component_model.dart';
 import 'package:test/test.dart';
 
 void main() {

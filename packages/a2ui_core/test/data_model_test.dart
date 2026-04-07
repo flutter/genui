@@ -4,7 +4,7 @@
 
 import 'package:a2ui_core/src/common/errors.dart';
 import 'package:a2ui_core/src/common/reactivity.dart';
-import 'package:a2ui_core/src/state/data_model.dart';
+import 'package:a2ui_core/src/core/data_model.dart';
 import 'package:test/test.dart';
 
 void main() {
