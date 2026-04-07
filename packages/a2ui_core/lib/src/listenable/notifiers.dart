@@ -84,8 +84,8 @@ mixin class GenUiChangeNotifier implements GenUiListenable {
   int _reentrantlyRemovedListeners = 0;
   bool _debugDisposed = false;
 
-  /// Used by subclasses to assert that the [GenUiChangeNotifier] has not yet been
-  /// disposed.
+  /// Used by subclasses to assert that the [GenUiChangeNotifier] has not
+  /// yet been disposed.
   ///
   /// {@tool snippet}
   /// The [debugAssertNotDisposed] function should only be called inside of an
