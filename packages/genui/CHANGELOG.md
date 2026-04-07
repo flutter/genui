@@ -2,6 +2,8 @@
 
 ## 0.8.1 (in progress)
 
+- **Fix**: Fixed broken links to `run_app_with_gemini_key.md` in `travel_app` and `simple_chat` example READMEs (#783).
+
 ## 0.8.0
 
 - **BREAKING**: Updated package to align with A2UI v0.9 protocol and introduced extensive architectural changes.
