@@ -36,6 +36,18 @@ void main() {
       expect(callCount, 1);
     });
 
+    test('listener removing itself during cancel does not throw', () {
+      final signal = CancellationSignal();
+      late void Function() selfRemover;
+      selfRemover = () {
+        signal.removeListener(selfRemover);
+      };
+      signal.addListener(selfRemover);
+
+      // Should not throw ConcurrentModificationError.
+      signal.cancel();
+    });
+
     test('throwIfCancelled throws after cancel', () {
       final signal = CancellationSignal();
       signal.throwIfCancelled(); // should not throw

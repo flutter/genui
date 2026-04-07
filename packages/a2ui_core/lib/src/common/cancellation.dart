@@ -15,10 +15,11 @@ class CancellationSignal {
   void cancel() {
     if (_isCancelled) return;
     _isCancelled = true;
-    for (final void Function() listener in _listeners) {
+    final List<void Function()> listeners = List.of(_listeners);
+    _listeners.clear();
+    for (final void Function() listener in listeners) {
       listener();
     }
-    _listeners.clear();
   }
 
   /// Adds a listener to be notified when the operation is cancelled.
