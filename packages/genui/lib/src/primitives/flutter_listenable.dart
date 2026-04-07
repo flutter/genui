@@ -11,6 +11,13 @@ extension FlutterListenable on GenUiListenable {
   }
 }
 
+/// Extensions to convert GenUi value listenables to Flutter value listenables.
+extension GenUiValueListenableFlutterExtension<T> on GenUiValueListenable<T> {
+  /// Converts this [GenUiValueListenable] to a Flutter [ValueListenable].
+  ValueListenable<T> valueListenable() =>
+      FlutterValueListenableAdapter<T>(this);
+}
+
 class FlutterListenableAdapter implements Listenable {
   FlutterListenableAdapter(this._listenable);
 
@@ -25,4 +32,15 @@ class FlutterListenableAdapter implements Listenable {
   void removeListener(VoidCallback listener) {
     _listenable.removeListener(listener);
   }
+}
+
+class FlutterValueListenableAdapter<T> extends FlutterListenableAdapter
+    implements ValueListenable<T> {
+  FlutterValueListenableAdapter(GenUiValueListenable<T> super.listenable);
+
+  GenUiValueListenable<T> get _valueListenable =>
+      _listenable as GenUiValueListenable<T>;
+
+  @override
+  T get value => _valueListenable.value;
 }
