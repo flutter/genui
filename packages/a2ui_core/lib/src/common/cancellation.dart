@@ -17,7 +17,7 @@ class CancellationSignal {
     _isCancelled = true;
     final List<void Function()> listeners = List.of(_listeners);
     _listeners.clear();
-    for (final void Function() listener in listeners) {
+    for (final listener in listeners) {
       listener();
     }
   }
