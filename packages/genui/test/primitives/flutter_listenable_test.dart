@@ -22,6 +22,13 @@ class TestGenUiListenable extends GenUiListenable {
   }
 }
 
+class TestGenUiValueListenable<T> extends TestGenUiListenable implements GenUiValueListenable<T> {
+  TestGenUiValueListenable(this.value);
+
+  @override
+  T value;
+}
+
 void main() {
   group('FlutterListenable', () {
     test('adapter registers and unregisters listeners correctly', () {
@@ -40,6 +47,26 @@ void main() {
       adapter.removeListener(listener);
       expect(listenable.removeListenerCount, 1);
       expect(listenable.lastRemovedListener, listener);
+    });
+
+    test('valueListenable adapter works correctly', () {
+      final valueListenable = TestGenUiValueListenable<int>(42);
+      final adapter = valueListenable.valueListenable();
+
+      expect(adapter, isA<ValueListenable<int>>());
+      expect(adapter, isA<FlutterValueListenableAdapter<int>>());
+
+      expect(adapter.value, 42);
+
+      void listener() {}
+
+      adapter.addListener(listener);
+      expect(valueListenable.addListenerCount, 1);
+      expect(valueListenable.lastAddedListener, listener);
+
+      adapter.removeListener(listener);
+      expect(valueListenable.removeListenerCount, 1);
+      expect(valueListenable.lastRemovedListener, listener);
     });
   });
 }
