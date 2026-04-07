@@ -5,5 +5,9 @@
 export 'src/listenable/error_reporting.dart'
     show ListenableError, ListenableErrorDetails;
 export 'src/listenable/notifiers.dart'
-    show ChangeNotifier, GenUiListenable, GenUiValueListenable, ValueNotifier;
+    show
+        GenUiChangeNotifier,
+        GenUiListenable,
+        GenUiValueListenable,
+        GenUiValueNotifier;
 export 'src/listenable/primitives.dart' show VoidCallback;

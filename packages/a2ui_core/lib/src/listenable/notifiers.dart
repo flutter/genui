@@ -65,7 +65,7 @@ abstract class GenUiValueListenable<T> extends GenUiListenable {
 ///
 /// This class should not be modified, because it is temporary and should be
 /// replaced with dash-wide alternative.
-mixin class ChangeNotifier implements GenUiListenable {
+mixin class GenUiChangeNotifier implements GenUiListenable {
   int _count = 0;
   // The _listeners is intentionally set to a fixed-length _GrowableList instead
   // of const [].
@@ -84,7 +84,7 @@ mixin class ChangeNotifier implements GenUiListenable {
   int _reentrantlyRemovedListeners = 0;
   bool _debugDisposed = false;
 
-  /// Used by subclasses to assert that the [ChangeNotifier] has not yet been
+  /// Used by subclasses to assert that the [GenUiChangeNotifier] has not yet been
   /// disposed.
   ///
   /// {@tool snippet}
@@ -103,7 +103,7 @@ mixin class ChangeNotifier implements GenUiListenable {
   // This is static and not an instance method because too many people try to
   // implement ChangeNotifier instead of extending it (and so it is too breaking
   // to add a method, especially for debug).
-  static bool debugAssertNotDisposed(ChangeNotifier notifier) {
+  static bool debugAssertNotDisposed(GenUiChangeNotifier notifier) {
     assert(() {
       if (notifier._debugDisposed) {
         throw ListenableErrorReporting.createError(
@@ -150,7 +150,7 @@ mixin class ChangeNotifier implements GenUiListenable {
   /// (e.g. in response to a notification), it will still be called again. If,
   /// on the other hand, it is removed as many times as it was registered, then
   /// it will no longer be called. This odd behavior is the result of the
-  /// [ChangeNotifier] not being able to determine which listener is being
+  /// [GenUiChangeNotifier] not being able to determine which listener is being
   /// removed, since they are identical, therefore it will conservatively still
   /// call all the listeners when it knows that any are still registered.
   ///
@@ -165,7 +165,7 @@ mixin class ChangeNotifier implements GenUiListenable {
   ///    the list of closures that are notified when the object changes.
   @override
   void addListener(VoidCallback listener) {
-    assert(ChangeNotifier.debugAssertNotDisposed(this));
+    assert(GenUiChangeNotifier.debugAssertNotDisposed(this));
 
     if (_count == _listeners.length) {
       if (_count == 0) {
@@ -269,7 +269,7 @@ mixin class ChangeNotifier implements GenUiListenable {
   /// listeners or not immediately before disposal.
   @mustCallSuper
   void dispose() {
-    assert(ChangeNotifier.debugAssertNotDisposed(this));
+    assert(GenUiChangeNotifier.debugAssertNotDisposed(this));
     if (_notificationCallStackDepth > 0) {
       throw ListenableErrorReporting.createError(
         'The "dispose()" method on $this was called during the call to '
@@ -304,7 +304,7 @@ mixin class ChangeNotifier implements GenUiListenable {
   @visibleForTesting
   @pragma('vm:notify-debugger-on-exception')
   void notifyListeners() {
-    assert(ChangeNotifier.debugAssertNotDisposed(this));
+    assert(GenUiChangeNotifier.debugAssertNotDisposed(this));
     if (_count == 0) {
       return;
     }
@@ -403,16 +403,16 @@ class _MergingListenable extends GenUiListenable {
   }
 }
 
-/// A [ChangeNotifier] that holds a single value.
+/// A [GenUiChangeNotifier] that holds a single value.
 ///
 /// Dart replica of Flutter's [ValueNotifier](https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html)
 ///
 /// This class should not be modified, because it is temporary and should be
 /// replaced with dash-wide alternative.
-class ValueNotifier<T> extends ChangeNotifier
+class GenUiValueNotifier<T> extends GenUiChangeNotifier
     implements GenUiValueListenable<T> {
-  /// Creates a [ChangeNotifier] that wraps this value.
-  ValueNotifier(this._value);
+  /// Creates a [GenUiChangeNotifier] that wraps this value.
+  GenUiValueNotifier(this._value);
 
   /// The current value stored in this notifier.
   ///

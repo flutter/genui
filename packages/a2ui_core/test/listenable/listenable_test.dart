@@ -6,7 +6,7 @@ import 'package:a2ui_core/a2ui_core.dart';
 import 'package:a2ui_core/src/listenable/error_reporting.dart';
 import 'package:test/test.dart';
 
-class TestNotifier extends ChangeNotifier {
+class TestNotifier extends GenUiChangeNotifier {
   void notify() {
     notifyListeners();
   }
@@ -14,7 +14,7 @@ class TestNotifier extends ChangeNotifier {
   bool get isListenedTo => hasListeners;
 }
 
-class HasListenersTester<T> extends ValueNotifier<T> {
+class HasListenersTester<T> extends GenUiValueNotifier<T> {
   HasListenersTester(super.value);
   bool get testHasListeners => hasListeners;
 }
@@ -26,7 +26,7 @@ class A {
   }
 }
 
-class B extends A with ChangeNotifier {
+class B extends A with GenUiChangeNotifier {
   B();
 
   @override
@@ -36,7 +36,7 @@ class B extends A with ChangeNotifier {
   }
 }
 
-class Counter with ChangeNotifier {
+class Counter with GenUiChangeNotifier {
   Counter();
 
   int get value => _value;
@@ -377,7 +377,7 @@ void main() {
   });
 
   test('Value notifier', () {
-    final notifier = ValueNotifier<double>(2.0);
+    final notifier = GenUiValueNotifier<double>(2.0);
 
     final log = <double>[];
     void listener() {
@@ -512,11 +512,11 @@ void main() {
 
   test('Calling debugAssertNotDisposed works as intended', () {
     final testNotifier = TestNotifier();
-    expect(ChangeNotifier.debugAssertNotDisposed(testNotifier), isTrue);
+    expect(GenUiChangeNotifier.debugAssertNotDisposed(testNotifier), isTrue);
     testNotifier.dispose();
     ListenableError? error;
     try {
-      ChangeNotifier.debugAssertNotDisposed(testNotifier);
+      GenUiChangeNotifier.debugAssertNotDisposed(testNotifier);
       // ignore: avoid_catching_errors
     } on ListenableError catch (e) {
       error = e;
