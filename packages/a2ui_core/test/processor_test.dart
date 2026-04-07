@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:a2ui_core/src/core/catalog.dart';
+import 'package:a2ui_core/src/core/common_schemas.dart';
 import 'package:a2ui_core/src/core/component_model.dart';
 import 'package:a2ui_core/src/core/messages.dart';
 import 'package:a2ui_core/src/core/minimal_catalog.dart';
@@ -87,6 +88,26 @@ void main() {
       expect(first['catalogId'], catalog.id);
       expect(first['components'], contains('Text'));
     });
+
+    test(
+      'getClientCapabilities does not corrupt shared schemas',
+      () {
+        final Object? descBefore =
+            CommonSchemas.dynamicString.value['description'];
+
+        processor.getClientCapabilities(includeInlineCatalogs: true);
+
+        // _processRefs mutates maps in-place to replace REF: descriptions
+        // with $ref pointers. If toJsonMap uses a shallow copy, the shared
+        // CommonSchemas statics are corrupted.
+        expect(
+          CommonSchemas.dynamicString.value['description'],
+          equals(descBefore),
+          reason: 'CommonSchemas.dynamicString should not be mutated by '
+              'getClientCapabilities',
+        );
+      },
+    );
 
     test('aggregates client data model', () {
       processor.processMessages([

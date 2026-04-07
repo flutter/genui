@@ -229,5 +229,22 @@ class MessageProcessor<T extends ComponentApi> {
 }
 
 extension SchemaExtension on Schema {
-  Map<String, dynamic> toJsonMap() => Map<String, dynamic>.from(value);
+  Map<String, dynamic> toJsonMap() => _deepCopy(value);
+
+  static Map<String, dynamic> _deepCopy(Map<dynamic, dynamic> map) {
+    return map.map((key, value) {
+      if (value is Map) {
+        return MapEntry(key as String, _deepCopy(value));
+      }
+      if (value is List) {
+        return MapEntry(
+          key as String,
+          value
+              .map((item) => item is Map ? _deepCopy(item) : item)
+              .toList(),
+        );
+      }
+      return MapEntry(key as String, value);
+    });
+  }
 }
