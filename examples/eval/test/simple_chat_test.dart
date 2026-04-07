@@ -41,7 +41,7 @@ void main() {
     tester.verifyEvents();
 
     tester.failIfIssuesFound();
-  }, timeout: const Timeout(Duration(seconds: 240)));
+  }, timeout: const Timeout(Duration(minutes: 4)));
 }
 
 /// Helper class to manage a chat session from simple chat example.
