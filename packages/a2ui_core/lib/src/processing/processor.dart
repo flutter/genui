@@ -239,9 +239,7 @@ extension SchemaExtension on Schema {
       if (value is List) {
         return MapEntry(
           key as String,
-          value
-              .map((item) => item is Map ? _deepCopy(item) : item)
-              .toList(),
+          value.map((item) => item is Map ? _deepCopy(item) : item).toList(),
         );
       }
       return MapEntry(key as String, value);

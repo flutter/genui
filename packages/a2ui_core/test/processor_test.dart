@@ -89,25 +89,23 @@ void main() {
       expect(first['components'], contains('Text'));
     });
 
-    test(
-      'getClientCapabilities does not corrupt shared schemas',
-      () {
-        final Object? descBefore =
-            CommonSchemas.dynamicString.value['description'];
+    test('getClientCapabilities does not corrupt shared schemas', () {
+      final Object? descBefore =
+          CommonSchemas.dynamicString.value['description'];
 
-        processor.getClientCapabilities(includeInlineCatalogs: true);
+      processor.getClientCapabilities(includeInlineCatalogs: true);
 
-        // _processRefs mutates maps in-place to replace REF: descriptions
-        // with $ref pointers. If toJsonMap uses a shallow copy, the shared
-        // CommonSchemas statics are corrupted.
-        expect(
-          CommonSchemas.dynamicString.value['description'],
-          equals(descBefore),
-          reason: 'CommonSchemas.dynamicString should not be mutated by '
-              'getClientCapabilities',
-        );
-      },
-    );
+      // _processRefs mutates maps in-place to replace REF: descriptions
+      // with $ref pointers. If toJsonMap uses a shallow copy, the shared
+      // CommonSchemas statics are corrupted.
+      expect(
+        CommonSchemas.dynamicString.value['description'],
+        equals(descBefore),
+        reason:
+            'CommonSchemas.dynamicString should not be mutated by '
+            'getClientCapabilities',
+      );
+    });
 
     test('aggregates client data model', () {
       processor.processMessages([
