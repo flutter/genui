@@ -24,6 +24,7 @@ export 'src/core/contexts.dart';
 export 'src/core/data_model.dart';
 export 'src/core/messages.dart';
 export 'src/core/minimal_catalog.dart';
+export 'src/core/surface_group_model.dart';
 export 'src/core/surface_model.dart';
 // Listenable primitives from the shared notifier layer.
 // ValueNotifier is intentionally excluded here because reactivity.dart provides
