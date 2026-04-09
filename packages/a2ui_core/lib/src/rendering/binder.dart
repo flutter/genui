@@ -4,11 +4,11 @@
 
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-import '../common/reactivity.dart';
 import '../core/common.dart';
 import '../core/component_model.dart';
 import '../core/contexts.dart';
 import '../listenable/notifiers.dart' show ChangeNotifier;
+import '../primitives/reactivity.dart';
 
 /// Represents the intended runtime behavior of a property parsed from
 /// its schema.

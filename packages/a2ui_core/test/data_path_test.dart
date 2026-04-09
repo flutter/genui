@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:a2ui_core/src/common/data_path.dart';
+import 'package:a2ui_core/src/primitives/data_path.dart';
 import 'package:test/test.dart';
 
 void main() {

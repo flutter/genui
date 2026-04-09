@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import '../common/errors.dart';
-import '../common/event_notifier.dart';
+import '../primitives/errors.dart';
+import '../primitives/event_notifier.dart';
 
 /// Represents the state model for an individual UI component.
 class ComponentModel {

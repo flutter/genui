@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import '../common/event_notifier.dart';
+import '../primitives/event_notifier.dart';
 import 'catalog.dart';
 import 'common.dart';
 import 'component_model.dart';

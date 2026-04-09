@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import '../common/errors.dart';
+import '../primitives/errors.dart';
 
 /// Base class for all A2UI messages.
 abstract class A2uiMessage {

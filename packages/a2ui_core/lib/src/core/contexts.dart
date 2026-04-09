@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import '../common/reactivity.dart';
+import '../primitives/reactivity.dart';
 import 'catalog.dart';
 import 'common.dart';
 import 'component_model.dart';

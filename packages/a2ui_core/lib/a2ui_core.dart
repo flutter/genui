@@ -5,14 +5,6 @@
 /// Core A2UI protocol implementation for Dart.
 library;
 
-export 'src/common/cancellation.dart';
-export 'src/common/data_path.dart';
-// Common utilities.
-export 'src/common/errors.dart';
-// Event notifications for discrete lifecycle events.
-export 'src/common/event_notifier.dart';
-// Reactivity layer (extends listenable primitives with batch + computed).
-export 'src/common/reactivity.dart';
 // Protocol models.
 export 'src/core/catalog.dart';
 export 'src/core/common.dart';
@@ -34,6 +26,13 @@ export 'src/listenable/error_reporting.dart'
 export 'src/listenable/notifiers.dart'
     show ChangeNotifier, GenUiListenable, GenUiValueListenable;
 export 'src/listenable/primitives.dart' show VoidCallback;
+export 'src/primitives/cancellation.dart';
+export 'src/primitives/data_path.dart';
+export 'src/primitives/errors.dart';
+// Event notifications for discrete lifecycle events.
+export 'src/primitives/event_notifier.dart';
+// Reactivity layer (extends listenable primitives with batch + computed).
+export 'src/primitives/reactivity.dart';
 export 'src/processing/basic_functions.dart';
 export 'src/processing/expressions.dart';
 // Processing & expressions.

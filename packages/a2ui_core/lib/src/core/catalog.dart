@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 import 'package:json_schema_builder/json_schema_builder.dart';
-import '../common/cancellation.dart';
-import '../common/reactivity.dart';
+import '../primitives/cancellation.dart';
+import '../primitives/reactivity.dart';
 import 'contexts.dart';
 
 /// A definition of a UI component's API.

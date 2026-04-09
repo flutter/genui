@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import '../common/event_notifier.dart';
+import '../primitives/event_notifier.dart';
 import 'catalog.dart';
 import 'messages.dart';
 import 'surface_model.dart';

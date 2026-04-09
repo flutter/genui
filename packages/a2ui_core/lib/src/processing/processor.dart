@@ -4,12 +4,12 @@
 
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-import '../common/errors.dart';
 import '../core/catalog.dart';
 import '../core/component_model.dart';
 import '../core/messages.dart';
 import '../core/surface_group_model.dart';
 import '../core/surface_model.dart';
+import '../primitives/errors.dart';
 
 /// The central processor for A2UI messages.
 class MessageProcessor<T extends ComponentApi> {

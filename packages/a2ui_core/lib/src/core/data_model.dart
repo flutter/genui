@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import '../common/data_path.dart';
-import '../common/errors.dart';
-import '../common/reactivity.dart';
+import '../primitives/data_path.dart';
+import '../primitives/errors.dart';
+import '../primitives/reactivity.dart';
 
 /// The maximum list index that auto-vivification will expand to.
 ///

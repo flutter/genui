@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import '../common/errors.dart';
+import '../primitives/errors.dart';
 
 /// A parser for A2UI expressions, supporting string interpolation
 /// and function calls.

@@ -4,7 +4,7 @@
 
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-import '../common/cancellation.dart';
+import '../primitives/cancellation.dart';
 import 'catalog.dart';
 import 'common_schemas.dart';
 import 'contexts.dart';
