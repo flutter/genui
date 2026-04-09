@@ -88,5 +88,48 @@ void main() {
       expect(callCount, 1); // Notified exactly once
       expect(sum.value, 30);
     });
+
+    test('nested batch defers to outermost', () {
+      final ValueNotifier<int> a = ValueNotifier(0);
+      var callCount = 0;
+      a.addListener(() => callCount++);
+
+      batch(() {
+        a.value = 1;
+        batch(() {
+          a.value = 2;
+        });
+        expect(callCount, 0);
+      });
+
+      expect(callCount, 1);
+      expect(a.value, 2);
+    });
+
+    test('forceNotify notifies even when value unchanged', () {
+      final ValueNotifier<int> notifier = ValueNotifier(1);
+      var callCount = 0;
+      notifier.addListener(() => callCount++);
+
+      notifier.forceNotify();
+      expect(callCount, 1);
+
+      notifier.forceNotify();
+      expect(callCount, 2);
+    });
+
+    test('ComputedNotifier.dispose stops reacting', () {
+      final ValueNotifier<int> source = ValueNotifier(1);
+      final ComputedNotifier<int> computed = ComputedNotifier(
+        () => source.value * 10,
+      );
+
+      expect(computed.value, 10);
+
+      computed.dispose();
+
+      // Should not throw or react.
+      source.value = 2;
+    });
   });
 }
