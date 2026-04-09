@@ -20,7 +20,7 @@ void main() {
 
       // Verify the forwarder works while surface is alive.
       var actionCount = 0;
-      group.onAction.addListener(() => actionCount++);
+      group.onAction.addListener((_) => actionCount++);
 
       surface.dispatchAction({
         'event': {'name': 'test'},

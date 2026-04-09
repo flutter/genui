@@ -37,8 +37,8 @@ void main() {
 
     test('resolves actions into callbacks', () async {
       String? actionName;
-      surface.onAction.addListener(() {
-        actionName = surface.onAction.value?.name;
+      surface.onAction.addListener((action) {
+        actionName = action.name;
       });
 
       final comp = ComponentModel('c1', 'Button', {

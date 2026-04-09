@@ -6,6 +6,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../common/reactivity.dart';
 import '../core/common.dart';
+import '../core/component_model.dart';
 import '../core/contexts.dart';
 import '../listenable/notifiers.dart' show ChangeNotifier;
 
@@ -53,9 +54,11 @@ class GenericBinder {
   void connect() {
     if (_isConnected) return;
     _isConnected = true;
-    context.componentModel.onUpdated.addListener(_rebuildAllBindings);
+    context.componentModel.onUpdated.addListener(_onComponentUpdated);
     _rebuildAllBindings();
   }
+
+  void _onComponentUpdated(ComponentModel _) => _rebuildAllBindings();
 
   void _rebuildAllBindings() {
     _disposeOwnedResources();
@@ -415,7 +418,7 @@ class GenericBinder {
 
   void dispose() {
     _disposeOwnedResources();
-    context.componentModel.onUpdated.removeListener(_rebuildAllBindings);
+    context.componentModel.onUpdated.removeListener(_onComponentUpdated);
     _resolvedProps.dispose();
   }
 }

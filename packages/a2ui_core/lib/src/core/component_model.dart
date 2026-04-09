@@ -3,17 +3,17 @@
 // found in the LICENSE file.
 
 import '../common/errors.dart';
-import '../common/reactivity.dart';
+import '../common/event_notifier.dart';
 
 /// Represents the state model for an individual UI component.
 class ComponentModel {
   final String id;
   final String type;
   Map<String, dynamic> _properties;
-  final _onUpdated = ValueNotifier<ComponentModel?>(null);
+  final _onUpdated = EventNotifier<ComponentModel>();
 
   /// Fires whenever the component's properties are updated.
-  ValueListenable<ComponentModel?> get onUpdated => _onUpdated;
+  EventListenable<ComponentModel> get onUpdated => _onUpdated;
 
   ComponentModel(this.id, this.type, Map<String, dynamic> initialProperties)
     : _properties = Map.from(initialProperties);
@@ -23,9 +23,7 @@ class ComponentModel {
 
   set properties(Map<String, dynamic> newProperties) {
     _properties = Map.from(newProperties);
-    // Use forceNotify because the value is always `this` — ValueNotifier's
-    // equality check would silently skip every notification after the first.
-    _onUpdated.forceNotify();
+    _onUpdated.emit(this);
   }
 
   /// Disposes of the component and its resources.
@@ -42,15 +40,15 @@ class ComponentModel {
 /// Manages the collection of components for a specific surface.
 class SurfaceComponentsModel {
   final Map<String, ComponentModel> _components = {};
-  final _onCreated = ValueNotifier<ComponentModel?>(null);
-  final _onDeleted = ValueNotifier<String?>(null);
+  final _onCreated = EventNotifier<ComponentModel>();
+  final _onDeleted = EventNotifier<String>();
 
   /// Fires when a new component is added to the model.
-  ValueListenable<ComponentModel?> get onCreated => _onCreated;
+  EventListenable<ComponentModel> get onCreated => _onCreated;
 
   /// Fires when a component is removed, providing the ID of the deleted
   /// component.
-  ValueListenable<String?> get onDeleted => _onDeleted;
+  EventListenable<String> get onDeleted => _onDeleted;
 
   /// Retrieves a component by its ID.
   ComponentModel? get(String id) => _components[id];
@@ -66,7 +64,7 @@ class SurfaceComponentsModel {
       );
     }
     _components[component.id] = component;
-    _onCreated.value = component;
+    _onCreated.emit(component);
   }
 
   /// Removes a component from the model by its ID.
@@ -74,7 +72,7 @@ class SurfaceComponentsModel {
     final ComponentModel? component = _components.remove(id);
     if (component != null) {
       component.dispose();
-      _onDeleted.value = id;
+      _onDeleted.emit(id);
     }
   }
 

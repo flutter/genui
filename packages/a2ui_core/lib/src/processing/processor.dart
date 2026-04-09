@@ -20,12 +20,7 @@ class MessageProcessor<T extends ComponentApi> {
     void Function(A2uiClientAction)? onAction,
   }) : groupModel = SurfaceGroupModel<T>() {
     if (onAction != null) {
-      groupModel.onAction.addListener(() {
-        final A2uiClientAction? action = groupModel.onAction.value;
-        if (action != null) {
-          onAction(action);
-        }
-      });
+      groupModel.onAction.addListener(onAction);
     }
   }
 

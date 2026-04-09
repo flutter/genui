@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import '../common/reactivity.dart';
+import '../common/event_notifier.dart';
 import 'catalog.dart';
 import 'common.dart';
 import 'component_model.dart';
@@ -22,14 +22,14 @@ class SurfaceModel<T extends ComponentApi> {
   final DataModel dataModel;
   final SurfaceComponentsModel componentsModel;
 
-  final _onAction = ValueNotifier<A2uiClientAction?>(null);
-  final _onError = ValueNotifier<A2uiClientError?>(null);
+  final _onAction = EventNotifier<A2uiClientAction>();
+  final _onError = EventNotifier<A2uiClientError>();
 
   /// Fires whenever an action is dispatched from this surface.
-  ValueListenable<A2uiClientAction?> get onAction => _onAction;
+  EventListenable<A2uiClientAction> get onAction => _onAction;
 
   /// Fires whenever an error occurs on this surface.
-  ValueListenable<A2uiClientError?> get onError => _onError;
+  EventListenable<A2uiClientError> get onError => _onError;
 
   SurfaceModel(
     this.id, {
@@ -55,7 +55,7 @@ class SurfaceModel<T extends ComponentApi> {
           (event['context'] ?? <String, dynamic>{}) as Map,
         ),
       );
-      _onAction.value = action;
+      _onAction.emit(action);
     } else if (payload.containsKey('functionCall')) {
       final callJson = payload['functionCall'] as Map<String, dynamic>;
       final call = FunctionCall.fromJson(callJson);
@@ -69,7 +69,7 @@ class SurfaceModel<T extends ComponentApi> {
 
   /// Dispatches an error from this surface.
   Future<void> dispatchError(A2uiClientError error) async {
-    _onError.value = error;
+    _onError.emit(error);
   }
 
   /// Disposes of the surface and its resources.
@@ -84,20 +84,20 @@ class SurfaceModel<T extends ComponentApi> {
 /// The root state model for the A2UI system.
 class SurfaceGroupModel<T extends ComponentApi> {
   final Map<String, SurfaceModel<T>> _surfaces = {};
-  final Map<String, void Function()> _actionForwarders = {};
+  final Map<String, void Function(A2uiClientAction)> _actionForwarders = {};
 
-  final _onSurfaceCreated = ValueNotifier<SurfaceModel<T>?>(null);
-  final _onSurfaceDeleted = ValueNotifier<String?>(null);
-  final _onAction = ValueNotifier<A2uiClientAction?>(null);
+  final _onSurfaceCreated = EventNotifier<SurfaceModel<T>>();
+  final _onSurfaceDeleted = EventNotifier<String>();
+  final _onAction = EventNotifier<A2uiClientAction>();
 
   /// Fires when a new surface is added.
-  ValueListenable<SurfaceModel<T>?> get onSurfaceCreated => _onSurfaceCreated;
+  EventListenable<SurfaceModel<T>> get onSurfaceCreated => _onSurfaceCreated;
 
   /// Fires when a surface is removed.
-  ValueListenable<String?> get onSurfaceDeleted => _onSurfaceDeleted;
+  EventListenable<String> get onSurfaceDeleted => _onSurfaceDeleted;
 
   /// Fires when an action is dispatched from ANY surface in the group.
-  ValueListenable<A2uiClientAction?> get onAction => _onAction;
+  EventListenable<A2uiClientAction> get onAction => _onAction;
 
   /// Adds a surface to the group.
   void addSurface(SurfaceModel<T> surface) {
@@ -105,28 +105,26 @@ class SurfaceGroupModel<T extends ComponentApi> {
       return;
     }
     _surfaces[surface.id] = surface;
-    void forwarder() {
-      final A2uiClientAction? action = surface.onAction.value;
-      if (action != null) {
-        _onAction.value = action;
-      }
+    void forwarder(A2uiClientAction action) {
+      _onAction.emit(action);
     }
 
     surface.onAction.addListener(forwarder);
     _actionForwarders[surface.id] = forwarder;
-    _onSurfaceCreated.value = surface;
+    _onSurfaceCreated.emit(surface);
   }
 
   /// Removes a surface from the group by its ID.
   void deleteSurface(String id) {
     final SurfaceModel<T>? surface = _surfaces.remove(id);
     if (surface != null) {
-      final void Function()? forwarder = _actionForwarders.remove(id);
+      final void Function(A2uiClientAction)? forwarder = _actionForwarders
+          .remove(id);
       if (forwarder != null) {
         surface.onAction.removeListener(forwarder);
       }
       surface.dispose();
-      _onSurfaceDeleted.value = id;
+      _onSurfaceDeleted.emit(id);
     }
   }
 

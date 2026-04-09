@@ -29,7 +29,6 @@ class DataContext {
 
   DataContext(this.dataModel, this._invoker, this.path);
 
-  /// Resolves a path against this context.
   String resolvePath(String relativePath) {
     if (relativePath.startsWith('/')) return relativePath;
     if (relativePath == '' || relativePath == '.') return path;
@@ -40,7 +39,6 @@ class DataContext {
     return '$base/$relativePath';
   }
 
-  /// Synchronously evaluates a dynamic value.
   Object? resolveSync(Object? value) {
     if (value is Map && value.containsKey('path')) {
       return dataModel.get(resolvePath(value['path'] as String));
@@ -70,7 +68,6 @@ class DataContext {
     return value;
   }
 
-  /// Reactively evaluates a dynamic value.
   ValueListenable<Object?> resolveListenable(Object? value) {
     if (value is Map && value.containsKey('path')) {
       return dataModel.watch(resolvePath(value['path'] as String));
@@ -95,12 +92,10 @@ class DataContext {
     return ValueNotifier(value);
   }
 
-  /// Creates a nested data context.
   DataContext nested(String relativePath) {
     return DataContext(dataModel, _invoker, resolvePath(relativePath));
   }
 
-  /// Sets a value in the data model.
   void set(String relativePath, Object? value) {
     dataModel.set(resolvePath(relativePath), value);
   }

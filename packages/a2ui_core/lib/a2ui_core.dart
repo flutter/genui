@@ -9,6 +9,8 @@ export 'src/common/cancellation.dart';
 export 'src/common/data_path.dart';
 // Common utilities.
 export 'src/common/errors.dart';
+// Event notifications for discrete lifecycle events.
+export 'src/common/event_notifier.dart';
 // Reactivity layer (extends listenable primitives with batch + computed).
 export 'src/common/reactivity.dart';
 // Protocol models.
