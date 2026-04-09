@@ -9,14 +9,25 @@ import 'component_model.dart';
 import 'data_model.dart';
 import 'surface_model.dart';
 
-/// A contextual view of the main DataModel.
+/// A function that invokes a catalog function by name.
+typedef FunctionInvoker =
+    Object? Function(
+      String name,
+      Map<String, dynamic> args,
+      DataContext context,
+    );
+
+/// A contextual view of the main DataModel, scoped to a specific path.
+///
+/// Components use DataContext to resolve dynamic values (data bindings,
+/// function calls) rather than interacting with the DataModel directly.
+/// It handles relative path resolution and recursive expression evaluation.
 class DataContext {
-  final SurfaceModel surface;
+  final DataModel dataModel;
+  final FunctionInvoker _invoker;
   final String path;
 
-  DataContext(this.surface, this.path);
-
-  DataModel get dataModel => surface.dataModel;
+  DataContext(this.dataModel, this._invoker, this.path);
 
   /// Resolves a path against this context.
   String resolvePath(String relativePath) {
@@ -40,7 +51,7 @@ class DataContext {
       for (final MapEntry<String, dynamic> entry in call.args.entries) {
         args[entry.key] = resolveSync(entry.value);
       }
-      final Object? result = surface.catalog.invoker(call.call, args, this);
+      final Object? result = _invoker(call.call, args, this);
       if (result is ValueListenable) {
         return result.value;
       }
@@ -74,7 +85,7 @@ class DataContext {
           );
           args[entry.key] = resolved.value;
         }
-        final Object? result = surface.catalog.invoker(call.call, args, this);
+        final Object? result = _invoker(call.call, args, this);
         if (result is ValueListenable) {
           return result.value;
         }
@@ -86,7 +97,7 @@ class DataContext {
 
   /// Creates a nested data context.
   DataContext nested(String relativePath) {
-    return DataContext(surface, resolvePath(relativePath));
+    return DataContext(dataModel, _invoker, resolvePath(relativePath));
   }
 
   /// Sets a value in the data model.
@@ -102,14 +113,18 @@ class ComponentContext {
   final DataContext dataContext;
 
   ComponentContext(this.surface, this.componentModel, {String? basePath})
-    : dataContext = DataContext(surface, basePath ?? '/');
+    : dataContext = DataContext(
+        surface.dataModel,
+        surface.catalog.invoker,
+        basePath ?? '/',
+      );
 
   /// Dispatches an action from the component.
   Future<void> dispatchAction(Map<String, dynamic> action) {
     return surface.dispatchAction(action, componentModel.id);
   }
 
-  /// Resolves a child component's context.
+  /// Returns a context for rendering a child component.
   ComponentContext childContext(String childId, {String? basePath}) {
     final ComponentModel? childModel = surface.componentsModel.get(childId);
     if (childModel == null) {
@@ -124,8 +139,12 @@ class ComponentContext {
 }
 
 extension CatalogInvokerExtension on Catalog {
-  /// Helper to invoke functions.
-  Object? invoker(String name, Map<String, dynamic> args, DataContext context) {
+  /// Invokes a catalog function by name with the given arguments.
+  Object? invoker(
+    String name,
+    Map<String, dynamic> args,
+    DataContext context,
+  ) {
     final FunctionImplementation? fn = functions[name];
     if (fn == null) {
       throw ArgumentError('Function not found: $name');

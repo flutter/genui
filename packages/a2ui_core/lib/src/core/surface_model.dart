@@ -62,7 +62,7 @@ class SurfaceModel<T extends ComponentApi> {
       catalog.invoker(
         call.call,
         Map<String, dynamic>.from(call.args),
-        DataContext(this, '/'),
+        DataContext(dataModel, catalog.invoker, '/'),
       );
     }
   }
