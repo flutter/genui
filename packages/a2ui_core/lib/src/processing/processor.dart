@@ -158,7 +158,7 @@ class MessageProcessor<T extends ComponentApi> {
       _processRefs(jsonSchema);
       return {
         'name': f.name,
-        'returnType': f.returnType,
+        'returnType': f.returnType.jsonValue,
         'parameters': jsonSchema,
       };
     }).toList();

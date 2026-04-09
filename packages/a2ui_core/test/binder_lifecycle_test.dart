@@ -140,7 +140,7 @@ class _TrackingFunction extends FunctionImplementation {
   String get name => 'trackingFn';
 
   @override
-  String get returnType => 'any';
+  A2uiReturnType get returnType => A2uiReturnType.any;
 
   @override
   Schema get argumentSchema => Schema.object(

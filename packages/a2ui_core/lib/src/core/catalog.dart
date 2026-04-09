@@ -13,10 +13,30 @@ abstract class ComponentApi {
   Schema get schema;
 }
 
+/// The type of value a function returns.
+enum A2uiReturnType {
+  string,
+  number,
+  boolean,
+  array,
+  object,
+  any,
+  void_;
+
+  /// The JSON value used in the A2UI protocol.
+  String get jsonValue => this == void_ ? 'void' : name;
+
+  /// Parses from the JSON string representation.
+  static A2uiReturnType fromJson(String value) {
+    if (value == 'void') return void_;
+    return values.byName(value);
+  }
+}
+
 /// A definition of a UI function's API.
 abstract class FunctionApi {
   String get name;
-  String get returnType;
+  A2uiReturnType get returnType;
   Schema get argumentSchema;
 }
 

@@ -15,7 +15,7 @@ class FormatStringFunction extends FunctionImplementation {
   String get name => 'formatString';
 
   @override
-  String get returnType => 'string';
+  A2uiReturnType get returnType => A2uiReturnType.string;
 
   @override
   Schema get argumentSchema => Schema.object(

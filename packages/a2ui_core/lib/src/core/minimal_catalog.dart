@@ -123,7 +123,7 @@ class CapitalizeFunction extends FunctionImplementation {
   String get name => 'capitalize';
 
   @override
-  String get returnType => 'string';
+  A2uiReturnType get returnType => A2uiReturnType.string;
 
   @override
   Schema get argumentSchema => Schema.object(

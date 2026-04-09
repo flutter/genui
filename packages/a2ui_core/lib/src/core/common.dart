@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'catalog.dart';
+
 /// A JSON Pointer path to a value in the data model.
 class DataBinding {
   final String path;
@@ -18,26 +20,28 @@ class DataBinding {
 class FunctionCall {
   final String call;
   final Map<String, dynamic> args;
-  final String returnType;
+  final A2uiReturnType returnType;
 
   FunctionCall({
     required this.call,
     required this.args,
-    this.returnType = 'boolean',
+    this.returnType = A2uiReturnType.boolean,
   });
 
   factory FunctionCall.fromJson(Map<String, dynamic> json) {
     return FunctionCall(
       call: json['call'] as String,
       args: json['args'] as Map<String, dynamic>? ?? {},
-      returnType: json['returnType'] as String? ?? 'boolean',
+      returnType: A2uiReturnType.fromJson(
+        json['returnType'] as String? ?? 'boolean',
+      ),
     );
   }
 
   Map<String, dynamic> toJson() => {
     'call': call,
     'args': args,
-    'returnType': returnType,
+    'returnType': returnType.jsonValue,
   };
 }
 
