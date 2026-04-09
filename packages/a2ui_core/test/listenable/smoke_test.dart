@@ -2,7 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:a2ui_core/a2ui_core.dart';
+import 'package:a2ui_core/src/listenable/notifiers.dart';
+import 'package:a2ui_core/src/listenable/primitives.dart';
 import 'package:test/test.dart';
 
 // ignore: unused_element, tests that ValueNotifier can be implemented.
@@ -27,9 +28,6 @@ class _ValueNotifierImplementation<T> implements ValueNotifier<T> {
 
   @override
   void notifyListeners() {}
-
-  @override
-  void forceNotify() {}
 }
 
 // ignore: unused_element, tests that ValueNotifier can be extended.

@@ -42,7 +42,7 @@ abstract class FunctionApi {
 
 /// A function implementation that can be registered with a catalog.
 abstract class FunctionImplementation extends FunctionApi {
-  /// Executes the function. Can return a static value or a [ValueListenable].
+  /// Executes the function. Can return a static value or a [ReadonlySignal].
   Object? execute(
     Map<String, dynamic> args,
     DataContext context, [

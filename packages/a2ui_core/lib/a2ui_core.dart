@@ -18,20 +18,12 @@ export 'src/core/messages.dart';
 export 'src/core/minimal_catalog.dart';
 export 'src/core/surface_group_model.dart';
 export 'src/core/surface_model.dart';
-// Listenable primitives from the shared notifier layer.
-// ValueNotifier is intentionally excluded here because reactivity.dart provides
-// an enhanced version with batch and dependency-tracking support.
-export 'src/listenable/error_reporting.dart'
-    show ListenableError, ListenableErrorDetails;
-export 'src/listenable/notifiers.dart'
-    show ChangeNotifier, GenUiListenable, GenUiValueListenable;
-export 'src/listenable/primitives.dart' show VoidCallback;
 export 'src/primitives/cancellation.dart';
 export 'src/primitives/data_path.dart';
 export 'src/primitives/errors.dart';
 // Event notifications for discrete lifecycle events.
 export 'src/primitives/event_notifier.dart';
-// Reactivity layer (extends listenable primitives with batch + computed).
+// Reactivity (re-exports preact_signals primitives).
 export 'src/primitives/reactivity.dart';
 export 'src/processing/basic_functions.dart';
 export 'src/processing/expressions.dart';

@@ -3,13 +3,6 @@
 // found in the LICENSE file.
 
 /// Read-only interface for subscribing to discrete events.
-///
-/// This is the event equivalent of `ValueListenable` — models expose this
-/// interface publicly while owning the mutable [EventNotifier] internally.
-///
-/// Unlike `ValueListenable`, an [EventListenable] has no "current value."
-/// It represents things that happen (surface created, action dispatched)
-/// rather than state that changes (data model values, resolved props).
 abstract interface class EventListenable<T> {
   /// Registers [listener] to be called whenever an event is emitted.
   void addListener(void Function(T event) listener);
@@ -19,14 +12,6 @@ abstract interface class EventListenable<T> {
 }
 
 /// A synchronous, typed event emitter for discrete events.
-///
-/// Dart equivalent of web_core's `EventEmitter<T>`. Use this for lifecycle
-/// events and notifications where there is no meaningful "current value" —
-/// only the fact that something happened.
-///
-/// Every call to [emit] notifies all listeners, regardless of payload
-/// equality. This avoids the pitfall of `ValueNotifier` suppressing
-/// duplicate notifications via `==`.
 class EventNotifier<T> implements EventListenable<T> {
   final List<void Function(T event)> _listeners = [];
 

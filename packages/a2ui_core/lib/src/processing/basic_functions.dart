@@ -40,13 +40,11 @@ class FormatStringFunction extends FunctionImplementation {
     if (parts.isEmpty) return '';
     if (parts.length == 1 && parts[0] is String) return parts[0];
 
-    return ComputedNotifier(() {
+    return computed(() {
       final Iterable<String> resolvedParts = parts.map((part) {
         if (part is String) return part;
-        final ValueListenable<Object?> listenable = context.resolveListenable(
-          part,
-        );
-        return listenable.value?.toString() ?? '';
+        final ReadonlySignal<Object?> sig = context.resolveListenable(part);
+        return sig.value?.toString() ?? '';
       });
       return resolvedParts.join('');
     });

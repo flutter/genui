@@ -13,10 +13,10 @@ import '../primitives/reactivity.dart';
 const int maxAutoVivifyIndex = 10000;
 
 /// A standalone, observable data store representing the client-side state.
-/// It handles JSON Pointer path resolution and subscription management.
+/// It handles JSON Pointer path resolution and reactive signal management.
 class DataModel {
   Object? _data;
-  final Map<String, WeakReference<ValueNotifier<Object?>>> _notifiers = {};
+  final Map<String, WeakReference<Signal<Object?>>> _signals = {};
 
   DataModel([Object? initialData]) : _data = initialData ?? <String, dynamic>{};
 
@@ -41,7 +41,7 @@ class DataModel {
     return current;
   }
 
-  /// Updates data at a specific path and notifies listeners.
+  /// Updates data at a specific path and notifies subscribers.
   void set(String path, Object? value) {
     final dataPath = DataPath.parse(path);
 
@@ -127,31 +127,30 @@ class DataModel {
     });
   }
 
-  /// Returns a [ValueListenable] for a specific path.
+  /// Returns a [ReadonlySignal] for a specific path.
   /// Internally cached using a [WeakReference] to prevent leaks.
-  ValueListenable<T?> watch<T>(String path) {
+  ReadonlySignal<T?> watch<T>(String path) {
     var normalizedPath = DataPath.parse(path).toString();
     if (normalizedPath == '') normalizedPath = '/';
-    final WeakReference<ValueNotifier<Object?>>? ref =
-        _notifiers[normalizedPath];
+    final WeakReference<Signal<Object?>>? ref = _signals[normalizedPath];
     if (ref != null) {
-      final ValueNotifier<Object?>? notifier = ref.target;
-      if (notifier != null) {
-        return notifier as ValueListenable<T?>;
+      final Signal<Object?>? sig = ref.target;
+      if (sig != null) {
+        return sig as ReadonlySignal<T?>;
       }
     }
 
-    final notifier = ValueNotifier<T?>(get(normalizedPath) as T?);
-    _notifiers[normalizedPath] = WeakReference(notifier);
-    _pruneNotifiers();
-    return notifier;
+    final Signal<T?> sig = signal<T?>(get(normalizedPath) as T?);
+    _signals[normalizedPath] = WeakReference(sig as Signal<Object?>);
+    _pruneSignals();
+    return sig;
   }
 
   void _notifyPathAndRelated(DataPath dataPath) {
     final normalizedPath = dataPath.toString();
 
-    // Notify all active notifiers that are related to this path
-    for (final String entryPath in _notifiers.keys.toList()) {
+    // Notify all active signals that are related to this path
+    for (final String entryPath in _signals.keys.toList()) {
       if (entryPath == '/' || entryPath == '') {
         _getAndNotify(entryPath);
         continue;
@@ -168,34 +167,26 @@ class DataModel {
   }
 
   void _getAndNotify(String path) {
-    final WeakReference<ValueNotifier<Object?>>? ref = _notifiers[path];
+    final WeakReference<Signal<Object?>>? ref = _signals[path];
     if (ref == null) return;
 
-    final ValueNotifier<Object?>? notifier = ref.target;
-    if (notifier == null) {
-      _notifiers.remove(path);
+    final Signal<Object?>? sig = ref.target;
+    if (sig == null) {
+      _signals.remove(path);
       return;
     }
 
     final Object? newValue = get(path);
-    final Object? oldValue = notifier.value;
-    if (identical(oldValue, newValue)) {
-      // The value is the same object reference (e.g. a mutated Map/List).
-      // Force notification since the setter's equality check would skip it.
-      notifier.forceNotify();
-    } else {
-      notifier.value = newValue;
-    }
+    // Force notification even if the value is the same reference, because
+    // mutable containers (Maps/Lists) may have changed in place.
+    sig.set(newValue, force: true);
   }
 
-  void _pruneNotifiers() {
-    _notifiers.removeWhere((key, ref) => ref.target == null);
+  void _pruneSignals() {
+    _signals.removeWhere((key, ref) => ref.target == null);
   }
 
   void dispose() {
-    for (final WeakReference<ValueNotifier<Object?>> ref in _notifiers.values) {
-      ref.target?.dispose();
-    }
-    _notifiers.clear();
+    _signals.clear();
   }
 }

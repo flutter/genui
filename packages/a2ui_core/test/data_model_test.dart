@@ -34,23 +34,25 @@ void main() {
 
     test('notifies exact path changes', () {
       final model = DataModel();
-      final ValueListenable<dynamic> watch = model.watch('/foo');
-      var count = 0;
-      watch.addListener(() => count++);
+      final ReadonlySignal<Object?> watch = model.watch('/foo');
+      var changeCount = 0;
+      watch.subscribe((_) => changeCount++);
+      changeCount = 0; // ignore initial subscribe callback
 
       model.set('/foo', 'bar');
-      expect(count, 1);
+      expect(changeCount, 1);
       expect(watch.value, 'bar');
     });
 
     test('notifies ancestor changes (bubble)', () {
       final model = DataModel();
-      final ValueListenable<dynamic> watch = model.watch('/user');
-      var count = 0;
-      watch.addListener(() => count++);
+      final ReadonlySignal<Object?> watch = model.watch('/user');
+      var changeCount = 0;
+      watch.subscribe((_) => changeCount++);
+      changeCount = 0;
 
       model.set('/user/name', 'Alice');
-      expect(count, 1);
+      expect(changeCount, 1);
       expect(watch.value, {'name': 'Alice'});
     });
 
@@ -58,23 +60,25 @@ void main() {
       final model = DataModel();
       model.set('/user', {'name': 'Alice'});
 
-      final ValueListenable<dynamic> watch = model.watch('/user/name');
-      var count = 0;
-      watch.addListener(() => count++);
+      final ReadonlySignal<Object?> watch = model.watch('/user/name');
+      var changeCount = 0;
+      watch.subscribe((_) => changeCount++);
+      changeCount = 0;
 
       model.set('/user', {'name': 'Bob'});
-      expect(count, 1);
+      expect(changeCount, 1);
       expect(watch.value, 'Bob');
     });
 
     test('notifies root watch on any change', () {
       final model = DataModel();
-      final ValueListenable<dynamic> watch = model.watch('/');
-      var count = 0;
-      watch.addListener(() => count++);
+      final ReadonlySignal<Object?> watch = model.watch('/');
+      var changeCount = 0;
+      watch.subscribe((_) => changeCount++);
+      changeCount = 0;
 
       model.set('/foo', 'bar');
-      expect(count, 1);
+      expect(changeCount, 1);
     });
 
     test('removes keys when setting null', () {
@@ -85,12 +89,10 @@ void main() {
 
     test('rejects excessively large list indices to prevent OOM', () {
       final model = DataModel();
-      // An intermediate segment with a huge index.
       expect(
         () => model.set('/items/999999999/name', 'x'),
         throwsA(isA<A2uiDataError>()),
       );
-      // A final segment with a huge index.
       expect(
         () => model.set('/items/999999999', 'x'),
         throwsA(isA<A2uiDataError>()),

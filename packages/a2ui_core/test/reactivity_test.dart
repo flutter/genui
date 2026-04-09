@@ -7,129 +7,114 @@ import 'package:test/test.dart';
 
 void main() {
   group('Reactivity', () {
-    test('ValueNotifier notifies listeners', () {
-      final ValueNotifier<int> notifier = ValueNotifier(10);
-      var callCount = 0;
-      notifier.addListener(() => callCount++);
+    test('Signal notifies subscribers on change', () {
+      final Signal<int> sig = signal(10);
+      final List<int> values = [];
+      sig.subscribe(values.add);
 
-      notifier.value = 20;
-      expect(callCount, 1);
-      expect(notifier.value, 20);
+      // subscribe fires immediately with current value
+      expect(values, [10]);
 
-      notifier.value = 20; // No change
-      expect(callCount, 1);
+      sig.value = 20;
+      expect(values, [10, 20]);
+      expect(sig.value, 20);
     });
 
-    test('ComputedNotifier tracks dependencies', () {
-      final ValueNotifier<int> a = ValueNotifier(1);
-      final ValueNotifier<int> b = ValueNotifier(2);
-      final ComputedNotifier<int> sum = ComputedNotifier(
-        () => a.value + b.value,
-      );
+    test('Computed tracks dependencies', () {
+      final Signal<int> a = signal(1);
+      final Signal<int> b = signal(2);
+      final ReadonlySignal<int> sum = computed(() => a.value + b.value);
 
       expect(sum.value, 3);
 
-      var callCount = 0;
-      sum.addListener(() => callCount++);
+      final List<int> values = [];
+      sum.subscribe(values.add);
 
       a.value = 10;
       expect(sum.value, 12);
-      expect(callCount, 1);
+      expect(values, [3, 12]);
 
       b.value = 20;
       expect(sum.value, 30);
-      expect(callCount, 2);
+      expect(values, [3, 12, 30]);
     });
 
-    test('ComputedNotifier updates dependencies dynamically', () {
-      final ValueNotifier<bool> useA = ValueNotifier(true);
-      final ValueNotifier<int> a = ValueNotifier(1);
-      final ValueNotifier<int> b = ValueNotifier(2);
-      final ComputedNotifier<int> result = ComputedNotifier(
+    test('Computed updates dependencies dynamically', () {
+      final Signal<bool> useA = signal(true);
+      final Signal<int> a = signal(1);
+      final Signal<int> b = signal(2);
+      final ReadonlySignal<int> result = computed(
         () => useA.value ? a.value : b.value,
       );
 
       expect(result.value, 1);
 
-      var callCount = 0;
-      result.addListener(() => callCount++);
+      final List<int> values = [];
+      result.subscribe(values.add);
 
       b.value = 10; // Should not notify as b is not a dependency yet
-      expect(callCount, 0);
+      expect(values, [1]);
 
       useA.value = false;
       expect(result.value, 10);
-      expect(callCount, 1);
+      expect(values, [1, 10]);
 
       a.value = 100; // Should not notify as a is no longer a dependency
-      expect(callCount, 1);
+      expect(values, [1, 10]);
 
       b.value = 20;
-      expect(callCount, 2);
+      expect(values, [1, 10, 20]);
       expect(result.value, 20);
     });
 
     test('batch defers notifications', () {
-      final ValueNotifier<int> a = ValueNotifier(1);
-      final ValueNotifier<int> b = ValueNotifier(2);
-      final ComputedNotifier<int> sum = ComputedNotifier(
-        () => a.value + b.value,
-      );
+      final Signal<int> a = signal(1);
+      final Signal<int> b = signal(2);
+      final ReadonlySignal<int> sum = computed(() => a.value + b.value);
 
-      var callCount = 0;
-      sum.addListener(() => callCount++);
+      final List<int> values = [];
+      sum.subscribe(values.add);
+      expect(values, [3]); // initial
 
       batch(() {
         a.value = 10;
         b.value = 20;
-        expect(callCount, 0); // Not yet notified
       });
 
-      expect(callCount, 1); // Notified exactly once
+      expect(values, [3, 30]); // only one update, not two
       expect(sum.value, 30);
     });
 
     test('nested batch defers to outermost', () {
-      final ValueNotifier<int> a = ValueNotifier(0);
-      var callCount = 0;
-      a.addListener(() => callCount++);
+      final Signal<int> a = signal(0);
+      final List<int> values = [];
+      a.subscribe(values.add);
+      expect(values, [0]); // initial
 
       batch(() {
         a.value = 1;
         batch(() {
           a.value = 2;
         });
-        expect(callCount, 0);
+        expect(values, [0]); // still deferred
       });
 
-      expect(callCount, 1);
+      expect(values, [0, 2]); // only final value
       expect(a.value, 2);
     });
 
-    test('forceNotify notifies even when value unchanged', () {
-      final ValueNotifier<int> notifier = ValueNotifier(1);
-      var callCount = 0;
-      notifier.addListener(() => callCount++);
+    test('subscribe returns dispose function', () {
+      final Signal<int> sig = signal(1);
+      final List<int> values = [];
+      final void Function() dispose = sig.subscribe(values.add);
 
-      notifier.forceNotify();
-      expect(callCount, 1);
+      sig.value = 2;
+      expect(values, [1, 2]);
 
-      notifier.forceNotify();
-      expect(callCount, 2);
-    });
+      dispose();
 
-    test('ComputedNotifier.dispose stops reacting', () {
-      final ValueNotifier<int> source = ValueNotifier(1);
-      final ComputedNotifier<int> computed = ComputedNotifier(
-        () => source.value * 10,
-      );
-
-      expect(computed.value, 10);
-
-      computed.dispose();
-
-      // Should not throw or react.
-      source.value = 2;
+      sig.value = 3;
+      expect(values, [1, 2], reason: 'should not fire after dispose');
     });
   });
 }

@@ -53,7 +53,7 @@ class DataContext {
         args[entry.key] = resolveSync(entry.value);
       }
       final Object? result = _invoke(call.call, args, this);
-      if (result is ValueListenable) {
+      if (result is ReadonlySignal) {
         return result.value;
       }
       return result;
@@ -71,30 +71,30 @@ class DataContext {
     return value;
   }
 
-  /// Returns a reactive listenable that re-evaluates a dynamic value
+  /// Returns a reactive signal that re-evaluates a dynamic value
   /// whenever its underlying data dependencies change.
-  ValueListenable<Object?> resolveListenable(Object? value) {
+  ReadonlySignal<Object?> resolveListenable(Object? value) {
     if (value is Map && value.containsKey('path')) {
       return dataModel.watch(resolvePath(value['path'] as String));
     }
     if (value is Map && value.containsKey('call')) {
       final call = FunctionCall.fromJson(Map<String, dynamic>.from(value));
-      return ComputedNotifier(() {
+      return computed(() {
         final args = <String, dynamic>{};
         for (final MapEntry<String, dynamic> entry in call.args.entries) {
-          final ValueListenable<Object?> resolved = resolveListenable(
+          final ReadonlySignal<Object?> resolved = resolveListenable(
             entry.value,
           );
           args[entry.key] = resolved.value;
         }
         final Object? result = _invoke(call.call, args, this);
-        if (result is ValueListenable) {
+        if (result is ReadonlySignal) {
           return result.value;
         }
         return result;
       });
     }
-    return ValueNotifier(value);
+    return signal(value);
   }
 
   DataContext nested(String relativePath) {

@@ -7,7 +7,6 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import '../core/common.dart';
 import '../core/component_model.dart';
 import '../core/contexts.dart';
-import '../listenable/notifiers.dart' show ChangeNotifier;
 import '../primitives/reactivity.dart';
 
 /// Represents the intended runtime behavior of a property parsed from
@@ -39,15 +38,15 @@ class GenericBinder {
   final Schema schema;
   late final BehaviorNode _behaviorTree;
 
-  final _resolvedProps = ValueNotifier<Map<String, dynamic>>({});
-  final List<void Function()> _dataListeners = [];
-  final List<ChangeNotifier> _ownedNotifiers = [];
+  late final Signal<Map<String, dynamic>> _resolvedProps;
+  final List<void Function()> _subscriptions = [];
   bool _isConnected = false;
 
-  ValueListenable<Map<String, dynamic>> get resolvedProps => _resolvedProps;
+  ReadonlySignal<Map<String, dynamic>> get resolvedProps => _resolvedProps;
 
   GenericBinder(this.context, this.schema) {
     _behaviorTree = _scrapeSchemaBehavior(schema);
+    _resolvedProps = signal<Map<String, dynamic>>({});
     connect();
   }
 
@@ -62,7 +61,7 @@ class GenericBinder {
   void _onComponentUpdated(ComponentModel _) => _rebuildAllBindings();
 
   void _rebuildAllBindings() {
-    _disposeOwnedResources();
+    _disposeSubscriptions();
 
     final Map<String, dynamic> props = context.componentModel.properties;
     _resolvedProps.value =
@@ -70,29 +69,11 @@ class GenericBinder {
             as Map<String, dynamic>;
   }
 
-  void _disposeOwnedResources() {
-    for (final void Function() unsub in _dataListeners) {
-      unsub();
+  void _disposeSubscriptions() {
+    for (final void Function() dispose in _subscriptions) {
+      dispose();
     }
-    _dataListeners.clear();
-    for (final ChangeNotifier notifier in _ownedNotifiers) {
-      notifier.dispose();
-    }
-    _ownedNotifiers.clear();
-  }
-
-  /// Resolves a dynamic value to a [ValueListenable], tracking any
-  /// [ComputedNotifier]s created so they can be disposed on rebuild.
-  /// DataModel.watch notifiers are shared/cached and must not be disposed
-  /// by the binder; only [ComputedNotifier]s (from function calls) hold
-  /// internal subscriptions that leak if not cleaned up.
-  ValueListenable<Object?> _resolveAndTrack(Object? value) {
-    final ValueListenable<Object?> listenable = context.dataContext
-        .resolveListenable(value);
-    if (listenable is ComputedNotifier) {
-      _ownedNotifiers.add(listenable);
-    }
-    return listenable;
+    _subscriptions.clear();
   }
 
   Object? _resolveAndBind(
@@ -105,16 +86,16 @@ class GenericBinder {
 
     switch (behavior.type) {
       case Behavior.dynamic:
-        final ValueListenable<Object?> listenable = _resolveAndTrack(value);
+        final ReadonlySignal<Object?> sig = context.dataContext
+            .resolveListenable(value);
         if (!isSync) {
-          void listener() {
-            _updateDeepValue(path, listenable.value);
-          }
-
-          listenable.addListener(listener);
-          _dataListeners.add(() => listenable.removeListener(listener));
+          _subscriptions.add(
+            sig.subscribe((newValue) {
+              _updateDeepValue(path, newValue);
+            }),
+          );
         }
-        return listenable.value;
+        return sig.value;
 
       case Behavior.action:
         return () async {
@@ -137,9 +118,8 @@ class GenericBinder {
           final tpl = ChildListTemplate.fromJson(
             Map<String, dynamic>.from(value),
           );
-          final ValueListenable<Object?> listenable = _resolveAndTrack({
-            'path': tpl.path,
-          });
+          final ReadonlySignal<Object?> sig = context.dataContext
+              .resolveListenable({'path': tpl.path});
 
           List<ChildNode> resolveChildren(Object? val) {
             final List<Object?> list = val is List ? val.cast<Object?>() : [];
@@ -154,14 +134,13 @@ class GenericBinder {
           }
 
           if (!isSync) {
-            void listener() {
-              _updateDeepValue(path, resolveChildren(listenable.value));
-            }
-
-            listenable.addListener(listener);
-            _dataListeners.add(() => listenable.removeListener(listener));
+            _subscriptions.add(
+              sig.subscribe((newValue) {
+                _updateDeepValue(path, resolveChildren(newValue));
+              }),
+            );
           }
-          return resolveChildren(listenable.value);
+          return resolveChildren(sig.value);
         }
         if (value is List) {
           return value
@@ -191,19 +170,18 @@ class GenericBinder {
         for (var i = 0; i < rules.length; i++) {
           final Object? condition =
               (rules[i] as Map<String, dynamic>)['condition'] ?? rules[i];
-          final ValueListenable<Object?> listenable = _resolveAndTrack(
-            condition,
-          );
-          results[i] = listenable.value == true;
+          final ReadonlySignal<Object?> sig = context.dataContext
+              .resolveListenable(condition);
+          results[i] = sig.value == true;
 
           if (!isSync) {
-            void listener() {
-              results[i] = listenable.value == true;
-              updateValidationState();
-            }
-
-            listenable.addListener(listener);
-            _dataListeners.add(() => listenable.removeListener(listener));
+            final idx = i;
+            _subscriptions.add(
+              sig.subscribe((newValue) {
+                results[idx] = newValue == true;
+                updateValidationState();
+              }),
+            );
           }
         }
 
@@ -418,8 +396,7 @@ class GenericBinder {
   }
 
   void dispose() {
-    _disposeOwnedResources();
+    _disposeSubscriptions();
     context.componentModel.onUpdated.removeListener(_onComponentUpdated);
-    _resolvedProps.dispose();
   }
 }
