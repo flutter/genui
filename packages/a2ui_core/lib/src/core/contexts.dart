@@ -140,11 +140,7 @@ class ComponentContext {
 
 extension CatalogInvokerExtension on Catalog {
   /// Invokes a catalog function by name with the given arguments.
-  Object? invoke(
-    String name,
-    Map<String, dynamic> args,
-    DataContext context,
-  ) {
+  Object? invoke(String name, Map<String, dynamic> args, DataContext context) {
     final FunctionImplementation? fn = functions[name];
     if (fn == null) {
       throw ArgumentError('Function not found: $name');
