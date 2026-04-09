@@ -30,9 +30,9 @@ class ChildNode {
   Map<String, dynamic> toJson() => {'id': id, 'basePath': basePath};
 }
 
-/// A framework-agnostic engine that transforms raw A2UI JSON payload
-/// configurations into a single, cohesive reactive stream of resolved
-/// properties.
+/// Transforms a component's raw properties into a reactive map of resolved
+/// values, using the component's schema to determine how each property
+/// should be bound (data binding, action, structural child, etc).
 class GenericBinder {
   final ComponentContext context;
   final Schema schema;

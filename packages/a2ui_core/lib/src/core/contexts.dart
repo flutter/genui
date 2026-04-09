@@ -17,11 +17,12 @@ typedef FunctionInvoker =
       DataContext context,
     );
 
-/// A contextual view of the main DataModel, scoped to a specific path.
+/// Provides data access relative to a specific path in the DataModel.
 ///
-/// Components use DataContext to resolve dynamic values (data bindings,
-/// function calls) rather than interacting with the DataModel directly.
-/// It handles relative path resolution and recursive expression evaluation.
+/// Similar to a working directory: a DataContext scoped to `/users/0`
+/// lets components use relative paths like `name` instead of absolute
+/// paths like `/users/0/name`. Also evaluates data bindings and
+/// function calls.
 class DataContext {
   final DataModel dataModel;
   final FunctionInvoker _invoke;
@@ -39,6 +40,8 @@ class DataContext {
     return '$base/$relativePath';
   }
 
+  /// Returns the evaluated result of a dynamic value (literal, data binding,
+  /// or function call) at the current moment. Does not create subscriptions.
   Object? resolveSync(Object? value) {
     if (value is Map && value.containsKey('path')) {
       return dataModel.get(resolvePath(value['path'] as String));
@@ -68,6 +71,8 @@ class DataContext {
     return value;
   }
 
+  /// Returns a reactive listenable that re-evaluates a dynamic value
+  /// whenever its underlying data dependencies change.
   ValueListenable<Object?> resolveListenable(Object? value) {
     if (value is Map && value.containsKey('path')) {
       return dataModel.watch(resolvePath(value['path'] as String));
