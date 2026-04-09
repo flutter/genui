@@ -59,10 +59,10 @@ class SurfaceModel<T extends ComponentApi> {
     } else if (payload.containsKey('functionCall')) {
       final callJson = payload['functionCall'] as Map<String, dynamic>;
       final call = FunctionCall.fromJson(callJson);
-      catalog.invoker(
+      catalog.invoke(
         call.call,
         Map<String, dynamic>.from(call.args),
-        DataContext(dataModel, catalog.invoker, '/'),
+        DataContext(dataModel, catalog.invoke, '/'),
       );
     }
   }

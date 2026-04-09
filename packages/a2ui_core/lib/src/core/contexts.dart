@@ -24,10 +24,10 @@ typedef FunctionInvoker =
 /// It handles relative path resolution and recursive expression evaluation.
 class DataContext {
   final DataModel dataModel;
-  final FunctionInvoker _invoker;
+  final FunctionInvoker _invoke;
   final String path;
 
-  DataContext(this.dataModel, this._invoker, this.path);
+  DataContext(this.dataModel, this._invoke, this.path);
 
   String resolvePath(String relativePath) {
     if (relativePath.startsWith('/')) return relativePath;
@@ -49,7 +49,7 @@ class DataContext {
       for (final MapEntry<String, dynamic> entry in call.args.entries) {
         args[entry.key] = resolveSync(entry.value);
       }
-      final Object? result = _invoker(call.call, args, this);
+      final Object? result = _invoke(call.call, args, this);
       if (result is ValueListenable) {
         return result.value;
       }
@@ -82,7 +82,7 @@ class DataContext {
           );
           args[entry.key] = resolved.value;
         }
-        final Object? result = _invoker(call.call, args, this);
+        final Object? result = _invoke(call.call, args, this);
         if (result is ValueListenable) {
           return result.value;
         }
@@ -93,7 +93,7 @@ class DataContext {
   }
 
   DataContext nested(String relativePath) {
-    return DataContext(dataModel, _invoker, resolvePath(relativePath));
+    return DataContext(dataModel, _invoke, resolvePath(relativePath));
   }
 
   void set(String relativePath, Object? value) {
@@ -110,7 +110,7 @@ class ComponentContext {
   ComponentContext(this.surface, this.componentModel, {String? basePath})
     : dataContext = DataContext(
         surface.dataModel,
-        surface.catalog.invoker,
+        surface.catalog.invoke,
         basePath ?? '/',
       );
 
@@ -135,7 +135,7 @@ class ComponentContext {
 
 extension CatalogInvokerExtension on Catalog {
   /// Invokes a catalog function by name with the given arguments.
-  Object? invoker(
+  Object? invoke(
     String name,
     Map<String, dynamic> args,
     DataContext context,
