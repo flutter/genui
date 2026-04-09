@@ -30,9 +30,10 @@ class ChildNode {
   Map<String, dynamic> toJson() => {'id': id, 'basePath': basePath};
 }
 
-/// Transforms a component's raw properties into a reactive map of resolved
-/// values, using the component's schema to determine how each property
-/// should be bound (data binding, action, structural child, etc).
+/// Takes a component's raw JSON properties (which may contain data
+/// bindings, function calls, and action definitions) and resolves them
+/// into concrete values (strings, callbacks, child lists, etc). The
+/// resolved output updates automatically when underlying data changes.
 class GenericBinder {
   final ComponentContext context;
   final Schema schema;
