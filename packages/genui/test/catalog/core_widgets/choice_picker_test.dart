@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
-
 void main() {
   // Test case based on jobApplication.1.sample
   testWidgets(
