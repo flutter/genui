@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/// Conventient abstractions for using the GenUI framework.
+/// Convenient abstractions for using the GenUI framework.
 ///
-/// Contains utilities for building GenUI-enabled system promts, and utilities
-/// for building chat-centric generative UI apps.
+/// Contains utilities for building GenUI-enabled system prompts, and utilities
+/// for building chat-centric generative applications.
 library;
 
 export 'facade/conversation.dart';

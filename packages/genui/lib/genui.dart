@@ -5,7 +5,7 @@
 /// The generative UI framework (GenUI) for Flutter and Dart.
 ///
 /// This library provides the necessary components to build generative user
-/// interfaces in Flutter applications. It implements that A2UI protocol
+/// interfaces in Flutter applications. It implements the A2UI protocol
 /// (https://a2ui.org), and includes an object model for UI components,
 /// data handling, and provides transport for communicating with generative AI
 /// services (agents and LLMs).
