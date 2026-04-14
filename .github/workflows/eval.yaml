@@ -32,7 +32,7 @@ jobs:
       - name: Install Flutter
         # Before bumping, verify the new version is on the flutter org's
         # enterprise actions allowlist, or CI will fail with startup_failure.
-        uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
         with:
           channel: beta
           cache: true
