@@ -44,6 +44,7 @@ final basicCardSchema = S.object(
   properties: {
     'component': S.string(enumValues: ['BasicCard']),
     'title': S.string(),
+    'description': 
     'action': A2uiSchemas.action(),
   },
   required: ['title'],

@@ -87,7 +87,7 @@ When tasked with integrating `genui` and starting a simple conversation, follow 
    ```
 
 9. **Listen to Conversation Events:**
-   Create stubbed-out methods in your State class for each event type, including DartDoc comments explaining their required behavior.
+   Create stubbed-out methods in your State class for each event type, including DartDoc comments explaining their required behavior. Depending on the interface design, new surfaces and text coming from the agent will be handled in different ways. A conversational interface might add everything to a list that's display in a `ListView`, for example, while an interface featuring UI components in specific locations (such as headers, footers, etc.) might rely on specific surface IDs given to the agent in the system instruction to know which surfaces to display in which locations.
    ```dart
    /// Updates state to include the new [surfaceId] so a new `Surface` widget can be built.
    void _onSurfaceAdded(String surfaceId) {
@@ -110,7 +110,7 @@ When tasked with integrating `genui` and starting a simple conversation, follow 
    }
    ```
 
-   Subscribe to the `_conversation.events` to track when UI surfaces or chat messages arrive, dispatching them to the appropriate stubbed out methods:
+   Subscribe to `_conversation.events` to track when UI surfaces or chat messages arrive, dispatching them to the appropriate stubbed out methods:
    ```dart
    _conversation.events.listen((event) {
      switch (event) {
