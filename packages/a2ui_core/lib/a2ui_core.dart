@@ -18,6 +18,8 @@ export 'src/core/messages.dart';
 export 'src/core/minimal_catalog.dart';
 export 'src/core/surface_group_model.dart';
 export 'src/core/surface_model.dart';
+// Primitives.
+export 'src/listenable/notifiers.dart';
 export 'src/primitives/cancellation.dart';
 export 'src/primitives/data_path.dart';
 export 'src/primitives/errors.dart';
