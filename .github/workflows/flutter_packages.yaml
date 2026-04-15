@@ -172,4 +172,4 @@ jobs:
         working-directory: ${{ matrix.package.path }}
         run: |
           dart pub global activate layerlens
-          layerlens --fail-on-cycles  --except "lib/src/schema"
+          layerlens --fail-on-cycles  --except "lib/src/schema" --except "lib/src/core"

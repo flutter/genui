@@ -1,3 +1,6 @@
+# Local-only scratch files.
+.local/
+
 # Diagrams, produced by https://pub.dev/packages/layerlens.
 DEPS.md
 

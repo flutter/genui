@@ -6,14 +6,14 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:meta/meta.dart';
 import 'package:stream_transform/stream_transform.dart';
 
-import '../model/client_function.dart' as cf;
+import '../model/client_function.dart';
 import '../model/data_model.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 import '../utils/stream_extensions.dart';
 
 /// Formats a value as a string.
-class FormatStringFunction implements cf.ClientFunction {
+class FormatStringFunction implements ClientFunction {
   const FormatStringFunction();
 
   @override
@@ -31,14 +31,13 @@ ${formatDate(value:${/currentDate}, format:'MM-dd')}). To include a literal ${
 sequence, escape it as \${.''';
 
   @override
-  cf.ClientFunctionReturnType get returnType =>
-      cf.ClientFunctionReturnType.string;
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.string;
 
   @override
   Schema get argumentSchema => S.object(properties: {'value': S.any()});
 
   @override
-  Stream<String> execute(JsonMap args, cf.ExecutionContext context) {
+  Stream<String> execute(JsonMap args, ExecutionContext context) {
     if (!args.containsKey('value')) return Stream.value('');
     final Object? value = args['value'];
 
@@ -62,7 +61,7 @@ class RecursionExpectedException implements Exception {
 class ExpressionParser {
   ExpressionParser(this.context);
 
-  final cf.ExecutionContext context;
+  final ExecutionContext context;
 
   static const int _maxRecursionDepth = 100;
 
@@ -152,7 +151,7 @@ class ExpressionParser {
       return Stream.value(null); // Dependency collection only
     }
 
-    final cf.ClientFunction? func = context.getFunction(name);
+    final ClientFunction? func = context.getFunction(name);
     if (func == null) {
       genUiLogger.warning('Function not found: $name');
       return Stream.value(null);
