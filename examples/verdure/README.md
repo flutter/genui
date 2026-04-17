@@ -38,7 +38,7 @@ c. Install dependencies and run the server using UV:
 
    The server will start on `http://localhost:10002` by default.
 
-d. Verify the server is responding as expected:
+d. In a new terminal window, verify the server is responding as expected:
 
    ```bash
    curl http://localhost:10002/.well-known/agent-card.json
