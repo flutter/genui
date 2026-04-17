@@ -12,6 +12,15 @@ import '../interfaces/transport.dart';
 import '../model/chat_message.dart';
 import '../model/ui_models.dart';
 
+/// Represents whose turn it is in the conversation.
+enum ConversationTurn {
+  /// It is the user's turn to send a message.
+  user,
+
+  /// It is the agent's turn to respond.
+  agent,
+}
+
 /// Events emitted by [Conversation] to notify listeners of changes.
 sealed class ConversationEvent {}
 
@@ -61,6 +70,13 @@ final class ConversationContentReceived extends ConversationEvent {
 /// for an AI response.
 final class ConversationWaiting extends ConversationEvent {}
 
+/// Fired when the agent has finished responding and it is the user's turn.
+///
+/// This is the complement of [ConversationWaiting]: [ConversationWaiting] fires
+/// when the agent's turn begins, and [ConversationReady] fires when the agent's
+/// turn ends — regardless of whether an error occurred.
+final class ConversationReady extends ConversationEvent {}
+
 /// Fired when an error occurs during the conversation.
 final class ConversationError extends ConversationEvent {
   /// Creates a [ConversationError] event.
@@ -90,6 +106,13 @@ class ConversationState {
 
   /// Whether we are waiting for a response.
   final bool isWaiting;
+
+  /// Whose turn it is in the conversation.
+  ///
+  /// Returns [ConversationTurn.agent] while waiting for the agent's response,
+  /// and [ConversationTurn.user] otherwise.
+  ConversationTurn get turn =>
+      isWaiting ? ConversationTurn.agent : ConversationTurn.user;
 
   /// Creates a copy of this state with the given fields replaced.
   ConversationState copyWith({
@@ -169,6 +192,8 @@ interface class Conversation {
     const ConversationState(surfaces: [], latestText: '', isWaiting: false),
   );
 
+  int _pendingRequests = 0;
+
   StreamSubscription<dynamic>? _transportSubscription;
   StreamSubscription<dynamic>? _textSubscription;
   StreamSubscription<dynamic>? _engineSubscription;
@@ -182,14 +207,22 @@ interface class Conversation {
 
   /// Sends a request to the LLM.
   Future<void> sendRequest(ChatMessage message) async {
+    _pendingRequests++;
     _eventController.add(ConversationWaiting());
     _updateState((s) => s.copyWith(isWaiting: true));
     try {
       await transport.sendRequest(message);
     } catch (exception, stackTrace) {
-      _eventController.add(ConversationError(exception, stackTrace));
+      if (!_eventController.isClosed) {
+        _eventController.add(ConversationError(exception, stackTrace));
+      }
     } finally {
-      _updateState((s) => s.copyWith(isWaiting: false));
+      _pendingRequests--;
+      if (_pendingRequests == 0) {
+        _updateState((s) => s.copyWith(isWaiting: false));
+        if (!_eventController.isClosed)
+          _eventController.add(ConversationReady());
+      }
     }
   }
 

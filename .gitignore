@@ -4,6 +4,9 @@
 # Diagrams, produced by https://pub.dev/packages/layerlens.
 DEPS.md
 
+# Local contribution tracking
+ISSUES_DETECTED.md
+
 # Firebase
 google-services.json
 **/lib/firebase_options.dart
