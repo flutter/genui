@@ -32,4 +32,4 @@ The application's logic is contained almost entirely within `lib/chat_session.da
 
 ## Getting Started
 
-Follow the instructions in the [run_app_with_gemini_key.md](../../docs/usage/run_app_with_gemini_key.md).
+Follow the instructions in [Running the app with a Gemini key](../../docs/usage/run_app_with_gemini_key.md).
