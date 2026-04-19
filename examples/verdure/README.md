@@ -38,11 +38,19 @@ c. Install dependencies and run the server using UV:
 
    The server will start on `http://localhost:10002` by default.
 
-d. Verify the server is responding as expected:
+d. In another terminal window:
 
-   ```bash
-   curl http://localhost:10002/.well-known/agent-card.json
-   ```
+    * verify that the agent is available via A2A:
+
+        ```bash
+        curl http://localhost:10002/.well-known/agent-card.json
+        ```
+    
+    * send a message to the agent:
+
+        ```bash
+        curl localhost:10002 -H 'Content-Type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"message/send","params":{"message":{"role":"user","parts":[{"text":"Please, help me with my project. I have a small backyard and I would like to plant some flowers and vegetables."}],"messageId":"1"}}}'
+        ```
 
 ### 2. Run the Client
 
