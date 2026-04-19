@@ -20,7 +20,7 @@ To run this example, you need to start both the server and the client applicatio
 a. Navigate to the server directory:
 
    ```bash
-   cd server/verdure
+   cd examples/verdure/server/verdure
    ```
 
 b. Create a `.env` file with your Gemini API key:
@@ -59,7 +59,7 @@ a. Open a new terminal window.
 b. Navigate to the client directory:
 
    ```bash
-   cd client
+   cd examples/verdure/client
    ```
 
 c. Run the Flutter application on your desired device:
