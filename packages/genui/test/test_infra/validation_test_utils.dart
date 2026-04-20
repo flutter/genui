@@ -53,8 +53,11 @@ void validateCatalogExamples(
             components: components,
           );
 
+          final payload =
+              surfaceUpdate.toJson()['updateComponents']
+                  as Map<String, dynamic>;
           final List<ValidationError> validationErrors = await schema.validate(
-            surfaceUpdate.toJson(),
+            payload,
           );
           expect(validationErrors, isEmpty);
         });
