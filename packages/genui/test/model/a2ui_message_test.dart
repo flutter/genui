@@ -140,22 +140,22 @@ void main() {
       final Schema schema = A2uiMessage.a2uiMessageSchema(catalog);
       final json = jsonDecode(schema.toJson()) as Map<String, Object?>;
 
-      // Structure is combined -> allOf -> [object]
-      expect(json['allOf'], isA<List<Object?>>());
-      final allOf = json['allOf'] as List<Object?>;
-      expect(allOf, isNotEmpty);
-      final mainSchema = allOf.first as Map<String, Object?>;
+      // Structure is combined -> oneOf -> [object, ...]
+      expect(json['oneOf'], isA<List<Object?>>());
+      final oneOf = json['oneOf'] as List<Object?>;
+      expect(oneOf, isNotEmpty);
 
-      final properties = mainSchema['properties'] as Map<String, Object?>;
-      expect(properties, contains('version'));
+      // Every variant must require 'version' and enforce 'v0.9'
+      for (final variant in oneOf) {
+        final variantMap = variant as Map<String, Object?>;
+        final required = variantMap['required'] as List<Object?>;
+        expect(required, contains('version'));
 
-      final required = mainSchema['required'] as List<Object?>;
-      expect(required, contains('version'));
-
-      final versionSchema = properties['version'] as Map<String, Object?>;
-      // Depending on json_schema_builder version, it might be 'const' or 'enum'
-      // But we expect it to enforce 'v0.9'
-      expect(versionSchema, containsPair('const', 'v0.9'));
+        final properties = variantMap['properties'] as Map<String, Object?>;
+        expect(properties, contains('version'));
+        final versionSchema = properties['version'] as Map<String, Object?>;
+        expect(versionSchema, containsPair('const', 'v0.9'));
+      }
     });
   });
 }

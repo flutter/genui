@@ -1,4 +1,5 @@
 animalKingdomExplorer.sample
+audioPlayer.sample
 calendarEventCreator.sample
 chatRoom.sample
 checkoutPage.sample
@@ -41,4 +42,5 @@ surveyForm.sample
 travelItinerary.sample
 triviaQuiz.sample
 videoCallInterface.sample
+videoPlayer.sample
 weatherForecast.sample

@@ -1,5 +1,9 @@
 # `genai_primitives` Changelog
 
+## 0.2.4 (in progress)
+
+- **Refactor**: Update core framework to v0.9 (#546dab9be).
+
 ## 0.2.3
 
 - **Feature**: Add methods `copyWith` and `concatenate` to `ChatMessage` (#760).

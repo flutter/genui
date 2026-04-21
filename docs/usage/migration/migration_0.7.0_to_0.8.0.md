@@ -71,12 +71,12 @@ A2UI v0.9 relies heavily on specific instructions being present in the system pr
 
 **Action**: Ensure your system prompt includes:
 1.  **The A2UI Schema**: Generated from your catalog.
-2.  **The Standard Rules**: `BasicCatalogEmbed.basicCatalogRules`.
+2.  **The Standard Rules**: `BasicCatalogItems.basicCatalogRules`. Note: If you initialize your catalog using `BasicCatalogItems.asCatalog()`, these rules are automatically included.
 
 ```dart
 final promptBuilder = PromptBuilder.chat(
   catalog: catalog,
-  instructions: 'You are a helpful assistant.',
+  systemPromptFragments: ['You are a helpful assistant.'],
 );
 final systemInstruction = promptBuilder.systemPrompt;
 ```

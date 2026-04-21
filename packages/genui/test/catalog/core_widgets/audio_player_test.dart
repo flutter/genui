@@ -43,18 +43,8 @@ void main() {
       ),
     );
 
-    expect(find.byIcon(Icons.audiotrack), findsOneWidget);
+    expect(find.byIcon(Icons.play_arrow), findsOneWidget);
 
-    // Check for Semantics widget properties directly if find.bySemanticsLabel
-    // fails
-    final Semantics semantics = tester.widget<Semantics>(
-      find
-          .ancestor(
-            of: find.byIcon(Icons.audiotrack),
-            matching: find.byType(Semantics),
-          )
-          .first,
-    );
-    expect(semantics.properties.label, 'Audio Description');
+    expect(find.text('Audio Description'), findsOneWidget);
   });
 }

@@ -22,7 +22,7 @@ abstract class PromptFragments {
   /// [prefix] is a prefix to be added to the prompt.
   /// Is useful when you want to emphasize the importance of this fragment.
   static String acknowledgeUser({String prefix = ''}) =>
-      ''' 
+      '''
 ${prefix}Your responses should contain acknowledgment of the user message.
 '''
           .trim();
@@ -131,7 +131,7 @@ enum ProtocolMessages {
     explanation: 'Creates a new surface.',
     properties: '''
 Requires `surfaceId` (you must always use a unique ID for each created surface),
-`catalogId` (use the catalog ID provided in system instructions), 
+`catalogId` (use the catalog ID provided in system instructions),
 and `sendDataModel: true`.
 ''',
     // TODO: figure out why we instruct AI to always set sendDataModel: true,
@@ -142,7 +142,7 @@ and `sendDataModel: true`.
     name: 'updateComponents',
     explanation: 'Updates components in a surface.',
     properties: '''
-Requires `surfaceId` and a list of `components`. 
+Requires `surfaceId` and a list of `components`.
 One component MUST have `id: "root"`.
 ''',
   ),
@@ -150,7 +150,7 @@ One component MUST have `id: "root"`.
     name: 'updateDataModel',
     explanation: 'Updates the data model.',
     properties: '''
-Requires `surfaceId`, `path` and `value`. 
+Requires `surfaceId`, `path` and `value`.
 ''',
   ),
   deleteSurface(
@@ -287,6 +287,10 @@ To create a new UI:
 1. Output a ${ProtocolMessages.createSurface.tickedName} message with a unique `surfaceId` and `catalogId` (use the catalog ID provided in system instructions).
 2. Output an ${ProtocolMessages.updateComponents.tickedName} message with the `surfaceId` and the component definitions.
 ''',
+    if (!update)
+      '''
+IMPORTANT: DO NOT update or modify surfaces created in previous turns. If the UI needs to change, you MUST create a NEW surface with a new unique `surfaceId`. You may only use ${ProtocolMessages.updateComponents.tickedName} to populate the components of a freshly created surface.
+''',
     if (update)
       '''
 To update an existing UI:
@@ -307,7 +311,7 @@ To update an existing UI:
       _fenced('''
 When constructing UI, you must output a VALID A2UI JSON object representing one of the A2UI message types ($_operationsFormatted).
 - You can treat the A2UI schema as a specification for the JSON you typically output.
-- You may include a brief conversational explanation before or after the JSON block if it helps the user, but the JSON block must be valid and complete.
+- The JSON block must be valid and complete.
 - Ensure your JSON is fenced with ```json and ```.
 ''', sectionName: 'OUTPUT FORMAT'),
     );

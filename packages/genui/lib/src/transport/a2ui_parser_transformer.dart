@@ -45,6 +45,9 @@ class _A2uiParserStream {
   late final StreamController<GenerationEvent> _controller;
   StreamSubscription<String>? _subscription;
   String _buffer = '';
+  // When true, whitespace-only content is treated as a JSONL separator and
+  // discarded. When false, it is emitted as a TextEvent.
+  bool _wasLastEventA2ui = false;
 
   Stream<GenerationEvent> get stream => _controller.stream;
 
@@ -130,22 +133,31 @@ class _A2uiParserStream {
       }
 
       if (firstPotentialStart == -1) {
-        // No potential JSON start. Emit all.
+        // No potential JSON start.
         if (_buffer.isNotEmpty) {
+          if (_wasLastEventA2ui && _buffer.trim().isEmpty) {
+            // Whitespace-only after a JSON message: treat as JSONL separator.
+            // Hold in buffer until more data arrives or stream ends.
+            break;
+          }
           _emitText(_buffer);
           _buffer = '';
         }
         break;
       } else {
         // Found a potential start at `firstPotentialStart`.
-        // Emit text BEFORE it.
         if (firstPotentialStart > 0) {
-          _emitText(_buffer.substring(0, firstPotentialStart));
+          final String prefix = _buffer.substring(0, firstPotentialStart);
+          if (_wasLastEventA2ui && prefix.trim().isEmpty) {
+            // Skip whitespace-only prefix after a JSON message
+            // (JSONL separator).
+            _buffer = _buffer.substring(firstPotentialStart);
+            continue;
+          }
+          _emitText(prefix);
           _buffer = _buffer.substring(firstPotentialStart);
         }
-        // Now buffer starts with potential JSON.
-        // Since we already tried to parse and failed (if we are here),
-        // we must wait for more data.
+        // Buffer starts with potential JSON. Wait for more data.
         break;
       }
     }
@@ -158,6 +170,7 @@ class _A2uiParserStream {
   }
 
   void _emitText(String text) {
+    _wasLastEventA2ui = false;
     // Clean up protocol tags that might leak into text stream
     final String cleanText = text
         .replaceAll('<a2ui_message>', '')
@@ -172,22 +185,28 @@ class _A2uiParserStream {
     if (json is Map<String, Object?>) {
       try {
         _controller.add(A2uiMessageEvent(A2uiMessage.fromJson(json)));
+        _wasLastEventA2ui = true;
       } on A2uiValidationException catch (e) {
         _controller.addError(e);
+        _wasLastEventA2ui = false;
       } catch (_) {
         // Failed to parse A2UI message structure (e.g. invalid type
         // discriminator)
         _controller.add(TextEvent(jsonEncode(json)));
+        _wasLastEventA2ui = false;
       }
     } else if (json is List) {
       for (final Object? item in json) {
         if (item is Map<String, Object?>) {
           try {
             _controller.add(A2uiMessageEvent(A2uiMessage.fromJson(item)));
+            _wasLastEventA2ui = true;
           } on A2uiValidationException catch (e) {
             _controller.addError(e);
+            _wasLastEventA2ui = false;
           } catch (_) {
             _controller.add(TextEvent(jsonEncode(item)));
+            _wasLastEventA2ui = false;
           }
         }
       }

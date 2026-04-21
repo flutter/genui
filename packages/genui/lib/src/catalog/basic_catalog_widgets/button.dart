@@ -7,11 +7,11 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
+import '../../model/data_model.dart';
 import '../../model/ui_models.dart';
+import '../../model/validation_helper.dart';
 import '../../primitives/logging.dart';
 import '../../primitives/simple_items.dart';
-import '../../utils/validation_helper.dart';
-import '../../widgets/widget_utilities.dart';
 
 final _schema = S.object(
   description: 'An interactive button that triggers an action when pressed.',

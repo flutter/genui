@@ -1,6 +1,31 @@
 # `genui` Changelog
 
-## 0.7.1 (in progress)
+## 0.8.1 (in progress)
+
+## 0.8.0
+
+- **BREAKING**: Updated package to align with A2UI v0.9 protocol and introduced extensive architectural changes.
+- **BREAKING**: Updated minimum Dart SDK constraints to `^3.10.0` to leverage modern Dart 3+ syntax and features (#772).
+- **BREAKING**: `DataModel` is now an abstract interface class. `InMemoryDataModel` provides the concrete implementation.
+- **BREAKING**: Enforce non-null `DataPath` in `DataModel.update`, `subscribe`, and `getValue` operations (#743).
+- **BREAKING**: `DataContext.evaluate` renamed to `resolve`, returning `Stream<Object?>`.
+- **BREAKING**: Made client functions reactive and catalog-based. `SimpleClientFunction` renamed to `SynchronousClientFunction` and its `call` method to `executeSync`.
+- **BREAKING**: Removed global `FunctionRegistry`. Functions are now registered to the catalog. Renamed `registerStandardFunctions` to `registerBasicFunctions`.
+- **BREAKING**: Removed `SurfaceCleanupStrategy` from `SurfaceController`.
+- **BREAKING**: `SurfaceContext` and `SurfaceDefinition` now require a non-nullable `catalogId`.
+- **BREAKING**: Renamed `CoreCatalog` to `BasicCatalog` and relocated catalog widgets.
+- **Feature**: Added `examples` app with a gallery of pre-designed surfaces allowing editing/previewing A2UI JSON (#761).
+- **Feature**: Implemented audio and video basic catalog components (#802).
+- **Feature**: Added client capabilities JSON generation via `A2UiClientCapabilities.fromCatalogs` (#773).
+- **Feature**: Initial implementation of prompt builder via `PromptBuilder` and the `Conversation` facade (#777).
+- **Feature**: Consolidated component name into `CatalogItem` constructor (#757).
+- **Feature**: Added descriptions to basic component schemas for standard validation (#756).
+- **Fix**: Filter whitespace-only AI text responses from transport (#759).
+- **Fix**: Resolved `DataModel` double-dispose crashing issue (#741).
+- **Fix**: Fixed memory leaks in `RefCountedValueNotifier` and refactored catalog widgets to use lifecycle-safe `BoundValue` / `BoundString` widgets.
+- **Refactor**: Decoupled `ClientFunction` from `DataContext` and resolved package cycles (#742).
+- **Refactor**: Updated `Modal` component to self-contain showing logic.
+- **Internal**: Removed legacy events `ToolStartEvent`, `ToolEndEvent`, `TokenUsageEvent`, and `ThinkingEvent` from the core genui package.
 
 ## 0.7.0
 

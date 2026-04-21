@@ -235,5 +235,33 @@ void main() {
 
       await queue.cancel();
     });
+
+    test('extracts messages from a JSONL stream', () async {
+      final StreamQueue<GenerationEvent> queue = StreamQueue(stream);
+
+      controller.add(
+        '{"version": "v0.9", "createSurface": '
+        '{"surfaceId": "foo", "catalogId": "genui"}'
+        '}',
+      );
+
+      controller.add('\n');
+
+      controller.add(
+        '{"version": "v0.9", "createSurface": '
+        '{"surfaceId": "bar", "catalogId": "genui"}'
+        '}',
+      );
+
+      final firstEvent = (await queue.next) as A2uiMessageEvent;
+      expect(firstEvent.message, isA<CreateSurface>());
+      expect((firstEvent.message as CreateSurface).surfaceId, 'foo');
+
+      final secondEvent = (await queue.next) as A2uiMessageEvent;
+      expect(secondEvent.message, isA<CreateSurface>());
+      expect((secondEvent.message as CreateSurface).surfaceId, 'bar');
+
+      await queue.cancel();
+    });
   });
 }

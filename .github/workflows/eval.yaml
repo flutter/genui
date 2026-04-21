@@ -10,10 +10,11 @@ on:
   schedule:
     - cron: "0 * * * *" # hourly
 
-# TODO(polina-c): add steps that run tests
-
 jobs:
   eval-job:
+    # Do not run on forked branches,
+    # because the test does not have access to secrets in forks.
+    if: github.repository == 'flutter/genui'
     runs-on: ubuntu-latest
     environment: eval
     steps:
@@ -29,7 +30,9 @@ jobs:
           fi
           echo "GEMINI_API_KEY has ${#GEMINI_API_KEY} characters"
       - name: Install Flutter
-        uses: subosito/flutter-action@e938fdf56512cc96ef2f93601a5a40bde3801046
+        # Before bumping, verify the new version is on the flutter org's
+        # enterprise actions allowlist, or CI will fail with startup_failure.
+        uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
         with:
           channel: beta
           cache: true
@@ -46,7 +49,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.REPO_GEMINI_API_KEY }}
         run: flutter test --dart-define=GEMINI_API_KEY=$GEMINI_API_KEY
       - name: Cache dependencies
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7
         with:
           path: ${{ env.PUB_CACHE }}
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}

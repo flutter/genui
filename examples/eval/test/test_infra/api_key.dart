@@ -12,7 +12,7 @@ const geminiApiKeyName = 'GEMINI_API_KEY';
 const String geminiApiKey = String.fromEnvironment(geminiApiKeyName);
 
 String apiKeyForEval() {
-  var apiKey = geminiApiKey;
+  String apiKey = geminiApiKey;
   if (apiKey.isEmpty) {
     apiKey = Platform.environment[geminiApiKeyName] ?? '';
   }
