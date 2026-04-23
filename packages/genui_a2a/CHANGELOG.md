@@ -2,6 +2,8 @@
 
 ## 0.8.1 (in progress)
 
+- **Feature**: Export `A2AClient` (#781).
+
 ## 0.8.0
 
 - **Fix**: Filter whitespace-only AI text responses (#759).
