@@ -28,8 +28,14 @@ final Logger _log = genui.genUiLogger;
 class A2uiAgentConnector {
   /// Creates a [A2uiAgentConnector] that connects to the given [url].
   ///
-  /// If [client] is provided, [url] and [contextId] are ignored.
-  /// If [client] is not provided, [url] and [contextId] must be provided.
+  /// Exactly one of [url] or [client] must be provided. If [url] is provided,
+  /// an [A2AClient] is constructed with an [SseTransport] configured with the
+  /// A2UI extension header. If [client] is provided, [url] is ignored and the
+  /// given client is used as-is.
+  ///
+  /// [contextId] is optional and may be supplied to resume an existing
+  /// conversation. When omitted, the server assigns a context ID on the first
+  /// interaction.
   A2uiAgentConnector({Uri? url, A2AClient? client, String? contextId})
     : _contextId = contextId,
       assert((client == null) != (url == null)) {
