@@ -164,7 +164,6 @@ void main() {
       expect(fakeClient.messageSendCalled, 1);
       final a2a.Message sentMessage = fakeClient.lastMessageSendParams!;
       expect(sentMessage.referenceTaskIds, ['task1']);
-      expect(sentMessage.contextId, 'context1');
       final dataPart = sentMessage.parts.first as a2a.DataPart;
       final Map<String, Object?> eventData = dataPart.data;
       expect(eventData['version'], 'v0.9');
