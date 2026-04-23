@@ -14,7 +14,6 @@ workspace:
   - examples/catalog_gallery
   - examples/composer
   - examples/eval
-  - examples/restaurant_finder
   - examples/simple_chat
   - examples/travel_app
   - examples/verdure/client
