@@ -33,7 +33,7 @@ class A2uiAgentConnector {
   A2uiAgentConnector({Uri? url, A2AClient? client, String? contextId})
     : _contextId = contextId,
       assert((client == null) != (url == null)),
-      assert(client != null || url != null) {
+      assert((contextId != null) || (client != null)) {
     this.client =
         client ??
         A2AClient(
