@@ -2,7 +2,7 @@
 
 ## 0.8.1 (in progress)
 
-- **Feature**: Export `A2AClient` (#781).
+- **Feature**: Export `A2AClient` (#886).
 
 ## 0.8.0
 
