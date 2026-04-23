@@ -27,8 +27,12 @@ final Logger _log = genui.genUiLogger;
 /// the agent card, sending messages, and receiving the A2UI protocol stream.
 class A2uiAgentConnector {
   /// Creates a [A2uiAgentConnector] that connects to the given [url].
-  A2uiAgentConnector({required this.url, A2AClient? client, String? contextId})
-    : _contextId = contextId {
+  ///
+  /// If [client] is provided, [url] and [contextId] are ignored.
+  /// If [client] is not provided, [url] and [contextId] must be provided.
+  A2uiAgentConnector({Uri? url, A2AClient? client, String? contextId})
+    : _contextId = contextId,
+      assert((client == null) == (contextId == null)) {
     this.client =
         client ??
         A2AClient(
@@ -41,9 +45,6 @@ class A2uiAgentConnector {
           ),
         );
   }
-
-  /// The URL of the A2UI Agent.
-  final Uri url;
 
   final _controller = StreamController<genui.A2uiMessage>.broadcast();
   final _textController = StreamController<String>.broadcast();
@@ -155,7 +156,7 @@ class A2uiAgentConnector {
     }
 
     _log.info('--- OUTGOING REQUEST ---');
-    _log.info('URL: $url');
+    _log.info('URL: ${client.url}');
     _log.info('Method: message/stream');
     try {
       final String payload = const JsonEncoder.withIndent(
