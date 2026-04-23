@@ -18,10 +18,7 @@ void main() {
 
     setUp(() {
       fakeClient = FakeA2AClient();
-      connector = A2uiAgentConnector(
-        url: Uri.parse('http://localhost:8080'),
-        client: fakeClient,
-      );
+      connector = A2uiAgentConnector(client: fakeClient);
     });
 
     tearDown(() {
