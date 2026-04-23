@@ -6,7 +6,7 @@ name: eval-workflow
 
 on:
   push: 
-    # Workflow runs on push to any branch.
+    # Workflow runs on push to any branch in main repo (not forks).
   schedule:
     - cron: "0 * * * *" # hourly
 
