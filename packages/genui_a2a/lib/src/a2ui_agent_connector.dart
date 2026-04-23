@@ -13,7 +13,7 @@ import 'package:uuid/uuid.dart';
 import 'a2a/a2a.dart';
 import 'logging_utils.dart';
 
-export 'a2a/a2a.dart' show AgentCard;
+export 'a2a/a2a.dart' show A2AClient, AgentCard;
 
 final Uri a2uiExtensionUri = Uri.parse(
   'https://a2ui.org/a2a-extension/a2ui/v0.9',
