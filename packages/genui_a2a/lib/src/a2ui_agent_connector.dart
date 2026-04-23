@@ -32,7 +32,8 @@ class A2uiAgentConnector {
   /// If [client] is not provided, [url] and [contextId] must be provided.
   A2uiAgentConnector({Uri? url, A2AClient? client, String? contextId})
     : _contextId = contextId,
-      assert((client == null) == (contextId == null)) {
+      assert((client == null) != (url == null)),
+      assert(client != null || url != null) {
     this.client =
         client ??
         A2AClient(
