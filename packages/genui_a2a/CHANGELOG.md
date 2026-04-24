@@ -1,7 +1,8 @@
 # `genui_a2a` Changelog
 
-## 0.8.1 (in progress)
+## 0.9.0
 
+- **BREAKING**: `A2uiAgentConnector` constructor now requires exactly one of `url` or `client` (#886).
 - **Feature**: Export `A2AClient` (#886).
 
 ## 0.8.0

@@ -15,7 +15,7 @@ resolution: workspace
 dependencies:
   flutter:
     sdk: flutter
-  genui: ^0.8.0
+  genui: ^0.9.0
 
 dev_dependencies:
   flutter_test:
