@@ -5,7 +5,7 @@
 name: a2ui_core
 description: Core package for A2UI protocol.
 repository: https://github.com/flutter/genui/tree/main/packages/a2ui_core
-version: 0.1.0
+version: 0.0.1-dev002
 
 resolution: workspace
 
