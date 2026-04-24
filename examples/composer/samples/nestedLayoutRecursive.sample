@@ -13,5 +13,5 @@ prompt: |
       Use explicit, static components for this structure (no data binding for the list).
       Level 5 Text should say "Deep content".
 ---
-{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/basic_catalog.json"}}
 {"version":"v0.9","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Card","child":"column1"},{"id":"column1","component":"Column","children":["row1"]},{"id":"row1","component":"Row","children":["list1"]},{"id":"list1","component":"List","children":["text1"],"direction":"vertical"},{"id":"text1","component":"Text","text":"Deep content"}]}}
