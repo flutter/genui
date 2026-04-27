@@ -7,7 +7,7 @@ import 'package:a2ui_core/src/listenable/primitives.dart';
 import 'package:test/test.dart';
 
 // ignore: unused_element, tests that ValueNotifier can be implemented.
-class _ValueNotifierImplementation<T> implements GenUiValueNotifier<T> {
+class _ValueNotifierImplementation<T> implements ValueNotifier<T> {
   @override
   void addListener(VoidCallback listener) {}
 
@@ -31,12 +31,12 @@ class _ValueNotifierImplementation<T> implements GenUiValueNotifier<T> {
 }
 
 // ignore: unused_element, tests that ValueNotifier can be extended.
-class _ValueNotifierExtension<T> extends GenUiValueNotifier<T> {
+class _ValueNotifierExtension<T> extends ValueNotifier<T> {
   _ValueNotifierExtension(super.value);
 }
 
 // ignore: unused_element, tests that ChangeNotifier can be implemented.
-class _ChangeNotifierImplementation implements GenUiChangeNotifier {
+class _ChangeNotifierImplementation implements ChangeNotifier {
   @override
   void addListener(VoidCallback listener) {}
 
@@ -54,11 +54,11 @@ class _ChangeNotifierImplementation implements GenUiChangeNotifier {
 }
 
 // ignore: unused_element, tests that ChangeNotifier can be extended.
-class _ChangeNotifierExtention extends GenUiChangeNotifier {}
+class _ChangeNotifierExtention extends ChangeNotifier {}
 
 void main() {
   test('ValueNotifier basic functionality is working', () {
-    final GenUiValueNotifier<int> notifier = GenUiValueNotifier(1);
+    final ValueNotifier<int> notifier = ValueNotifier(1);
     addTearDown(notifier.dispose);
     var count = 0;
     notifier.addListener(() => count++);
@@ -73,7 +73,7 @@ void main() {
   });
 
   test('ChangeNotifier basic functionality is working', () {
-    final notifier = GenUiChangeNotifier();
+    final notifier = ChangeNotifier();
     addTearDown(notifier.dispose);
     var count = 0;
     notifier.addListener(() => count++);
