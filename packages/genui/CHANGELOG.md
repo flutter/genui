@@ -1,6 +1,14 @@
 # `genui` Changelog
 
-## 0.8.1 (in progress)
+## 0.9.0
+
+- **BREAKING**: Reorganized library exports (#866).
+- **Feature**: Add two skills to the `genui` package (#800).
+- **Feature**: Create Dart replicas for Flutter's notifiers (#850).
+- **Feature**: Add `FlutterListenable` adapter (#860).
+- **Fix**: Improvements to prompt builder to prevent misleading LLM (#841).
+- **Fix**: Match `A2uiMessage.a2uiMessageSchema` to A2UI v0.9 specification (#833).
+- **Fix**: Bug fixes for A2UI JSONL stream parser (#868).
 
 ## 0.8.0
 
