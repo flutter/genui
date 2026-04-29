@@ -534,10 +534,10 @@ _COMMON_TYPES_JSON = r"""
 _BASIC_CATALOG_JSON = r"""
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://a2ui.org/specification/v0_9/standard_catalog.json",
+  "$id": "https://a2ui.org/specification/v0_9/basic_catalog.json",
   "title": "A2UI Basic Catalog",
   "description": "Unified catalog of basic A2UI components and functions.",
-  "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json",
+  "catalogId": "https://a2ui.org/specification/v0_9/basic_catalog.json",
   "components": {
     "Text": {
       "type": "object",

@@ -4,5 +4,5 @@ name: audioPlayer
 prompt: |
   Generate a 'createSurface' message and a 'updateComponents' message with surfaceId 'main' for a Card containing a heading, a short description, and an AudioPlayer component playing a public domain piano clip.
 ---
-{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/basic_catalog.json"}}
 {"version":"v0.9","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Card","child":"contentColumn"},{"id":"contentColumn","component":"Column","children":["heading","description","player"]},{"id":"heading","component":"Text","text":"Minuet in G Major","variant":"h4"},{"id":"description","component":"Text","text":"A charming piano miniature composed by Ludwig van Beethoven, often mistakenly attributed to Bach. This short piece in G major showcases Beethoven's early classical style with its elegant, dance-like melody.","variant":"body"},{"id":"player","component":"AudioPlayer","url":"https://upload.wikimedia.org/wikipedia/commons/d/db/Minuet_in_G_%28Beethoven%29%2C_piano.ogg","description":"Beethoven — Minuet in G (public domain)"}]}}
