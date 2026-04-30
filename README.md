@@ -108,7 +108,6 @@ graph TD
   examples/catalog_gallery --> genui
   examples/simple_chat --> genui
   examples/travel_app --> genui
-  examples/verdure --> genui_a2a
   genui_a2a --> genui
   genui --> genai_primitives
   genai_primitives --> json_schema_builder

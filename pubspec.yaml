@@ -16,7 +16,6 @@ workspace:
   - examples/eval
   - examples/simple_chat
   - examples/travel_app
-  - examples/verdure/client
 
   - packages/a2ui_core
   - packages/genui
