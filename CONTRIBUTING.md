@@ -13,6 +13,8 @@ To run examples:
 
 NOTE: For Google-internal projects see go/flutter-genui-internal.
 
+NOTE: Flutter packages are enabled and tested for two platforms: `macos` and `web`. To build and test on other platforms, follow [Flutter documentation](https://docs.flutter.dev/platform-integration).
+
 ## Shell scripts
 
 To run a script in `tool/`, open the script in VSCode and press ⇧⌘B.
