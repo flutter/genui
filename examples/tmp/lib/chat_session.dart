@@ -1,0 +1,145 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:genui/genui.dart';
+import 'package:logging/logging.dart';
+
+import 'ai_client.dart';
+import 'ai_client_transport.dart';
+import 'message.dart';
+import 'widgets/climbing.dart';
+
+final Catalog _catalog =
+    BasicCatalogItems.asCatalog(
+      systemPromptFragments: [
+        '''
+When you need additional information from the user, try to use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.
+If the user is asking about climbing locations, use the 'listClimbingLocations' tool to get a list of climbing locations.
+To render a climbing location use the widget 'ClimbingLocation'.
+''',
+        '''
+If there is no way to itemize all the options, either use the component '${BasicCatalogItems.textField.name}' or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
+''',
+      ],
+    ).copyWithout(
+      itemsToRemove: [
+        BasicCatalogItems.image,
+        BasicCatalogItems.video,
+        BasicCatalogItems.audioPlayer,
+      ],
+    ).copyWith(
+      newItems: [climbingLocationItem],
+    );
+
+final PromptBuilder _promptBuilder = PromptBuilder.chat(
+  catalog: _catalog,
+  systemPromptFragments: [
+    'You are a helpful assistant who chats with a user.',
+    PromptFragments.acknowledgeUser(),
+    PromptFragments.requireAtLeastOneSubmitElement(
+      prefix: PromptBuilder.defaultImportancePrefix,
+    ),
+    PromptFragments.uiGenerationRestriction(
+      prefix: PromptBuilder.defaultImportancePrefix,
+    ),
+  ],
+);
+
+/// A class that manages the chat session state and logic.
+class ChatSession extends ChangeNotifier {
+  ChatSession({required AiClient aiClient}) {
+    _transport = AiClientTransport(aiClient: aiClient);
+    _surfaceController = SurfaceController(catalogs: [_catalog]);
+    conversation = Conversation(
+      controller: _surfaceController,
+      transport: _transport,
+    );
+    _init(_catalog);
+  }
+
+  late final AiClientTransport _transport;
+  late final SurfaceController _surfaceController;
+  late final Conversation conversation;
+
+  SurfaceHost get surfaceController => _surfaceController;
+
+  bool get isProcessing => conversation.state.value.isWaiting;
+
+  final List<Message> _messages = [];
+  List<Message> get messages => List.unmodifiable(_messages);
+
+  final Logger _logger = Logger('ChatSession');
+
+  void _init(Catalog catalog) {
+    // Listener for Conversation state
+    conversation.state.addListener(notifyListeners);
+
+    // Listener for Conversation events
+    conversation.events.listen((event) {
+      switch (event) {
+        case ConversationSurfaceAdded(:final surfaceId):
+          _addSurfaceMessage(surfaceId);
+        case ConversationContentReceived(:final text):
+          _updateAiMessage(text);
+        case ConversationError(:final error):
+          _logger.severe('Error in conversation', error);
+          _messages.add(Message(isUser: false, text: 'Error: $error'));
+          notifyListeners();
+        case ConversationWaiting():
+        case ConversationComponentsUpdated():
+        case ConversationSurfaceRemoved():
+          // No-op for now
+          break;
+      }
+    });
+
+    // ignore: avoid_print
+    _transport.addSystemMessage(_promptBuilder.systemPromptJoined());
+  }
+
+  void _addSurfaceMessage(String surfaceId) {
+    final bool exists = _messages.any((m) => m.surfaceId == surfaceId);
+    if (!exists) {
+      _messages.add(Message(isUser: false, text: null, surfaceId: surfaceId));
+      notifyListeners();
+    }
+  }
+
+  Message? _currentAiMessage;
+
+  void _updateAiMessage(String chunk) {
+    if (_currentAiMessage == null) {
+      _currentAiMessage = Message(isUser: false, text: '');
+      _messages.add(_currentAiMessage!);
+    }
+    _currentAiMessage!.text = (_currentAiMessage!.text ?? '') + chunk;
+    notifyListeners();
+  }
+
+  Future<void> sendMessage(String text) async {
+    if (text.isEmpty) return;
+
+    // Reset current AI message so new response gets a new bubble
+    _currentAiMessage = null;
+
+    _messages.add(Message(isUser: true, text: 'You: $text'));
+    // Do NOT notify here if we want to wait for "isWaiting" to update?
+    // Actually we want to show user message immediately.
+    notifyListeners();
+
+    final message = ChatMessage.user(text);
+    await conversation.sendRequest(message);
+  }
+
+  @override
+  void dispose() {
+    conversation.dispose();
+    _surfaceController.dispose();
+    _transport.dispose();
+    super.dispose();
+  }
+}
