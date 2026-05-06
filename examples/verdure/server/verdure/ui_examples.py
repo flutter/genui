@@ -44,7 +44,7 @@ LANDSCAPE_UI_EXAMPLES = """
 
 ---BEGIN PROJECT_DETAILS_EXAMPLE---
 [
-  {{ "version": "v0.9", "createSurface": {{ "surfaceId": "details", "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json", "theme": {{ "primaryColor": "#228B22", "font": "Roboto" }} }} }},
+  {{ "version": "v0.9", "createSurface": {{ "surfaceId": "details", "catalogId": "https://a2ui.org/specification/v0_9/basic_catalog.json", "theme": {{ "primaryColor": "#228B22", "font": "Roboto" }} }} }},
   {{ "version": "v0.9", "updateComponents": {{
     "surfaceId": "details",
     "components": [
@@ -98,7 +98,7 @@ LANDSCAPE_UI_EXAMPLES = """
 
 ---BEGIN QUESTIONNAIRE_EXAMPLE---
 [
-  {{ "version": "v0.9", "createSurface": {{ "surfaceId": "questionnaire", "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json", "theme": {{ "primaryColor": "#228B22", "font": "Roboto" }} }} }},
+  {{ "version": "v0.9", "createSurface": {{ "surfaceId": "questionnaire", "catalogId": "https://a2ui.org/specification/v0_9/basic_catalog.json", "theme": {{ "primaryColor": "#228B22", "font": "Roboto" }} }} }},
   {{ "version": "v0.9", "updateComponents": {{
     "surfaceId": "questionnaire",
     "components": [
@@ -154,7 +154,7 @@ LANDSCAPE_UI_EXAMPLES = """
 
 ---BEGIN OPTIONS_PRESENTATION_EXAMPLE---
 [
-  {{ "version": "v0.9", "createSurface": {{ "surfaceId": "options", "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json", "theme": {{ "primaryColor": "#228B22", "font": "Roboto" }} }} }},
+  {{ "version": "v0.9", "createSurface": {{ "surfaceId": "options", "catalogId": "https://a2ui.org/specification/v0_9/basic_catalog.json", "theme": {{ "primaryColor": "#228B22", "font": "Roboto" }} }} }},
   {{ "version": "v0.9", "updateComponents": {{
     "surfaceId": "options",
     "components": [
@@ -216,7 +216,7 @@ LANDSCAPE_UI_EXAMPLES = """
 
 ---BEGIN SHOPPING_CART_EXAMPLE---
 [
-  {{ "version": "v0.9", "createSurface": {{ "surfaceId": "cart", "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json", "theme": {{ "primaryColor": "#228B22", "font": "Roboto" }} }} }},
+  {{ "version": "v0.9", "createSurface": {{ "surfaceId": "cart", "catalogId": "https://a2ui.org/specification/v0_9/basic_catalog.json", "theme": {{ "primaryColor": "#228B22", "font": "Roboto" }} }} }},
   {{ "version": "v0.9", "updateComponents": {{
     "surfaceId": "cart",
     "components": [
@@ -252,7 +252,7 @@ LANDSCAPE_UI_EXAMPLES = """
 
 ---BEGIN ORDER_CONFIRMATION_EXAMPLE---
 [
-  {{ "version": "v0.9", "createSurface": {{ "surfaceId": "confirmation", "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json", "theme": {{ "primaryColor": "#228B22", "font": "Roboto" }} }} }},
+  {{ "version": "v0.9", "createSurface": {{ "surfaceId": "confirmation", "catalogId": "https://a2ui.org/specification/v0_9/basic_catalog.json", "theme": {{ "primaryColor": "#228B22", "font": "Roboto" }} }} }},
   {{ "version": "v0.9", "updateComponents": {{
     "surfaceId": "confirmation",
     "components": [

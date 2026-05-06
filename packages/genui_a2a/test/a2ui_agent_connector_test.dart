@@ -18,10 +18,7 @@ void main() {
 
     setUp(() {
       fakeClient = FakeA2AClient();
-      connector = A2uiAgentConnector(
-        url: Uri.parse('http://localhost:8080'),
-        client: fakeClient,
-      );
+      connector = A2uiAgentConnector(client: fakeClient);
     });
 
     tearDown(() {
@@ -154,11 +151,7 @@ void main() {
     });
 
     test('sendEvent sends correct message', () async {
-      connector = A2uiAgentConnector(
-        url: Uri.parse('http://localhost:8080'),
-        client: fakeClient,
-        contextId: 'context1',
-      );
+      connector = A2uiAgentConnector(client: fakeClient);
       connector.taskId = 'task1';
       final Map<String, Object> event = {
         'action': 'testAction',
@@ -171,7 +164,6 @@ void main() {
       expect(fakeClient.messageSendCalled, 1);
       final a2a.Message sentMessage = fakeClient.lastMessageSendParams!;
       expect(sentMessage.referenceTaskIds, ['task1']);
-      expect(sentMessage.contextId, 'context1');
       final dataPart = sentMessage.parts.first as a2a.DataPart;
       final Map<String, Object?> eventData = dataPart.data;
       expect(eventData['version'], 'v0.9');

@@ -4,4 +4,4 @@
 
 /// The catalog ID for the basic catalog.
 const String basicCatalogId =
-    'https://a2ui.org/specification/v0_9/standard_catalog.json';
+    'https://a2ui.org/specification/v0_9/basic_catalog.json';

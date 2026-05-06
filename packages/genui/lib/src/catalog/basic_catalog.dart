@@ -151,7 +151,7 @@ const String _basicCatalogRules = r'''
   "version": "v0.9",
   "createSurface": {
     "surfaceId": "main",
-    "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json",
+    "catalogId": "https://a2ui.org/specification/v0_9/basic_catalog.json",
     "sendDataModel": true
   }
 }

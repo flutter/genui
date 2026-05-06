@@ -13,7 +13,7 @@ import 'package:uuid/uuid.dart';
 import 'a2a/a2a.dart';
 import 'logging_utils.dart';
 
-export 'a2a/a2a.dart' show AgentCard;
+export 'a2a/a2a.dart' show A2AClient, AgentCard;
 
 final Uri a2uiExtensionUri = Uri.parse(
   'https://a2ui.org/a2a-extension/a2ui/v0.9',
@@ -27,8 +27,18 @@ final Logger _log = genui.genUiLogger;
 /// the agent card, sending messages, and receiving the A2UI protocol stream.
 class A2uiAgentConnector {
   /// Creates a [A2uiAgentConnector] that connects to the given [url].
-  A2uiAgentConnector({required this.url, A2AClient? client, String? contextId})
-    : _contextId = contextId {
+  ///
+  /// Exactly one of [url] or [client] must be provided. If [url] is provided,
+  /// an [A2AClient] is constructed with an [SseTransport] configured with the
+  /// A2UI extension header. If [client] is provided, [url] is ignored and the
+  /// given client is used as-is.
+  ///
+  /// [contextId] is optional and may be supplied to resume an existing
+  /// conversation. When omitted, the server assigns a context ID on the first
+  /// interaction.
+  A2uiAgentConnector({Uri? url, A2AClient? client, String? contextId})
+    : _contextId = contextId,
+      assert((client == null) != (url == null)) {
     this.client =
         client ??
         A2AClient(
@@ -41,9 +51,6 @@ class A2uiAgentConnector {
           ),
         );
   }
-
-  /// The URL of the A2UI Agent.
-  final Uri url;
 
   final _controller = StreamController<genui.A2uiMessage>.broadcast();
   final _textController = StreamController<String>.broadcast();
@@ -155,7 +162,7 @@ class A2uiAgentConnector {
     }
 
     _log.info('--- OUTGOING REQUEST ---');
-    _log.info('URL: $url');
+    _log.info('URL: ${client.url}');
     _log.info('Method: message/stream');
     try {
       final String payload = const JsonEncoder.withIndent(

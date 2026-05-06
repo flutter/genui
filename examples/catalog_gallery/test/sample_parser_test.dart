@@ -13,7 +13,7 @@ name: Test Sample
 description: A test description
 ---
 {"version": "v0.9", "updateComponents": {"surfaceId": "default", "components": [{"id": "text1", "component": "Text", "text": "Hello"}]}}
-{"version": "v0.9", "createSurface": {"surfaceId": "default", "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version": "v0.9", "createSurface": {"surfaceId": "default", "catalogId": "https://a2ui.org/specification/v0_9/basic_catalog.json"}}
 ''';
 
     final Sample sample = SampleParser.parseString(sampleContent);

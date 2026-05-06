@@ -10,6 +10,6 @@ prompt: |
       'one': "One item"
       'other': "${/cart/count} items"
 ---
-{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version":"v0.9","createSurface":{"surfaceId":"main","catalogId":"https://a2ui.org/specification/v0_9/basic_catalog.json"}}
 {"version":"v0.9","updateComponents":{"surfaceId":"main","components":[{"id":"root","component":"Column","children":["cartSummaryText"]},{"id":"cartSummaryText","component":"Text","text":{"call":"pluralize","args":{"count":{"path":"/cart/count"},"zero":"No items","one":"One item","other":"${/cart/count} items"},"returnType":"string"}}]}}
 {"version":"v0.9","updateDataModel":{"surfaceId":"main","path":"/cart/count","value":2}}

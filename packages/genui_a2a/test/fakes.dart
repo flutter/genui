@@ -4,8 +4,6 @@
 
 import 'dart:async';
 
-import 'package:genui/genui.dart' as genui;
-import 'package:genui_a2a/genui_a2a.dart';
 import 'package:genui_a2a/src/a2a/a2a.dart' as a2a;
 
 class FakeA2AClient implements a2a.A2AClient {
@@ -107,87 +105,4 @@ class FakeA2AClient implements a2a.A2AClient {
   Future<a2a.TaskPushNotificationConfig> setPushNotificationConfig(
     a2a.TaskPushNotificationConfig params,
   ) => throw UnimplementedError();
-}
-
-class FakeA2uiAgentConnector implements A2uiAgentConnector {
-  FakeA2uiAgentConnector({required this.url}) {
-    client = FakeA2AClient();
-  }
-
-  @override
-  final Uri url;
-
-  final _streamController = StreamController<genui.A2uiMessage>.broadcast();
-  final _errorController = StreamController<Object>.broadcast();
-
-  @override
-  Stream<genui.A2uiMessage> get stream => _streamController.stream;
-
-  @override
-  Stream<Object> get errorStream => _errorController.stream;
-
-  @override
-  String? contextId;
-
-  @override
-  String? taskId;
-
-  @override
-  late a2a.A2AClient client;
-
-  @override
-  Stream<String> get textStream => const Stream.empty();
-
-  genui.ChatMessage? lastConnectAndSendChatMessage;
-  genui.A2UiClientCapabilities? lastClientCapabilities;
-
-  @override
-  Future<String?> connectAndSend(
-    genui.ChatMessage chatMessage, {
-    genui.A2UiClientCapabilities? clientCapabilities,
-    Map<String, Object?>? clientDataModel,
-    genui.CancellationSignal? cancellationSignal,
-  }) async {
-    lastConnectAndSendChatMessage = chatMessage;
-    lastClientCapabilities = clientCapabilities;
-    // Simulate sending a message and receiving a response
-    return Future.value('Fake AI Response');
-  }
-
-  @override
-  void dispose() {
-    _streamController.close();
-    _errorController.close();
-  }
-
-  @override
-  Future<AgentCard> getAgentCard() {
-    return Future.value(
-      const AgentCard(
-        name: 'Fake Agent',
-        description: 'Fake Description',
-        version: '1.0.0',
-        protocolVersion: '0.1.0',
-        url: 'http://localhost:8080',
-        capabilities: a2a.AgentCapabilities(),
-        defaultInputModes: ['text/plain'],
-        defaultOutputModes: ['text/plain'],
-        skills: [],
-      ),
-    );
-  }
-
-  @override
-  Future<void> sendEvent(Map<String, Object?> event) async {
-    // Simulate sending an event
-  }
-
-  // Helper methods for tests to control the streams
-  void addMessage(genui.A2uiMessage message) {
-    _streamController.add(message);
-  }
-
-  void addError(Object error) {
-    _errorController.add(error);
-  }
 }
