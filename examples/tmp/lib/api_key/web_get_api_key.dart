@@ -2,6 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+/// API key for Google Generative AI (only needed if using google backend).
+/// Get an API key from https://aistudio.google.com/app/apikey
+const String _geminiApiKey = String.fromEnvironment('GEMINI_API_KEY');
+
 String? debugApiKey;
 
 String getApiKey() {
