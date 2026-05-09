@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:genui/genui.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-import '../primitives/db/climbing_db.dart';
+import '../primitives/climbing_db.dart';
 
 final CatalogItem climbingLocationItem = CatalogItem(
   name: 'ClimbingLocation',
