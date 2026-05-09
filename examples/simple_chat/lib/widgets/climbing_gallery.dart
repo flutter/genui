@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../primitives/db/climbing_db.dart';
+import '../primitives/climbing_db.dart';
 import 'climbing.dart';
 
 class ClimbingGallery extends StatelessWidget {

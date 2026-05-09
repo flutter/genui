@@ -91,7 +91,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   },
                   items: [
                     for (final mode in AppMode.values)
-                      DropdownMenuItem(value: mode, child: Text(mode.name)),
+                      DropdownMenuItem(
+                        value: mode,
+                        child: Text(mode.displayName),
+                      ),
                   ],
                 ),
               ),

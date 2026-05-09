@@ -5,7 +5,7 @@
 import 'dart:async';
 
 import 'package:dartantic_ai/dartantic_ai.dart' as dartantic;
-import 'primitives/db/climbing_db.dart';
+import 'primitives/climbing_db.dart';
 
 import 'primitives/api_key/io_get_api_key.dart'
     if (dart.library.html) 'api_key/web_get_api_key.dart';
