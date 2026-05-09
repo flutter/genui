@@ -51,7 +51,11 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final TextEditingController _textController = TextEditingController();
+  final TextEditingController _textController = TextEditingController(
+    text:
+        "I'm into rock climbing. Give me a few climbing locations around Las "
+        "Vegas. I'm a beginner.",
+  );
   final ScrollController _scrollController = ScrollController();
   late final ChatSession _chatSession;
 
