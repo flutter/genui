@@ -19,7 +19,8 @@ final Catalog _catalog =
             '''
 When you need additional information from the user, try to use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.
 If the user is asking about climbing locations, use the 'listClimbingLocations' tool to get a list of climbing locations.
-To render a climbing location use the widget 'ClimbingLocation'.
+To render a climbing location use the widget 'ClimbingLocation'. The 'ClimbingLocation' widget already includes a 'Learn more' button; do not add any extra submit/confirmation buttons next to it.
+When the user clicks 'Learn more' on a 'ClimbingLocation', a UI action named 'learnMoreAboutLocation' will be sent with the location's identifier and name in its context. Respond with detailed information about that specific location.
 ''',
             '''
 If there is no way to itemize all the options, either use the component '${BasicCatalogItems.textField.name}' or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
@@ -40,9 +41,6 @@ final PromptBuilder _promptBuilder = PromptBuilder.chat(
   systemPromptFragments: [
     'You are a helpful assistant who chats with a user.',
     PromptFragments.acknowledgeUser(),
-    PromptFragments.requireAtLeastOneSubmitElement(
-      prefix: PromptBuilder.defaultImportancePrefix,
-    ),
     PromptFragments.uiGenerationRestriction(
       prefix: PromptBuilder.defaultImportancePrefix,
     ),

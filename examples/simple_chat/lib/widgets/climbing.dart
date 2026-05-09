@@ -50,15 +50,27 @@ final CatalogItem climbingLocationItem = CatalogItem(
     }
     final info = climbingLocations[index];
 
-    return ClimbingLocation(info: info);
+    return ClimbingLocation(
+      info: info,
+      onLearnMore: () {
+        itemContext.dispatchEvent(
+          UserActionEvent(
+            name: 'learnMoreAboutLocation',
+            sourceComponentId: itemContext.id,
+            context: {'identifier': info.identifier, 'name': info.name},
+          ),
+        );
+      },
+    );
   },
 );
 
 /// A card widget that displays information about a climbing location.
 class ClimbingLocation extends StatelessWidget {
-  const ClimbingLocation({super.key, required this.info});
+  const ClimbingLocation({super.key, required this.info, this.onLearnMore});
 
   final ClimbingLocationInfo info;
+  final VoidCallback? onLearnMore;
 
   @override
   Widget build(BuildContext context) {
@@ -153,6 +165,16 @@ class ClimbingLocation extends StatelessWidget {
                     );
                   }).toList(),
                 ),
+                if (onLearnMore != null) ...[
+                  const SizedBox(height: 16),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: FilledButton(
+                      onPressed: onLearnMore,
+                      child: const Text('Learn more'),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
