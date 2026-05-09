@@ -8,7 +8,7 @@ import 'package:logging/logging.dart';
 import 'ai_client.dart';
 import 'chat_session.dart';
 import 'message.dart';
-import 'primitives/simple_items.dart';
+import 'primitives/app_mode.dart';
 import 'a2ui_components/climbing_gallery.dart';
 
 void main() async {
@@ -89,15 +89,17 @@ class _ChatScreenState extends State<ChatScreen> {
         case AppMode.basicCatalog:
           _basicSession.removeListener(_scrollToBottom);
           _basicSession.dispose();
-          _basicSession =
-              ChatSession(aiClient: _aiClient, catalog: basicCatalog)
-                ..addListener(_scrollToBottom);
+          _basicSession = ChatSession(
+            aiClient: _aiClient,
+            catalog: basicCatalog,
+          )..addListener(_scrollToBottom);
         case AppMode.customCatalog:
           _customSession.removeListener(_scrollToBottom);
           _customSession.dispose();
-          _customSession =
-              ChatSession(aiClient: _aiClient, catalog: customCatalog)
-                ..addListener(_scrollToBottom);
+          _customSession = ChatSession(
+            aiClient: _aiClient,
+            catalog: customCatalog,
+          )..addListener(_scrollToBottom);
         case AppMode.textOnly:
           _textOnlySession.removeListener(_scrollToBottom);
           _textOnlySession.dispose();
@@ -149,10 +151,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     itemBuilder: (context, index) {
                       final Message message = backend.messages[index];
                       return ListTile(
-                        title: MessageView(
-                          message,
-                          backend.surfaceController,
-                        ),
+                        title: MessageView(message, backend.surfaceController),
                         tileColor: message.isUser
                             ? Colors.blue.withValues(alpha: 0.1)
                             : null,
