@@ -136,15 +136,17 @@ abstract final class BasicCatalogItems {
 }
 
 /// The text content of basic_catalog_rules.txt.
-const String _basicCatalogRules = r'''
-
+String _basicCatalogRules =
+    '''
 When you need additional information from the user, use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.
 
 If there is no way to itemize all the options, either use the component '${BasicCatalogItems.textField.name}' or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
 
 When you don't need additional information from the user, 
-postfix response with options for next steps with column of buttons using ${BasicCatalogItems.column.name} 
-and ${BasicCatalogItems.button.name}. Each button should offer more details for parts of your response.
+postfix response with options for next steps. You can do this with column of buttons using ${BasicCatalogItems.column.name} 
+and ${BasicCatalogItems.button.name}. Or use ${BasicCatalogItems.choicePicker.name} combined with ${BasicCatalogItems.button.name}.
+
+When using buttons, you must provide action.
 
 **REQUIRED PROPERTIES:** You MUST include ALL required properties for every component, even if they are inside a template or will be bound to data.
 - For 'Text', you MUST provide 'text'. If dynamic, use { "path": "..." }.
@@ -153,7 +155,8 @@ and ${BasicCatalogItems.button.name}. Each button should offer more details for 
 - For 'TextField', 'CheckBox', etc., you MUST provide 'label'.
 
 **EXAMPLES:**
-
+'''
+    r'''
 1. Create a surface:
 ```json
 {

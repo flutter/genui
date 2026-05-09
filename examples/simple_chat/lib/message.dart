@@ -16,10 +16,16 @@ class Message {
 }
 
 class MessageView extends StatelessWidget {
-  const MessageView(this.message, this.host, {super.key});
+  const MessageView(
+    this.message,
+    this.host, {
+    this.actionDelegate,
+    super.key,
+  });
 
   final Message message;
   final SurfaceHost? host;
+  final ActionDelegate? actionDelegate;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +35,9 @@ class MessageView extends StatelessWidget {
       return MarkdownBody(data: message.text ?? '');
     }
 
-    return Surface(surfaceContext: host!.contextFor(surfaceId));
+    return Surface(
+      surfaceContext: host!.contextFor(surfaceId),
+      actionDelegate: actionDelegate ?? const DefaultActionDelegate(),
+    );
   }
 }

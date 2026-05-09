@@ -151,7 +151,11 @@ class _ChatScreenState extends State<ChatScreen> {
                     itemBuilder: (context, index) {
                       final Message message = backend.messages[index];
                       return ListTile(
-                        title: MessageView(message, backend.surfaceController),
+                        title: MessageView(
+                          message,
+                          backend.surfaceController,
+                          actionDelegate: backend.actionDelegate,
+                        ),
                         tileColor: message.isUser
                             ? Colors.blue.withValues(alpha: 0.1)
                             : null,
