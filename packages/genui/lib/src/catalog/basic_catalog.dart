@@ -142,9 +142,9 @@ When you need additional information from the user, use the component '${BasicCa
 
 If there is no way to itemize all the options, either use the component '${BasicCatalogItems.textField.name}' or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
 
-When you don't need additional information from the user, postfix response with options for next steps with ${BasicCatalogItems.button.name}. 
-
-For example, for each paragraph of your response you can add a button 'More details'. 
+When you don't need additional information from the user, 
+postfix response with options for next steps with column of buttons using ${BasicCatalogItems.column.name} 
+and ${BasicCatalogItems.button.name}. Each button should offer more details for parts of your response.
 
 **REQUIRED PROPERTIES:** You MUST include ALL required properties for every component, even if they are inside a template or will be bound to data.
 - For 'Text', you MUST provide 'text'. If dynamic, use { "path": "..." }.
