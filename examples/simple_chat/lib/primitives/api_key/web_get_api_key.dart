@@ -8,7 +8,7 @@ const String _geminiApiKey = String.fromEnvironment('GEMINI_API_KEY');
 
 String? debugApiKey;
 
-String getApiKey() {
+String platformGetApiKey() {
   if (debugApiKey != null) {
     return debugApiKey!;
   }

@@ -49,30 +49,71 @@ class ChatScreen extends StatefulWidget {
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
+const String _defaultUserMessage =
+    "I'm into rock climbing. Give me a few climbing locations around Las "
+    "Vegas. I'm a beginner.";
+
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController(
-    text:
-        "I'm into rock climbing. Give me a few climbing locations around Las "
-        "Vegas. I'm a beginner.",
+    text: _defaultUserMessage,
   );
   final ScrollController _scrollController = ScrollController();
-  late final ChatSession _chatSession;
+  late final AiClient _aiClient;
+  late ChatSession _basicSession;
+  late ChatSession _customSession;
+  late TextOnlySession _textOnlySession;
   AppMode _appMode = AppMode.customCatalog;
+
+  ChatBackend get _activeBackend => switch (_appMode) {
+    AppMode.textOnly => _textOnlySession,
+    AppMode.basicCatalog => _basicSession,
+    AppMode.customCatalog => _customSession,
+  };
 
   @override
   void initState() {
     super.initState();
-    _chatSession = ChatSession(
-      aiClient: widget.aiClient ?? DartanticAiClient(),
-    );
-    // Add a listener to scroll to bottom when messages change.
-    _chatSession.addListener(_scrollToBottom);
+    _aiClient = widget.aiClient ?? DartanticAiClient();
+    _basicSession = ChatSession(aiClient: _aiClient, catalog: basicCatalog)
+      ..addListener(_scrollToBottom);
+    _customSession = ChatSession(aiClient: _aiClient, catalog: customCatalog)
+      ..addListener(_scrollToBottom);
+    _textOnlySession = TextOnlySession(aiClient: _aiClient)
+      ..addListener(_scrollToBottom);
+  }
+
+  void _changeMode(AppMode mode) {
+    if (mode == _appMode) return;
+    setState(() {
+      switch (mode) {
+        case AppMode.basicCatalog:
+          _basicSession.removeListener(_scrollToBottom);
+          _basicSession.dispose();
+          _basicSession =
+              ChatSession(aiClient: _aiClient, catalog: basicCatalog)
+                ..addListener(_scrollToBottom);
+        case AppMode.customCatalog:
+          _customSession.removeListener(_scrollToBottom);
+          _customSession.dispose();
+          _customSession =
+              ChatSession(aiClient: _aiClient, catalog: customCatalog)
+                ..addListener(_scrollToBottom);
+        case AppMode.textOnly:
+          _textOnlySession.removeListener(_scrollToBottom);
+          _textOnlySession.dispose();
+          _textOnlySession = TextOnlySession(aiClient: _aiClient)
+            ..addListener(_scrollToBottom);
+      }
+      _appMode = mode;
+      _textController.text = _defaultUserMessage;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final backend = _activeBackend;
     return ListenableBuilder(
-      listenable: _chatSession,
+      listenable: backend,
       builder: (context, _) {
         return Scaffold(
           appBar: AppBar(
@@ -85,7 +126,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   underline: const SizedBox.shrink(),
                   onChanged: (mode) {
                     if (mode == null) return;
-                    setState(() => _appMode = mode);
+                    _changeMode(mode);
                   },
                   items: [
                     for (final mode in AppMode.values)
@@ -104,14 +145,13 @@ class _ChatScreenState extends State<ChatScreen> {
                 Expanded(
                   child: ListView.builder(
                     controller: _scrollController,
-                    itemCount: _chatSession.messages.length,
+                    itemCount: backend.messages.length,
                     itemBuilder: (context, index) {
-                      final Message message = _chatSession.messages[index];
-                      // Pass the controller as the host.
+                      final Message message = backend.messages[index];
                       return ListTile(
                         title: MessageView(
                           message,
-                          _chatSession.surfaceController,
+                          backend.surfaceController,
                         ),
                         tileColor: message.isUser
                             ? Colors.blue.withValues(alpha: 0.1)
@@ -121,7 +161,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
 
-                if (_chatSession.isProcessing)
+                if (backend.isProcessing)
                   const Padding(
                     padding: EdgeInsets.all(8.0),
                     child: CircularProgressIndicator(),
@@ -137,15 +177,13 @@ class _ChatScreenState extends State<ChatScreen> {
                           decoration: const InputDecoration(
                             hintText: 'Type your message...',
                           ),
-                          enabled: !_chatSession.isProcessing,
+                          enabled: !backend.isProcessing,
                           onSubmitted: (_) => _sendMessage(),
                         ),
                       ),
                       IconButton(
                         icon: const Icon(Icons.send),
-                        onPressed: _chatSession.isProcessing
-                            ? null
-                            : _sendMessage,
+                        onPressed: backend.isProcessing ? null : _sendMessage,
                       ),
                     ],
                   ),
@@ -162,7 +200,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final String text = _textController.text;
     if (text.isEmpty) return;
     _textController.clear();
-    await _chatSession.sendMessage(text);
+    await _activeBackend.sendMessage(text);
   }
 
   void _scrollToBottom() {
@@ -179,7 +217,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
-    _chatSession.dispose();
+    _basicSession.dispose();
+    _customSession.dispose();
+    _textOnlySession.dispose();
+    _aiClient.dispose();
     _textController.dispose();
     _scrollController.dispose();
     super.dispose();

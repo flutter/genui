@@ -4,16 +4,35 @@
 
 import 'dart:async';
 
+import 'package:dartantic_ai/dartantic_ai.dart' as dartantic;
 import 'package:flutter/foundation.dart';
 import 'package:genui/genui.dart';
 import 'package:logging/logging.dart';
 
+import 'a2ui_components/climbing.dart';
 import 'ai_client.dart';
 import 'ai_client_transport.dart';
 import 'message.dart';
-import 'a2ui_components/climbing.dart';
 
-final Catalog _catalog =
+final Catalog basicCatalog =
+    BasicCatalogItems.asCatalog(
+      systemPromptFragments: [
+        '''
+When you need additional information from the user, try to use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.
+''',
+        '''
+If there is no way to itemize all the options, either use the component '${BasicCatalogItems.textField.name}' or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
+''',
+      ],
+    ).copyWithout(
+      itemsToRemove: [
+        BasicCatalogItems.image,
+        BasicCatalogItems.video,
+        BasicCatalogItems.audioPlayer,
+      ],
+    );
+
+final Catalog customCatalog =
     BasicCatalogItems.asCatalog(
           systemPromptFragments: [
             '''
@@ -36,8 +55,8 @@ If there is no way to itemize all the options, either use the component '${Basic
         )
         .copyWith(newItems: [climbingLocationItem]);
 
-final PromptBuilder _promptBuilder = PromptBuilder.chat(
-  catalog: _catalog,
+PromptBuilder _promptBuilderFor(Catalog catalog) => PromptBuilder.chat(
+  catalog: catalog,
   systemPromptFragments: [
     'You are a helpful assistant who chats with a user.',
     PromptFragments.acknowledgeUser(),
@@ -48,36 +67,45 @@ final PromptBuilder _promptBuilder = PromptBuilder.chat(
   ],
 );
 
-/// A class that manages the chat session state and logic.
-class ChatSession extends ChangeNotifier {
-  ChatSession({required AiClient aiClient}) {
+/// Common interface for the chat backends shown by the chat screen.
+abstract base class ChatBackend extends ChangeNotifier {
+  List<Message> get messages;
+  bool get isProcessing;
+  SurfaceHost? get surfaceController => null;
+  Future<void> sendMessage(String text);
+}
+
+/// A genui-backed chat session driven by a [Catalog].
+final class ChatSession extends ChatBackend {
+  ChatSession({required AiClient aiClient, required Catalog catalog}) {
     _transport = AiClientTransport(aiClient: aiClient);
-    _surfaceController = SurfaceController(catalogs: [_catalog]);
+    _surfaceController = SurfaceController(catalogs: [catalog]);
     conversation = Conversation(
       controller: _surfaceController,
       transport: _transport,
     );
-    _init(_catalog);
+    _init(catalog);
   }
 
   late final AiClientTransport _transport;
   late final SurfaceController _surfaceController;
   late final Conversation conversation;
 
+  @override
   SurfaceHost get surfaceController => _surfaceController;
 
+  @override
   bool get isProcessing => conversation.state.value.isWaiting;
 
   final List<Message> _messages = [];
+  @override
   List<Message> get messages => List.unmodifiable(_messages);
 
   final Logger _logger = Logger('ChatSession');
 
   void _init(Catalog catalog) {
-    // Listener for Conversation state
     conversation.state.addListener(notifyListeners);
 
-    // Listener for Conversation events
     conversation.events.listen((event) {
       switch (event) {
         case ConversationSurfaceAdded(:final surfaceId):
@@ -91,13 +119,11 @@ class ChatSession extends ChangeNotifier {
         case ConversationWaiting():
         case ConversationComponentsUpdated():
         case ConversationSurfaceRemoved():
-          // No-op for now
           break;
       }
     });
 
-    // ignore: avoid_print
-    _transport.addSystemMessage(_promptBuilder.systemPromptJoined());
+    _transport.addSystemMessage(_promptBuilderFor(catalog).systemPromptJoined());
   }
 
   void _addSurfaceMessage(String surfaceId) {
@@ -119,15 +145,13 @@ class ChatSession extends ChangeNotifier {
     notifyListeners();
   }
 
+  @override
   Future<void> sendMessage(String text) async {
     if (text.isEmpty) return;
 
-    // Reset current AI message so new response gets a new bubble
     _currentAiMessage = null;
 
     _messages.add(Message(isUser: true, text: 'You: $text'));
-    // Do NOT notify here if we want to wait for "isWaiting" to update?
-    // Actually we want to show user message immediately.
     notifyListeners();
 
     final message = ChatMessage.user(text);
@@ -140,5 +164,56 @@ class ChatSession extends ChangeNotifier {
     _surfaceController.dispose();
     _transport.dispose();
     super.dispose();
+  }
+}
+
+/// A plain text chat backend that talks to [AiClient] directly, bypassing
+/// genui entirely.
+final class TextOnlySession extends ChatBackend {
+  TextOnlySession({required AiClient aiClient}) : _aiClient = aiClient;
+
+  final AiClient _aiClient;
+  final List<Message> _messages = [];
+  final List<dartantic.ChatMessage> _history = [
+    dartantic.ChatMessage.system('You are a helpful assistant who chats with a user.'),
+  ];
+  bool _isProcessing = false;
+  final Logger _logger = Logger('TextOnlySession');
+
+  @override
+  List<Message> get messages => List.unmodifiable(_messages);
+
+  @override
+  bool get isProcessing => _isProcessing;
+
+  @override
+  Future<void> sendMessage(String text) async {
+    if (text.isEmpty) return;
+
+    _messages.add(Message(isUser: true, text: 'You: $text'));
+    final aiMessage = Message(isUser: false, text: '');
+    _messages.add(aiMessage);
+    _isProcessing = true;
+    notifyListeners();
+
+    final response = StringBuffer();
+    try {
+      await for (final chunk in _aiClient.sendStream(
+        text,
+        history: List.of(_history),
+      )) {
+        response.write(chunk);
+        aiMessage.text = response.toString();
+        notifyListeners();
+      }
+      _history.add(dartantic.ChatMessage.user(text));
+      _history.add(dartantic.ChatMessage.model(response.toString()));
+    } catch (exception, stackTrace) {
+      _logger.severe('Error sending request', exception, stackTrace);
+      aiMessage.text = 'Error: $exception';
+    } finally {
+      _isProcessing = false;
+      notifyListeners();
+    }
   }
 }

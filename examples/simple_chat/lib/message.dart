@@ -19,14 +19,16 @@ class MessageView extends StatelessWidget {
   const MessageView(this.message, this.host, {super.key});
 
   final Message message;
-  final SurfaceHost host;
+  final SurfaceHost? host;
 
   @override
   Widget build(BuildContext context) {
     final String? surfaceId = message.surfaceId;
 
-    if (surfaceId == null) return MarkdownBody(data: message.text ?? '');
+    if (surfaceId == null || host == null) {
+      return MarkdownBody(data: message.text ?? '');
+    }
 
-    return Surface(surfaceContext: host.contextFor(surfaceId));
+    return Surface(surfaceContext: host!.contextFor(surfaceId));
   }
 }
