@@ -11,29 +11,17 @@ import 'package:logging/logging.dart';
 import 'ai_client.dart';
 import 'ai_client_transport.dart';
 import 'message.dart';
-import 'widgets/climbing.dart';
 
-final Catalog _catalog =
-    BasicCatalogItems.asCatalog(
-      systemPromptFragments: [
-        '''
+final Catalog _catalog = BasicCatalogItems.asCatalog(
+  systemPromptFragments: [
+    '''
 When you need additional information from the user, try to use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.
-If the user is asking about climbing locations, use the 'listClimbingLocations' tool to get a list of climbing locations.
-To render a climbing location use the widget 'ClimbingLocation'.
 ''',
-        '''
+    '''
 If there is no way to itemize all the options, either use the component '${BasicCatalogItems.textField.name}' or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
 ''',
-      ],
-    ).copyWithout(
-      itemsToRemove: [
-        BasicCatalogItems.image,
-        BasicCatalogItems.video,
-        BasicCatalogItems.audioPlayer,
-      ],
-    ).copyWith(
-      newItems: [climbingLocationItem],
-    );
+  ],
+);
 
 final PromptBuilder _promptBuilder = PromptBuilder.chat(
   catalog: _catalog,
@@ -97,7 +85,6 @@ class ChatSession extends ChangeNotifier {
       }
     });
 
-    // ignore: avoid_print
     _transport.addSystemMessage(_promptBuilder.systemPromptJoined());
   }
 

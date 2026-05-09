@@ -5,7 +5,6 @@
 import 'dart:async';
 
 import 'package:dartantic_ai/dartantic_ai.dart' as dartantic;
-import 'db/climbing_db.dart';
 
 import 'api_key/io_get_api_key.dart'
     if (dart.library.html) 'api_key/web_get_api_key.dart';
@@ -32,14 +31,7 @@ class DartanticAiClient implements AiClient {
     _provider = dartantic.GoogleProvider(apiKey: apiKey);
     _agent = dartantic.Agent.forProvider(
       _provider,
-      chatModelName: modelName ?? 'gemini-3.1-flash-lite-preview',
-      tools: [
-        dartantic.Tool(
-          name: 'listClimbingLocations',
-          description: 'Lists all available climbing locations.',
-          onCall: (args) => climbingLocations.map((e) => e.toJson()).toList(),
-        ),
-      ],
+      chatModelName: modelName ?? 'gemini-3-flash-preview',
     );
   }
 

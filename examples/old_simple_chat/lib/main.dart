@@ -8,7 +8,6 @@ import 'package:logging/logging.dart';
 import 'ai_client.dart';
 import 'chat_session.dart';
 import 'message.dart';
-import 'widgets/climbing_gallery.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,16 +26,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = ColorScheme.fromSeed(seedColor: Colors.blue);
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'Simple Chat Controller',
       theme: ThemeData(colorScheme: colorScheme),
       darkTheme: ThemeData(
         colorScheme: colorScheme.copyWith(brightness: Brightness.dark),
       ),
       home: const ChatScreen(),
-      routes: {
-        'climbing_gallery': (context) => const ClimbingGallery(),
-      },
     );
   }
 }
@@ -51,11 +46,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final TextEditingController _textController = TextEditingController(
-    text:
-        "I'm into rock climbing. Give me a few climbing locations around Las "
-        "Vegas. I'm a beginner.",
-  );
+  final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   late final ChatSession _chatSession;
 

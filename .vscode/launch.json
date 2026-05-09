@@ -14,8 +14,8 @@
       ]
     },
     {
-      "name": "tmp",
-      "cwd": "examples/tmp",
+      "name": "old_simple_chat",
+      "cwd": "examples/old_simple_chat",
       "request": "launch",
       "type": "dart",
       "args": [
