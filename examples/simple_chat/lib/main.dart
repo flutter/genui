@@ -8,6 +8,7 @@ import 'package:logging/logging.dart';
 import 'ai_client.dart';
 import 'chat_session.dart';
 import 'message.dart';
+import 'primitives/simple_items.dart';
 import 'widgets/climbing_gallery.dart';
 
 void main() async {
@@ -58,6 +59,7 @@ class _ChatScreenState extends State<ChatScreen> {
   );
   final ScrollController _scrollController = ScrollController();
   late final ChatSession _chatSession;
+  AppMode _appMode = AppMode.customCatalog;
 
   @override
   void initState() {
@@ -75,7 +77,26 @@ class _ChatScreenState extends State<ChatScreen> {
       listenable: _chatSession,
       builder: (context, _) {
         return Scaffold(
-          appBar: AppBar(title: const Text('Chat (Controller + Dartantic)')),
+          appBar: AppBar(
+            title: const Text('Chat (Controller + Dartantic)'),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: DropdownButton<AppMode>(
+                  value: _appMode,
+                  underline: const SizedBox.shrink(),
+                  onChanged: (mode) {
+                    if (mode == null) return;
+                    setState(() => _appMode = mode);
+                  },
+                  items: [
+                    for (final mode in AppMode.values)
+                      DropdownMenuItem(value: mode, child: Text(mode.name)),
+                  ],
+                ),
+              ),
+            ],
+          ),
           body: SafeArea(
             child: Column(
               children: [

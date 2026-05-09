@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../db/climbing_db.dart';
+import '../primitives/db/climbing_db.dart';
 import 'climbing.dart';
 
 class ClimbingGallery extends StatelessWidget {
@@ -8,9 +8,7 @@ class ClimbingGallery extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Climbing Locations Gallery'),
-      ),
+      appBar: AppBar(title: const Text('Climbing Locations Gallery')),
       body: ListView.builder(
         padding: const EdgeInsets.all(16.0),
         itemCount: climbingLocations.length,
