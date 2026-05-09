@@ -14,6 +14,15 @@
       ]
     },
     {
+      "name": "tmp",
+      "cwd": "examples/tmp",
+      "request": "launch",
+      "type": "dart",
+      "args": [
+        "--dart-define=GEMINI_API_KEY=${env:GEMINI_API_KEY}"
+      ]
+    },
+    {
       "name": "travel_app",
       "cwd": "examples/travel_app",
       "request": "launch",
