@@ -11,7 +11,7 @@ import 'package:logging/logging.dart';
 import 'ai_client.dart';
 import 'ai_client_transport.dart';
 import 'message.dart';
-import 'widgets/climbing.dart';
+import 'a2ui_components/climbing.dart';
 
 final Catalog _catalog =
     BasicCatalogItems.asCatalog(

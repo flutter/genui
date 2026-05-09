@@ -9,7 +9,7 @@ import 'ai_client.dart';
 import 'chat_session.dart';
 import 'message.dart';
 import 'primitives/simple_items.dart';
-import 'widgets/climbing_gallery.dart';
+import 'a2ui_components/climbing_gallery.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,9 +35,7 @@ class MyApp extends StatelessWidget {
         colorScheme: colorScheme.copyWith(brightness: Brightness.dark),
       ),
       home: const ChatScreen(),
-      routes: {
-        'climbing_gallery': (context) => const ClimbingGallery(),
-      },
+      routes: {'climbing_gallery': (context) => const ClimbingGallery()},
     );
   }
 }
