@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-name: simple_chat
+name: old_simple_chat
 publish_to: "none"
 version: 0.1.0
 
