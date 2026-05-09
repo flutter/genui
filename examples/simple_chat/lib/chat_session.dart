@@ -14,23 +14,13 @@ import 'ai_client.dart';
 import 'ai_client_transport.dart';
 import 'message.dart';
 
-final Catalog basicCatalog =
-    BasicCatalogItems.asCatalog(
-      systemPromptFragments: [
-        '''
-When you need additional information from the user, try to use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.
-''',
-        '''
-If there is no way to itemize all the options, either use the component '${BasicCatalogItems.textField.name}' or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
-''',
-      ],
-    ).copyWithout(
-      itemsToRemove: [
-        BasicCatalogItems.image,
-        BasicCatalogItems.video,
-        BasicCatalogItems.audioPlayer,
-      ],
-    );
+final Catalog basicCatalog = BasicCatalogItems.asCatalog().copyWithout(
+  itemsToRemove: [
+    BasicCatalogItems.image,
+    BasicCatalogItems.video,
+    BasicCatalogItems.audioPlayer,
+  ],
+);
 
 final Catalog customCatalog =
     BasicCatalogItems.asCatalog(
@@ -117,13 +107,15 @@ final class ChatSession extends ChatBackend {
           _messages.add(Message(isUser: false, text: 'Error: $error'));
           notifyListeners();
         case ConversationWaiting():
-        case ConversationComponentsUpdated():
-        case ConversationSurfaceRemoved():
+        case ConversationComponentsUpdated(): // TODO: log error and add error handling to test
+        case ConversationSurfaceRemoved(): // TODO: log error and add error handling to test
           break;
       }
     });
 
-    _transport.addSystemMessage(_promptBuilderFor(catalog).systemPromptJoined());
+    _transport.addSystemMessage(
+      _promptBuilderFor(catalog).systemPromptJoined(),
+    );
   }
 
   void _addSurfaceMessage(String surfaceId) {
@@ -175,7 +167,9 @@ final class TextOnlySession extends ChatBackend {
   final AiClient _aiClient;
   final List<Message> _messages = [];
   final List<dartantic.ChatMessage> _history = [
-    dartantic.ChatMessage.system('You are a helpful assistant who chats with a user.'),
+    dartantic.ChatMessage.system(
+      'You are a helpful assistant who chats with a user.',
+    ),
   ];
   bool _isProcessing = false;
   final Logger _logger = Logger('TextOnlySession');
