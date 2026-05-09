@@ -62,6 +62,12 @@ the user can indicate that they are done providing information.
       '${prefix}Do not use tools or function calls for UI generation. '
       'Use JSON text blocks.\n'
       'Ensure all JSON is valid and fenced with ```json ... ```.';
+
+  static String preferUi({String prefix = ''}) =>
+      '''
+${prefix}When there is an option to use UI component to communicate
+with the user, use it. Do not respond with plain text.
+''';
 }
 
 /// A builder for a prompt to generate UI.
