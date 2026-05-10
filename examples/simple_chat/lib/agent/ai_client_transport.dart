@@ -18,8 +18,8 @@ class SimpleChatAgent {
 }
 
 /// A [Transport] that wraps an [AiClient] to communicate with an LLM.
-class SimpleChatTransport implements Transport {
-  SimpleChatTransport({required this.agent});
+class SimpleChatA2aTransport implements Transport {
+  SimpleChatA2aTransport({required this.agent});
 
   final SimpleChatAgent agent;
   final A2uiTransportAdapter _adapter = A2uiTransportAdapter();
