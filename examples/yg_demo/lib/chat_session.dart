@@ -15,13 +15,7 @@ import 'ai_client.dart';
 import 'ai_client_transport.dart';
 import 'message.dart';
 
-final Catalog basicCatalog = BasicCatalogItems.asCatalog().copyWithout(
-  itemsToRemove: [
-    BasicCatalogItems.image,
-    BasicCatalogItems.video,
-    BasicCatalogItems.audioPlayer,
-  ],
-);
+final Catalog basicCatalog = BasicCatalogItems.asNoAssetCatalog();
 
 final Catalog customCatalog =
     BasicCatalogItems.asCatalog(
@@ -54,7 +48,6 @@ PromptBuilder _promptBuilderFor(Catalog catalog) => PromptBuilder.chat(
     PromptFragments.uiGenerationRestriction(
       prefix: PromptBuilder.defaultImportancePrefix,
     ),
-    PromptFragments.preferUi(prefix: PromptBuilder.defaultImportancePrefix),
   ],
 );
 

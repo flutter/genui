@@ -14,7 +14,7 @@ import 'message.dart';
 
 export 'agent/ai_client.dart' show AiClient;
 
-final Catalog _catalog = BasicCatalogItems.asCatalog(
+final Catalog _catalog = BasicCatalogItems.asNoAssetCatalog(
   systemPromptFragments: [
     '''
 When you need additional information from the user, try to use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.
@@ -43,14 +43,12 @@ final PromptBuilder _promptBuilder = PromptBuilder.chat(
 class ChatSession extends ChangeNotifier {
   ChatSession({AiClient? aiClient}) {
     _transport = SimpleChatA2aTransport(aiClient: aiClient);
-    _surfaceController = SurfaceController(catalogs: [_catalog]);
+    surfaceController = SurfaceController(catalogs: [_catalog]);
     _init();
   }
 
   late final SimpleChatA2aTransport _transport;
-  late final SurfaceController _surfaceController;
-
-  SurfaceHost get surfaceController => _surfaceController;
+  late final SurfaceController surfaceController;
 
   bool _isProcessing = false;
   bool get isProcessing => _isProcessing;
@@ -67,11 +65,11 @@ class ChatSession extends ChangeNotifier {
 
   void _init() {
     _messageSub = _transport.incomingMessages.listen(
-      _surfaceController.handleMessage,
+      surfaceController.handleMessage,
     );
     _textSub = _transport.incomingText.listen(_updateAiMessage);
-    _submitSub = _surfaceController.onSubmit.listen(_sendRequest);
-    _surfaceSub = _surfaceController.surfaceUpdates.listen(_onSurfaceUpdate);
+    _submitSub = surfaceController.onSubmit.listen(_sendRequest);
+    _surfaceSub = surfaceController.surfaceUpdates.listen(_onSurfaceUpdate);
 
     _transport.addSystemMessage(_promptBuilder.systemPromptJoined());
   }
@@ -146,7 +144,7 @@ class ChatSession extends ChangeNotifier {
     _textSub.cancel();
     _submitSub.cancel();
     _surfaceSub.cancel();
-    _surfaceController.dispose();
+    surfaceController.dispose();
     _transport.dispose();
     super.dispose();
   }
