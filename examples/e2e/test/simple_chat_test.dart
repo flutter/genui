@@ -47,14 +47,56 @@ void main() {
 /// Helper class to manage a chat session from simple chat example.
 class _ChatSessionTester {
   _ChatSessionTester() {
-    chatSession.conversation.events.listen(events.add);
+    _surfaceSub = chatSession.surfaceController.surfaceUpdates.listen(
+      _onSurfaceUpdate,
+    );
+    chatSession.addListener(_onSessionChanged);
   }
 
   final IssueReporter reporter = IssueReporter();
-  final List<ConversationEvent> events = [];
+  final List<String> _created = [];
+  final List<String> _removed = [];
+  final List<String> _updated = [];
+  final List<int> _completedTurnCreates = [];
+  final List<int> _completedTurnUpdates = [];
   final sc.ChatSession chatSession = sc.ChatSession(
     aiClient: sc.DartanticAiClient(),
   );
+
+  late final StreamSubscription<SurfaceUpdate> _surfaceSub;
+
+  bool _wasProcessing = false;
+  bool _turnInProgress = false;
+  int _currentTurnCreates = 0;
+  int _currentTurnUpdates = 0;
+
+  void _onSessionChanged() {
+    if (chatSession.isProcessing && !_wasProcessing) {
+      // false -> true: a new turn is starting. Flush the previous turn (if
+      // any) and reset counters.
+      if (_turnInProgress) {
+        _completedTurnCreates.add(_currentTurnCreates);
+        _completedTurnUpdates.add(_currentTurnUpdates);
+      }
+      _currentTurnCreates = 0;
+      _currentTurnUpdates = 0;
+      _turnInProgress = true;
+    }
+    _wasProcessing = chatSession.isProcessing;
+  }
+
+  void _onSurfaceUpdate(SurfaceUpdate update) {
+    switch (update) {
+      case SurfaceAdded(:final String surfaceId):
+        _created.add(surfaceId);
+        _currentTurnCreates++;
+      case ComponentsUpdated(:final String surfaceId):
+        _updated.add(surfaceId);
+        _currentTurnUpdates++;
+      case SurfaceRemoved(:final String surfaceId):
+        _removed.add(surfaceId);
+    }
+  }
 
   Future<void> _waitForProcessingToComplete() async {
     if (!chatSession.isProcessing) return;
@@ -84,70 +126,48 @@ class _ChatSessionTester {
   }
 
   void verifyEvents() {
-    final created = <String>[];
-    final removed = <String>[];
-    final updated = <String>[];
-    var content = 0;
-    var waiting = 0;
-    final errors = <String>[];
+    final List<int> turnCreates = [
+      ..._completedTurnCreates,
+      if (_turnInProgress) _currentTurnCreates,
+    ];
+    final List<int> turnUpdates = [
+      ..._completedTurnUpdates,
+      if (_turnInProgress) _currentTurnUpdates,
+    ];
 
-    var currentTurnCreates = 0;
-    var currentTurnUpdates = 0;
-    var turnCount = 0;
-
-    void verifyTurn() {
-      if (turnCount > 0) {
-        reporter.expect(
-          currentTurnCreates <= 1,
-          'Turn $turnCount should create at most 1 surface',
-        );
-        reporter.expect(
-          currentTurnUpdates == currentTurnCreates,
-          'Turn $turnCount should have matching creates ($currentTurnCreates) '
-          'and updates ($currentTurnUpdates)',
-        );
-      }
-    }
-
-    for (final ConversationEvent event in events) {
-      switch (event) {
-        case ConversationSurfaceAdded():
-          created.add(event.surfaceId);
-          currentTurnCreates++;
-        case ConversationComponentsUpdated():
-          updated.add(event.surfaceId);
-          currentTurnUpdates++;
-        case ConversationSurfaceRemoved():
-          removed.add(event.surfaceId);
-        case ConversationContentReceived():
-          content++;
-        case ConversationWaiting():
-          verifyTurn();
-          turnCount++;
-          waiting++;
-          currentTurnCreates = 0;
-          currentTurnUpdates = 0;
-        case ConversationError():
-          errors.add(event.error.toString());
-      }
-    }
-    verifyTurn();
+    final List<String> errors = chatSession.messages
+        .where((m) => !m.isUser && (m.text?.startsWith('Error: ') ?? false))
+        .map((m) => m.text!)
+        .toList();
 
     print('Conversation summary:');
-    print('  Created surfaces: $created');
-    print('  Removed surfaces: $removed');
-    print('  Updated surfaces: $updated');
-    print('  Text content: $content');
-    print('  Waiting: $waiting');
+    print('  Created surfaces: $_created');
+    print('  Removed surfaces: $_removed');
+    print('  Updated surfaces: $_updated');
+    print('  Turns: ${turnCreates.length}');
     print('  Errors: $errors');
+
+    for (var i = 0; i < turnCreates.length; i++) {
+      final int creates = turnCreates[i];
+      final int updates = turnUpdates[i];
+      reporter.expect(
+        creates <= 1,
+        'Turn ${i + 1} should create at most 1 surface',
+      );
+      reporter.expect(
+        updates == creates,
+        'Turn ${i + 1} should have matching creates ($creates) '
+        'and updates ($updates)',
+      );
+    }
 
     reporter.expect(errors.isEmpty, 'No errors should occur');
     reporter.expect(
-      updated.length == created.length,
+      _updated.length == _created.length,
       'In chat setup surfaces should not be updated after initial creation',
     );
-    for (final id in created) {
-      final int updateCount = updated.where((u) => u == id).length;
+    for (final String id in _created) {
+      final int updateCount = _updated.where((u) => u == id).length;
       reporter.expect(
         updateCount == 1,
         'Surface $id should be updated exactly once',
@@ -158,6 +178,8 @@ class _ChatSessionTester {
   void failIfIssuesFound() => reporter.failIfIssuesFound();
 
   void dispose() {
+    chatSession.removeListener(_onSessionChanged);
+    _surfaceSub.cancel();
     chatSession.dispose();
   }
 }
