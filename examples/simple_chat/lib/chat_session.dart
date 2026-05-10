@@ -9,6 +9,7 @@ import 'package:genui/genui.dart';
 import 'package:logging/logging.dart';
 
 import 'a2ui_transport.dart';
+import 'agent/agent.dart';
 import 'agent/ai_client.dart';
 import 'message.dart';
 import 'primitives/app_mode.dart';
@@ -31,9 +32,14 @@ final Catalog _customCatalog = _basicCatalog.copyWith(
   systemPromptFragments: [
     '''
 When you need additional information from the user, try to use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.
+
+**IMPORTANT**
 If the user is asking about climbing locations, use the 'listClimbingLocations' tool to get a list of climbing locations.
-To render a climbing location use the widget 'ClimbingLocation'. The 'ClimbingLocation' widget already includes a 'Learn more' button; do not add any extra submit/confirmation buttons next to it.
-When the user clicks 'Learn more' on a 'ClimbingLocation', a UI action named 'learnMoreAboutLocation' will be sent with the location's identifier and name in its context. Respond with detailed information about that specific location.
+Always use the component named '${climbingLocationItem.name}' to display the locations. The '${climbingLocationItem.name}' component already includes a 'Learn more' button; do not add any extra submit/confirmation buttons next to it.
+When the user clicks 'Learn more' on a '${climbingLocationItem.name}', a UI action named 'learnMoreAboutLocation' will be sent with the location's identifier and name in its context. Respond with detailed information about that specific location.
+
+**IMPORTANT**
+When user asks about climbing locations, never use other components.
 ''',
     ..._basicCatalog.systemPromptFragments,
   ],
@@ -43,7 +49,7 @@ When the user clicks 'Learn more' on a 'ClimbingLocation', a UI action named 'le
 final PromptBuilder _promptBuilder = PromptBuilder.chat(
   catalog: _basicCatalog,
   systemPromptFragments: [
-    'You are a helpful assistant who chats with a user.',
+    _textOnlySystemPrompt,
     PromptFragments.acknowledgeUser(),
     PromptFragments.requireAtLeastOneSubmitElement(
       prefix: PromptBuilder.defaultImportancePrefix,
@@ -53,6 +59,9 @@ final PromptBuilder _promptBuilder = PromptBuilder.chat(
     ),
   ],
 );
+
+const String _textOnlySystemPrompt =
+    'You are a helpful assistant who chats with a user.';
 
 sealed class ChatSession extends ChangeNotifier {
   ChatSession._();
@@ -70,31 +79,98 @@ sealed class ChatSession extends ChangeNotifier {
       AppMode.textOnly => TextOnlyChatSession(aiClient: aiClient),
     };
   }
+
+  final List<Message> _messages = [];
+  List<Message> get messages => List.unmodifiable(_messages);
+
+  bool _isProcessing = false;
+  bool get isProcessing => _isProcessing;
+
+  /// The surface host for rendering generative UI surfaces, or `null` if this
+  /// session does not produce surfaces (e.g. text-only chat).
+  SurfaceHost? get surfaceController => null;
+
+  final Logger _logger = Logger('ChatSession');
+
+  Message? _currentAiMessage;
+
+  Future<void> sendMessage(String text);
+
+  void _addUserMessage(String text) {
+    _messages.add(Message(isUser: true, text: 'You: $text'));
+    notifyListeners();
+  }
+
+  void _updateAiMessage(String chunk) {
+    if (_currentAiMessage == null) {
+      _currentAiMessage = Message(isUser: false, text: '');
+      _messages.add(_currentAiMessage!);
+    }
+    _currentAiMessage!.text = (_currentAiMessage!.text ?? '') + chunk;
+    notifyListeners();
+  }
+
+  void _reportError(Object error, {required bool showInChat}) {
+    _logger.severe('Error in conversation', error);
+    if (showInChat) {
+      _messages.add(Message(isUser: false, text: 'Error: $error'));
+      notifyListeners();
+    }
+  }
+
+  Future<void> _runRequest(Future<void> Function() body) async {
+    _isProcessing = true;
+    notifyListeners();
+    try {
+      await body();
+    } catch (exception, stackTrace) {
+      _logger.severe('Error sending request', exception, stackTrace);
+      _reportError(exception, showInChat: true);
+    } finally {
+      _isProcessing = false;
+      notifyListeners();
+    }
+  }
 }
 
 /// A chat session that only supports text messages.
 class TextOnlyChatSession extends ChatSession {
-  TextOnlyChatSession({AiClient? aiClient}) : super._() {}
+  TextOnlyChatSession({AiClient? aiClient}) : super._() {
+    _agent = SimpleChatAgent(
+      aiClient: aiClient,
+      onChunkFromAgent: _updateAiMessage,
+    );
+    _agent.addSystemMessage(_textOnlySystemPrompt);
+  }
+
+  late final SimpleChatAgent _agent;
+
+  @override
+  Future<void> sendMessage(String text) async {
+    if (text.isEmpty) return;
+
+    _currentAiMessage = null;
+    _addUserMessage(text);
+
+    await _runRequest(
+      () => _agent.handleRequestFromRenderer(ChatMessage.user(text)),
+    );
+  }
 }
 
 /// A chat session that supports generative UI.
 class A2uiChatSession extends ChatSession {
   A2uiChatSession({AiClient? aiClient, required Catalog catalog}) : super._() {
     _transport = SimpleChatA2aTransport(aiClient: aiClient);
-    surfaceController = SurfaceController(catalogs: [catalog]);
+    _surfaceController = SurfaceController(catalogs: [catalog]);
     _init();
   }
 
   late final SimpleChatA2aTransport _transport;
-  late final SurfaceController surfaceController;
+  late final SurfaceController _surfaceController;
 
-  bool _isProcessing = false;
-  bool get isProcessing => _isProcessing;
-
-  final List<Message> _messages = [];
-  List<Message> get messages => List.unmodifiable(_messages);
-
-  final Logger _logger = Logger('ChatSession');
+  @override
+  SurfaceController get surfaceController => _surfaceController;
 
   late final StreamSubscription<A2uiMessage> _messageSub;
   late final StreamSubscription<String> _textSub;
@@ -103,11 +179,13 @@ class A2uiChatSession extends ChatSession {
 
   void _init() {
     _messageSub = _transport.incomingMessages.listen(
-      surfaceController.handleMessage,
+      _surfaceController.handleMessage,
     );
     _textSub = _transport.incomingText.listen(_updateAiMessage);
-    _submitSub = surfaceController.onSubmit.listen(_sendRequest);
-    _surfaceSub = surfaceController.surfaceUpdates.listen(_onSurfaceUpdate);
+    _submitSub = _surfaceController.onSubmit.listen(
+      (message) => _runRequest(() => _transport.sendRequest(message)),
+    );
+    _surfaceSub = _surfaceController.surfaceUpdates.listen(_onSurfaceUpdate);
 
     _transport.addSystemMessage(_promptBuilder.systemPromptJoined());
   }
@@ -123,14 +201,6 @@ class A2uiChatSession extends ChatSession {
     }
   }
 
-  void _reportError(Object error, {required bool showInChat}) {
-    _logger.severe('Error in conversation', error);
-    if (showInChat) {
-      _messages.add(Message(isUser: false, text: 'Error: $error'));
-      notifyListeners();
-    }
-  }
-
   void _addSurfaceMessage(String surfaceId) {
     final bool exists = _messages.any((m) => m.surfaceId == surfaceId);
     if (!exists) {
@@ -139,41 +209,16 @@ class A2uiChatSession extends ChatSession {
     }
   }
 
-  Message? _currentAiMessage;
-
-  void _updateAiMessage(String chunk) {
-    if (_currentAiMessage == null) {
-      _currentAiMessage = Message(isUser: false, text: '');
-      _messages.add(_currentAiMessage!);
-    }
-    _currentAiMessage!.text = (_currentAiMessage!.text ?? '') + chunk;
-    notifyListeners();
-  }
-
+  @override
   Future<void> sendMessage(String text) async {
     if (text.isEmpty) return;
 
     // Reset current AI message so new response gets a new bubble
     _currentAiMessage = null;
 
-    _messages.add(Message(isUser: true, text: 'You: $text'));
-    notifyListeners();
+    _addUserMessage(text);
 
-    await _sendRequest(ChatMessage.user(text));
-  }
-
-  Future<void> _sendRequest(ChatMessage message) async {
-    _isProcessing = true;
-    notifyListeners();
-    try {
-      await _transport.sendRequest(message);
-    } catch (exception, stackTrace) {
-      _logger.severe('Error sending request', exception, stackTrace);
-      _reportError(exception, showInChat: true);
-    } finally {
-      _isProcessing = false;
-      notifyListeners();
-    }
+    await _runRequest(() => _transport.sendRequest(ChatMessage.user(text)));
   }
 
   @override
@@ -182,7 +227,7 @@ class A2uiChatSession extends ChatSession {
     _textSub.cancel();
     _submitSub.cancel();
     _surfaceSub.cancel();
-    surfaceController.dispose();
+    _surfaceController.dispose();
     _transport.dispose();
     super.dispose();
   }

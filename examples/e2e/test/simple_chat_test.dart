@@ -8,7 +8,9 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
-import 'package:simple_chat/simple_chat.dart' as sc;
+import 'package:simple_chat/agent/ai_client.dart';
+import 'package:simple_chat/chat_session.dart';
+import 'package:simple_chat/primitives/app_mode.dart';
 
 import 'test_infra/issue_reporter.dart';
 
@@ -59,9 +61,9 @@ class _ChatSessionTester {
   final List<String> _updated = [];
   final List<int> _completedTurnCreates = [];
   final List<int> _completedTurnUpdates = [];
-  final sc.A2uiChatSession chatSession = sc.A2uiChatSession(
-    aiClient: sc.DartanticAiClient(),
-  );
+  final A2uiChatSession chatSession =
+      ChatSession(aiClient: DartanticAiClient(), mode: AppMode.basicCatalog)
+          as A2uiChatSession;
 
   late final StreamSubscription<SurfaceUpdate> _surfaceSub;
 

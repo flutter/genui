@@ -18,7 +18,10 @@ class MessageView extends StatelessWidget {
   const MessageView(this.message, this.host, {super.key});
 
   final Message message;
-  final SurfaceHost host;
+
+  /// The surface host used to render generative UI surfaces. Required only
+  /// when [Message.surfaceId] is non-null.
+  final SurfaceHost? host;
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +29,10 @@ class MessageView extends StatelessWidget {
 
     if (surfaceId == null) return Text(message.text ?? '');
 
-    return Surface(surfaceContext: host.contextFor(surfaceId));
+    assert(
+      host != null,
+      'A SurfaceHost is required to render surface $surfaceId',
+    );
+    return Surface(surfaceContext: host!.contextFor(surfaceId));
   }
 }
