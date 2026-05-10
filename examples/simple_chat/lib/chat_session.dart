@@ -11,10 +11,12 @@ import 'package:logging/logging.dart';
 import 'a2ui_transport.dart';
 import 'agent/ai_client.dart';
 import 'message.dart';
+import 'primitives/app_mode.dart';
+import 'primitives/climbing/a2ui_components/climbing.dart';
 
 export 'agent/ai_client.dart' show AiClient;
 
-final Catalog _catalog = BasicCatalogItems.asNoAssetCatalog(
+final Catalog _basicCatalog = BasicCatalogItems.asNoAssetCatalog(
   systemPromptFragments: [
     '''
 When you need additional information from the user, try to use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.
@@ -25,8 +27,21 @@ If there is no way to itemize all the options, either use the component '${Basic
   ],
 );
 
+final Catalog _customCatalog = _basicCatalog.copyWith(
+  systemPromptFragments: [
+    '''
+When you need additional information from the user, try to use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.
+If the user is asking about climbing locations, use the 'listClimbingLocations' tool to get a list of climbing locations.
+To render a climbing location use the widget 'ClimbingLocation'. The 'ClimbingLocation' widget already includes a 'Learn more' button; do not add any extra submit/confirmation buttons next to it.
+When the user clicks 'Learn more' on a 'ClimbingLocation', a UI action named 'learnMoreAboutLocation' will be sent with the location's identifier and name in its context. Respond with detailed information about that specific location.
+''',
+    ..._basicCatalog.systemPromptFragments,
+  ],
+  newItems: [climbingLocationItem],
+);
+
 final PromptBuilder _promptBuilder = PromptBuilder.chat(
-  catalog: _catalog,
+  catalog: _basicCatalog,
   systemPromptFragments: [
     'You are a helpful assistant who chats with a user.',
     PromptFragments.acknowledgeUser(),
@@ -41,12 +56,13 @@ final PromptBuilder _promptBuilder = PromptBuilder.chat(
 
 /// A class that manages the chat session state and logic.
 class ChatSession extends ChangeNotifier {
-  ChatSession({AiClient? aiClient}) {
+  ChatSession({AiClient? aiClient, required this.mode}) {
     _transport = SimpleChatA2aTransport(aiClient: aiClient);
-    surfaceController = SurfaceController(catalogs: [_catalog]);
+    surfaceController = SurfaceController(catalogs: [_basicCatalog]);
     _init();
   }
 
+  final AppMode mode;
   late final SimpleChatA2aTransport _transport;
   late final SurfaceController surfaceController;
 

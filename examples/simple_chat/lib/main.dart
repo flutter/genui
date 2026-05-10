@@ -67,9 +67,10 @@ class _ChatScreenState extends State<ChatScreen> {
       _chatSession.removeListener(_scrollToBottom);
       _chatSession.dispose();
     }
-    _chatSession = ChatSession(aiClient: widget.aiClient);
+    _chatSession = ChatSession(aiClient: widget.aiClient, mode: _appMode);
     // Add a listener to scroll to bottom when messages change.
     _chatSession.addListener(_scrollToBottom);
+    _textController.text = _defaultUserMessage;
   }
 
   @override
@@ -165,13 +166,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void _changeMode(AppMode mode) {
     if (mode == _appMode) return;
     setState(() {
-      switch (mode) {
-        case AppMode.basicCatalog:
-        case AppMode.customCatalog:
-        case AppMode.textOnly:
-      }
       _appMode = mode;
-      _textController.text = _defaultUserMessage;
       _reCreateChatSession();
     });
   }
