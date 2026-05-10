@@ -51,7 +51,7 @@ class CatalogGalleryApp extends StatefulWidget {
 }
 
 class _CatalogGalleryAppState extends State<CatalogGalleryApp> {
-  final Catalog catalog = BasicCatalogItems.asCatalog();
+  final Catalog catalog = BasicCatalogItems.asNoAssetCatalog();
 
   @override
   Widget build(BuildContext context) {
