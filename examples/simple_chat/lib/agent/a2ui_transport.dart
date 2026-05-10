@@ -10,32 +10,23 @@ import 'package:logging/logging.dart';
 
 import 'ai_client.dart';
 
-class SimpleChatAgent {
-  SimpleChatAgent({AiClient? aiClient})
+typedef _ChunkHandler = void Function(String chunk);
+
+class _SimpleChatAgent {
+  _SimpleChatAgent({AiClient? aiClient, required this.onChunkFromAgent})
     : aiClient = aiClient ?? DartanticAiClient();
 
   final AiClient aiClient;
-  final List<dartantic.ChatMessage> history = [];
-}
+  final _ChunkHandler onChunkFromAgent;
+  final List<dartantic.ChatMessage> _history = [];
 
-/// A [Transport] that wraps an [AiClient] to communicate with an LLM.
-class SimpleChatA2aTransport implements Transport {
-  SimpleChatA2aTransport({AiClient? aiClient})
-    : agent = SimpleChatAgent(aiClient: aiClient);
+  final Logger _logger = Logger('_SimpleChatAgent');
 
-  final SimpleChatAgent agent;
-  final A2uiTransportAdapter _adapter = A2uiTransportAdapter();
+  void addSystemMessage(String content) {
+    _history.add(dartantic.ChatMessage.system(content));
+  }
 
-  final Logger _logger = Logger('AiClientTransport');
-
-  @override
-  Stream<A2uiMessage> get incomingMessages => _adapter.incomingMessages;
-
-  @override
-  Stream<String> get incomingText => _adapter.incomingText;
-
-  @override
-  Future<void> sendRequest(ChatMessage message) async {
+  Future<void> handleRequestFromRenderer(ChatMessage message) async {
     final buffer = StringBuffer();
     for (final dartantic.StandardPart part in message.parts) {
       if (part.isUiInteractionPart) {
@@ -47,38 +38,56 @@ class SimpleChatA2aTransport implements Transport {
     final text = buffer.toString();
     if (text.isEmpty) return;
 
-    agent.history.add(dartantic.ChatMessage.user(text));
+    _history.add(dartantic.ChatMessage.user(text));
 
     try {
-      final Stream<String> stream = agent.aiClient.sendStream(
+      final Stream<String> stream = aiClient.sendStream(
         text,
-        history: List.of(agent.history),
+        history: List.of(_history),
       );
       final fullResponseBuffer = StringBuffer();
 
       await for (final chunk in stream) {
         if (chunk.isNotEmpty) {
           fullResponseBuffer.write(chunk);
-          _adapter.addChunk(chunk);
+          onChunkFromAgent(chunk);
         }
       }
 
-      agent.history.add(
-        dartantic.ChatMessage.model(fullResponseBuffer.toString()),
-      );
+      _history.add(dartantic.ChatMessage.model(fullResponseBuffer.toString()));
     } catch (exception, stackTrace) {
       _logger.severe('Error sending request', exception, stackTrace);
       rethrow;
     }
   }
+}
+
+/// A [Transport] that communicates with [_SimpleChatAgent].
+class SimpleChatA2aTransport implements Transport {
+  SimpleChatA2aTransport({AiClient? aiClient}) {
+    _agent = _SimpleChatAgent(
+      aiClient: aiClient,
+      onChunkFromAgent: _adapter.addChunk,
+    );
+  }
+
+  late final _SimpleChatAgent _agent;
+  final A2uiTransportAdapter _adapter = A2uiTransportAdapter();
 
   @override
-  void dispose() {
-    _adapter.dispose();
+  Stream<A2uiMessage> get incomingMessages => _adapter.incomingMessages;
+
+  @override
+  Stream<String> get incomingText => _adapter.incomingText;
+
+  @override
+  Future<void> sendRequest(ChatMessage message) async {
+    await _agent.handleRequestFromRenderer(message);
   }
 
+  @override
+  void dispose() => _adapter.dispose();
+
   /// Adds a system message to the history.
-  void addSystemMessage(String content) {
-    agent.history.add(dartantic.ChatMessage.system(content));
-  }
+  void addSystemMessage(String content) => _agent.addSystemMessage(content);
 }
