@@ -6,6 +6,7 @@ import 'dart:async';
 
 import 'package:dartantic_ai/dartantic_ai.dart' as dartantic;
 
+import '../primitives/climbing/climbing_db.dart';
 import 'api_key/api_key.dart';
 
 /// An abstract interface for AI clients.
@@ -31,6 +32,13 @@ class DartanticAiClient implements AiClient {
     _agent = dartantic.Agent.forProvider(
       _provider,
       chatModelName: modelName ?? 'gemini-3-flash-preview',
+      tools: [
+        dartantic.Tool(
+          name: 'listClimbingLocations',
+          description: 'Lists all available climbing locations.',
+          onCall: (args) => climbingLocations.map((e) => e.toJson()).toList(),
+        ),
+      ],
     );
   }
 

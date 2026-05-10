@@ -46,8 +46,8 @@ When you need additional information from the user, try to use the component '${
   newItems: [climbingLocationItem],
 );
 
-final PromptBuilder _promptBuilder = PromptBuilder.chat(
-  catalog: _basicCatalog,
+PromptBuilder _promptBuilderFor(Catalog catalog) => PromptBuilder.chat(
+  catalog: catalog,
   systemPromptFragments: [
     _textOnlySystemPrompt,
     PromptFragments.acknowledgeUser(),
@@ -160,11 +160,15 @@ class TextOnlyChatSession extends ChatSession {
 
 /// A chat session that supports generative UI.
 class A2uiChatSession extends ChatSession {
-  A2uiChatSession({AiClient? aiClient, required Catalog catalog}) : super._() {
+  A2uiChatSession({AiClient? aiClient, required Catalog catalog})
+    : _catalog = catalog,
+      super._() {
     _transport = SimpleChatA2aTransport(aiClient: aiClient);
     _surfaceController = SurfaceController(catalogs: [catalog]);
     _init();
   }
+
+  final Catalog _catalog;
 
   late final SimpleChatA2aTransport _transport;
   late final SurfaceController _surfaceController;
@@ -187,7 +191,9 @@ class A2uiChatSession extends ChatSession {
     );
     _surfaceSub = _surfaceController.surfaceUpdates.listen(_onSurfaceUpdate);
 
-    _transport.addSystemMessage(_promptBuilder.systemPromptJoined());
+    _transport.addSystemMessage(
+      _promptBuilderFor(_catalog).systemPromptJoined(),
+    );
   }
 
   void _onSurfaceUpdate(SurfaceUpdate update) {
