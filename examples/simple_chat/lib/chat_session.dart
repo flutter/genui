@@ -76,22 +76,24 @@ class ChatSession extends ChangeNotifier {
         case ConversationContentReceived(:final text):
           _updateAiMessage(text);
         case ConversationError(:final error):
-          _reportError(error);
+          _reportError(error, showInChat: true);
         case ConversationWaiting():
           _logger.info('Waiting for AI response');
         case ConversationComponentsUpdated(:final surfaceId):
         case ConversationSurfaceRemoved(:final surfaceId):
-          _reportError('Surface $surfaceId removed');
+          _reportError('Surface $surfaceId removed', showInChat: false);
       }
     });
 
     _transport.addSystemMessage(_promptBuilder.systemPromptJoined());
   }
 
-  void _reportError(Object error) {
+  void _reportError(Object error, {required bool showInChat}) {
     _logger.severe('Error in conversation', error);
-    _messages.add(Message(isUser: false, text: 'Error: $error'));
-    notifyListeners();
+    if (showInChat) {
+      _messages.add(Message(isUser: false, text: 'Error: $error'));
+      notifyListeners();
+    }
   }
 
   void _addSurfaceMessage(String surfaceId) {
