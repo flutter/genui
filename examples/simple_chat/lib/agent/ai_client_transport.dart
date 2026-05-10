@@ -11,17 +11,19 @@ import 'package:logging/logging.dart';
 import 'ai_client.dart';
 
 class SimpleChatAgent {
-  SimpleChatAgent();
+  SimpleChatAgent({AiClient? aiClient})
+    : aiClient = aiClient ?? DartanticAiClient();
 
-  final AiClient aiClient = DartanticAiClient();
+  final AiClient aiClient;
   final List<dartantic.ChatMessage> history = [];
 }
 
 /// A [Transport] that wraps an [AiClient] to communicate with an LLM.
 class SimpleChatA2aTransport implements Transport {
-  SimpleChatA2aTransport();
+  SimpleChatA2aTransport({AiClient? aiClient})
+    : agent = SimpleChatAgent(aiClient: aiClient);
 
-  final SimpleChatAgent agent = SimpleChatAgent();
+  final SimpleChatAgent agent;
   final A2uiTransportAdapter _adapter = A2uiTransportAdapter();
 
   final Logger _logger = Logger('AiClientTransport');

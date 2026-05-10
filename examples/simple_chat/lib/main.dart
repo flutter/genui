@@ -36,7 +36,9 @@ class MyApp extends StatelessWidget {
 }
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  const ChatScreen({super.key, this.aiClient});
+
+  final AiClient? aiClient;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -55,7 +57,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    _chatSession = ChatSession();
+    _chatSession = ChatSession(aiClient: widget.aiClient);
     // Add a listener to scroll to bottom when messages change.
     _chatSession.addListener(_scrollToBottom);
   }

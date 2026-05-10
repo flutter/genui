@@ -12,6 +12,8 @@ import 'agent/ai_client.dart';
 import 'agent/ai_client_transport.dart';
 import 'message.dart';
 
+export 'agent/ai_client.dart' show AiClient;
+
 final Catalog _catalog = BasicCatalogItems.asCatalog(
   systemPromptFragments: [
     '''
@@ -39,8 +41,8 @@ final PromptBuilder _promptBuilder = PromptBuilder.chat(
 
 /// A class that manages the chat session state and logic.
 class ChatSession extends ChangeNotifier {
-  ChatSession() {
-    _transport = SimpleChatA2aTransport();
+  ChatSession({AiClient? aiClient}) {
+    _transport = SimpleChatA2aTransport(aiClient: aiClient);
     _surfaceController = SurfaceController(catalogs: [_catalog]);
     _init();
   }
