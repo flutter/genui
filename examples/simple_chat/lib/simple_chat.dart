@@ -3,6 +3,6 @@
 // found in the LICENSE file.
 
 // Export some classes for evaluation testing.
-export 'ai_client.dart' show AiClient, DartanticAiClient;
+export 'agent/ai_client.dart' show AiClient, DartanticAiClient;
 export 'chat_session.dart' show ChatSession;
 export 'message.dart' show Message;

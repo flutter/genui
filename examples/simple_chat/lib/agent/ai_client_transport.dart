@@ -20,8 +20,7 @@ class SimpleChatAgent {
   Transport get transport => _transport;
 
   /// Adds a system message to the history.
-  void addSystemMessage(String content) =>
-      _transport.addSystemMessage(content);
+  void addSystemMessage(String content) => _transport.addSystemMessage(content);
 
   void dispose() => _transport.dispose();
 }

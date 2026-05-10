@@ -5,7 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
-import 'ai_client.dart';
+import 'agent/ai_client.dart';
 import 'chat_session.dart';
 import 'message.dart';
 

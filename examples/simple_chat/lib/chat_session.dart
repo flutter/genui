@@ -8,9 +8,9 @@ import 'package:flutter/foundation.dart';
 import 'package:genui/genui.dart';
 import 'package:logging/logging.dart';
 
-import 'ai_client.dart';
-import 'ai_client_transport.dart';
 import 'message.dart';
+import 'agent/ai_client.dart';
+import 'agent/ai_client_transport.dart';
 
 final Catalog _catalog = BasicCatalogItems.asCatalog(
   systemPromptFragments: [
