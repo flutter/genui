@@ -39,10 +39,8 @@ final PromptBuilder _promptBuilder = PromptBuilder.chat(
 
 /// A class that manages the chat session state and logic.
 class ChatSession extends ChangeNotifier {
-  ChatSession({required AiClient aiClient}) {
-    _transport = SimpleChatA2aTransport(
-      agent: SimpleChatAgent(aiClient: aiClient),
-    );
+  ChatSession() {
+    _transport = SimpleChatA2aTransport();
     _surfaceController = SurfaceController(catalogs: [_catalog]);
     _init();
   }
