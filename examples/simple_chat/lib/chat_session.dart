@@ -8,8 +8,8 @@ import 'package:flutter/foundation.dart';
 import 'package:genui/genui.dart';
 import 'package:logging/logging.dart';
 
-import 'agent/ai_client.dart';
 import 'a2ui_transport.dart';
+import 'agent/ai_client.dart';
 import 'message.dart';
 
 export 'agent/ai_client.dart' show AiClient;
