@@ -44,48 +44,47 @@ class ChatSession extends ChangeNotifier {
       agent: SimpleChatAgent(aiClient: aiClient),
     );
     _surfaceController = SurfaceController(catalogs: [_catalog]);
-    conversation = Conversation(
-      controller: _surfaceController,
-      transport: _transport,
-    );
-    _init(_catalog);
+    _init();
   }
 
   late final SimpleChatTransport _transport;
   late final SurfaceController _surfaceController;
-  late final Conversation conversation;
 
   SurfaceHost get surfaceController => _surfaceController;
 
-  bool get isProcessing => conversation.state.value.isWaiting;
+  bool _isProcessing = false;
+  bool get isProcessing => _isProcessing;
 
   final List<Message> _messages = [];
   List<Message> get messages => List.unmodifiable(_messages);
 
   final Logger _logger = Logger('ChatSession');
 
-  void _init(Catalog catalog) {
-    // Listener for Conversation state
-    conversation.state.addListener(notifyListeners);
+  late final StreamSubscription<A2uiMessage> _messageSub;
+  late final StreamSubscription<String> _textSub;
+  late final StreamSubscription<ChatMessage> _submitSub;
+  late final StreamSubscription<SurfaceUpdate> _surfaceSub;
 
-    // Listener for Conversation events
-    conversation.events.listen((event) {
-      switch (event) {
-        case ConversationSurfaceAdded(:final surfaceId):
-          _addSurfaceMessage(surfaceId);
-        case ConversationContentReceived(:final text):
-          _updateAiMessage(text);
-        case ConversationError(:final error):
-          _reportError(error, showInChat: true);
-        case ConversationWaiting():
-          _logger.info('Waiting for AI response');
-        case ConversationComponentsUpdated(:final surfaceId):
-        case ConversationSurfaceRemoved(:final surfaceId):
-          _reportError('Surface $surfaceId removed', showInChat: false);
-      }
-    });
+  void _init() {
+    _messageSub = _transport.incomingMessages.listen(
+      _surfaceController.handleMessage,
+    );
+    _textSub = _transport.incomingText.listen(_updateAiMessage);
+    _submitSub = _surfaceController.onSubmit.listen(_sendRequest);
+    _surfaceSub = _surfaceController.surfaceUpdates.listen(_onSurfaceUpdate);
 
     _transport.addSystemMessage(_promptBuilder.systemPromptJoined());
+  }
+
+  void _onSurfaceUpdate(SurfaceUpdate update) {
+    switch (update) {
+      case SurfaceAdded(:final surfaceId):
+        _addSurfaceMessage(surfaceId);
+      case SurfaceRemoved(:final surfaceId):
+        _reportError('Surface $surfaceId removed', showInChat: false);
+      case ComponentsUpdated():
+        break;
+    }
   }
 
   void _reportError(Object error, {required bool showInChat}) {
@@ -122,17 +121,31 @@ class ChatSession extends ChangeNotifier {
     _currentAiMessage = null;
 
     _messages.add(Message(isUser: true, text: 'You: $text'));
-    // Do NOT notify here if we want to wait for "isWaiting" to update?
-    // Actually we want to show user message immediately.
     notifyListeners();
 
-    final message = ChatMessage.user(text);
-    await conversation.sendRequest(message);
+    await _sendRequest(ChatMessage.user(text));
+  }
+
+  Future<void> _sendRequest(ChatMessage message) async {
+    _isProcessing = true;
+    notifyListeners();
+    try {
+      await _transport.sendRequest(message);
+    } catch (exception, stackTrace) {
+      _logger.severe('Error sending request', exception, stackTrace);
+      _reportError(exception, showInChat: true);
+    } finally {
+      _isProcessing = false;
+      notifyListeners();
+    }
   }
 
   @override
   void dispose() {
-    conversation.dispose();
+    _messageSub.cancel();
+    _textSub.cancel();
+    _submitSub.cancel();
+    _surfaceSub.cancel();
     _surfaceController.dispose();
     _transport.dispose();
     super.dispose();
