@@ -46,7 +46,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 const String _defaultUserMessage =
-    "I'm into rock climbing. Give me a few climbing locations around Las Vegas. I'm a beginner.";
+    """I'm into rock climbing. Give me a few climbing locations around Las Vegas. I'm a beginner.""";
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController(
