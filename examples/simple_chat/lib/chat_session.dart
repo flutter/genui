@@ -40,16 +40,16 @@ final PromptBuilder _promptBuilder = PromptBuilder.chat(
 /// A class that manages the chat session state and logic.
 class ChatSession extends ChangeNotifier {
   ChatSession({required AiClient aiClient}) {
-    _transport = AiClientTransport(aiClient: aiClient);
+    _agent = SimpleChatAgent(aiClient: aiClient);
     _surfaceController = SurfaceController(catalogs: [_catalog]);
     conversation = Conversation(
       controller: _surfaceController,
-      transport: _transport,
+      transport: _agent.transport,
     );
     _init(_catalog);
   }
 
-  late final AiClientTransport _transport;
+  late final SimpleChatAgent _agent;
   late final SurfaceController _surfaceController;
   late final Conversation conversation;
 
@@ -85,7 +85,7 @@ class ChatSession extends ChangeNotifier {
       }
     });
 
-    _transport.addSystemMessage(_promptBuilder.systemPromptJoined());
+    _agent.addSystemMessage(_promptBuilder.systemPromptJoined());
   }
 
   void _addSurfaceMessage(String surfaceId) {
@@ -126,7 +126,7 @@ class ChatSession extends ChangeNotifier {
   void dispose() {
     conversation.dispose();
     _surfaceController.dispose();
-    _transport.dispose();
+    _agent.dispose();
     super.dispose();
   }
 }

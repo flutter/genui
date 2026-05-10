@@ -10,9 +10,25 @@ import 'package:logging/logging.dart';
 
 import 'ai_client.dart';
 
+class SimpleChatAgent {
+  SimpleChatAgent({required this.aiClient})
+    : _transport = _AiClientTransport(aiClient: aiClient);
+
+  final AiClient aiClient;
+  final _AiClientTransport _transport;
+
+  Transport get transport => _transport;
+
+  /// Adds a system message to the history.
+  void addSystemMessage(String content) =>
+      _transport.addSystemMessage(content);
+
+  void dispose() => _transport.dispose();
+}
+
 /// A [Transport] that wraps an [AiClient] to communicate with an LLM.
-class AiClientTransport implements Transport {
-  AiClientTransport({required this.aiClient});
+class _AiClientTransport implements Transport {
+  _AiClientTransport({required this.aiClient});
 
   final AiClient aiClient;
   final A2uiTransportAdapter _adapter = A2uiTransportAdapter();
