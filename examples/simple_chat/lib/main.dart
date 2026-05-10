@@ -53,12 +53,20 @@ class _ChatScreenState extends State<ChatScreen> {
     text: _defaultUserMessage,
   );
   final ScrollController _scrollController = ScrollController();
-  late final ChatSession _chatSession;
+  late ChatSession _chatSession;
   AppMode _appMode = AppMode.customCatalog;
 
   @override
   void initState() {
     super.initState();
+    _reCreateChatSession(dispose: false);
+  }
+
+  void _reCreateChatSession({bool dispose = true}) {
+    if (dispose) {
+      _chatSession.removeListener(_scrollToBottom);
+      _chatSession.dispose();
+    }
     _chatSession = ChatSession(aiClient: widget.aiClient);
     // Add a listener to scroll to bottom when messages change.
     _chatSession.addListener(_scrollToBottom);
@@ -164,6 +172,7 @@ class _ChatScreenState extends State<ChatScreen> {
       }
       _appMode = mode;
       _textController.text = _defaultUserMessage;
+      _reCreateChatSession();
     });
   }
 
