@@ -10,17 +10,17 @@ import 'package:logging/logging.dart';
 
 import 'ai_client.dart';
 
-typedef _ChunkHandler = void Function(String chunk);
+typedef ChunkHandler = void Function(String chunk);
 
-class _SimpleChatAgent {
-  _SimpleChatAgent({AiClient? aiClient, required this.onChunkFromAgent})
+class SimpleChatAgent {
+  SimpleChatAgent({AiClient? aiClient, required this.onChunkFromAgent})
     : aiClient = aiClient ?? DartanticAiClient();
 
   final AiClient aiClient;
-  final _ChunkHandler onChunkFromAgent;
+  final ChunkHandler onChunkFromAgent;
   final List<dartantic.ChatMessage> _history = [];
 
-  final Logger _logger = Logger('_SimpleChatAgent');
+  final Logger _logger = Logger('SimpleChatAgent');
 
   void addSystemMessage(String content) {
     _history.add(dartantic.ChatMessage.system(content));
@@ -62,16 +62,16 @@ class _SimpleChatAgent {
   }
 }
 
-/// A [Transport] that communicates with [_SimpleChatAgent].
+/// A [Transport] that communicates with [SimpleChatAgent].
 class SimpleChatA2aTransport implements Transport {
   SimpleChatA2aTransport({AiClient? aiClient}) {
-    _agent = _SimpleChatAgent(
+    _agent = SimpleChatAgent(
       aiClient: aiClient,
       onChunkFromAgent: _adapter.addChunk,
     );
   }
 
-  late final _SimpleChatAgent _agent;
+  late final SimpleChatAgent _agent;
   final A2uiTransportAdapter _adapter = A2uiTransportAdapter();
 
   @override
