@@ -11,6 +11,7 @@ _List which issues are fixed by this PR. For larger changes, raising an issue fi
 - [ ] I read the [Contributors Guide].
 - [ ] I have added sample code updates to the [changelog].
 - [ ] I updated/added relevant documentation (doc comments with `///`).
+- [ ] If my PR is a fork PR, I've checked that [e2e tests] passed.
 
 If you need help, consider asking for advice on the #hackers-devrel channel on [Discord].
 
@@ -21,3 +22,4 @@ If you need help, consider asking for advice on the #hackers-devrel channel on [
 [Discord]: https://github.com/flutter/flutter/blob/master/docs/contributing/Chat.md
 [Contributors Guide]: https://github.com/flutter/samples/blob/main/CONTRIBUTING.md
 [changelog]: ../CHANGELOG.md
+[e2e]: ../examples/e2e/README.md
