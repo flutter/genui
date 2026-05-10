@@ -8,9 +8,9 @@ import 'package:flutter/foundation.dart';
 import 'package:genui/genui.dart';
 import 'package:logging/logging.dart';
 
-import 'message.dart';
 import 'agent/ai_client.dart';
 import 'agent/ai_client_transport.dart';
+import 'message.dart';
 
 final Catalog _catalog = BasicCatalogItems.asCatalog(
   systemPromptFragments: [
@@ -74,18 +74,23 @@ class ChatSession extends ChangeNotifier {
         case ConversationContentReceived(:final text):
           _updateAiMessage(text);
         case ConversationError(:final error):
-          _logger.severe('Error in conversation', error);
-          _messages.add(Message(isUser: false, text: 'Error: $error'));
-          notifyListeners();
+          _reportError(error);
         case ConversationWaiting():
-        case ConversationComponentsUpdated():
-        case ConversationSurfaceRemoved():
-          // No-op for now
-          break;
+          _logger.info('Waiting for AI response');
+        case ConversationComponentsUpdated(:final surfaceId):
+          _reportError('Surface $surfaceId updated');
+        case ConversationSurfaceRemoved(:final surfaceId):
+          _reportError('Surface $surfaceId removed');
       }
     });
 
     _agent.addSystemMessage(_promptBuilder.systemPromptJoined());
+  }
+
+  void _reportError(Object error) {
+    _logger.severe('Error in conversation', error);
+    _messages.add(Message(isUser: false, text: 'Error: $error'));
+    notifyListeners();
   }
 
   void _addSurfaceMessage(String surfaceId) {
