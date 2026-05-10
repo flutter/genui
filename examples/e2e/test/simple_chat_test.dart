@@ -59,7 +59,7 @@ class _ChatSessionTester {
   final List<String> _updated = [];
   final List<int> _completedTurnCreates = [];
   final List<int> _completedTurnUpdates = [];
-  final sc.ChatSession chatSession = sc.ChatSession(
+  final sc.A2uiChatSession chatSession = sc.A2uiChatSession(
     aiClient: sc.DartanticAiClient(),
   );
 

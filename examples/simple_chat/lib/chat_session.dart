@@ -54,15 +54,37 @@ final PromptBuilder _promptBuilder = PromptBuilder.chat(
   ],
 );
 
-/// A class that manages the chat session state and logic.
-class ChatSession extends ChangeNotifier {
-  ChatSession({AiClient? aiClient, required this.mode}) {
+sealed class ChatSession extends ChangeNotifier {
+  ChatSession._();
+
+  factory ChatSession({AiClient? aiClient, required AppMode mode}) {
+    return switch (mode) {
+      AppMode.customCatalog => A2uiChatSession(
+        aiClient: aiClient,
+        catalog: _customCatalog,
+      ),
+      AppMode.basicCatalog => A2uiChatSession(
+        aiClient: aiClient,
+        catalog: _basicCatalog,
+      ),
+      AppMode.textOnly => TextOnlyChatSession(aiClient: aiClient),
+    };
+  }
+}
+
+/// A chat session that only supports text messages.
+class TextOnlyChatSession extends ChatSession {
+  TextOnlyChatSession({AiClient? aiClient}) : super._() {}
+}
+
+/// A chat session that supports generative UI.
+class A2uiChatSession extends ChatSession {
+  A2uiChatSession({AiClient? aiClient, required Catalog catalog}) : super._() {
     _transport = SimpleChatA2aTransport(aiClient: aiClient);
-    surfaceController = SurfaceController(catalogs: [_basicCatalog]);
+    surfaceController = SurfaceController(catalogs: [catalog]);
     _init();
   }
 
-  final AppMode mode;
   late final SimpleChatA2aTransport _transport;
   late final SurfaceController surfaceController;
 
