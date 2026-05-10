@@ -7,6 +7,7 @@ import 'package:logging/logging.dart';
 
 import 'chat_session.dart';
 import 'message.dart';
+import 'primitives/app_mode.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,6 +54,7 @@ class _ChatScreenState extends State<ChatScreen> {
   );
   final ScrollController _scrollController = ScrollController();
   late final ChatSession _chatSession;
+  AppMode _appMode = AppMode.customCatalog;
 
   @override
   void initState() {
@@ -68,7 +70,30 @@ class _ChatScreenState extends State<ChatScreen> {
       listenable: _chatSession,
       builder: (context, _) {
         return Scaffold(
-          appBar: AppBar(title: const Text('Chat (Controller + Dartantic)')),
+          appBar: AppBar(
+            title: const Text('Chat (Controller + Dartantic)'),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: DropdownButton<AppMode>(
+                  value: _appMode,
+                  underline: const SizedBox.shrink(),
+                  onChanged: (mode) {
+                    if (mode == null) return;
+                    _changeMode(mode);
+                  },
+                  items: [
+                    for (final mode in AppMode.values)
+                      DropdownMenuItem(
+                        value: mode,
+                        child: Text(mode.displayName),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
           body: SafeArea(
             child: Column(
               children: [
@@ -127,6 +152,19 @@ class _ChatScreenState extends State<ChatScreen> {
         );
       },
     );
+  }
+
+  void _changeMode(AppMode mode) {
+    if (mode == _appMode) return;
+    setState(() {
+      switch (mode) {
+        case AppMode.basicCatalog:
+        case AppMode.customCatalog:
+        case AppMode.textOnly:
+      }
+      _appMode = mode;
+      _textController.text = _defaultUserMessage;
+    });
   }
 
   Future<void> _sendMessage() async {
