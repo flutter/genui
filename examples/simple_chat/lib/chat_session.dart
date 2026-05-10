@@ -31,8 +31,6 @@ If there is no way to itemize all the options, either use the component '${Basic
 final Catalog _customCatalog = _basicCatalog.copyWith(
   systemPromptFragments: [
     '''
-When you need additional information from the user, try to use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.
-
 **IMPORTANT**
 If the user is asking about climbing locations, use the 'listClimbingLocations' tool to get a list of climbing locations.
 Always use the component named '${climbingLocationItem.name}' to display the locations. The '${climbingLocationItem.name}' component already includes a 'Learn more' button; do not add any extra submit/confirmation buttons next to it.
@@ -40,6 +38,8 @@ When the user clicks 'Learn more' on a '${climbingLocationItem.name}', a UI acti
 
 **IMPORTANT**
 When user asks about climbing locations, never use other components.
+
+When you need additional information from the user, try to use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.
 ''',
     ..._basicCatalog.systemPromptFragments,
   ],
