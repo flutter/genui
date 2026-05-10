@@ -9,7 +9,7 @@ import 'package:genui/genui.dart';
 import 'package:logging/logging.dart';
 
 import 'agent/ai_client.dart';
-import 'agent/ai_client_transport.dart';
+import 'agent/a2ui_transport.dart';
 import 'message.dart';
 
 export 'agent/ai_client.dart' show AiClient;
