@@ -13,10 +13,7 @@ import 'ai_client/ai_client.dart';
 import 'ai_client/google_generative_ai_client.dart';
 import 'asset_images.dart';
 import 'catalog.dart';
-// Conditionally import non-web version so we can read from shell env vars in
-// non-web version.
-import 'config/io_get_api_key.dart'
-    if (dart.library.html) 'config/web_get_api_key.dart';
+import 'config/api_key/api_key.dart';
 import 'tools/booking/booking_service.dart';
 import 'tools/booking/list_hotels_tool.dart';
 import 'widgets/conversation.dart';
@@ -95,7 +92,7 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
         additionalTools: [
           ListHotelsTool(onListHotels: BookingService.instance.listHotels),
         ],
-        apiKey: getApiKey(),
+        apiKey: apiKey(),
       );
     }
 

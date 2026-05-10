@@ -8,14 +8,14 @@ const String _geminiApiKey = String.fromEnvironment('GEMINI_API_KEY');
 
 String? debugApiKey;
 
-String getApiKey() {
+String apiKey() {
   if (debugApiKey != null) {
     return debugApiKey!;
   }
-  String apiKey = _geminiApiKey.isEmpty
+  String key = _geminiApiKey.isEmpty
       ? Platform.environment['GEMINI_API_KEY'] ?? ''
       : _geminiApiKey;
-  if (apiKey.isEmpty) {
+  if (key.isEmpty) {
     throw Exception(
       'Gemini API key is required. Run the app with a GEMINI_API_KEY as a '
       'Dart environment variable, for example by running with '
@@ -23,5 +23,5 @@ String getApiKey() {
       'environment variable in your shell environment.',
     );
   }
-  return apiKey;
+  return key;
 }
