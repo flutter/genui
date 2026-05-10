@@ -80,7 +80,6 @@ class ChatSession extends ChangeNotifier {
         case ConversationWaiting():
           _logger.info('Waiting for AI response');
         case ConversationComponentsUpdated(:final surfaceId):
-          _reportError('Surface $surfaceId updated');
         case ConversationSurfaceRemoved(:final surfaceId):
           _reportError('Surface $surfaceId removed');
       }
