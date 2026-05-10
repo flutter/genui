@@ -6,8 +6,8 @@ import 'dart:async';
 
 import 'package:genui/genui.dart';
 
-import 'agent.dart';
-import 'ai_client.dart';
+import 'agent/agent.dart';
+import 'agent/ai_client.dart';
 
 /// A [Transport] that communicates with [SimpleChatAgent].
 class SimpleChatA2aTransport implements Transport {
