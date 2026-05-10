@@ -11,27 +11,19 @@ import 'package:logging/logging.dart';
 import 'ai_client.dart';
 
 class SimpleChatAgent {
-  SimpleChatAgent({required this.aiClient})
-    : _transport = _AiClientTransport(aiClient: aiClient);
+  SimpleChatAgent({required this.aiClient});
 
   final AiClient aiClient;
-  final _AiClientTransport _transport;
-
-  Transport get transport => _transport;
-
-  /// Adds a system message to the history.
-  void addSystemMessage(String content) => _transport.addSystemMessage(content);
-
-  void dispose() => _transport.dispose();
+  final List<dartantic.ChatMessage> history = [];
 }
 
 /// A [Transport] that wraps an [AiClient] to communicate with an LLM.
-class _AiClientTransport implements Transport {
-  _AiClientTransport({required this.aiClient});
+class SimpleChatTransport implements Transport {
+  SimpleChatTransport({required this.agent});
 
-  final AiClient aiClient;
+  final SimpleChatAgent agent;
   final A2uiTransportAdapter _adapter = A2uiTransportAdapter();
-  final List<dartantic.ChatMessage> _history = [];
+
   final Logger _logger = Logger('AiClientTransport');
 
   @override
@@ -53,12 +45,12 @@ class _AiClientTransport implements Transport {
     final text = buffer.toString();
     if (text.isEmpty) return;
 
-    _history.add(dartantic.ChatMessage.user(text));
+    agent.history.add(dartantic.ChatMessage.user(text));
 
     try {
-      final Stream<String> stream = aiClient.sendStream(
+      final Stream<String> stream = agent.aiClient.sendStream(
         text,
-        history: List.of(_history),
+        history: List.of(agent.history),
       );
       final fullResponseBuffer = StringBuffer();
 
@@ -69,7 +61,9 @@ class _AiClientTransport implements Transport {
         }
       }
 
-      _history.add(dartantic.ChatMessage.model(fullResponseBuffer.toString()));
+      agent.history.add(
+        dartantic.ChatMessage.model(fullResponseBuffer.toString()),
+      );
     } catch (exception, stackTrace) {
       _logger.severe('Error sending request', exception, stackTrace);
       rethrow;
@@ -83,6 +77,6 @@ class _AiClientTransport implements Transport {
 
   /// Adds a system message to the history.
   void addSystemMessage(String content) {
-    _history.add(dartantic.ChatMessage.system(content));
+    agent.history.add(dartantic.ChatMessage.system(content));
   }
 }
