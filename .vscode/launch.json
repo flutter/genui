@@ -14,6 +14,12 @@
       ]
     },
     {
+      "name": "verdure_client",
+      "cwd": "examples/verdure/client",
+      "request": "launch",
+      "type": "dart"
+    },
+    {
       "name": "travel_app",
       "cwd": "examples/travel_app",
       "request": "launch",

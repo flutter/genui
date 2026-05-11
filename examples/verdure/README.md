@@ -2,6 +2,14 @@
 
 This directory contains a sample application demonstrating a Flutter client interacting with a Python-based A2A (Agent-to-Agent) server for landscape design.
 
+## Video
+
+This video is recorded on May 11, 2026, for the [PR#911](https://github.com/flutter/genui/pull/911).
+
+https://github.com/user-attachments/assets/0a4b1160-0a35-4f1b-ac6d-dd8afb183279
+
+Please, replace this link if you have fresher version.
+
 ## Prerequisites
 
 - Flutter SDK
@@ -36,6 +44,21 @@ c. Install dependencies and run the server using UV:
    ```
 
    The server will start on `http://localhost:10002` by default.
+
+   * Troubleshooting `uv run .` command:
+
+      If `uv run .` fails with a `401 Unauthorized` error while fetching a package
+      from `us-python.pkg.dev/...`, the committed `uv.lock` is pinned to a private
+      package index you don't have credentials for. Regenerate it against public
+      PyPI:
+
+      ```bash
+      cd examples/verdure/server
+      rm uv.lock
+      uv lock
+      ```
+
+      Then re-run `uv run .` from the `server/verdure` directory.
 
 d. In a new terminal window, verify the server is responding as expected:
 
