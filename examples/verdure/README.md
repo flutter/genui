@@ -2,6 +2,14 @@
 
 This directory contains a sample application demonstrating a Flutter client interacting with a Python-based A2A (Agent-to-Agent) server for landscape design.
 
+## Video
+
+This video is recorded on May 11, 2026, for the [PR#911](https://github.com/flutter/genui/pull/911).
+
+https://github.com/user-attachments/assets/0a4b1160-0a35-4f1b-ac6d-dd8afb183279
+
+Please, replace this link if you have fresher version.
+
 ## Prerequisites
 
 - Flutter SDK
