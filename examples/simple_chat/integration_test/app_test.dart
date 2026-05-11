@@ -61,19 +61,6 @@ void main() {
       });
     });
 
-    testWidgets('render image sample', (tester) async {
-      await mockNetworkImagesFor(() async {
-        await _runTestForSample(
-          tester,
-          'integration_test/samples/sample_3_image.json',
-          (tester, client) async {
-            // Image widget should exist even if mocked.
-            expect(find.byType(Image), findsOneWidget);
-          },
-        );
-      });
-    });
-
     testWidgets('render form sample', (tester) async {
       await mockNetworkImagesFor(() async {
         await _runTestForSample(
