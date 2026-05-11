@@ -34,10 +34,8 @@ final Catalog _customCatalog = _basicCatalog.copyWith(
 If the user is asking about climbing locations, use the 'listClimbingLocations' tool to get a list of climbing locations.
 Always use the component named '${climbingLocationItem.name}' to display the locations. The '${climbingLocationItem.name}' component already includes a 'Learn more' button; do not add any extra submit/confirmation buttons next to it.
 When the user clicks 'Learn more' on a '${climbingLocationItem.name}', a UI action named 'learnMoreAboutLocation' will be sent with the location's identifier and name in its context. Respond with detailed information about that specific location.
-''',
-    '''When user asks about climbing locations, never use other components.
-''',
-    '''When you need additional information from the user, try to use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.
+
+When user asks about climbing locations, never use other components.
 ''',
     ..._basicCatalog.systemPromptFragments,
   ],
@@ -199,7 +197,10 @@ class A2uiChatSession extends ChatSession {
       case SurfaceAdded(:final surfaceId):
         _addSurfaceMessage(surfaceId);
       case SurfaceRemoved(:final surfaceId):
-        _reportError('Surface $surfaceId removed', showInChat: false);
+        _reportError(
+          'Surface $surfaceId removed, that should not happen in chat.',
+          showInChat: false,
+        );
       case ComponentsUpdated():
         break;
     }
