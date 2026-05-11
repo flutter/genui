@@ -26,7 +26,7 @@ When you need additional information from the user, try to use the component '${
 If there is no way to itemize all the options, either use the component '${BasicCatalogItems.textField.name}' or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
 ''',
   ],
-).copyWith(newItems: [BasicCatalogItems.image]);
+);
 
 final Catalog _customCatalog = _basicCatalog.copyWith(
   systemPromptFragments: [
