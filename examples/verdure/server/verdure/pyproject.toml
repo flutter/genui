@@ -10,6 +10,7 @@ dependencies = [
     "google-adk>=1.8.0",
     "google-genai>=1.27.0",
     "python-dotenv>=1.1.0",
+    "litellm",
     "a2ui_ext",
     "jsonschema>=4.0.0",
 ]
