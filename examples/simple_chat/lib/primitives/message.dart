@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:genui/genui.dart';
 
 class Message {
@@ -27,7 +28,13 @@ class MessageView extends StatelessWidget {
   Widget build(BuildContext context) {
     final String? surfaceId = message.surfaceId;
 
-    if (surfaceId == null) return Text(message.text ?? '');
+    if (surfaceId == null) {
+      if (message.isUser) {
+        return Text(message.text ?? '');
+      } else {
+        return MarkdownBody(data: message.text ?? '');
+      }
+    }
 
     assert(
       host != null,
