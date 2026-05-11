@@ -36,6 +36,9 @@ Follow the instructions in [Running the app with a Gemini key](../../docs/usage/
 
 ## Video
 
-This video is recorded for [PR#905](https://github.com/flutter/genui/pull/905):
-
 https://github.com/user-attachments/assets/419965e6-0fbb-47ea-a221-70e9fe6398d6
+
+This video is recorded on May 10, 2026,for [PR#905](https://github.com/flutter/genui/pull/905).
+
+Please, update it if you have fresher version.
+
