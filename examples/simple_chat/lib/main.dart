@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
 import 'chat_session.dart';
-import 'message.dart';
+import 'primitives/message.dart';
 import 'primitives/app_mode.dart';
 
 void main() async {

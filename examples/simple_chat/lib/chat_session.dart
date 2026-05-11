@@ -11,7 +11,7 @@ import 'package:logging/logging.dart';
 import 'a2ui_transport.dart';
 import 'agent/agent.dart';
 import 'agent/ai_client.dart';
-import 'message.dart';
+import 'primitives/message.dart';
 import 'primitives/app_mode.dart';
 import 'primitives/climbing/a2ui_components/climbing.dart';
 
