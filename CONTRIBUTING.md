@@ -134,4 +134,4 @@ when your Flutter is latest at beta channel.
 
 ## Internal information
 
-For Google-internal information see go/flutter-genui-internal.
+For Google-internal information see go/a2ui-internal.
