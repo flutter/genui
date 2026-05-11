@@ -97,6 +97,10 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
     _player = ap.AudioPlayer();
     _player.setVolume(_volume);
 
+    void onStreamError(Object error, StackTrace stackTrace) {
+      genUiLogger.warning('Audio player stream error', error, stackTrace);
+    }
+
     _subscriptions = [
       _player.onPlayerStateChanged.listen((state) {
         if (mounted) {
@@ -104,17 +108,17 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
             _isPlaying = state == ap.PlayerState.playing;
           });
         }
-      }),
+      }, onError: onStreamError),
       _player.onPositionChanged.listen((position) {
         if (mounted) {
           setState(() => _position = position);
         }
-      }),
+      }, onError: onStreamError),
       _player.onDurationChanged.listen((duration) {
         if (mounted) {
           setState(() => _duration = duration);
         }
-      }),
+      }, onError: onStreamError),
     ];
 
     _setSource();
