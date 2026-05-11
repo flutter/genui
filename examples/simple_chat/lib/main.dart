@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
 import 'chat_session.dart';
-import 'primitives/message.dart';
 import 'primitives/app_mode.dart';
+import 'primitives/message.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
