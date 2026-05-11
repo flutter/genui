@@ -38,6 +38,21 @@ c. Install dependencies and run the server using UV:
 
    The server will start on `http://localhost:10002` by default.
 
+   * Troubleshooting `uv run .` command:
+
+      If `uv run .` fails with a `401 Unauthorized` error while fetching a package
+      from `us-python.pkg.dev/...`, the committed `uv.lock` is pinned to a private
+      package index you don't have credentials for. Regenerate it against public
+      PyPI:
+
+      ```bash
+      cd examples/verdure/server
+      rm uv.lock
+      uv lock
+      ```
+
+      Then re-run `uv run .` from the `server/verdure` directory.
+
 d. In a new terminal window, verify the server is responding as expected:
 
    ```bash
