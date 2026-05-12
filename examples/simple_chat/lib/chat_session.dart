@@ -78,6 +78,7 @@ class ChatSession extends ChangeNotifier {
           _messages.add(Message(isUser: false, text: 'Error: $error'));
           notifyListeners();
         case ConversationWaiting():
+        case ConversationReady():
         case ConversationComponentsUpdated():
         case ConversationSurfaceRemoved():
           // No-op for now

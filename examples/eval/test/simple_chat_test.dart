@@ -129,6 +129,9 @@ class _ChatSessionTester {
           currentTurnUpdates = 0;
         case ConversationError():
           errors.add(event.error.toString());
+        case ConversationReady():
+          verifyTurn();
+          break;
       }
     }
     verifyTurn();

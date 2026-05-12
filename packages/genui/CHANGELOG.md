@@ -10,6 +10,9 @@
 - **Fix**: Match `A2uiMessage.a2uiMessageSchema` to A2UI v0.9 specification (#833).
 - **Fix**: Bug fixes for A2UI JSONL stream parser (#868).
 
+- **Feature**: Added `ConversationTurn` enum and `turn` getter on `ConversationState` to clearly observe whose turn it is in a conversation (#847).
+- **Feature**: Added `ConversationReady` event, emitted when the agent finishes responding, complementing the existing `ConversationWaiting` event (#847).
+
 ## 0.8.0
 
 - **BREAKING**: Updated package to align with A2UI v0.9 protocol and introduced extensive architectural changes.

@@ -22,6 +22,42 @@ void main() {
       controller.dispose();
     });
 
+    test('turn reflects user turn by default', () {
+      final conversation = Conversation(
+        transport: adapter,
+        controller: controller,
+      );
+
+      expect(conversation.state.value.turn, ConversationTurn.user);
+      conversation.dispose();
+    });
+
+    test('turn reflects agent turn while waiting for response', () async {
+      final completer = Completer<void>();
+      adapter = A2uiTransportAdapter(
+        onSend: (message) async {
+          await completer.future;
+        },
+      );
+
+      final conversation = Conversation(
+        transport: adapter,
+        controller: controller,
+      );
+
+      final Future<void> future = conversation.sendRequest(
+        ChatMessage.user('hi', parts: [UiInteractionPart.create('hi')]),
+      );
+
+      expect(conversation.state.value.turn, ConversationTurn.agent);
+
+      completer.complete();
+      await future;
+
+      expect(conversation.state.value.turn, ConversationTurn.user);
+      conversation.dispose();
+    });
+
     test('updates isWaiting state during request', () async {
       final completer = Completer<void>();
       adapter = A2uiTransportAdapter(
@@ -76,6 +112,59 @@ void main() {
 
       expect(capturedMessage, secondMessage);
 
+      conversation.dispose();
+    });
+
+    test('emits ConversationReady when agent finishes responding', () async {
+      final completer = Completer<void>();
+      adapter = A2uiTransportAdapter(
+        onSend: (message) async {
+          await completer.future;
+        },
+      );
+
+      final conversation = Conversation(
+        transport: adapter,
+        controller: controller,
+      );
+
+      final events = <ConversationEvent>[];
+      conversation.events.listen(events.add);
+
+      final Future<void> future = conversation.sendRequest(
+        ChatMessage.user('hi', parts: [UiInteractionPart.create('hi')]),
+      );
+
+      expect(events.any((e) => e is ConversationReady), isFalse);
+
+      completer.complete();
+      await future;
+      await Future<void>.delayed(Duration.zero);
+
+      expect(events.any((e) => e is ConversationReady), isTrue);
+      expect(conversation.state.value.turn, ConversationTurn.user);
+      conversation.dispose();
+    });
+
+    test('emits ConversationReady even when sendRequest throws', () async {
+      adapter = A2uiTransportAdapter(
+        onSend: (message) async {
+          throw Exception('Network Error');
+        },
+      );
+      final conversation = Conversation(
+        transport: adapter,
+        controller: controller,
+      );
+
+      final events = <ConversationEvent>[];
+      conversation.events.listen(events.add);
+
+      await conversation.sendRequest(ChatMessage.user('hi'));
+      await Future<void>.delayed(Duration.zero);
+
+      expect(events.any((e) => e is ConversationReady), isTrue);
+      expect(conversation.state.value.turn, ConversationTurn.user);
       conversation.dispose();
     });
 
