@@ -16,7 +16,7 @@ const int maxAutoVivifyIndex = 10000;
 /// It handles JSON Pointer path resolution and reactive signal management.
 class DataModel {
   Object? _data;
-  final Map<DataPath, WeakReference<Signal<Object?>>> _signals = {};
+  final Map<String, WeakReference<Signal<Object?>>> _signals = {};
 
   DataModel([Object? initialData]) : _data = initialData ?? <String, Object?>{};
 
@@ -28,7 +28,7 @@ class DataModel {
     Object? current = _data;
     for (final String segment in dataPath.segments) {
       if (current == null) return null;
-      if (current is Map<String, Object?>) {
+      if (current is Map<Object?, Object?>) {
         current = current[segment];
       } else if (current is List<Object?>) {
         final int? index = int.tryParse(segment);
@@ -56,7 +56,7 @@ class DataModel {
           final String nextSegment = dataPath.segments[i + 1];
           final isNextNumeric = int.tryParse(nextSegment) != null;
 
-          if (current is Map<String, Object?>) {
+          if (current is Map<Object?, Object?>) {
             if (!current.containsKey(segment) || current[segment] == null) {
               current[segment] = isNextNumeric
                   ? <Object?>[]
@@ -96,7 +96,7 @@ class DataModel {
         }
 
         final String lastSegment = dataPath.segments.last;
-        if (current is Map<String, Object?>) {
+        if (current is Map<Object?, Object?>) {
           if (value == null) {
             current.remove(lastSegment);
           } else {
@@ -130,8 +130,8 @@ class DataModel {
   /// Returns a [ReadonlySignal] for a specific path.
   /// Internally cached using a [WeakReference] to prevent leaks.
   ReadonlySignal<T?> watch<T>(String path) {
-    final key = DataPath.parse(path);
-    final WeakReference<Signal<Object?>>? ref = _signals[key];
+    final normalizedPath = DataPath.parse(path).toString();
+    final WeakReference<Signal<Object?>>? ref = _signals[normalizedPath];
     if (ref != null) {
       final Signal<Object?>? sig = ref.target;
       if (sig != null) {
@@ -139,30 +139,29 @@ class DataModel {
       }
     }
 
-    final Signal<T?> sig = signal<T?>(get(path) as T?);
-    _signals[key] = WeakReference(sig as Signal<Object?>);
+    final Signal<T?> sig = signal<T?>(get(normalizedPath) as T?);
+    _signals[normalizedPath] = WeakReference(sig as Signal<Object?>);
     _pruneSignals();
     return sig;
   }
 
   void _notifyPathAndRelated(DataPath dataPath) {
-    for (final DataPath entryPath in _signals.keys.toList()) {
-      if (_isPrefixOrEqual(dataPath.segments, entryPath.segments) ||
-          _isPrefixOrEqual(entryPath.segments, dataPath.segments)) {
+    final normalizedPath = dataPath.toString();
+    for (final String entryPath in _signals.keys.toList()) {
+      if (_isPathRelated(normalizedPath, entryPath)) {
         _getAndNotify(entryPath);
       }
     }
   }
 
-  bool _isPrefixOrEqual(List<String> prefix, List<String> path) {
-    if (prefix.length > path.length) return false;
-    for (var i = 0; i < prefix.length; i++) {
-      if (prefix[i] != path[i]) return false;
-    }
-    return true;
+  bool _isPathRelated(String a, String b) {
+    if (a == b) return true;
+    final descendantPrefixA = a == '/' ? '/' : '$a/';
+    final descendantPrefixB = b == '/' ? '/' : '$b/';
+    return b.startsWith(descendantPrefixA) || a.startsWith(descendantPrefixB);
   }
 
-  void _getAndNotify(DataPath path) {
+  void _getAndNotify(String path) {
     final WeakReference<Signal<Object?>>? ref = _signals[path];
     if (ref == null) return;
 
@@ -172,7 +171,7 @@ class DataModel {
       return;
     }
 
-    final Object? newValue = get(path.toString());
+    final Object? newValue = get(path);
     // Force notification even if the value is the same reference, because
     // mutable containers (Maps/Lists) may have changed in place.
     sig.set(newValue, force: true);
