@@ -147,30 +147,23 @@ class DataModel {
   }
 
   void _notifyPathAndRelated(DataPath dataPath) {
-    final normalizedPath = dataPath.toString();
-
-    if (dataPath.isEmpty) {
-      for (final String entryPath in _signals.keys.toList()) {
-        _getAndNotify(entryPath);
-      }
-      return;
-    }
-
-    // Notify all active signals that are related to this path
     for (final String entryPath in _signals.keys.toList()) {
-      if (entryPath == '/' || entryPath == '') {
-        _getAndNotify(entryPath);
-        continue;
-      }
-
-      if (entryPath == normalizedPath) {
-        _getAndNotify(entryPath);
-      } else if (normalizedPath.startsWith('$entryPath/')) {
-        _getAndNotify(entryPath);
-      } else if (entryPath.startsWith('$normalizedPath/')) {
+      final List<String> entrySegments = DataPath.parse(entryPath).segments;
+      if (_isPrefixOrEqual(dataPath.segments, entrySegments) ||
+          _isPrefixOrEqual(entrySegments, dataPath.segments)) {
         _getAndNotify(entryPath);
       }
     }
+  }
+
+  /// An empty list is a prefix of every list — this is what makes root-vs-root
+  /// and root-vs-anything cases fall out without special-casing.
+  bool _isPrefixOrEqual(List<String> prefix, List<String> path) {
+    if (prefix.length > path.length) return false;
+    for (var i = 0; i < prefix.length; i++) {
+      if (prefix[i] != path[i]) return false;
+    }
+    return true;
   }
 
   void _getAndNotify(String path) {
