@@ -149,6 +149,13 @@ class DataModel {
   void _notifyPathAndRelated(DataPath dataPath) {
     final normalizedPath = dataPath.toString();
 
+    if (dataPath.isEmpty) {
+      for (final String entryPath in _signals.keys.toList()) {
+        _getAndNotify(entryPath);
+      }
+      return;
+    }
+
     // Notify all active signals that are related to this path
     for (final String entryPath in _signals.keys.toList()) {
       if (entryPath == '/' || entryPath == '') {

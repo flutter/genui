@@ -81,6 +81,30 @@ void main() {
       expect(changeCount, 1);
     });
 
+    test('notifies descendant watches on root changes', () {
+      final model = DataModel({
+        'user': {'name': 'Alice'},
+        'stale': 'present',
+      });
+      final ReadonlySignal<Object?> nameWatch = model.watch('/user/name');
+      final ReadonlySignal<Object?> staleWatch = model.watch('/stale');
+      var nameChangeCount = 0;
+      var staleChangeCount = 0;
+      nameWatch.subscribe((_) => nameChangeCount++);
+      staleWatch.subscribe((_) => staleChangeCount++);
+      nameChangeCount = 0;
+      staleChangeCount = 0;
+
+      model.set('/', {
+        'user': {'name': 'Bob'},
+      });
+
+      expect(nameChangeCount, 1);
+      expect(nameWatch.value, 'Bob');
+      expect(staleChangeCount, 1);
+      expect(staleWatch.value, isNull);
+    });
+
     test('removes keys when setting null', () {
       final model = DataModel({'foo': 'bar'});
       model.set('/foo', null);
