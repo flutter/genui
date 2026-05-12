@@ -17,26 +17,40 @@ import 'primitives/message.dart';
 
 export 'agent/ai_client.dart' show AiClient;
 
-final Catalog _basicCatalog = BasicCatalogItems.asNoAssetCatalog(
-  systemPromptFragments: [
-    '''
-When you need additional information from the user, try to use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.
-''',
-    '''
-If there is no way to itemize all the options, either use the component '${BasicCatalogItems.textField.name}' or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
-''',
-  ],
-);
+/// System prompts used to configure the chat sessions in this example.
+abstract final class Prompts {
+  Prompts._();
 
-final Catalog _customCatalog = _basicCatalog.copyWith(
-  systemPromptFragments: [
-    '''
+  static const String summary =
+      'You are a helpful assistant who chats with a user.';
+
+  static final String choicePicker =
+      '''
+When you need additional information from the user, try to use the component '${BasicCatalogItems.choicePicker.name}' to ask for it.
+''';
+
+  static final String textFieldFallback =
+      '''
+If there is no way to itemize all the options, either use the component '${BasicCatalogItems.textField.name}' or add option 'Other' to the '${BasicCatalogItems.choicePicker.name}'.
+''';
+
+  static final String climbingLocations =
+      '''
 If the user is asking about climbing locations, use the 'listClimbingLocations' tool to get a list of climbing locations.
 Always use the component named '${climbingLocationItem.name}' to display the locations. The '${climbingLocationItem.name}' component already includes a 'Learn more' button; do not add any extra submit/confirmation buttons next to it.
 When the user clicks 'Learn more' on a '${climbingLocationItem.name}', a UI action named 'learnMoreAboutLocation' will be sent with the location's identifier and name in its context. Respond with detailed information about that specific location.
 
 When user asks about climbing locations, never use other components.
-''',
+''';
+}
+
+final Catalog _basicCatalog = BasicCatalogItems.asNoAssetCatalog(
+  systemPromptFragments: [Prompts.choicePicker, Prompts.textFieldFallback],
+);
+
+final Catalog _customCatalog = _basicCatalog.copyWith(
+  systemPromptFragments: [
+    Prompts.climbingLocations,
     ..._basicCatalog.systemPromptFragments,
   ],
   newItems: [climbingLocationItem],
@@ -45,7 +59,7 @@ When user asks about climbing locations, never use other components.
 PromptBuilder _promptBuilderFor(Catalog catalog) => PromptBuilder.chat(
   catalog: catalog,
   systemPromptFragments: [
-    _textOnlySystemPrompt,
+    Prompts.summary,
     PromptFragments.acknowledgeUser(),
     PromptFragments.requireAtLeastOneSubmitElement(
       prefix: PromptBuilder.defaultImportancePrefix,
@@ -55,9 +69,6 @@ PromptBuilder _promptBuilderFor(Catalog catalog) => PromptBuilder.chat(
     ),
   ],
 );
-
-const String _textOnlySystemPrompt =
-    'You are a helpful assistant who chats with a user.';
 
 sealed class ChatSession extends ChangeNotifier {
   ChatSession._();
@@ -136,7 +147,7 @@ class TextOnlyChatSession extends ChatSession {
       aiClient: aiClient,
       onChunkFromAgent: _updateAiMessage,
     );
-    _agent.addSystemMessage(_textOnlySystemPrompt);
+    _agent.addSystemMessage(Prompts.summary);
   }
 
   late final SimpleChatAgent _agent;
