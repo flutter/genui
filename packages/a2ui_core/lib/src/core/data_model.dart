@@ -146,20 +146,18 @@ class DataModel {
   }
 
   void _notifyPathAndRelated(DataPath dataPath) {
-    final normalizedPath = dataPath.toString();
+    final changedPath = dataPath.toString();
+    final String changedDescendantPrefix = _descendantPrefix(changedPath);
     for (final String entryPath in _signals.keys.toList()) {
-      if (_isPathRelated(normalizedPath, entryPath)) {
+      if (changedPath == entryPath ||
+          entryPath.startsWith(changedDescendantPrefix) ||
+          changedPath.startsWith(_descendantPrefix(entryPath))) {
         _getAndNotify(entryPath);
       }
     }
   }
 
-  bool _isPathRelated(String a, String b) {
-    if (a == b) return true;
-    final descendantPrefixA = a == '/' ? '/' : '$a/';
-    final descendantPrefixB = b == '/' ? '/' : '$b/';
-    return b.startsWith(descendantPrefixA) || a.startsWith(descendantPrefixB);
-  }
+  static String _descendantPrefix(String path) => path == '/' ? '/' : '$path/';
 
   void _getAndNotify(String path) {
     final WeakReference<Signal<Object?>>? ref = _signals[path];
