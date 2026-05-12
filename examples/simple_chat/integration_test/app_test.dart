@@ -125,7 +125,7 @@ Future<void> _runTestForSample(
   // The FakeAiClient splits it into chunks with delays.
   // We can't use pumpAndSettle() because some catalog widgets (e.g. Image's
   // loadingBuilder shows a CircularProgressIndicator) have indeterminate
-  // animations that never settle.
+  // animations that is not handled by pumpAndSettle.
   for (var i = 0; i < 30; i++) {
     await tester.pump(const Duration(milliseconds: 100));
   }

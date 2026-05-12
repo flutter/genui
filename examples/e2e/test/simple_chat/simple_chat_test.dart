@@ -19,21 +19,21 @@ const List<String> _userMessages = [
 void main() {
   test('Model respects configuration of prompt builder '
       'in the simple chat example.', () async {
-    final tester = ChatSessionTester();
-    addTearDown(tester.dispose);
+    final sessionTester = ChatSessionTester();
+    addTearDown(sessionTester.dispose);
 
     for (final String message in _userMessages) {
-      await tester.sendMessageAndWaitForResponse(message);
+      await sessionTester.sendMessageAndWaitForResponse(message);
     }
 
     expect(
-      tester.surfaceIds().length,
+      sessionTester.surfaceIds().length,
       isPositive,
       reason: 'Model should produce surfaces',
     );
 
-    tester.verifyEvents();
+    sessionTester.verifyEvents();
 
-    tester.failIfIssuesFound();
+    sessionTester.failIfIssuesFound();
   }, timeout: const Timeout(Duration(minutes: 4)));
 }
