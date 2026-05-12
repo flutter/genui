@@ -156,8 +156,6 @@ class DataModel {
     }
   }
 
-  /// An empty list is a prefix of every list — this is what makes root-vs-root
-  /// and root-vs-anything cases fall out without special-casing.
   bool _isPrefixOrEqual(List<String> prefix, List<String> path) {
     if (prefix.length > path.length) return false;
     for (var i = 0; i < prefix.length; i++) {
