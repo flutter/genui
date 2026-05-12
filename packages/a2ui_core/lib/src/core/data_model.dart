@@ -18,7 +18,8 @@ class DataModel {
   Object? _data;
   final Map<String, WeakReference<Signal<Object?>>> _signals = {};
 
-  DataModel([Object? initialData]) : _data = initialData ?? <String, dynamic>{};
+  DataModel([Object? initialData])
+    : _data = initialData ?? <String, Object?>{};
 
   /// Synchronously gets data at a specific JSON pointer path.
   Object? get(String path) {
@@ -28,9 +29,9 @@ class DataModel {
     Object? current = _data;
     for (final String segment in dataPath.segments) {
       if (current == null) return null;
-      if (current is Map) {
+      if (current is Map<String, Object?>) {
         current = current[segment];
-      } else if (current is List) {
+      } else if (current is List<Object?>) {
         final int? index = int.tryParse(segment);
         if (index == null || index < 0 || index >= current.length) return null;
         current = current[index];
@@ -49,21 +50,21 @@ class DataModel {
       if (dataPath.isEmpty) {
         _data = value;
       } else {
-        _data ??= <String, dynamic>{};
+        _data ??= <String, Object?>{};
         Object? current = _data;
         for (var i = 0; i < dataPath.segments.length - 1; i++) {
           final String segment = dataPath.segments[i];
           final String nextSegment = dataPath.segments[i + 1];
           final isNextNumeric = int.tryParse(nextSegment) != null;
 
-          if (current is Map) {
+          if (current is Map<String, Object?>) {
             if (!current.containsKey(segment) || current[segment] == null) {
               current[segment] = isNextNumeric
                   ? <Object?>[]
-                  : <String, dynamic>{};
+                  : <String, Object?>{};
             }
             current = current[segment];
-          } else if (current is List) {
+          } else if (current is List<Object?>) {
             final int? index = int.tryParse(segment);
             if (index == null) {
               throw A2uiDataError(
@@ -83,7 +84,7 @@ class DataModel {
             if (current[index] == null) {
               current[index] = isNextNumeric
                   ? <Object?>[]
-                  : <String, dynamic>{};
+                  : <String, Object?>{};
             }
             current = current[index];
           } else {
@@ -96,13 +97,13 @@ class DataModel {
         }
 
         final String lastSegment = dataPath.segments.last;
-        if (current is Map) {
+        if (current is Map<String, Object?>) {
           if (value == null) {
             current.remove(lastSegment);
           } else {
             current[lastSegment] = value;
           }
-        } else if (current is List) {
+        } else if (current is List<Object?>) {
           final int? index = int.tryParse(lastSegment);
           if (index == null) {
             throw A2uiDataError(
