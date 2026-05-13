@@ -195,14 +195,34 @@ void main() {
       expect(copy.taskId, 'task-123');
     });
     test('StatusUpdate operator == returns false for different taskId', () {
-      const event1 = StatusUpdate(taskId: 'task1', contextId: 'context1', status: TaskStatus(state: TaskState.working));
-      const event2 = StatusUpdate(taskId: 'task2', contextId: 'context1', status: TaskStatus(state: TaskState.working));
+      const event1 = StatusUpdate(
+        taskId: 'task1',
+        contextId: 'context1',
+        status: TaskStatus(state: TaskState.working),
+      );
+      const event2 = StatusUpdate(
+        taskId: 'task2',
+        contextId: 'context1',
+        status: TaskStatus(state: TaskState.working),
+      );
       expect(event1 == event2, isFalse);
     });
 
     test('ArtifactUpdate operator == returns false for different taskId', () {
-      const event1 = ArtifactUpdate(taskId: 'task1', contextId: 'context1', artifact: Artifact(artifactId: 'art1', parts: []), append: false, lastChunk: false);
-      const event2 = ArtifactUpdate(taskId: 'task2', contextId: 'context1', artifact: Artifact(artifactId: 'art1', parts: []), append: false, lastChunk: false);
+      const event1 = ArtifactUpdate(
+        taskId: 'task1',
+        contextId: 'context1',
+        artifact: Artifact(artifactId: 'art1', parts: []),
+        append: false,
+        lastChunk: false,
+      );
+      const event2 = ArtifactUpdate(
+        taskId: 'task2',
+        contextId: 'context1',
+        artifact: Artifact(artifactId: 'art1', parts: []),
+        append: false,
+        lastChunk: false,
+      );
       expect(event1 == event2, isFalse);
     });
   });

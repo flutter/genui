@@ -361,15 +361,12 @@ void main() {
         expect(exception1 == exception2, isFalse);
       },
     );
-    test(
-      'A2ATaskNotFoundException operator == returns false for different '
-      'message',
-      () {
-        const exception1 = A2ATaskNotFoundException(message: 'm');
-        const exception2 = A2ATaskNotFoundException(message: 'n');
-        expect(exception1 == exception2, isFalse);
-      },
-    );
+    test('A2ATaskNotFoundException operator == returns false for different '
+        'message', () {
+      const exception1 = A2ATaskNotFoundException(message: 'm');
+      const exception2 = A2ATaskNotFoundException(message: 'n');
+      expect(exception1 == exception2, isFalse);
+    });
 
     test(
       'A2ATaskNotCancelableException operator == returns false for different '
@@ -400,19 +397,16 @@ void main() {
       },
     );
 
-    test(
-      'A2APushNotificationConfigNotFoundException operator == returns false '
-      'for different message',
-      () {
-        const exception1 = A2APushNotificationConfigNotFoundException(
-          message: 'm',
-        );
-        const exception2 = A2APushNotificationConfigNotFoundException(
-          message: 'n',
-        );
-        expect(exception1 == exception2, isFalse);
-      },
-    );
+    test('A2APushNotificationConfigNotFoundException operator == returns false '
+        'for different message', () {
+      const exception1 = A2APushNotificationConfigNotFoundException(
+        message: 'm',
+      );
+      const exception2 = A2APushNotificationConfigNotFoundException(
+        message: 'n',
+      );
+      expect(exception1 == exception2, isFalse);
+    });
 
     test(
       'A2AHttpException operator == returns false for different statusCode',

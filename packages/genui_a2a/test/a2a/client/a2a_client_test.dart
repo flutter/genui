@@ -94,7 +94,7 @@ void main() {
 
       expect(stream, emitsInOrder([event, emitsDone]));
 
-      final Map<String, dynamic> json = event.toJson();
+      final Map<String, Object?> json = event.toJson();
       // Workaround for missing explicitToJson in generated code
       if (json['status'] is TaskStatus) {
         json['status'] = (json['status'] as TaskStatus).toJson();
@@ -358,9 +358,12 @@ void main() {
       final Map<String, Object?> request = fakeTransport.requests.first;
       final params = request['params'] as Map<String, Object?>;
       expect(params['extensions'], equals(['ext1', 'ext2']));
-      
+
       expect(fakeTransport.recordedHeaders.length, equals(1));
-      expect(fakeTransport.recordedHeaders.first['X-A2A-Extensions'], equals('ext1,ext2'));
+      expect(
+        fakeTransport.recordedHeaders.first['X-A2A-Extensions'],
+        equals('ext1,ext2'),
+      );
     });
   });
 }

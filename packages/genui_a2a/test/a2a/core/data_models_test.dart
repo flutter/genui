@@ -20,7 +20,7 @@ void main() {
         skills: [],
       );
 
-      final Map<String, dynamic> json = agentCard.toJson();
+      final Map<String, Object?> json = agentCard.toJson();
       final newAgentCard = AgentCard.fromJson(json);
 
       expect(newAgentCard, equals(agentCard));
@@ -41,7 +41,7 @@ void main() {
         skills: [],
       );
 
-      final Map<String, dynamic> json = agentCard.toJson();
+      final Map<String, Object?> json = agentCard.toJson();
       final newAgentCard = AgentCard.fromJson(json);
 
       expect(newAgentCard, equals(agentCard));
@@ -54,7 +54,7 @@ void main() {
         messageId: '12345',
       );
 
-      final Map<String, dynamic> json = message.toJson();
+      final Map<String, Object?> json = message.toJson();
       final newMessage = Message.fromJson(json);
 
       expect(newMessage, equals(message));
@@ -68,7 +68,7 @@ void main() {
         messageId: '12345',
       );
 
-      final Map<String, dynamic> json = message.toJson();
+      final Map<String, Object?> json = message.toJson();
       final newMessage = Message.fromJson(json);
 
       expect(newMessage, equals(message));
@@ -90,7 +90,7 @@ void main() {
         messageId: '12345',
       );
 
-      final Map<String, dynamic> json = message.toJson();
+      final Map<String, Object?> json = message.toJson();
       final newMessage = Message.fromJson(json);
 
       expect(newMessage, equals(message));
@@ -129,7 +129,7 @@ void main() {
         ],
       );
 
-      final Map<String, dynamic> json = task.toJson();
+      final Map<String, Object?> json = task.toJson();
       final newTask = Task.fromJson(json);
 
       expect(newTask, equals(task));
@@ -145,7 +145,7 @@ void main() {
           status: TaskStatus(state: TaskState.working),
         );
 
-        final Map<String, dynamic> json = task.toJson();
+        final Map<String, Object?> json = task.toJson();
         final newTask = Task.fromJson(json);
 
         expect(newTask, equals(task));
@@ -176,7 +176,7 @@ void main() {
 
     test('Part can be serialized and deserialized', () {
       final partText = const Part.text(text: 'Hello');
-      final Map<String, dynamic> jsonText = partText.toJson();
+      final Map<String, Object?> jsonText = partText.toJson();
       final newPartText = Part.fromJson(jsonText);
       expect(newPartText, equals(partText));
 
@@ -186,7 +186,7 @@ void main() {
           mimeType: 'text/plain',
         ),
       );
-      final Map<String, dynamic> jsonFileUri = partFileUri.toJson();
+      final Map<String, Object?> jsonFileUri = partFileUri.toJson();
       final newPartFileUri = Part.fromJson(jsonFileUri);
       expect(newPartFileUri, equals(partFileUri));
 
@@ -196,12 +196,12 @@ void main() {
           name: 'hello.txt',
         ),
       );
-      final Map<String, dynamic> jsonFileBytes = partFileBytes.toJson();
+      final Map<String, Object?> jsonFileBytes = partFileBytes.toJson();
       final newPartFileBytes = Part.fromJson(jsonFileBytes);
       expect(newPartFileBytes, equals(partFileBytes));
 
       final partData = const Part.data(data: {'key': 'value'});
-      final Map<String, dynamic> jsonData = partData.toJson();
+      final Map<String, Object?> jsonData = partData.toJson();
       final newPartData = Part.fromJson(jsonData);
       expect(newPartData, equals(partData));
     });
@@ -223,7 +223,7 @@ void main() {
         in_: 'header',
       );
 
-      final Map<String, dynamic> json = securityScheme.toJson();
+      final Map<String, Object?> json = securityScheme.toJson();
       final newSecurityScheme = SecurityScheme.fromJson(json);
 
       expect(newSecurityScheme, equals(securityScheme));
@@ -239,7 +239,7 @@ void main() {
         ),
       );
 
-      final Map<String, dynamic> json = config.toJson();
+      final Map<String, Object?> json = config.toJson();
       final newConfig = PushNotificationConfig.fromJson(json);
 
       expect(newConfig, equals(config));
@@ -254,7 +254,7 @@ void main() {
         ),
       );
 
-      final Map<String, dynamic> json = taskConfig.toJson();
+      final Map<String, Object?> json = taskConfig.toJson();
       final newTaskConfig = TaskPushNotificationConfig.fromJson(json);
 
       expect(newTaskConfig, equals(taskConfig));
@@ -267,7 +267,7 @@ void main() {
         params: {'key': 'value'},
       );
 
-      final Map<String, dynamic> json = extension.toJson();
+      final Map<String, Object?> json = extension.toJson();
       final newExtension = AgentExtension.fromJson(json);
 
       expect(newExtension, equals(extension));
@@ -298,7 +298,7 @@ void main() {
         transport: TransportProtocol.jsonrpc,
       );
 
-      final Map<String, dynamic> json = interface.toJson();
+      final Map<String, Object?> json = interface.toJson();
       final newInterface = AgentInterface.fromJson(json);
 
       expect(newInterface, equals(interface));
@@ -335,7 +335,7 @@ void main() {
         metadata: {'key': 'value'},
       );
 
-      final Map<String, dynamic> json = params.toJson();
+      final Map<String, Object?> json = params.toJson();
       final newParams = ListTasksParams.fromJson(json);
 
       expect(newParams, equals(params));
@@ -362,7 +362,7 @@ void main() {
         ],
       );
 
-      final Map<String, dynamic> json = capabilities.toJson();
+      final Map<String, Object?> json = capabilities.toJson();
       final newCapabilities = AgentCapabilities.fromJson(json);
 
       expect(newCapabilities, equals(capabilities));
@@ -386,7 +386,7 @@ void main() {
         nextPageToken: '',
       );
 
-      final Map<String, dynamic> json = result.toJson();
+      final Map<String, Object?> json = result.toJson();
       final newResult = ListTasksResult.fromJson(json);
 
       expect(newResult, equals(result));
@@ -512,7 +512,7 @@ void main() {
         url: 'https://example.com',
       );
 
-      final Map<String, dynamic> json = provider.toJson();
+      final Map<String, Object?> json = provider.toJson();
       final newProvider = AgentProvider.fromJson(json);
 
       expect(newProvider, equals(provider));

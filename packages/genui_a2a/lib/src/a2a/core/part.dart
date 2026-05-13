@@ -93,11 +93,11 @@ class TextPart extends Part {
       other is TextPart &&
           runtimeType == other.runtimeType &&
           text == other.text &&
-          const MapEquality<String, Object?>().equals(metadata, other.metadata);
+          const DeepCollectionEquality().equals(metadata, other.metadata);
 
   @override
   int get hashCode =>
-      text.hashCode ^ const MapEquality<String, Object?>().hash(metadata);
+      text.hashCode ^ const DeepCollectionEquality().hash(metadata);
 
   @override
   String toString() => 'TextPart(text: $text, metadata: $metadata)';
@@ -132,11 +132,11 @@ class FilePart extends Part {
       other is FilePart &&
           runtimeType == other.runtimeType &&
           file == other.file &&
-          const MapEquality<String, Object?>().equals(metadata, other.metadata);
+          const DeepCollectionEquality().equals(metadata, other.metadata);
 
   @override
   int get hashCode =>
-      file.hashCode ^ const MapEquality<String, Object?>().hash(metadata);
+      file.hashCode ^ const DeepCollectionEquality().hash(metadata);
 
   @override
   String toString() => 'FilePart(file: $file, metadata: $metadata)';
@@ -172,13 +172,13 @@ class DataPart extends Part {
       identical(this, other) ||
       other is DataPart &&
           runtimeType == other.runtimeType &&
-          const MapEquality<String, Object?>().equals(data, other.data) &&
-          const MapEquality<String, Object?>().equals(metadata, other.metadata);
+          const DeepCollectionEquality().equals(data, other.data) &&
+          const DeepCollectionEquality().equals(metadata, other.metadata);
 
   @override
   int get hashCode =>
-      const MapEquality<String, Object?>().hash(data) ^
-      const MapEquality<String, Object?>().hash(metadata);
+      const DeepCollectionEquality().hash(data) ^
+      const DeepCollectionEquality().hash(metadata);
 
   @override
   String toString() => 'DataPart(data: $data, metadata: $metadata)';

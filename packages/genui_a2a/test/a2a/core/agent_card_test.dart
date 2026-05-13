@@ -27,7 +27,7 @@ void main() {
     test('can be serialized and deserialized from JSON', () {
       final json = jsonDecode(agentCardJson) as Map<String, Object?>;
       final agentCard = AgentCard.fromJson(json);
-      final Map<String, dynamic> serializedJson = agentCard.toJson();
+      final Map<String, Object?> serializedJson = agentCard.toJson();
       final agentCard2 = AgentCard.fromJson(serializedJson);
       expect(agentCard2, equals(agentCard));
       expect(agentCard.name, equals('GeoSpatial Route Planner Agent'));

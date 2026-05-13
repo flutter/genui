@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:collection/collection.dart';
 import '../../string_utils.dart';
 
 /// Base class for exceptions thrown by the A2A client.
@@ -97,11 +98,11 @@ class A2AJsonRpcException extends A2AException {
     this.data,
   });
 
-  factory A2AJsonRpcException.fromJson(Map<String, dynamic> json) {
+  factory A2AJsonRpcException.fromJson(Map<String, Object?> json) {
     return A2AJsonRpcException(
-      code: json['code'] as int,
+      code: (json['code'] as num).toInt(),
       message: json['message'] as String,
-      data: json['data'] as Map<String, dynamic>?,
+      data: json['data'] as Map<String, Object?>?,
     );
   }
 
@@ -132,10 +133,13 @@ class A2AJsonRpcException extends A2AException {
           runtimeType == other.runtimeType &&
           code == other.code &&
           message == other.message &&
-          data == other.data;
+          const DeepCollectionEquality().equals(data, other.data);
 
   @override
-  int get hashCode => code.hashCode ^ message.hashCode ^ data.hashCode;
+  int get hashCode =>
+      code.hashCode ^
+      message.hashCode ^
+      const DeepCollectionEquality().hash(data);
 
   @override
   String toString() => buildToString('A2AJsonRpcException', {
@@ -151,10 +155,10 @@ class A2ATaskNotFoundException extends A2AException {
 
   const A2ATaskNotFoundException({required this.message, this.data});
 
-  factory A2ATaskNotFoundException.fromJson(Map<String, dynamic> json) {
+  factory A2ATaskNotFoundException.fromJson(Map<String, Object?> json) {
     return A2ATaskNotFoundException(
       message: json['message'] as String,
-      data: json['data'] as Map<String, dynamic>?,
+      data: json['data'] as Map<String, Object?>?,
     );
   }
 
@@ -181,10 +185,11 @@ class A2ATaskNotFoundException extends A2AException {
       other is A2ATaskNotFoundException &&
           runtimeType == other.runtimeType &&
           message == other.message &&
-          data == other.data;
+          const DeepCollectionEquality().equals(data, other.data);
 
   @override
-  int get hashCode => message.hashCode ^ data.hashCode;
+  int get hashCode =>
+      message.hashCode ^ const DeepCollectionEquality().hash(data);
 
   @override
   String toString() => buildToString('A2ATaskNotFoundException', {
@@ -199,10 +204,10 @@ class A2ATaskNotCancelableException extends A2AException {
 
   const A2ATaskNotCancelableException({required this.message, this.data});
 
-  factory A2ATaskNotCancelableException.fromJson(Map<String, dynamic> json) {
+  factory A2ATaskNotCancelableException.fromJson(Map<String, Object?> json) {
     return A2ATaskNotCancelableException(
       message: json['message'] as String,
-      data: json['data'] as Map<String, dynamic>?,
+      data: json['data'] as Map<String, Object?>?,
     );
   }
 
@@ -229,10 +234,11 @@ class A2ATaskNotCancelableException extends A2AException {
       other is A2ATaskNotCancelableException &&
           runtimeType == other.runtimeType &&
           message == other.message &&
-          data == other.data;
+          const DeepCollectionEquality().equals(data, other.data);
 
   @override
-  int get hashCode => message.hashCode ^ data.hashCode;
+  int get hashCode =>
+      message.hashCode ^ const DeepCollectionEquality().hash(data);
 
   @override
   String toString() => buildToString('A2ATaskNotCancelableException', {
@@ -251,11 +257,11 @@ class A2APushNotificationNotSupportedException extends A2AException {
   });
 
   factory A2APushNotificationNotSupportedException.fromJson(
-    Map<String, dynamic> json,
+    Map<String, Object?> json,
   ) {
     return A2APushNotificationNotSupportedException(
       message: json['message'] as String,
-      data: json['data'] as Map<String, dynamic>?,
+      data: json['data'] as Map<String, Object?>?,
     );
   }
 
@@ -282,10 +288,11 @@ class A2APushNotificationNotSupportedException extends A2AException {
       other is A2APushNotificationNotSupportedException &&
           runtimeType == other.runtimeType &&
           message == other.message &&
-          data == other.data;
+          const DeepCollectionEquality().equals(data, other.data);
 
   @override
-  int get hashCode => message.hashCode ^ data.hashCode;
+  int get hashCode =>
+      message.hashCode ^ const DeepCollectionEquality().hash(data);
 
   @override
   String toString() => buildToString(
@@ -304,11 +311,11 @@ class A2APushNotificationConfigNotFoundException extends A2AException {
   });
 
   factory A2APushNotificationConfigNotFoundException.fromJson(
-    Map<String, dynamic> json,
+    Map<String, Object?> json,
   ) {
     return A2APushNotificationConfigNotFoundException(
       message: json['message'] as String,
-      data: json['data'] as Map<String, dynamic>?,
+      data: json['data'] as Map<String, Object?>?,
     );
   }
 
@@ -335,10 +342,11 @@ class A2APushNotificationConfigNotFoundException extends A2AException {
       other is A2APushNotificationConfigNotFoundException &&
           runtimeType == other.runtimeType &&
           message == other.message &&
-          data == other.data;
+          const DeepCollectionEquality().equals(data, other.data);
 
   @override
-  int get hashCode => message.hashCode ^ data.hashCode;
+  int get hashCode =>
+      message.hashCode ^ const DeepCollectionEquality().hash(data);
 
   @override
   String toString() => buildToString(
@@ -353,9 +361,9 @@ class A2AHttpException extends A2AException {
 
   const A2AHttpException({required this.statusCode, this.reason});
 
-  factory A2AHttpException.fromJson(Map<String, dynamic> json) {
+  factory A2AHttpException.fromJson(Map<String, Object?> json) {
     return A2AHttpException(
-      statusCode: json['statusCode'] as int,
+      statusCode: (json['statusCode'] as num).toInt(),
       reason: json['reason'] as String?,
     );
   }
@@ -397,7 +405,7 @@ class A2ANetworkException extends A2AException {
 
   const A2ANetworkException({required this.message});
 
-  factory A2ANetworkException.fromJson(Map<String, dynamic> json) {
+  factory A2ANetworkException.fromJson(Map<String, Object?> json) {
     return A2ANetworkException(message: json['message'] as String);
   }
 
@@ -431,7 +439,7 @@ class A2AParsingException extends A2AException {
 
   const A2AParsingException({required this.message});
 
-  factory A2AParsingException.fromJson(Map<String, dynamic> json) {
+  factory A2AParsingException.fromJson(Map<String, Object?> json) {
     return A2AParsingException(message: json['message'] as String);
   }
 
@@ -465,7 +473,7 @@ class A2AUnsupportedOperationException extends A2AException {
 
   const A2AUnsupportedOperationException({required this.message});
 
-  factory A2AUnsupportedOperationException.fromJson(Map<String, dynamic> json) {
+  factory A2AUnsupportedOperationException.fromJson(Map<String, Object?> json) {
     return A2AUnsupportedOperationException(message: json['message'] as String);
   }
 
