@@ -109,5 +109,52 @@ void main() {
       expect(await run<bool>(func, {'value': true}), isFalse);
       expect(await run<bool>(func, {'value': false}), isTrue);
     });
+
+    test('pluralize', () async {
+      final PluralizeFunction func = BasicFunctions.pluralizeFunction;
+
+      // Test with 'value'
+      expect(
+        await run<String>(func, {
+          'value': 0,
+          'zero': 'zero items',
+          'other': 'other items',
+        }),
+        'zero items',
+      );
+
+      expect(
+        await run<String>(func, {
+          'value': 1,
+          'one': 'one item',
+          'other': 'other items',
+        }),
+        'one item',
+      );
+
+      expect(
+        await run<String>(func, {'value': 2, 'other': 'other items'}),
+        'other items',
+      );
+
+      // Test fallback to 'count'
+      expect(
+        await run<String>(func, {
+          'count': 1,
+          'one': 'one item',
+          'other': 'other items',
+        }),
+        'one item',
+      );
+
+      // Test missing optional categories fall back to 'other'
+      expect(
+        await run<String>(func, {'value': 0, 'other': 'fallback'}),
+        'fallback',
+      );
+
+      // Test return empty string if count is not a number
+      expect(await run<String>(func, {'value': 'not a number'}), '');
+    });
   });
 }
