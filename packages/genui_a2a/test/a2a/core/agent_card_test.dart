@@ -46,7 +46,7 @@ void main() {
         defaultOutputModes: [],
         skills: [],
       );
-      final copy = agentCard.copyWith(name: 'New Name');
+      final AgentCard copy = agentCard.copyWith(name: 'New Name');
       expect(copy.name, 'New Name');
       expect(copy.protocolVersion, '0.2.9');
     });

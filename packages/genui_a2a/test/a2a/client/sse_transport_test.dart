@@ -139,5 +139,28 @@ void main() {
         ]),
       );
     });
+    test('handles ClientException', () async {
+      final mockHttp = MockClient.streaming((request, body) async {
+        throw http.ClientException('Network error');
+      });
+      final transport = SseTransport(
+        url: 'http://localhost:8080',
+        client: mockHttp,
+      );
+      final Stream<Map<String, Object?>> stream = transport.sendStream({});
+      expect(stream, emitsError(isA<A2ANetworkException>()));
+    });
+
+    test('handles generic exception', () async {
+      final mockHttp = MockClient.streaming((request, body) async {
+        throw Exception('Generic error');
+      });
+      final transport = SseTransport(
+        url: 'http://localhost:8080',
+        client: mockHttp,
+      );
+      final Stream<Map<String, Object?>> stream = transport.sendStream({});
+      expect(stream, emitsError(isA<A2ANetworkException>()));
+    });
   });
 }

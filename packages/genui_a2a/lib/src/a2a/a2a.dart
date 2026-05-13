@@ -15,6 +15,8 @@ export 'core/agent_capabilities.dart';
 export 'core/agent_card.dart';
 export 'core/agent_extension.dart';
 export 'core/agent_interface.dart';
+export 'core/agent_provider.dart';
+export 'core/agent_skill.dart';
 export 'core/events.dart';
 export 'core/list_tasks_params.dart';
 export 'core/list_tasks_result.dart';

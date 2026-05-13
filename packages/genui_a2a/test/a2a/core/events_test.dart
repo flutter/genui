@@ -8,7 +8,7 @@ import 'package:genui_a2a/src/a2a/a2a.dart';
 void main() {
   group('Event', () {
     test('StatusUpdate fromJson and toJson', () {
-      final json = {
+      final Map<String, Object> json = {
         'kind': 'status-update',
         'taskId': 'task-123',
         'contextId': 'context-123',
@@ -29,12 +29,12 @@ void main() {
         contextId: 'context-123',
         status: TaskStatus(state: TaskState.working),
       );
-      final copy = event.copyWith(final_: true);
+      final StatusUpdate copy = event.copyWith(final_: true);
       expect(copy.final_, true);
     });
 
     test('TaskStatusUpdate fromJson and toJson', () {
-      final json = {
+      final Map<String, Object> json = {
         'kind': 'task-status-update',
         'taskId': 'task-123',
         'contextId': 'context-123',
@@ -47,7 +47,7 @@ void main() {
     });
 
     test('ArtifactUpdate fromJson and toJson', () {
-      final json = {
+      final Map<String, Object> json = {
         'kind': 'artifact-update',
         'taskId': 'task-123',
         'contextId': 'context-123',
@@ -56,10 +56,10 @@ void main() {
           'name': null,
           'description': null,
           'parts': [
-            {'kind': 'text', 'metadata': null, 'text': 'hello'}
+            {'kind': 'text', 'metadata': null, 'text': 'hello'},
           ],
           'metadata': null,
-          'extensions': null
+          'extensions': null,
         },
         'append': false,
         'lastChunk': true,
@@ -71,9 +71,7 @@ void main() {
     });
 
     test('Event.fromJson throws on unknown kind', () {
-      final json = {
-        'kind': 'unknown',
-      };
+      final json = {'kind': 'unknown'};
       expect(() => Event.fromJson(json), throwsArgumentError);
     });
     test('StatusUpdate operator == and hashCode', () {
@@ -132,7 +130,7 @@ void main() {
         append: false,
         lastChunk: false,
       );
-      final copy = event.copyWith(append: true);
+      final ArtifactUpdate copy = event.copyWith(append: true);
       expect(copy.append, true);
     });
 
@@ -164,6 +162,48 @@ void main() {
         lastChunk: false,
       );
       expect(event.toString(), contains('ArtifactUpdate'));
+    });
+    test('StatusUpdate copyWith without arguments works', () {
+      const event = StatusUpdate(
+        taskId: 'task-123',
+        contextId: 'context-123',
+        status: TaskStatus(state: TaskState.working),
+      );
+      final StatusUpdate copy = event.copyWith();
+      expect(copy.taskId, 'task-123');
+    });
+
+    test('TaskStatusUpdate copyWith without arguments works', () {
+      const event = TaskStatusUpdate(
+        taskId: 'task-123',
+        contextId: 'context-123',
+        status: TaskStatus(state: TaskState.working),
+      );
+      final TaskStatusUpdate copy = event.copyWith();
+      expect(copy.taskId, 'task-123');
+    });
+
+    test('ArtifactUpdate copyWith without arguments works', () {
+      const event = ArtifactUpdate(
+        taskId: 'task-123',
+        contextId: 'context-123',
+        artifact: Artifact(artifactId: 'art-1', parts: []),
+        append: false,
+        lastChunk: false,
+      );
+      final ArtifactUpdate copy = event.copyWith();
+      expect(copy.taskId, 'task-123');
+    });
+    test('StatusUpdate operator == returns false for different taskId', () {
+      const event1 = StatusUpdate(taskId: 'task1', contextId: 'context1', status: TaskStatus(state: TaskState.working));
+      const event2 = StatusUpdate(taskId: 'task2', contextId: 'context1', status: TaskStatus(state: TaskState.working));
+      expect(event1 == event2, isFalse);
+    });
+
+    test('ArtifactUpdate operator == returns false for different taskId', () {
+      const event1 = ArtifactUpdate(taskId: 'task1', contextId: 'context1', artifact: Artifact(artifactId: 'art1', parts: []), append: false, lastChunk: false);
+      const event2 = ArtifactUpdate(taskId: 'task2', contextId: 'context1', artifact: Artifact(artifactId: 'art1', parts: []), append: false, lastChunk: false);
+      expect(event1 == event2, isFalse);
     });
   });
 }

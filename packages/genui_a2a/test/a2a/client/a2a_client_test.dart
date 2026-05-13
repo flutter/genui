@@ -249,5 +249,118 @@ void main() {
       streamController.add(statusUpdateJson);
       streamController.close();
     });
+    test(
+      'getAuthenticatedExtendedCard returns an AgentCard on success',
+      () async {
+        final Map<String, Object> agentCardJson = {
+          'protocolVersion': '0.1.0',
+          'name': 'Test Agent',
+          'description': 'A test agent.',
+          'url': 'https://example.com/a2a',
+          'version': '1.0.0',
+          'capabilities': {
+            'streaming': false,
+            'pushNotifications': false,
+            'stateTransitionHistory': false,
+          },
+          'defaultInputModes': <Object?>[],
+          'defaultOutputModes': <Object?>[],
+          'skills': <Object?>[],
+        };
+        final agentCard = AgentCard.fromJson(agentCardJson);
+        final fakeTransport = FakeTransport(response: agentCardJson);
+        client = A2AClient(
+          url: 'http://localhost:8080',
+          transport: fakeTransport,
+        );
+
+        final AgentCard result = await client.getAuthenticatedExtendedCard(
+          'test-token',
+        );
+
+        expect(result.name, equals(agentCard.name));
+        expect(
+          fakeTransport.recordedHeaders.first['Authorization'],
+          equals('Bearer test-token'),
+        );
+      },
+    );
+    test('messageSend throws A2AException on error response', () async {
+      final message = const Message(
+        messageId: '1',
+        role: Role.user,
+        parts: [Part.text(text: 'Hello')],
+      );
+      final fakeTransport = FakeTransport(
+        response: {
+          'error': {'code': -32001, 'message': 'Task not found'},
+        },
+      );
+      client = A2AClient(
+        url: 'http://localhost:8080',
+        transport: fakeTransport,
+      );
+
+      expect(
+        () => client.messageSend(message),
+        throwsA(isA<A2ATaskNotFoundException>()),
+      );
+    });
+
+    test('messageStream emits error on error response', () {
+      final streamController = StreamController<Map<String, Object?>>();
+      final fakeTransport = FakeTransport(
+        response: {},
+        stream: streamController.stream,
+      );
+      client = A2AClient(
+        url: 'http://localhost:8080',
+        transport: fakeTransport,
+      );
+
+      final Stream<Event> stream = client.messageStream(
+        const Message(
+          messageId: '1',
+          role: Role.user,
+          parts: [Part.text(text: 'Hello')],
+        ),
+      );
+
+      expect(stream, emitsError(isA<A2ATaskNotFoundException>()));
+
+      streamController.add({
+        'error': {'code': -32001, 'message': 'Task not found'},
+      });
+      streamController.close();
+    });
+    test('messageSend includes extensions in params and headers', () async {
+      final message = const Message(
+        messageId: '1',
+        role: Role.user,
+        parts: [Part.text(text: 'Hello')],
+        extensions: ['ext1', 'ext2'],
+      );
+      final Map<String, Object> taskJson = {
+        'kind': 'task',
+        'id': '123',
+        'contextId': '456',
+        'status': {'state': 'submitted'},
+      };
+      final fakeTransport = FakeTransport(response: {'result': taskJson});
+      client = A2AClient(
+        url: 'http://localhost:8080',
+        transport: fakeTransport,
+      );
+
+      await client.messageSend(message);
+
+      expect(fakeTransport.requests.length, equals(1));
+      final Map<String, Object?> request = fakeTransport.requests.first;
+      final params = request['params'] as Map<String, Object?>;
+      expect(params['extensions'], equals(['ext1', 'ext2']));
+      
+      expect(fakeTransport.recordedHeaders.length, equals(1));
+      expect(fakeTransport.recordedHeaders.first['X-A2A-Extensions'], equals('ext1,ext2'));
+    });
   });
 }
