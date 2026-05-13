@@ -65,7 +65,7 @@ class AgentInterface {
           transport == other.transport;
 
   @override
-  int get hashCode => url.hashCode ^ transport.hashCode;
+  int get hashCode => Object.hash(url, transport);
 
   @override
   String toString() => 'AgentInterface(url: $url, transport: $transport)';

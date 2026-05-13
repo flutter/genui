@@ -78,7 +78,7 @@ class TextPart extends Part {
       _$TextPartFromJson(json);
 
   @override
-  Map<String, Object?> toJson() => _$TextPartToJson(this)..['kind'] = 'text';
+  Map<String, Object?> toJson() => _$TextPartToJson(this)..['kind'] = kind;
 
   TextPart copyWith({String? text, Map<String, Object?>? metadata}) {
     return TextPart(
@@ -97,7 +97,7 @@ class TextPart extends Part {
 
   @override
   int get hashCode =>
-      text.hashCode ^ const DeepCollectionEquality().hash(metadata);
+      Object.hash(text, const DeepCollectionEquality().hash(metadata));
 
   @override
   String toString() => 'TextPart(text: $text, metadata: $metadata)';
@@ -117,7 +117,7 @@ class FilePart extends Part {
       _$FilePartFromJson(json);
 
   @override
-  Map<String, Object?> toJson() => _$FilePartToJson(this)..['kind'] = 'file';
+  Map<String, Object?> toJson() => _$FilePartToJson(this)..['kind'] = kind;
 
   FilePart copyWith({FileType? file, Map<String, Object?>? metadata}) {
     return FilePart(
@@ -136,7 +136,7 @@ class FilePart extends Part {
 
   @override
   int get hashCode =>
-      file.hashCode ^ const DeepCollectionEquality().hash(metadata);
+      Object.hash(file, const DeepCollectionEquality().hash(metadata));
 
   @override
   String toString() => 'FilePart(file: $file, metadata: $metadata)';
@@ -155,7 +155,7 @@ class DataPart extends Part {
       _$DataPartFromJson(json);
 
   @override
-  Map<String, Object?> toJson() => _$DataPartToJson(this)..['kind'] = 'data';
+  Map<String, Object?> toJson() => _$DataPartToJson(this)..['kind'] = kind;
 
   DataPart copyWith({
     Map<String, Object?>? data,
@@ -176,9 +176,10 @@ class DataPart extends Part {
           const DeepCollectionEquality().equals(metadata, other.metadata);
 
   @override
-  int get hashCode =>
-      const DeepCollectionEquality().hash(data) ^
-      const DeepCollectionEquality().hash(metadata);
+  int get hashCode => Object.hash(
+    const DeepCollectionEquality().hash(data),
+    const DeepCollectionEquality().hash(metadata),
+  );
 
   @override
   String toString() => 'DataPart(data: $data, metadata: $metadata)';
@@ -255,7 +256,7 @@ class FileWithUri extends FileType {
       _$FileWithUriFromJson(json);
 
   @override
-  Map<String, Object?> toJson() => _$FileWithUriToJson(this)..['type'] = 'uri';
+  Map<String, Object?> toJson() => _$FileWithUriToJson(this)..['type'] = type;
 
   FileWithUri copyWith({String? uri, String? name, String? mimeType}) {
     return FileWithUri(
@@ -275,7 +276,7 @@ class FileWithUri extends FileType {
           mimeType == other.mimeType;
 
   @override
-  int get hashCode => uri.hashCode ^ name.hashCode ^ mimeType.hashCode;
+  int get hashCode => Object.hash(uri, name, mimeType);
 
   @override
   String toString() =>
@@ -305,8 +306,7 @@ class FileWithBytes extends FileType {
       _$FileWithBytesFromJson(json);
 
   @override
-  Map<String, Object?> toJson() =>
-      _$FileWithBytesToJson(this)..['type'] = 'bytes';
+  Map<String, Object?> toJson() => _$FileWithBytesToJson(this)..['type'] = type;
 
   FileWithBytes copyWith({String? bytes, String? name, String? mimeType}) {
     return FileWithBytes(
@@ -326,7 +326,7 @@ class FileWithBytes extends FileType {
           mimeType == other.mimeType;
 
   @override
-  int get hashCode => bytes.hashCode ^ name.hashCode ^ mimeType.hashCode;
+  int get hashCode => Object.hash(bytes, name, mimeType);
 
   @override
   String toString() =>

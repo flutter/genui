@@ -7,6 +7,7 @@ library;
 
 import 'package:collection/collection.dart';
 import 'package:json_annotation/json_annotation.dart';
+import '../../string_utils.dart';
 
 import 'agent_extension.dart';
 
@@ -82,15 +83,18 @@ class AgentCapabilities {
           const DeepCollectionEquality().equals(extensions, other.extensions);
 
   @override
-  int get hashCode =>
-      streaming.hashCode ^
-      pushNotifications.hashCode ^
-      stateTransitionHistory.hashCode ^
-      const DeepCollectionEquality().hash(extensions);
+  int get hashCode => Object.hash(
+    streaming,
+    pushNotifications,
+    stateTransitionHistory,
+    const DeepCollectionEquality().hash(extensions),
+  );
 
   @override
-  String toString() =>
-      'AgentCapabilities(streaming: $streaming, pushNotifications: '
-      '$pushNotifications, stateTransitionHistory: $stateTransitionHistory, '
-      'extensions: $extensions)';
+  String toString() => buildToString('AgentCapabilities', {
+    'streaming': streaming,
+    'pushNotifications': pushNotifications,
+    'stateTransitionHistory': stateTransitionHistory,
+    'extensions': extensions,
+  });
 }

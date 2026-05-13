@@ -4,6 +4,7 @@
 
 import 'package:collection/collection.dart';
 import 'package:json_annotation/json_annotation.dart';
+import '../../string_utils.dart';
 
 import 'message.dart';
 import 'part.dart';
@@ -104,21 +105,28 @@ class Task {
           kind == other.kind;
 
   @override
-  int get hashCode =>
-      id.hashCode ^
-      contextId.hashCode ^
-      status.hashCode ^
-      const DeepCollectionEquality().hash(history) ^
-      const DeepCollectionEquality().hash(artifacts) ^
-      const DeepCollectionEquality().hash(metadata) ^
-      lastUpdated.hashCode ^
-      kind.hashCode;
+  int get hashCode => Object.hash(
+    id,
+    contextId,
+    status,
+    const DeepCollectionEquality().hash(history),
+    const DeepCollectionEquality().hash(artifacts),
+    const DeepCollectionEquality().hash(metadata),
+    lastUpdated,
+    kind,
+  );
 
   @override
-  String toString() =>
-      'Task(id: $id, contextId: $contextId, status: $status, '
-      'history: $history, artifacts: $artifacts, metadata: $metadata, '
-      'lastUpdated: $lastUpdated, kind: $kind)';
+  String toString() => buildToString('Task', {
+    'id': id,
+    'contextId': contextId,
+    'status': status,
+    'history': history,
+    'artifacts': artifacts,
+    'metadata': metadata,
+    'lastUpdated': lastUpdated,
+    'kind': kind,
+  });
 }
 
 /// Represents the status of a [Task] at a specific point in time.
@@ -163,7 +171,7 @@ class TaskStatus {
           timestamp == other.timestamp;
 
   @override
-  int get hashCode => state.hashCode ^ message.hashCode ^ timestamp.hashCode;
+  int get hashCode => Object.hash(state, message, timestamp);
 
   @override
   String toString() =>
@@ -274,13 +282,14 @@ class Artifact {
           const DeepCollectionEquality().equals(extensions, other.extensions);
 
   @override
-  int get hashCode =>
-      artifactId.hashCode ^
-      name.hashCode ^
-      description.hashCode ^
-      const DeepCollectionEquality().hash(parts) ^
-      const DeepCollectionEquality().hash(metadata) ^
-      const DeepCollectionEquality().hash(extensions);
+  int get hashCode => Object.hash(
+    artifactId,
+    name,
+    description,
+    const DeepCollectionEquality().hash(parts),
+    const DeepCollectionEquality().hash(metadata),
+    const DeepCollectionEquality().hash(extensions),
+  );
 
   @override
   String toString() =>

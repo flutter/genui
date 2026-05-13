@@ -108,15 +108,16 @@ class ListTasksParams {
           const DeepCollectionEquality().equals(metadata, other.metadata);
 
   @override
-  int get hashCode =>
-      contextId.hashCode ^
-      status.hashCode ^
-      pageSize.hashCode ^
-      pageToken.hashCode ^
-      historyLength.hashCode ^
-      lastUpdatedAfter.hashCode ^
-      includeArtifacts.hashCode ^
-      const DeepCollectionEquality().hash(metadata);
+  int get hashCode => Object.hash(
+    contextId,
+    status,
+    pageSize,
+    pageToken,
+    historyLength,
+    lastUpdatedAfter,
+    includeArtifacts,
+    const DeepCollectionEquality().hash(metadata),
+  );
 
   @override
   String toString() =>

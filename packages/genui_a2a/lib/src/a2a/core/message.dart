@@ -124,16 +124,17 @@ class Message {
           kind == other.kind;
 
   @override
-  int get hashCode =>
-      role.hashCode ^
-      const DeepCollectionEquality().hash(parts) ^
-      const DeepCollectionEquality().hash(metadata) ^
-      const DeepCollectionEquality().hash(extensions) ^
-      const DeepCollectionEquality().hash(referenceTaskIds) ^
-      messageId.hashCode ^
-      taskId.hashCode ^
-      contextId.hashCode ^
-      kind.hashCode;
+  int get hashCode => Object.hash(
+    role,
+    const DeepCollectionEquality().hash(parts),
+    const DeepCollectionEquality().hash(metadata),
+    const DeepCollectionEquality().hash(extensions),
+    const DeepCollectionEquality().hash(referenceTaskIds),
+    messageId,
+    taskId,
+    contextId,
+    kind,
+  );
 
   @override
   String toString() =>

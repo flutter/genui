@@ -69,11 +69,12 @@ class AgentExtension {
           const DeepCollectionEquality().equals(params, other.params);
 
   @override
-  int get hashCode =>
-      uri.hashCode ^
-      description.hashCode ^
-      required.hashCode ^
-      const DeepCollectionEquality().hash(params);
+  int get hashCode => Object.hash(
+    uri,
+    description,
+    required,
+    const DeepCollectionEquality().hash(params),
+  );
 
   @override
   String toString() =>

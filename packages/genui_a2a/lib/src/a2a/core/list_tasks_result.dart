@@ -70,11 +70,12 @@ class ListTasksResult {
           nextPageToken == other.nextPageToken;
 
   @override
-  int get hashCode =>
-      const DeepCollectionEquality().hash(tasks) ^
-      totalSize.hashCode ^
-      pageSize.hashCode ^
-      nextPageToken.hashCode;
+  int get hashCode => Object.hash(
+    const DeepCollectionEquality().hash(tasks),
+    totalSize,
+    pageSize,
+    nextPageToken,
+  );
 
   @override
   String toString() =>

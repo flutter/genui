@@ -68,8 +68,7 @@ class PushNotificationConfig {
           authentication == other.authentication;
 
   @override
-  int get hashCode =>
-      id.hashCode ^ url.hashCode ^ token.hashCode ^ authentication.hashCode;
+  int get hashCode => Object.hash(id, url, token, authentication);
 
   @override
   String toString() => buildToString('PushNotificationConfig', {
@@ -124,7 +123,7 @@ class PushNotificationAuthenticationInfo {
 
   @override
   int get hashCode =>
-      const ListEquality<String>().hash(schemes) ^ credentials.hashCode;
+      Object.hash(const ListEquality<String>().hash(schemes), credentials);
 
   @override
   String toString() => buildToString('PushNotificationAuthenticationInfo', {
@@ -176,7 +175,7 @@ class TaskPushNotificationConfig {
           pushNotificationConfig == other.pushNotificationConfig;
 
   @override
-  int get hashCode => taskId.hashCode ^ pushNotificationConfig.hashCode;
+  int get hashCode => Object.hash(taskId, pushNotificationConfig);
 
   @override
   String toString() => buildToString('TaskPushNotificationConfig', {

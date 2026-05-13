@@ -15,6 +15,9 @@ sealed class A2AException implements Exception {
   /// Deserializes an [A2AException] from a JSON object.
   factory A2AException.fromJson(Map<String, Object?> json) {
     final type = json['runtimeType'] as String?;
+    if (type == null) {
+      throw ArgumentError('A2AException JSON must contain a runtimeType');
+    }
     switch (type) {
       case 'jsonRpc':
         return A2AJsonRpcException.fromJson(json);
@@ -137,9 +140,7 @@ class A2AJsonRpcException extends A2AException {
 
   @override
   int get hashCode =>
-      code.hashCode ^
-      message.hashCode ^
-      const DeepCollectionEquality().hash(data);
+      Object.hash(code, message, const DeepCollectionEquality().hash(data));
 
   @override
   String toString() => buildToString('A2AJsonRpcException', {
@@ -189,7 +190,7 @@ class A2ATaskNotFoundException extends A2AException {
 
   @override
   int get hashCode =>
-      message.hashCode ^ const DeepCollectionEquality().hash(data);
+      Object.hash(message, const DeepCollectionEquality().hash(data));
 
   @override
   String toString() => buildToString('A2ATaskNotFoundException', {
@@ -238,7 +239,7 @@ class A2ATaskNotCancelableException extends A2AException {
 
   @override
   int get hashCode =>
-      message.hashCode ^ const DeepCollectionEquality().hash(data);
+      Object.hash(message, const DeepCollectionEquality().hash(data));
 
   @override
   String toString() => buildToString('A2ATaskNotCancelableException', {
@@ -292,7 +293,7 @@ class A2APushNotificationNotSupportedException extends A2AException {
 
   @override
   int get hashCode =>
-      message.hashCode ^ const DeepCollectionEquality().hash(data);
+      Object.hash(message, const DeepCollectionEquality().hash(data));
 
   @override
   String toString() => buildToString(
@@ -346,7 +347,7 @@ class A2APushNotificationConfigNotFoundException extends A2AException {
 
   @override
   int get hashCode =>
-      message.hashCode ^ const DeepCollectionEquality().hash(data);
+      Object.hash(message, const DeepCollectionEquality().hash(data));
 
   @override
   String toString() => buildToString(
@@ -391,7 +392,7 @@ class A2AHttpException extends A2AException {
           reason == other.reason;
 
   @override
-  int get hashCode => statusCode.hashCode ^ reason.hashCode;
+  int get hashCode => Object.hash(statusCode, reason);
 
   @override
   String toString() => buildToString('A2AHttpException', {

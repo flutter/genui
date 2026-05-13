@@ -105,8 +105,7 @@ class StatusUpdate extends Event {
       _$StatusUpdateFromJson(json);
 
   @override
-  Map<String, Object?> toJson() =>
-      _$StatusUpdateToJson(this)..['kind'] = 'status-update';
+  Map<String, Object?> toJson() => _$StatusUpdateToJson(this)..['kind'] = kind;
 
   StatusUpdate copyWith({
     String? taskId,
@@ -133,8 +132,7 @@ class StatusUpdate extends Event {
           final_ == other.final_;
 
   @override
-  int get hashCode =>
-      taskId.hashCode ^ contextId.hashCode ^ status.hashCode ^ final_.hashCode;
+  int get hashCode => Object.hash(taskId, contextId, status, final_);
 
   @override
   String toString() =>
@@ -174,7 +172,7 @@ class TaskStatusUpdate extends Event {
 
   @override
   Map<String, Object?> toJson() =>
-      _$TaskStatusUpdateToJson(this)..['kind'] = 'task-status-update';
+      _$TaskStatusUpdateToJson(this)..['kind'] = kind;
 
   TaskStatusUpdate copyWith({
     String? taskId,
@@ -201,8 +199,7 @@ class TaskStatusUpdate extends Event {
           final_ == other.final_;
 
   @override
-  int get hashCode =>
-      taskId.hashCode ^ contextId.hashCode ^ status.hashCode ^ final_.hashCode;
+  int get hashCode => Object.hash(taskId, contextId, status, final_);
 
   @override
   String toString() =>
@@ -245,7 +242,7 @@ class ArtifactUpdate extends Event {
 
   @override
   Map<String, Object?> toJson() =>
-      _$ArtifactUpdateToJson(this)..['kind'] = 'artifact-update';
+      _$ArtifactUpdateToJson(this)..['kind'] = kind;
 
   ArtifactUpdate copyWith({
     String? taskId,
@@ -276,11 +273,7 @@ class ArtifactUpdate extends Event {
 
   @override
   int get hashCode =>
-      taskId.hashCode ^
-      contextId.hashCode ^
-      artifact.hashCode ^
-      append.hashCode ^
-      lastChunk.hashCode;
+      Object.hash(taskId, contextId, artifact, append, lastChunk);
 
   @override
   String toString() =>

@@ -104,15 +104,16 @@ class AgentSkill {
           const DeepCollectionEquality().equals(security, other.security);
 
   @override
-  int get hashCode =>
-      id.hashCode ^
-      name.hashCode ^
-      description.hashCode ^
-      const DeepCollectionEquality().hash(tags) ^
-      const DeepCollectionEquality().hash(examples) ^
-      const DeepCollectionEquality().hash(inputModes) ^
-      const DeepCollectionEquality().hash(outputModes) ^
-      const DeepCollectionEquality().hash(security);
+  int get hashCode => Object.hash(
+    id,
+    name,
+    description,
+    const DeepCollectionEquality().hash(tags),
+    const DeepCollectionEquality().hash(examples),
+    const DeepCollectionEquality().hash(inputModes),
+    const DeepCollectionEquality().hash(outputModes),
+    const DeepCollectionEquality().hash(security),
+  );
 
   @override
   String toString() => buildToString('AgentSkill', {

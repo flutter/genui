@@ -47,7 +47,7 @@ class AgentProvider {
           url == other.url;
 
   @override
-  int get hashCode => organization.hashCode ^ url.hashCode;
+  int get hashCode => Object.hash(organization, url);
 
   @override
   String toString() => 'AgentProvider(organization: $organization, url: $url)';

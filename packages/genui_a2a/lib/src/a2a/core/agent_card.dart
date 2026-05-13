@@ -212,24 +212,25 @@ class AgentCard {
               other.supportsAuthenticatedExtendedCard;
 
   @override
-  int get hashCode =>
-      protocolVersion.hashCode ^
-      name.hashCode ^
-      description.hashCode ^
-      url.hashCode ^
-      preferredTransport.hashCode ^
-      const DeepCollectionEquality().hash(additionalInterfaces) ^
-      iconUrl.hashCode ^
-      provider.hashCode ^
-      version.hashCode ^
-      documentationUrl.hashCode ^
-      capabilities.hashCode ^
-      const DeepCollectionEquality().hash(securitySchemes) ^
-      const DeepCollectionEquality().hash(security) ^
-      const DeepCollectionEquality().hash(defaultInputModes) ^
-      const DeepCollectionEquality().hash(defaultOutputModes) ^
-      const DeepCollectionEquality().hash(skills) ^
-      supportsAuthenticatedExtendedCard.hashCode;
+  int get hashCode => Object.hash(
+    protocolVersion,
+    name,
+    description,
+    url,
+    preferredTransport,
+    const DeepCollectionEquality().hash(additionalInterfaces),
+    iconUrl,
+    provider,
+    version,
+    documentationUrl,
+    capabilities,
+    const DeepCollectionEquality().hash(securitySchemes),
+    const DeepCollectionEquality().hash(security),
+    const DeepCollectionEquality().hash(defaultInputModes),
+    const DeepCollectionEquality().hash(defaultOutputModes),
+    const DeepCollectionEquality().hash(skills),
+    supportsAuthenticatedExtendedCard,
+  );
 
   @override
   String toString() => buildToString('AgentCard', {
