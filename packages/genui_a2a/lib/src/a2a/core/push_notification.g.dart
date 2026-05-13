@@ -8,9 +8,9 @@ part of 'push_notification.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_PushNotificationConfig _$PushNotificationConfigFromJson(
+PushNotificationConfig _$PushNotificationConfigFromJson(
   Map<String, dynamic> json,
-) => _PushNotificationConfig(
+) => PushNotificationConfig(
   id: json['id'] as String?,
   url: json['url'] as String,
   token: json['token'] as String?,
@@ -22,7 +22,7 @@ _PushNotificationConfig _$PushNotificationConfigFromJson(
 );
 
 Map<String, dynamic> _$PushNotificationConfigToJson(
-  _PushNotificationConfig instance,
+  PushNotificationConfig instance,
 ) => <String, dynamic>{
   'id': instance.id,
   'url': instance.url,
@@ -30,25 +30,23 @@ Map<String, dynamic> _$PushNotificationConfigToJson(
   'authentication': instance.authentication?.toJson(),
 };
 
-_PushNotificationAuthenticationInfo
-_$PushNotificationAuthenticationInfoFromJson(Map<String, dynamic> json) =>
-    _PushNotificationAuthenticationInfo(
-      schemes: (json['schemes'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList(),
-      credentials: json['credentials'] as String?,
-    );
+PushNotificationAuthenticationInfo _$PushNotificationAuthenticationInfoFromJson(
+  Map<String, dynamic> json,
+) => PushNotificationAuthenticationInfo(
+  schemes: (json['schemes'] as List<dynamic>).map((e) => e as String).toList(),
+  credentials: json['credentials'] as String?,
+);
 
 Map<String, dynamic> _$PushNotificationAuthenticationInfoToJson(
-  _PushNotificationAuthenticationInfo instance,
+  PushNotificationAuthenticationInfo instance,
 ) => <String, dynamic>{
   'schemes': instance.schemes,
   'credentials': instance.credentials,
 };
 
-_TaskPushNotificationConfig _$TaskPushNotificationConfigFromJson(
+TaskPushNotificationConfig _$TaskPushNotificationConfigFromJson(
   Map<String, dynamic> json,
-) => _TaskPushNotificationConfig(
+) => TaskPushNotificationConfig(
   taskId: json['taskId'] as String,
   pushNotificationConfig: PushNotificationConfig.fromJson(
     json['pushNotificationConfig'] as Map<String, dynamic>,
@@ -56,7 +54,7 @@ _TaskPushNotificationConfig _$TaskPushNotificationConfigFromJson(
 );
 
 Map<String, dynamic> _$TaskPushNotificationConfigToJson(
-  _TaskPushNotificationConfig instance,
+  TaskPushNotificationConfig instance,
 ) => <String, dynamic>{
   'taskId': instance.taskId,
   'pushNotificationConfig': instance.pushNotificationConfig.toJson(),

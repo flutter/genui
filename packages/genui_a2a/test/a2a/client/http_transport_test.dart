@@ -52,13 +52,7 @@ void main() {
 
       expect(
         () => transport.sendStream({}),
-        throwsA(
-          isA<A2AException>().having(
-            (e) => e.mapOrNull(unsupportedOperation: (_) => true),
-            'is unsupportedOperation',
-            true,
-          ),
-        ),
+        throwsA(isA<A2AUnsupportedOperationException>()),
       );
     });
   });

@@ -8,7 +8,7 @@ part of 'message.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_Message _$MessageFromJson(Map<String, dynamic> json) => _Message(
+Message _$MessageFromJson(Map<String, dynamic> json) => Message(
   role: $enumDecode(_$RoleEnumMap, json['role']),
   parts: (json['parts'] as List<dynamic>)
       .map((e) => Part.fromJson(e as Map<String, dynamic>))
@@ -26,7 +26,7 @@ _Message _$MessageFromJson(Map<String, dynamic> json) => _Message(
   kind: json['kind'] as String? ?? 'message',
 );
 
-Map<String, dynamic> _$MessageToJson(_Message instance) => <String, dynamic>{
+Map<String, dynamic> _$MessageToJson(Message instance) => <String, dynamic>{
   'role': _$RoleEnumMap[instance.role]!,
   'parts': instance.parts.map((e) => e.toJson()).toList(),
   'metadata': instance.metadata,

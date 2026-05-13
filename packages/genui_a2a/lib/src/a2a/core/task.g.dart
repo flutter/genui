@@ -8,7 +8,7 @@ part of 'task.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_Task _$TaskFromJson(Map<String, dynamic> json) => _Task(
+Task _$TaskFromJson(Map<String, dynamic> json) => Task(
   id: json['id'] as String,
   contextId: json['contextId'] as String,
   status: TaskStatus.fromJson(json['status'] as Map<String, dynamic>),
@@ -23,7 +23,7 @@ _Task _$TaskFromJson(Map<String, dynamic> json) => _Task(
   kind: json['kind'] as String? ?? 'task',
 );
 
-Map<String, dynamic> _$TaskToJson(_Task instance) => <String, dynamic>{
+Map<String, dynamic> _$TaskToJson(Task instance) => <String, dynamic>{
   'id': instance.id,
   'contextId': instance.contextId,
   'status': instance.status.toJson(),
@@ -34,7 +34,7 @@ Map<String, dynamic> _$TaskToJson(_Task instance) => <String, dynamic>{
   'kind': instance.kind,
 };
 
-_TaskStatus _$TaskStatusFromJson(Map<String, dynamic> json) => _TaskStatus(
+TaskStatus _$TaskStatusFromJson(Map<String, dynamic> json) => TaskStatus(
   state: $enumDecode(_$TaskStateEnumMap, json['state']),
   message: json['message'] == null
       ? null
@@ -42,7 +42,7 @@ _TaskStatus _$TaskStatusFromJson(Map<String, dynamic> json) => _TaskStatus(
   timestamp: json['timestamp'] as String?,
 );
 
-Map<String, dynamic> _$TaskStatusToJson(_TaskStatus instance) =>
+Map<String, dynamic> _$TaskStatusToJson(TaskStatus instance) =>
     <String, dynamic>{
       'state': _$TaskStateEnumMap[instance.state]!,
       'message': instance.message?.toJson(),
@@ -61,7 +61,7 @@ const _$TaskStateEnumMap = {
   TaskState.unknown: 'unknown',
 };
 
-_Artifact _$ArtifactFromJson(Map<String, dynamic> json) => _Artifact(
+Artifact _$ArtifactFromJson(Map<String, dynamic> json) => Artifact(
   artifactId: json['artifactId'] as String,
   name: json['name'] as String?,
   description: json['description'] as String?,
@@ -74,7 +74,7 @@ _Artifact _$ArtifactFromJson(Map<String, dynamic> json) => _Artifact(
       .toList(),
 );
 
-Map<String, dynamic> _$ArtifactToJson(_Artifact instance) => <String, dynamic>{
+Map<String, dynamic> _$ArtifactToJson(Artifact instance) => <String, dynamic>{
   'artifactId': instance.artifactId,
   'name': instance.name,
   'description': instance.description,

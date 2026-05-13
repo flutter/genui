@@ -2,12 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/// @docImport 'agent_card.dart';
+/// @docImport "agent_card.dart";
 library;
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-part 'agent_interface.freezed.dart';
 part 'agent_interface.g.dart';
 
 /// Supported A2A transport protocols.
@@ -30,20 +29,44 @@ enum TransportProtocol {
 ///
 /// Part of the [AgentCard], this allows an agent to expose the same
 /// functionality over multiple transport mechanisms.
-@freezed
-abstract class AgentInterface with _$AgentInterface {
-  /// Creates an [AgentInterface].
-  const factory AgentInterface({
-    /// The URL where this interface is available.
-    ///
-    /// In production, this must be a valid absolute HTTPS URL.
-    required String url,
+@JsonSerializable()
+class AgentInterface {
+  /// The URL where this interface is available.
+  ///
+  /// In production, this must be a valid absolute HTTPS URL.
+  final String url;
 
-    /// The transport protocol supported at this URL.
-    required TransportProtocol transport,
-  }) = _AgentInterface;
+  /// The transport protocol supported at this URL.
+  final TransportProtocol transport;
+
+  /// Creates an [AgentInterface].
+  const AgentInterface({required this.url, required this.transport});
 
   /// Creates an [AgentInterface] from a JSON object.
   factory AgentInterface.fromJson(Map<String, Object?> json) =>
       _$AgentInterfaceFromJson(json);
+
+  /// Creates a JSON object from a [AgentInterface].
+  Map<String, Object?> toJson() => _$AgentInterfaceToJson(this);
+
+  AgentInterface copyWith({String? url, TransportProtocol? transport}) {
+    return AgentInterface(
+      url: url ?? this.url,
+      transport: transport ?? this.transport,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AgentInterface &&
+          runtimeType == other.runtimeType &&
+          url == other.url &&
+          transport == other.transport;
+
+  @override
+  int get hashCode => url.hashCode ^ transport.hashCode;
+
+  @override
+  String toString() => 'AgentInterface(url: $url, transport: $transport)';
 }
