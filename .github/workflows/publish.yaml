@@ -7,15 +7,19 @@ on:
     branches: [ main ]
   push:
     # Match <package-name>-v<version> publish tags
-    tags: [ '[A-z0-9]+-v[0-9]+.[0-9]+.[0-9]+' ]
+    tags: [ '[0-9A-z]+-v[0-9]+.[0-9]+.[0-9]+' ]
 
 jobs:
   publish:
     if: ${{ github.repository_owner == 'dart-lang' }}
     uses: dart-lang/ecosystem/.github/workflows/publish.yaml@main
     with:
-      sdk: beta
+      # See https://github.com/dart-lang/ecosystem/tree/main/pkgs/firehose#options
+      sdk: beta # version of dart sdk to use for publishing
+      use-flutter: true
       write-comments: false
+      checkout_submodules: true
+      ignore-packages: ""
     permissions:
       id-token: write
       pull-requests: write

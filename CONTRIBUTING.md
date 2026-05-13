@@ -57,7 +57,7 @@ of the front-line triage include:
 
 ### Periodic second-line triage
 
-### Bi-weekly during the planning meeting
+#### Bi-weekly during the planning meeting
 
 Check that existing issues are labeled and organized appropriately:
 
@@ -66,7 +66,7 @@ Check that existing issues are labeled and organized appropriately:
 * Set a milestone to all [P0 and P1 issues][p0_p1_issues_without_milestone].
 * Add all [projectless open issues][projectless_open_issues] to the "genui" project.
 
-### Weekly during the planning meeting
+#### Weekly during the planning meeting
 
 Triage issues ready for second-line review:
 
@@ -103,13 +103,25 @@ own version number:
 * `genai_primitives`
 * `json_schema_builder`
 
-"Releasing" consititutes manually publishing them all to [pub.dev] after the
-pull request containing the version bump has passed CI. The packages must be
-published by someone with permission to publish under the labs.flutter.org
-owner.
+## Publishing
 
-Use the [release tool](tool/release/README.md) to help automate the process of
-releasing a new version.
+Publishing is happening automatically via GitHub actions. 
+See [Publishing automation][publishing-automation] for more details.
+
+
+
+## pubspec.lock files
+
+`pubspec.lock` files are not git ignored to make the bots faster.
+
+If you include `pubspec.lock` file to your PR, make sure to run `flutter pub upgrade`,
+when your Flutter is latest at beta channel.
+
+## Internal information
+
+For Google-internal information see go/a2ui-internal.
+
+<!-- references -->
 
 [pub.dev]: https://pub.dev
 [Semver]: https://semver.org/
@@ -124,14 +136,3 @@ releasing a new version.
 [P1]: https://github.com/flutter/genui/labels?q=P1
 [P2]: https://github.com/flutter/genui/labels?q=P2
 [P3]: https://github.com/flutter/genui/labels?q=P3
-
-## pubspec.lock files
-
-`pubspec.lock` files are not git ignored to make the bots faster.
-
-If you include `pubspec.lock` file to your PR, make sure to run `flutter pub upgrade`,
-when your Flutter is latest at beta channel.
-
-## Internal information
-
-For Google-internal information see go/a2ui-internal.
