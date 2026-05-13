@@ -61,19 +61,6 @@ void main() {
       });
     });
 
-    testWidgets('render image sample', (tester) async {
-      await mockNetworkImagesFor(() async {
-        await _runTestForSample(
-          tester,
-          'integration_test/samples/sample_3_image.json',
-          (tester, client) async {
-            // Image widget should exist even if mocked.
-            expect(find.byType(Image), findsOneWidget);
-          },
-        );
-      });
-    });
-
     testWidgets('render form sample', (tester) async {
       await mockNetworkImagesFor(() async {
         await _runTestForSample(
@@ -134,9 +121,14 @@ Future<void> _runTestForSample(
   await tester.tap(find.byIcon(Icons.send));
   await tester.pump(); // Start processing
 
-  // Wait for response and rendering
+  // Wait for response and rendering.
   // The FakeAiClient splits it into chunks with delays.
-  await tester.pumpAndSettle();
+  // We can't use pumpAndSettle() because some catalog widgets (e.g. Image's
+  // loadingBuilder shows a CircularProgressIndicator) have indeterminate
+  // animations that is not handled by pumpAndSettle.
+  for (var i = 0; i < 30; i++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
 
   // Run verification
   await verify(tester, fakeAiClient);

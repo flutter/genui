@@ -105,7 +105,20 @@ abstract final class BasicCatalogItems {
 
   static final String basicCatalogRules = _basicCatalogRules;
 
-  /// Creates a catalog containing all core catalog items.
+  /// Creates a basic catalog without items that require additional data.
+  ///
+  /// This is useful for the app, that do not work with images, audio or video.
+  static Catalog asNoAssetCatalog({
+    List<String> systemPromptFragments = const [],
+  }) => asCatalog(
+    systemPromptFragments: systemPromptFragments,
+  ).copyWithout(itemsToRemove: [audioPlayer, image, video]);
+
+  /// Creates a catalog with all basic catalog items.
+  ///
+  /// Some items (audioPlayer, image, video) require additional data to be
+  /// properly displayed. If the app does not work with such data, use
+  /// [asNoAssetCatalog] instead.
   static Catalog asCatalog({List<String> systemPromptFragments = const []}) {
     return Catalog(
       [

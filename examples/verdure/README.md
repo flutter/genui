@@ -17,7 +17,6 @@ Please, replace this link if you have fresher version.
 - [UV](https://docs.astral.sh/uv/)
 - A Gemini API Key
   - You can create one using [AI Studio](https://ai.google.dev/aistudio).
-- An iOS or Android simulator or real device to run on.
 
 ## Running the Example
 
@@ -28,7 +27,7 @@ To run this example, you need to start both the server and the client applicatio
 a. Navigate to the server directory:
 
    ```bash
-   cd server/verdure
+   cd examples/verdure/server/verdure
    ```
 
 b. Create a `.env` file with your Gemini API key:

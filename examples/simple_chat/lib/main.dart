@@ -5,9 +5,9 @@
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
-import 'ai_client.dart';
 import 'chat_session.dart';
-import 'message.dart';
+import 'primitives/app_mode.dart';
+import 'primitives/message.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,19 +45,32 @@ class ChatScreen extends StatefulWidget {
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
+const String _defaultUserMessage =
+    """I'm into rock climbing. Give me a few climbing locations around Las Vegas. I'm a beginner.""";
+
 class _ChatScreenState extends State<ChatScreen> {
-  final TextEditingController _textController = TextEditingController();
+  final TextEditingController _textController = TextEditingController(
+    text: _defaultUserMessage,
+  );
   final ScrollController _scrollController = ScrollController();
-  late final ChatSession _chatSession;
+  late ChatSession _chatSession;
+  AppMode _appMode = AppMode.customCatalog;
 
   @override
   void initState() {
     super.initState();
-    _chatSession = ChatSession(
-      aiClient: widget.aiClient ?? DartanticAiClient(),
-    );
+    _reCreateChatSession(dispose: false);
+  }
+
+  void _reCreateChatSession({bool dispose = true}) {
+    if (dispose) {
+      _chatSession.removeListener(_scrollToBottom);
+      _chatSession.dispose();
+    }
+    _chatSession = ChatSession(aiClient: widget.aiClient, mode: _appMode);
     // Add a listener to scroll to bottom when messages change.
     _chatSession.addListener(_scrollToBottom);
+    _textController.text = _defaultUserMessage;
   }
 
   @override
@@ -66,7 +79,30 @@ class _ChatScreenState extends State<ChatScreen> {
       listenable: _chatSession,
       builder: (context, _) {
         return Scaffold(
-          appBar: AppBar(title: const Text('Chat (Controller + Dartantic)')),
+          appBar: AppBar(
+            title: const Text('Chat (Controller + Dartantic)'),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: DropdownButton<AppMode>(
+                  value: _appMode,
+                  underline: const SizedBox.shrink(),
+                  onChanged: (mode) {
+                    if (mode == null) return;
+                    _changeMode(mode);
+                  },
+                  items: [
+                    for (final mode in AppMode.values)
+                      DropdownMenuItem(
+                        value: mode,
+                        child: Text(mode.displayName),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
           body: SafeArea(
             child: Column(
               children: [
@@ -125,6 +161,14 @@ class _ChatScreenState extends State<ChatScreen> {
         );
       },
     );
+  }
+
+  void _changeMode(AppMode mode) {
+    if (mode == _appMode) return;
+    setState(() {
+      _appMode = mode;
+      _reCreateChatSession();
+    });
   }
 
   Future<void> _sendMessage() async {

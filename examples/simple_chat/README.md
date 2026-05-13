@@ -33,3 +33,11 @@ The application's logic is contained almost entirely within `lib/chat_session.da
 ## Getting Started
 
 Follow the instructions in [Running the app with a Gemini key](../../docs/usage/run_app_with_gemini_key.md).
+
+## Video
+
+https://github.com/user-attachments/assets/469fb2cf-09cf-463c-8c9c-b9c0cb39203b
+
+This video is recorded on May 11, 2026, for [PR#905](https://github.com/flutter/genui/pull/905).
+
+Please update the link if you have a fresher version of the demo.
