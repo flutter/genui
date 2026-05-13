@@ -33,6 +33,65 @@ void main() {
       expect(agentCard.name, equals('GeoSpatial Route Planner Agent'));
       expect(agentCard.skills.length, equals(2));
     });
+
+    test('copyWith works', () {
+      const agentCard = AgentCard(
+        protocolVersion: '0.2.9',
+        name: 'Test Agent',
+        description: 'A test agent.',
+        url: 'https://example.com/a2a',
+        version: '1.0.0',
+        capabilities: AgentCapabilities(),
+        defaultInputModes: [],
+        defaultOutputModes: [],
+        skills: [],
+      );
+      final copy = agentCard.copyWith(name: 'New Name');
+      expect(copy.name, 'New Name');
+      expect(copy.protocolVersion, '0.2.9');
+    });
+
+    test('operator == and hashCode', () {
+      const agentCard1 = AgentCard(
+        protocolVersion: '0.2.9',
+        name: 'Test Agent',
+        description: 'A test agent.',
+        url: 'https://example.com/a2a',
+        version: '1.0.0',
+        capabilities: AgentCapabilities(),
+        defaultInputModes: [],
+        defaultOutputModes: [],
+        skills: [],
+      );
+      const agentCard2 = AgentCard(
+        protocolVersion: '0.2.9',
+        name: 'Test Agent',
+        description: 'A test agent.',
+        url: 'https://example.com/a2a',
+        version: '1.0.0',
+        capabilities: AgentCapabilities(),
+        defaultInputModes: [],
+        defaultOutputModes: [],
+        skills: [],
+      );
+      expect(agentCard1, agentCard2);
+      expect(agentCard1.hashCode, agentCard2.hashCode);
+    });
+
+    test('toString works', () {
+      const agentCard = AgentCard(
+        protocolVersion: '0.2.9',
+        name: 'Test Agent',
+        description: 'A test agent.',
+        url: 'https://example.com/a2a',
+        version: '1.0.0',
+        capabilities: AgentCapabilities(),
+        defaultInputModes: [],
+        defaultOutputModes: [],
+        skills: [],
+      );
+      expect(agentCard.toString(), contains('AgentCard'));
+    });
   });
 }
 

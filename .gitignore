@@ -70,6 +70,7 @@ migrate_working_dir/
 .pub/
 /build/
 /coverage/
+**/coverage/
 pubspec.lock
 
 # Symbolication related
@@ -83,3 +84,5 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 .vscode/settings.json
+
+**/devtools_options.yaml
