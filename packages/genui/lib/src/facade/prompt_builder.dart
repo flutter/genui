@@ -366,6 +366,8 @@ final class _BasicPromptBuilder extends PromptBuilder {
     final fragments = <String>[
       ...systemPromptFragments,
       'Use the provided tools to respond to user using rich UI elements.',
+      if (catalog.catalogId != null)
+        'The active catalog ID is: "${catalog.catalogId}".',
       ...technicalPossibilities.systemPromptFragment(),
       ...catalog.systemPromptFragments,
       ...allowedOperations.systemPromptFragments,
