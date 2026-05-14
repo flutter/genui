@@ -370,6 +370,19 @@ final class _BasicPromptBuilder extends PromptBuilder {
       ...catalog.systemPromptFragments,
       ...allowedOperations.systemPromptFragments,
       _fenced(a2uiSchema, sectionName: 'A2UI JSON SCHEMA'),
+      if (catalog.functions.isNotEmpty)
+        _fenced(
+          const JsonEncoder.withIndent('  ').convert([
+            for (final func in catalog.functions)
+              {
+                'name': func.name,
+                'description': func.description,
+                'parameters': func.argumentSchema.value,
+                'returnType': func.returnType.value,
+              },
+          ]),
+          sectionName: 'AVAILABLE FUNCTIONS',
+        ),
       ?_encodedDataModel(clientDataModel),
     ];
 

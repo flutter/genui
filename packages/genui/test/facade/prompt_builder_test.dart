@@ -123,4 +123,28 @@ void main() {
       });
     }
   });
+
+  group('Prompt with functions', () {
+    test('includes functions section when catalog has functions', () {
+      final catalogWithFunctions = Catalog(
+        [BasicCatalogItems.text],
+        functions: [BasicFunctions.pluralizeFunction],
+        catalogId: 'test_catalog',
+      );
+
+      final String prompt = PromptBuilder.chat(
+        catalog: catalogWithFunctions,
+      ).systemPromptJoined();
+
+      expect(prompt, contains('AVAILABLE_FUNCTIONS'));
+      expect(prompt, contains('pluralize'));
+      expect(
+        prompt,
+        contains(
+          'Returns a localized string based on the Common Locale Data '
+          'Repository',
+        ),
+      );
+    });
+  });
 }
