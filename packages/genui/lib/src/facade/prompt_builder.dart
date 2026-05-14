@@ -367,7 +367,7 @@ final class _BasicPromptBuilder extends PromptBuilder {
       ...systemPromptFragments,
       'Use the provided tools to respond to user using rich UI elements.',
       if (catalog.catalogId != null)
-        'The active catalog ID is: "${catalog.catalogId}".',
+        'The active catalog ID is: "${catalog.catalogId!.replaceAll('"', '\\"').replaceAll('\n', '\\n')}".',
       ...technicalPossibilities.systemPromptFragment(),
       ...catalog.systemPromptFragments,
       ...allowedOperations.systemPromptFragments,
