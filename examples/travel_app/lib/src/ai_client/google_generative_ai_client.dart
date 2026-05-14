@@ -471,7 +471,7 @@ class GoogleGenerativeAiClient implements AiClient {
       var toolUsageCycle = 0;
       const maxToolUsageCycles = 40; // Safety break for tool loops
 
-      final promptBuilder = PromptBuilder.custom(
+      final PromptBuilder promptBuilder = await PromptBuilder.createCustom(
         catalog: catalog,
         systemPromptFragments: systemInstruction,
         allowedOperations: SurfaceOperations.createAndUpdate(dataModel: true),

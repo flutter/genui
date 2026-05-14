@@ -2,12 +2,51 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
 import '../test_infra/golden_texts.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() {
+    // Mock asset loading because PromptBuilder loads schemas from assets,
+    // and Flutter tests do not load package assets automatically.
+    // This handler intercepts requests for assets and loads them directly
+    // from the local file system.
+    // It handles different CWDs (running from package root or example
+    // directory).
+    final String cwd = Directory.current.path;
+    String packageRoot;
+    if (cwd.endsWith('packages/genui')) {
+      packageRoot = cwd;
+    } else if (cwd.contains('examples/')) {
+      packageRoot =
+          '${cwd.substring(0, cwd.indexOf('examples/'))}packages/genui';
+    } else {
+      packageRoot = '$cwd/packages/genui';
+    }
+
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMessageHandler('flutter/assets', (ByteData? message) async {
+          final String key = utf8.decode(message!.buffer.asUint8List());
+          var relativePath = key;
+          if (key.startsWith('packages/genui/')) {
+            relativePath = key.substring('packages/genui/'.length);
+          }
+          final file = File('$packageRoot/$relativePath');
+          if (file.existsSync()) {
+            return ByteData.view(utf8.encode(file.readAsStringSync()).buffer);
+          }
+          return null;
+        });
+  });
+
   final testCatalog = Catalog(
     [BasicCatalogItems.text],
     catalogId: 'test_catalog',
@@ -21,22 +60,25 @@ void main() {
   );
 
   group('Chat prompt', () {
-    test('is equivalent to custom prompt with create only operations', () {
-      final systemPromptFragments = [
-        'You are a chat assistant.',
-        'You sometimes tell jokes to the user',
-      ];
-      final chatBuilder = PromptBuilder.chat(
-        catalog: testCatalog,
-        systemPromptFragments: systemPromptFragments,
-      );
-      final customBuilder = PromptBuilder.custom(
-        catalog: testCatalog,
-        allowedOperations: SurfaceOperations.createOnly(dataModel: false),
-        systemPromptFragments: systemPromptFragments,
-      );
-      expect(chatBuilder.systemPrompt(), customBuilder.systemPrompt());
-    });
+    test(
+      'is equivalent to custom prompt with create only operations',
+      () async {
+        final systemPromptFragments = [
+          'You are a chat assistant.',
+          'You sometimes tell jokes to the user',
+        ];
+        final PromptBuilder chatBuilder = await PromptBuilder.createChat(
+          catalog: testCatalog,
+          systemPromptFragments: systemPromptFragments,
+        );
+        final PromptBuilder customBuilder = await PromptBuilder.createCustom(
+          catalog: testCatalog,
+          allowedOperations: SurfaceOperations.createOnly(dataModel: false),
+          systemPromptFragments: systemPromptFragments,
+        );
+        expect(chatBuilder.systemPrompt(), customBuilder.systemPrompt());
+      },
+    );
   });
 
   group('Custom prompt', () {
@@ -62,14 +104,14 @@ void main() {
 
     for (MapEntry<String, SurfaceOperations> b
         in operationsUnderTheTest.entries) {
-      test(b.key, () {
+      test(b.key, () async {
         final SurfaceOperations operations = b.value;
 
-        final String prompt = PromptBuilder.custom(
+        final String prompt = (await PromptBuilder.createCustom(
           catalog: testCatalog,
           allowedOperations: operations,
           systemPromptFragments: systemPromptFragments,
-        ).systemPromptJoined();
+        )).systemPromptJoined();
 
         for (final fragment in systemPromptFragments) {
           expect(prompt, contains(fragment));
@@ -125,18 +167,17 @@ void main() {
   });
 
   group('Prompt with functions', () {
-    test('includes functions section when catalog has functions', () {
+    test('includes functions when catalog has functions', () async {
       final catalogWithFunctions = Catalog(
         [BasicCatalogItems.text],
         functions: [BasicFunctions.pluralizeFunction],
         catalogId: 'test_catalog',
       );
 
-      final String prompt = PromptBuilder.chat(
+      final String prompt = (await PromptBuilder.createChat(
         catalog: catalogWithFunctions,
-      ).systemPromptJoined();
+      )).systemPromptJoined();
 
-      expect(prompt, contains('AVAILABLE_FUNCTIONS'));
       expect(prompt, contains('pluralize'));
       expect(
         prompt,

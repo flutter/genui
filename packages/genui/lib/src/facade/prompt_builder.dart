@@ -5,8 +5,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
 import '../primitives/simple_items.dart';
 
@@ -78,12 +78,18 @@ abstract class PromptBuilder {
   /// The builder will generate a prompt for a chat session,
   /// that instructs to create new surfaces for each response
   /// and restrict surface deletion and updates.
-  factory PromptBuilder.chat({
+  static Future<PromptBuilder> createChat({
     required Catalog catalog,
     Iterable<String> systemPromptFragments = const [],
     String importancePrefix = defaultImportancePrefix,
     JsonMap? clientDataModel,
-  }) {
+  }) async {
+    final String commonTypes = await rootBundle.loadString(
+      'packages/genui/submodules/a2ui/specification/v0_9/json/common_types.json',
+    );
+    final String serverToClient = await rootBundle.loadString(
+      'packages/genui/submodules/a2ui/specification/v0_9/json/server_to_client.json',
+    );
     return _BasicPromptBuilder(
       catalog: catalog,
       systemPromptFragments: systemPromptFragments,
@@ -91,10 +97,12 @@ abstract class PromptBuilder {
       importancePrefix: importancePrefix,
       clientDataModel: clientDataModel,
       technicalPossibilities: const TechnicalPossibilities(),
+      commonTypesSchema: commonTypes,
+      serverToClientSchema: serverToClient,
     );
   }
 
-  factory PromptBuilder.custom({
+  static Future<PromptBuilder> createCustom({
     required Catalog catalog,
     required SurfaceOperations allowedOperations,
     Iterable<String> systemPromptFragments = const [],
@@ -102,7 +110,13 @@ abstract class PromptBuilder {
     TechnicalPossibilities technicalPossibilities =
         const TechnicalPossibilities(),
     JsonMap? clientDataModel,
-  }) {
+  }) async {
+    final String commonTypes = await rootBundle.loadString(
+      'packages/genui/submodules/a2ui/specification/v0_9/json/common_types.json',
+    );
+    final String serverToClient = await rootBundle.loadString(
+      'packages/genui/submodules/a2ui/specification/v0_9/json/server_to_client.json',
+    );
     return _BasicPromptBuilder(
       catalog: catalog,
       systemPromptFragments: systemPromptFragments,
@@ -110,6 +124,8 @@ abstract class PromptBuilder {
       importancePrefix: importancePrefix,
       clientDataModel: clientDataModel,
       technicalPossibilities: technicalPossibilities,
+      commonTypesSchema: commonTypes,
+      serverToClientSchema: serverToClient,
     );
   }
 
@@ -332,9 +348,13 @@ final class _BasicPromptBuilder extends PromptBuilder {
     required this.importancePrefix,
     required this.clientDataModel,
     required this.technicalPossibilities,
+    required this.commonTypesSchema,
+    required this.serverToClientSchema,
   }) : super._();
 
   final Catalog catalog;
+  final String commonTypesSchema;
+  final String serverToClientSchema;
 
   final SurfaceOperations allowedOperations;
 
@@ -359,9 +379,7 @@ final class _BasicPromptBuilder extends PromptBuilder {
 
   @override
   Iterable<String> systemPrompt() {
-    final String a2uiSchema = A2uiMessage.a2uiMessageSchema(
-      catalog,
-    ).toJson(indent: '  ');
+    final String catalogSchema = _generateCatalogSchema(catalog);
 
     final fragments = <String>[
       ...systemPromptFragments,
@@ -369,24 +387,74 @@ final class _BasicPromptBuilder extends PromptBuilder {
       ...technicalPossibilities.systemPromptFragment(),
       ...catalog.systemPromptFragments,
       ...allowedOperations.systemPromptFragments,
-      _fenced(a2uiSchema, sectionName: 'A2UI JSON SCHEMA'),
-      if (catalog.functions.isNotEmpty)
-        _fenced(
-          const JsonEncoder.withIndent('  ').convert([
-            for (final func in catalog.functions)
-              {
-                'name': func.name,
-                'description': func.description,
-                'parameters': func.argumentSchema.value,
-                'returnType': func.returnType.value,
-              },
-          ]),
-          sectionName: 'AVAILABLE FUNCTIONS',
-        ),
+      _fenced(commonTypesSchema, sectionName: 'COMMON TYPES'),
+      _fenced(catalogSchema, sectionName: 'CATALOG SCHEMA'),
+      _fenced(serverToClientSchema, sectionName: 'MESSAGE SCHEMA'),
       ?_encodedDataModel(clientDataModel),
     ];
 
     return _fragmentsToPrompt(fragments);
+  }
+
+  String _generateCatalogSchema(Catalog catalog) {
+    final Map<String, dynamic> components = {
+      for (final item in catalog.items)
+        item.name: {
+          'type': 'object',
+          'allOf': [
+            {r'$ref': r'common_types.json#/$defs/ComponentCommon'},
+            {r'$ref': r'#/$defs/CatalogComponentCommon'},
+            {
+              'type': 'object',
+              'properties': {
+                'component': {'const': item.name},
+                ...item.dataSchema.value['properties'] as Map<String, dynamic>,
+              },
+              'required': [
+                'component',
+                ...?item.dataSchema.value['required'] as List?,
+              ],
+            },
+          ],
+          'unevaluatedProperties': false,
+        },
+    };
+
+    final Map<String, dynamic> functions = {
+      for (final func in catalog.functions)
+        func.name: {
+          'description': func.description,
+          'parameters': func.argumentSchema.value,
+          'returnType': func.returnType.value,
+        },
+    };
+
+    final Map<String, dynamic> catalogJson = {
+      r'$schema': 'https://json-schema.org/draft/2020-12/schema',
+      r'$id': 'https://a2ui.org/specification/v0_9/catalog.json',
+      'title': 'A2UI Catalog',
+      'description': 'Custom catalog of A2UI components and functions.',
+      if (catalog.catalogId != null) 'catalogId': catalog.catalogId,
+      'components': components,
+      if (functions.isNotEmpty) 'functions': functions,
+      r'$defs': {
+        'CatalogComponentCommon': {
+          'type': 'object',
+          'properties': {
+            'id': {
+              'type': 'string',
+              'description':
+                  'A unique identifier for this component instance within '
+                  'the surface. This ID is used to refer to the component '
+                  'in layout children arrays or event handlers.',
+            },
+          },
+          'required': ['id'],
+        },
+      },
+    };
+
+    return const JsonEncoder.withIndent('  ').convert(catalogJson);
   }
 
   static String? _encodedDataModel(JsonMap? clientDataModel) {

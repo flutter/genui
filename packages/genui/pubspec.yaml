@@ -38,3 +38,8 @@ dev_dependencies:
     sdk: flutter
   network_image_mock: ^2.1.1
   test: ^1.26.2
+
+flutter:
+  assets:
+    - submodules/a2ui/specification/v0_9/json/common_types.json
+    - submodules/a2ui/specification/v0_9/json/server_to_client.json

@@ -78,7 +78,7 @@ class _CreateTabState extends State<CreateTab> {
         transport: transport,
       );
 
-      final promptBuilder = PromptBuilder.chat(
+      final promptBuilder = await PromptBuilder.createChat(
         catalog: catalog,
         systemPromptFragments: [
           'You are a UI generator. The user will describe a UI they want. '
