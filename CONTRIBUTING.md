@@ -76,11 +76,8 @@ For Google-internal information see go/a2ui-internal.
 
 <!-- references -->
 
-[pub.dev]: https://pub.dev
-[Semver]: https://semver.org/
 [for-front-line]: https://github.com/flutter/genui/issues?q=is%3Aissue%20state%3Aopen%20-label%3AP0%20%20-label%3AP1%20-label%3AP2%20%20-label%3AP3%20-label%3Afront-line-handled
 [flutter_guidelines]: https://github.com/flutter/flutter/blob/master/CONTRIBUTING.md
-[readme_md]: packages/genui/README.md#configure-firebase-ai-logic
 [assigned_p2_p3_issues]: https://github.com/flutter/genui/issues?q=is%3Aopen%20is%3Aissue%20label%3AP2%2CP3%20assignee%3A*
 [p0_p1_issues_without_milestone]: https://github.com/flutter/genui/issues?q=is%3Aopen%20is%3Aissue%20label%3AP1%2CP0%20no%3Amilestone
 [projectless_open_issues]: https://github.com/flutter/genui/issues?q=is%3Aopen%20is%3Aissue%20no%3Aproject
