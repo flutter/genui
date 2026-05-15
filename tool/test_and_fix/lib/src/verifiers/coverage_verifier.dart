@@ -1,4 +1,4 @@
-// Copyright 2026 The Flutter Authors.
+// Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -193,7 +193,8 @@ class CoverageVerifier {
     CoveragePolicy policy,
   ) async {
     try {
-      final List<lcov.Record> records = await lcov.Parser.parse(lcovFile.path);
+      final List<String> fileLines = lcovFile.readAsLinesSync();
+      final List<lcov.Record> records = lcov.Parser.parseLines(fileLines);
       var totalHits = 0;
       var totalFound = 0;
 

@@ -94,22 +94,16 @@ class TestAndFix {
         jobs.add(testJob);
 
         if (!isFlutter && (coverage || updateBaseline)) {
-          final String packages = path.join(
-            root.path,
-            '.dart_tool',
-            'package_config.json',
-          );
           jobs.add(
             WorkerJob(
               [
                 'dart',
                 'run',
-                '--package-config=$packages',
                 'coverage:format_coverage',
                 '--lcov',
                 '--in=coverage',
                 '--out=coverage/lcov.info',
-                '--package-config=$packages',
+                '--package=${root.path}',
                 '--report-on=lib',
               ],
               name: 'format coverage in ${path.relative(project.path)}',
@@ -215,7 +209,7 @@ class TestAndFix {
         throwIfDiagnostics: false,
       );
       final dyn = parseResult as dynamic;
-      final Iterable<dynamic> directives = dyn.unit.directives as Iterable<dynamic>;
+      final directives = dyn.unit.directives as Iterable<dynamic>;
       for (final Directive directive in directives.cast<Directive>()) {
         if (directive is PartOfDirective) {
           return true;

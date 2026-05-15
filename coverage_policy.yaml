@@ -1,3 +1,7 @@
+# Copyright 2025 The Flutter Authors.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
 # Default minimum coverage percentage required for any package with a 'test' directory.
 default_threshold: 80.0
 
@@ -28,7 +32,7 @@ packages:
   dev_tools/composer:
     threshold: 20.0
   tool/test_and_fix:
-    threshold: 30.0
+    threshold: 90.0
   tool/release:
     threshold: 75.0
   examples/simple_chat:
