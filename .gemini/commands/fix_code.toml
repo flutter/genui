@@ -24,7 +24,7 @@ Look at the list of issues reported in "List of issues" below.
 ## 3.  Verify the Fixes:
     *   After applying the fixes, you need to verify that the issues are resolved.
     *   You can verify this by running 'flutter test' etc in the relevant
-        subdirectory. For example: 'cd examples/travel_app && flutter test',
+        subdirectory. For example: 'cd examples/simple_chat && flutter test',
         or by using Dart MCP server to run the tests.
     *   Execute the verification commands as specified in the issue report.
     *   If any verification command fails, you should analyze the failure,
