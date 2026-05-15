@@ -64,5 +64,6 @@ Future<int> main(List<String> arguments) async {
     coverage: argResults['coverage'] as bool,
     updateBaseline: argResults['update-baseline'] as bool,
   );
+  exitCode = success ? 0 : 1;
   return success ? 0 : 1;
 }

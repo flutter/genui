@@ -299,6 +299,7 @@ class TestAndFix {
       if (!all) 'fix_copyright',
       if (!all) 'release',
       if (!all) 'test_and_fix',
+      if (!all) 'e2e',
     };
   }
 
