@@ -9,7 +9,6 @@ import 'package:lcov_parser/lcov_parser.dart' as lcov;
 // ignore: implementation_imports
 import 'package:lcov_parser/src/models/lines.dart';
 import 'package:logging/logging.dart';
-import 'package:path/path.dart' as path;
 
 import 'coverage_policy.dart';
 
@@ -46,13 +45,26 @@ class CoverageVerifier {
     required bool updateBaseline,
   }) async {
     final File policyFile = fs.file(
-      path.join(repoRoot.path, 'coverage_policy.yaml'),
+      fs.path.join(repoRoot.path, 'coverage_policy.yaml'),
     );
     final CoveragePolicy policy = CoveragePolicy.load(policyFile);
 
-    final File baselineFile = fs.file(
-      path.join(repoRoot.path, policy.baselineFile),
+    final String normalizedRoot = fs.path.normalize(
+      fs.path.absolute(repoRoot.path),
     );
+    final String resolvedBaseline = fs.path.normalize(
+      fs.path.absolute(fs.path.join(repoRoot.path, policy.baselineFile)),
+    );
+
+    if (!fs.path.isWithin(normalizedRoot, resolvedBaseline)) {
+      _log.severe(
+        '❌ Security Error: baseline_file path (${policy.baselineFile}) points '
+        'outside repository root.',
+      );
+      return false;
+    }
+
+    final File baselineFile = fs.file(resolvedBaseline);
     final CoverageBaseline baseline = CoverageBaseline.load(baselineFile);
 
     final results = <PackageCoverageResult>[];
@@ -68,7 +80,7 @@ class CoverageVerifier {
     _log.info('-' * 85);
 
     for (final project in testedProjects) {
-      final String relativePackageDir = path.relative(
+      final String relativePackageDir = fs.path.relative(
         project.path,
         from: repoRoot.path,
       );
@@ -81,7 +93,7 @@ class CoverageVerifier {
       }
 
       final File lcovFile = project.childFile(
-        path.join('coverage', 'lcov.info'),
+        fs.path.join('coverage', 'lcov.info'),
       );
       if (!lcovFile.existsSync()) {
         _log.warning(

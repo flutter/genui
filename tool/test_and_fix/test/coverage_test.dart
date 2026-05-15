@@ -316,5 +316,21 @@ end_of_record
       expect(success, isFalse);
       expect(logMessages.any((m) => m.contains('Missing lcov.info')), isTrue);
     });
+
+    test('verify fails when baseline_file points outside repository', () async {
+      writePolicy(defaultThreshold: 80.0);
+      final File p = repoRoot.childFile('coverage_policy.yaml');
+      p.writeAsStringSync('baseline_file: ../../etc/passwd');
+
+      final verifier = CoverageVerifier(fs: fs, logger: logger);
+      final bool success = await verifier.verify(
+        repoRoot: repoRoot,
+        testedProjects: [projectA],
+        updateBaseline: false,
+      );
+
+      expect(success, isFalse);
+      expect(logMessages.any((m) => m.contains('Security Error')), isTrue);
+    });
   });
 }

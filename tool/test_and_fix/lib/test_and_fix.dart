@@ -11,7 +11,6 @@ import 'package:analyzer/dart/ast/ast.dart';
 import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:logging/logging.dart';
-import 'package:path/path.dart' as path;
 import 'package:process/process.dart';
 import 'package:process_runner/process_runner.dart';
 import 'package:yaml/yaml.dart';
@@ -69,12 +68,12 @@ class TestAndFix {
       jobs.add(
         WorkerJob(
           ['dart', 'analyze'],
-          name: 'dart analyze in ${path.relative(project.path)}',
+          name: 'dart analyze in ${fs.path.relative(project.path)}',
           workingDirectory: project,
           dependsOn: {copyrightJob},
         ),
       );
-      if (fs.directory(path.join(project.path, 'test')).existsSync()) {
+      if (fs.directory(fs.path.join(project.path, 'test')).existsSync()) {
         testedProjects.add(project);
         final bool isFlutter = _isFlutterPackage(project);
         final command = isFlutter ? 'flutter' : 'dart';
@@ -88,7 +87,7 @@ class TestAndFix {
         }
         final testJob = WorkerJob(
           testArgs,
-          name: '$command test in ${path.relative(project.path)}',
+          name: '$command test in ${fs.path.relative(project.path)}',
           workingDirectory: project,
           dependsOn: {copyrightJob},
         );
@@ -107,7 +106,7 @@ class TestAndFix {
                 '--package=${root.path}',
                 '--report-on=lib',
               ],
-              name: 'format coverage in ${path.relative(project.path)}',
+              name: 'format coverage in ${fs.path.relative(project.path)}',
               workingDirectory: project,
               dependsOn: {testJob},
             ),
@@ -219,7 +218,7 @@ class TestAndFix {
   }
 
   void _generateCoverageAllTest(Directory project) {
-    final Directory libDir = fs.directory(path.join(project.path, 'lib'));
+    final Directory libDir = fs.directory(fs.path.join(project.path, 'lib'));
     if (!libDir.existsSync()) return;
 
     final File pubspecFile = project.childFile('pubspec.yaml');
@@ -237,7 +236,7 @@ class TestAndFix {
     final validPathRegex = RegExp(r'^[a-zA-Z0-9_\-/\.]+$');
     if (!validPathRegex.hasMatch(pkgName)) return;
 
-    final Directory testDir = fs.directory(path.join(project.path, 'test'));
+    final Directory testDir = fs.directory(fs.path.join(project.path, 'test'));
     if (!testDir.existsSync()) return;
 
     final dartFiles = <String>[];
@@ -246,7 +245,7 @@ class TestAndFix {
       followLinks: false,
     )) {
       if (entity is File && entity.path.endsWith('.dart')) {
-        final String relPath = path.relative(entity.path, from: libDir.path);
+        final String relPath = fs.path.relative(entity.path, from: libDir.path);
         final String normalized = relPath.replaceAll('\\', '/');
         if (!validPathRegex.hasMatch(normalized)) continue;
         if (!normalized.endsWith('.g.dart') &&
@@ -261,7 +260,7 @@ class TestAndFix {
     if (dartFiles.isEmpty) return;
 
     final File ephemeralTest = fs.file(
-      path.join(testDir.path, 'ephemeral_coverage_all_test.dart'),
+      fs.path.join(testDir.path, 'ephemeral_coverage_all_test.dart'),
     );
     final buffer = StringBuffer();
     buffer.writeln(
@@ -280,7 +279,7 @@ class TestAndFix {
   void _cleanupEphemeralCoverageTests(List<Directory> projects) {
     for (final project in projects) {
       final File f = fs.file(
-        path.join(project.path, 'test', 'ephemeral_coverage_all_test.dart'),
+        fs.path.join(project.path, 'test', 'ephemeral_coverage_all_test.dart'),
       );
       if (f.existsSync()) {
         try {
