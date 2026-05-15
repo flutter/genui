@@ -115,6 +115,20 @@ jobs:
       - name: Check copyrights
         run: dart tool/fix_copyright/bin/fix_copyright.dart --year 2025
 
+  coverage:
+    runs-on: ubuntu-latest
+    if: github.repository == 'flutter/genui'
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          channel: stable
+          cache: true
+      - name: Install dependencies
+        run: flutter pub get > /dev/null
+      - name: Verify monorepo test coverage
+        run: dart run tool/test_and_fix/bin/test_and_fix.dart --coverage
+
   analyze_and_test:
     needs: matrix
     # Only run if the matrix job has produced a non-empty matrix.

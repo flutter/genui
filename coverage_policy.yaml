@@ -1,0 +1,37 @@
+# Default minimum coverage percentage required for any package with a 'test' directory.
+default_threshold: 80.0
+
+# If true, the tool fails if coverage drops below the previously recorded baseline,
+# even if the percentage remains above the minimum threshold.
+enforce_no_regression: true
+
+# Path to the baseline tracking file (relative to monorepo root).
+baseline_file: "coverage_baseline.yaml"
+
+# Global glob patterns for files to exclude from coverage calculation across all packages.
+exclude:
+  - "**/*.g.dart"
+  - "**/*.freezed.dart"
+  - "**/*.mocks.dart"
+  - "**/generated/**"
+
+# Package-specific overrides (paths relative to monorepo root).
+packages:
+  packages/genui:
+    threshold: 75.0
+  packages/a2ui_core:
+    threshold: 75.0
+  packages/json_schema_builder:
+    threshold: 75.0
+  dev_tools/catalog_gallery:
+    threshold: 50.0
+  dev_tools/composer:
+    threshold: 20.0
+  tool/test_and_fix:
+    threshold: 30.0
+  tool/release:
+    threshold: 75.0
+  examples/simple_chat:
+    enabled: false
+  examples/verdure/client:
+    enabled: false
