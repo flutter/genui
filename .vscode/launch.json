@@ -20,19 +20,11 @@
       "type": "dart"
     },
     {
-      "name": "composer",
-      "cwd": "examples/composer",
-      "request": "launch",
-      "type": "dart"
-    },
-    {
       "name": "verdure_client",
       "cwd": "examples/verdure/client",
       "request": "launch",
       "type": "dart",
-      "args": [
-        "--dart-define=GEMINI_API_KEY=${env:GEMINI_API_KEY}"
-      ]
+      "args": ["--dart-define=GEMINI_API_KEY=${env:GEMINI_API_KEY}"]
     },
     {
       "name": "catalog_gallery",
