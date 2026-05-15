@@ -6,8 +6,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../test_infra/golden_texts.dart';
 
@@ -186,6 +188,35 @@ void main() {
           'Repository',
         ),
       );
+    });
+  });
+
+  group('Prompt with custom components', () {
+    test('includes custom component schema in prompt', () async {
+      final customItem = CatalogItem(
+        name: 'CustomCard',
+        dataSchema: S.object(
+          properties: {
+            'title': A2uiSchemas.stringReference(),
+            'elevation': S.number(description: 'Card elevation.'),
+          },
+          required: ['title'],
+        ),
+        widgetBuilder: (ctx) => const SizedBox(), // Dummy builder
+      );
+
+      final customCatalog = Catalog(
+        [customItem],
+        catalogId: 'custom_catalog',
+      );
+
+      final String prompt = (await PromptBuilder.createChat(
+        catalog: customCatalog,
+      )).systemPromptJoined();
+
+      expect(prompt, contains('CustomCard'));
+      expect(prompt, contains('Card elevation.'));
+      expect(prompt, contains('"title"'));
     });
   });
 }

@@ -33,4 +33,3 @@ flutter:
   uses-material-design: true
   assets:
     - samples/
-    - ../travel_app/assets/travel_images/

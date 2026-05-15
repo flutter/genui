@@ -460,42 +460,7 @@ When constructing UI, you must output a VALID A2UI JSON object representing one 
             },
             "text": {
               "description": "While simple Markdown is supported (without HTML or image references), utilizing dedicated UI components is generally preferred for a richer and more structured presentation.",
-              "oneOf": [
-                {
-                  "type": "string",
-                  "description": "A literal string value."
-                },
-                {
-                  "type": "object",
-                  "description": "A path to a string.",
-                  "properties": {
-                    "path": {
-                      "type": "string",
-                      "description": "A relative or absolute path in the data model."
-                    }
-                  },
-                  "required": [
-                    "path"
-                  ]
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "call": {
-                      "type": "string",
-                      "description": "The name of the function to call."
-                    },
-                    "args": {
-                      "type": "object",
-                      "description": "Arguments to pass to the function.",
-                      "additionalProperties": true
-                    }
-                  },
-                  "required": [
-                    "call"
-                  ]
-                }
-              ]
+              "$ref": "common_types.json#/$defs/DynamicString"
             },
             "variant": {
               "type": "string",
