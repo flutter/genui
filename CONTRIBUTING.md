@@ -1,25 +1,10 @@
-# Contributing to GenUI for Flutter
+# Contributing to this repository
 
-## Guidelines
+## Coding guidelines
 
-Please follow [Flutter contributor guidelines][flutter_guidelines].
-
-## Run Examples
-
-To run examples:
-
-1. Configure Firebase as described in [README.md][readme_md].
-2. Run `flutter run`.
-
-NOTE: For Google-internal projects see go/flutter-genui-internal.
-
-## Shell scripts
-
-To run a script in `tool/`, open the script in VSCode and press ⇧⌘B.
-
-## Detailed documentation for contributors
-
-See [docs/contributing.md](docs/contributing.md).
+Please follow:
+  * [Flutter-wide contributor guidelines][flutter_guidelines].
+  * [A2UI-specific guidelines](docs/contributing/README.md).
 
 ## Issue triage
 
