@@ -13,14 +13,14 @@ environment:
 workspace:
   - dev_tools/catalog_gallery
   - dev_tools/composer
-  
+
   - examples/simple_chat
   - examples/verdure/client
 
   - packages/a2ui_core
   - packages/genui
   - packages/genui_a2a
-  - packages/json_schema_builder  
+  - packages/json_schema_builder
 
   - tool/e2e
   - tool/fix_copyright
