@@ -515,7 +515,6 @@ When constructing UI, you must output a VALID A2UI JSON object representing one 
           },
           "required": [
             "component",
-            "component",
             "text"
           ]
         }

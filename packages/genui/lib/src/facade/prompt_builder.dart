@@ -410,10 +410,10 @@ final class _BasicPromptBuilder extends PromptBuilder {
                 'component': {'const': item.name},
                 ...item.dataSchema.value['properties'] as Map<String, dynamic>,
               },
-              'required': [
+              'required': {
                 'component',
                 ...?item.dataSchema.value['required'] as List?,
-              ],
+              }.toList(),
             },
           ],
           'unevaluatedProperties': false,
