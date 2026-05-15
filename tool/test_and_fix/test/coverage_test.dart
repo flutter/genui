@@ -33,9 +33,15 @@ void main() {
 
   group('CoveragePolicy', () {
     late MemoryFileSystem fs;
+    late Logger logger;
+    final logMessages = <String>[];
 
     setUp(() {
       fs = MemoryFileSystem();
+      logMessages.clear();
+      hierarchicalLoggingEnabled = true;
+      logger = Logger('CoveragePolicy')..level = Level.ALL;
+      logger.onRecord.listen((r) => logMessages.add(r.message));
     });
 
     test('load returns defaults for missing file', () {
@@ -44,6 +50,15 @@ void main() {
       expect(policy.defaultThreshold, 80.0);
       expect(policy.enforceNoRegression, isTrue);
       expect(policy.baselineFile, 'coverage_baseline.yaml');
+    });
+
+    test('load returns defaults and logs warning for invalid yaml', () {
+      final File f = fs.file('invalid.yaml');
+      f.writeAsStringSync('invalid: yaml: :'); // invalid yaml syntax
+
+      final CoveragePolicy policy = CoveragePolicy.load(f);
+      expect(policy.defaultThreshold, 80.0);
+      expect(logMessages.any((m) => m.contains('Failed to load coverage policy file')), isTrue);
     });
 
     test('load parses valid policy yaml', () {

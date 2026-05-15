@@ -5,6 +5,7 @@
 import 'dart:io';
 
 import 'package:glob/glob.dart';
+import 'package:logging/logging.dart';
 import 'package:yaml/yaml.dart';
 
 class PackagePolicy {
@@ -38,43 +39,50 @@ class CoveragePolicy {
   final List<Glob> excludeGlobs;
   final Map<String, PackagePolicy> packages;
 
+  static final Logger _log = Logger('CoveragePolicy');
+
   static CoveragePolicy load(File file) {
     if (!file.existsSync()) {
       return CoveragePolicy();
     }
 
-    final String content = file.readAsStringSync();
-    final Object? yaml = loadYaml(content);
-    if (yaml is! YamlMap) {
+    try {
+      final String content = file.readAsStringSync();
+      final Object? yaml = loadYaml(content);
+      if (yaml is! YamlMap) {
+        return CoveragePolicy();
+      }
+
+      final double defaultThreshold = (yaml['default_threshold'] as num? ?? 80.0)
+          .toDouble();
+      final bool enforceNoRegression =
+          yaml['enforce_no_regression'] as bool? ?? true;
+      final String baselineFile =
+          yaml['baseline_file'] as String? ?? 'coverage_baseline.yaml';
+
+      final YamlList? excludeRaw = yaml['exclude'] as YamlList?;
+      final List<String> excludePatterns =
+          excludeRaw?.map((e) => e.toString()).toList() ?? <String>[];
+
+      final YamlMap? packagesRaw = yaml['packages'] as YamlMap?;
+      final Map<String, PackagePolicy> packages = <String, PackagePolicy>{};
+      if (packagesRaw != null) {
+        for (final MapEntry<dynamic, dynamic> entry in packagesRaw.entries) {
+          packages[entry.key.toString()] = PackagePolicy.fromYaml(entry.value);
+        }
+      }
+
+      return CoveragePolicy(
+        defaultThreshold: defaultThreshold,
+        enforceNoRegression: enforceNoRegression,
+        baselineFile: baselineFile,
+        excludePatterns: excludePatterns,
+        packages: packages,
+      );
+    } catch (e) {
+      _log.warning('Failed to load coverage policy file: $e. Using default policy.');
       return CoveragePolicy();
     }
-
-    final double defaultThreshold = (yaml['default_threshold'] as num? ?? 80.0)
-        .toDouble();
-    final bool enforceNoRegression =
-        yaml['enforce_no_regression'] as bool? ?? true;
-    final String baselineFile =
-        yaml['baseline_file'] as String? ?? 'coverage_baseline.yaml';
-
-    final excludeRaw = yaml['exclude'] as YamlList?;
-    final List<String> excludePatterns =
-        excludeRaw?.map((e) => e.toString()).toList() ?? <String>[];
-
-    final packagesRaw = yaml['packages'] as YamlMap?;
-    final packages = <String, PackagePolicy>{};
-    if (packagesRaw != null) {
-      for (final MapEntry<dynamic, dynamic> entry in packagesRaw.entries) {
-        packages[entry.key.toString()] = PackagePolicy.fromYaml(entry.value);
-      }
-    }
-
-    return CoveragePolicy(
-      defaultThreshold: defaultThreshold,
-      enforceNoRegression: enforceNoRegression,
-      baselineFile: baselineFile,
-      excludePatterns: excludePatterns,
-      packages: packages,
-    );
   }
 
   bool isFileExcluded(String relativePath) {
