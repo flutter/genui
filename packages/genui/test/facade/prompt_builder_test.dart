@@ -205,10 +205,7 @@ void main() {
         widgetBuilder: (ctx) => const SizedBox(), // Dummy builder
       );
 
-      final customCatalog = Catalog(
-        [customItem],
-        catalogId: 'custom_catalog',
-      );
+      final customCatalog = Catalog([customItem], catalogId: 'custom_catalog');
 
       final String prompt = (await PromptBuilder.createChat(
         catalog: customCatalog,
