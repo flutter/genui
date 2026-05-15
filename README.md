@@ -53,7 +53,7 @@ chatbots and next-generation agent-based user experiences.
 
 ## Look & feel
 
-<img src="docs/assets/genui_example_demo.gif" alt="GenUI Travel App Demo" height="500">
+<img src="docs/assets/genui_example_demo.gif" alt="GenUI Demo" height="500">
 
 _The GIF above shows how GenUI enables dynamic, interactive UI generation,_
 _instead of text descriptions or code from a traditional AI coding agent._
