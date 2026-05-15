@@ -6,6 +6,8 @@ import 'dart:async';
 
 import 'package:file/file.dart';
 import 'package:lcov_parser/lcov_parser.dart' as lcov;
+// ignore: implementation_imports
+import 'package:lcov_parser/src/models/lines.dart';
 import 'package:logging/logging.dart';
 
 import 'coverage_policy.dart';
@@ -140,7 +142,7 @@ class CoverageVerifier {
     _log.info('-' * 85);
 
     if (updateBaseline) {
-      final CoverageBaseline updatedBaseline = CoverageBaseline(newWaterMarks);
+      final updatedBaseline = CoverageBaseline(newWaterMarks);
       updatedBaseline.save(baselineFile);
       _log.info('Successfully updated baseline file: ${policy.baselineFile}');
     }
@@ -170,7 +172,7 @@ class CoverageVerifier {
           continue;
         }
 
-        final lines = record.lines;
+        final LcovLinesDetails? lines = record.lines;
         if (lines != null) {
           totalFound += lines.found ?? 0;
           totalHits += lines.hit ?? 0;

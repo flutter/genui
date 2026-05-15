@@ -231,10 +231,22 @@ class TestAndFix {
         pkgName = yaml['name']?.toString();
       }
     } catch (_) {}
-    if (pkgName == null || pkgName.isEmpty) return;
+    if (pkgName == null || pkgName.isEmpty) {
+      _log.warning(
+        'Warning: Package name is missing in ${pubspecFile.path}. '
+        'Skipping full coverage test generation.',
+      );
+      return;
+    }
 
     final validPathRegex = RegExp(r'^[a-zA-Z0-9_\-/\.]+$');
-    if (!validPathRegex.hasMatch(pkgName)) return;
+    if (!validPathRegex.hasMatch(pkgName)) {
+      _log.warning(
+        'Warning: Package name "$pkgName" contains invalid characters. '
+        'Skipping full coverage test generation.',
+      );
+      return;
+    }
 
     final Directory testDir = fs.directory(fs.path.join(project.path, 'test'));
     if (!testDir.existsSync()) return;

@@ -53,19 +53,19 @@ class CoveragePolicy {
         return CoveragePolicy();
       }
 
-      final double defaultThreshold = (yaml['default_threshold'] as num? ?? 80.0)
-          .toDouble();
+      final double defaultThreshold =
+          (yaml['default_threshold'] as num? ?? 80.0).toDouble();
       final bool enforceNoRegression =
           yaml['enforce_no_regression'] as bool? ?? true;
       final String baselineFile =
           yaml['baseline_file'] as String? ?? 'coverage_baseline.yaml';
 
-      final YamlList? excludeRaw = yaml['exclude'] as YamlList?;
+      final excludeRaw = yaml['exclude'] as YamlList?;
       final List<String> excludePatterns =
           excludeRaw?.map((e) => e.toString()).toList() ?? <String>[];
 
-      final YamlMap? packagesRaw = yaml['packages'] as YamlMap?;
-      final Map<String, PackagePolicy> packages = <String, PackagePolicy>{};
+      final packagesRaw = yaml['packages'] as YamlMap?;
+      final packages = <String, PackagePolicy>{};
       if (packagesRaw != null) {
         for (final MapEntry<dynamic, dynamic> entry in packagesRaw.entries) {
           packages[entry.key.toString()] = PackagePolicy.fromYaml(entry.value);
@@ -80,7 +80,9 @@ class CoveragePolicy {
         packages: packages,
       );
     } catch (e) {
-      _log.warning('Failed to load coverage policy file: $e. Using default policy.');
+      _log.warning(
+        'Failed to load coverage policy file: $e. Using default policy.',
+      );
       return CoveragePolicy();
     }
   }

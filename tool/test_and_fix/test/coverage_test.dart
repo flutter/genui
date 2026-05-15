@@ -58,7 +58,12 @@ void main() {
 
       final CoveragePolicy policy = CoveragePolicy.load(f);
       expect(policy.defaultThreshold, 80.0);
-      expect(logMessages.any((m) => m.contains('Failed to load coverage policy file')), isTrue);
+      expect(
+        logMessages.any(
+          (m) => m.contains('Failed to load coverage policy file'),
+        ),
+        isTrue,
+      );
     });
 
     test('load parses valid policy yaml', () {
