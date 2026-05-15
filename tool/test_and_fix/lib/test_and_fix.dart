@@ -42,37 +42,43 @@ class TestAndFix {
     final List<Directory> projects = await findProjects(root, all: all);
     final testedProjects = <Directory>[];
     final jobs = <WorkerJob>[];
+    final bool skipNonTestJobs = coverage || updateBaseline;
 
-    // Global jobs
-    final fixJob = WorkerJob(
-      ['dart', 'fix', '--apply', '.'],
-      name: 'dart fix',
-      workingDirectory: root,
-    );
-    final formatJob = WorkerJob(
-      ['dart', 'format', '.'],
-      name: 'dart format',
-      dependsOn: {fixJob},
-      workingDirectory: root,
-    );
-    final copyrightJob = WorkerJob(
-      ['dart', 'run', 'tool/fix_copyright/bin/fix_copyright.dart', '--force'],
-      name: 'fix copyrights',
-      dependsOn: {formatJob},
-      workingDirectory: root,
-    );
-    jobs.addAll([fixJob, formatJob, copyrightJob]);
+    WorkerJob? copyrightJob;
+    if (!skipNonTestJobs) {
+      // Global jobs
+      final fixJob = WorkerJob(
+        ['dart', 'fix', '--apply', '.'],
+        name: 'dart fix',
+        workingDirectory: root,
+      );
+      final formatJob = WorkerJob(
+        ['dart', 'format', '.'],
+        name: 'dart format',
+        dependsOn: {fixJob},
+        workingDirectory: root,
+      );
+      copyrightJob = WorkerJob(
+        ['dart', 'run', 'tool/fix_copyright/bin/fix_copyright.dart', '--force'],
+        name: 'fix copyrights',
+        dependsOn: {formatJob},
+        workingDirectory: root,
+      );
+      jobs.addAll([fixJob, formatJob, copyrightJob]);
+    }
 
     // Project-specific jobs
     for (final project in projects) {
-      jobs.add(
-        WorkerJob(
-          ['dart', 'analyze'],
-          name: 'dart analyze in ${fs.path.relative(project.path)}',
-          workingDirectory: project,
-          dependsOn: {copyrightJob},
-        ),
-      );
+      if (!skipNonTestJobs) {
+        jobs.add(
+          WorkerJob(
+            ['dart', 'analyze'],
+            name: 'dart analyze in ${fs.path.relative(project.path)}',
+            workingDirectory: project,
+            dependsOn: copyrightJob != null ? {copyrightJob} : {},
+          ),
+        );
+      }
       if (fs.directory(fs.path.join(project.path, 'test')).existsSync()) {
         testedProjects.add(project);
         final bool isFlutter = _isFlutterPackage(project);
@@ -89,7 +95,7 @@ class TestAndFix {
           testArgs,
           name: '$command test in ${fs.path.relative(project.path)}',
           workingDirectory: project,
-          dependsOn: {copyrightJob},
+          dependsOn: copyrightJob != null ? {copyrightJob} : {},
         );
         jobs.add(testJob);
 
@@ -345,6 +351,7 @@ class TestAndFix {
       'ephemeral',
       'firebase_core',
       'build',
+      'submodules',
       if (!all) 'spikes',
       if (!all) 'fix_copyright',
       if (!all) 'release',
