@@ -5,6 +5,7 @@
 import 'dart:io';
 
 import 'package:analyzer/dart/analysis/features.dart';
+import 'package:analyzer/dart/analysis/results.dart';
 import 'package:analyzer/dart/analysis/utilities.dart';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:file/file.dart';
@@ -203,14 +204,12 @@ class TestAndFix {
 
   bool _isPartFile(File file) {
     try {
-      final Object parseResult = parseString(
+      final ParseStringResult parseResult = parseString(
         content: file.readAsStringSync(),
         featureSet: FeatureSet.latestLanguageVersion(),
         throwIfDiagnostics: false,
       );
-      final dyn = parseResult as dynamic;
-      final directives = dyn.unit.directives as Iterable<dynamic>;
-      for (final Directive directive in directives.cast<Directive>()) {
+      for (final Directive directive in parseResult.unit.directives) {
         if (directive is PartOfDirective) {
           return true;
         }
