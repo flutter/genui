@@ -11,9 +11,9 @@ environment:
   flutter: ">=3.35.7 <4.0.0"
 
 workspace:
-  - examples/catalog_gallery
-  - examples/composer
-  - examples/e2e
+  - dev_tools/catalog_gallery
+  - dev_tools/composer
+  
   - examples/simple_chat
   - examples/verdure/client
 
@@ -22,6 +22,7 @@ workspace:
   - packages/genui_a2a
   - packages/json_schema_builder  
 
+  - tool/e2e
   - tool/fix_copyright
   - tool/release
   - tool/test_and_fix
