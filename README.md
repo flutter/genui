@@ -53,8 +53,6 @@ chatbots and next-generation agent-based user experiences.
 
 ## Look & feel
 
-### Interactive travel app example (legacy)
-
 <img src="docs/assets/genui_example_demo.gif" alt="GenUI Travel App Demo" height="500">
 
 _The GIF above shows how GenUI enables dynamic, interactive UI generation,_

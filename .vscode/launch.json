@@ -20,13 +20,10 @@
       "type": "dart"
     },
     {
-      "name": "travel_app",
-      "cwd": "examples/travel_app",
+      "name": "composer",
+      "cwd": "examples/composer",
       "request": "launch",
-      "type": "dart",
-      "args": [
-        "--dart-define=GEMINI_API_KEY=${env:GEMINI_API_KEY}"
-      ]
+      "type": "dart"
     },
     {
       "name": "verdure_client",
