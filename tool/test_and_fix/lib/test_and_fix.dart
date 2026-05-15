@@ -4,6 +4,9 @@
 
 import 'dart:io';
 
+import 'package:analyzer/dart/analysis/features.dart';
+import 'package:analyzer/dart/analysis/utilities.dart';
+import 'package:analyzer/dart/ast/ast.dart';
 import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:logging/logging.dart';
@@ -72,10 +75,7 @@ class TestAndFix {
       );
       if (fs.directory(path.join(project.path, 'test')).existsSync()) {
         testedProjects.add(project);
-        final bool isFlutter = project
-            .childFile('pubspec.yaml')
-            .readAsStringSync()
-            .contains('sdk: flutter');
+        final bool isFlutter = _isFlutterPackage(project);
         final command = isFlutter ? 'flutter' : 'dart';
         final testArgs = [command, 'test'];
         if (coverage || updateBaseline) {
@@ -94,7 +94,7 @@ class TestAndFix {
         jobs.add(testJob);
 
         if (!isFlutter && (coverage || updateBaseline)) {
-          String packages = path.join(
+          final String packages = path.join(
             root.path,
             '.dart_tool',
             'package_config.json',
@@ -104,11 +104,12 @@ class TestAndFix {
               [
                 'dart',
                 'run',
+                '--package-config=$packages',
                 'coverage:format_coverage',
                 '--lcov',
                 '--in=coverage',
                 '--out=coverage/lcov.info',
-                '--packages=$packages',
+                '--package-config=$packages',
                 '--report-on=lib',
               ],
               name: 'format coverage in ${path.relative(project.path)}',
@@ -187,6 +188,43 @@ class TestAndFix {
     return true;
   }
 
+  bool _isFlutterPackage(Directory project) {
+    final File pubspecFile = project.childFile('pubspec.yaml');
+    if (!pubspecFile.existsSync()) return false;
+    try {
+      final String content = pubspecFile.readAsStringSync();
+      final Object? yaml = loadYaml(content);
+      if (yaml is YamlMap) {
+        final Object? deps = yaml['dependencies'];
+        final Object? devDeps = yaml['dev_dependencies'];
+        if ((deps is YamlMap && deps.containsKey('flutter')) ||
+            (devDeps is YamlMap && devDeps.containsKey('flutter'))) {
+          return true;
+        }
+      }
+      return content.contains('sdk: flutter');
+    } catch (_) {}
+    return false;
+  }
+
+  bool _isPartFile(File file) {
+    try {
+      final Object parseResult = parseString(
+        content: file.readAsStringSync(),
+        featureSet: FeatureSet.latestLanguageVersion(),
+        throwIfDiagnostics: false,
+      );
+      final dyn = parseResult as dynamic;
+      final Iterable<dynamic> directives = dyn.unit.directives as Iterable<dynamic>;
+      for (final Directive directive in directives.cast<Directive>()) {
+        if (directive is PartOfDirective) {
+          return true;
+        }
+      }
+    } catch (_) {}
+    return false;
+  }
+
   void _generateCoverageAllTest(Directory project) {
     final Directory libDir = fs.directory(path.join(project.path, 'lib'));
     if (!libDir.existsSync()) return;
@@ -203,17 +241,26 @@ class TestAndFix {
     } catch (_) {}
     if (pkgName == null || pkgName.isEmpty) return;
 
+    final validPathRegex = RegExp(r'^[a-zA-Z0-9_\-/\.]+$');
+    if (!validPathRegex.hasMatch(pkgName)) return;
+
     final Directory testDir = fs.directory(path.join(project.path, 'test'));
     if (!testDir.existsSync()) return;
 
     final dartFiles = <String>[];
-    for (final FileSystemEntity entity in libDir.listSync(recursive: true)) {
+    for (final FileSystemEntity entity in libDir.listSync(
+      recursive: true,
+      followLinks: false,
+    )) {
       if (entity is File && entity.path.endsWith('.dart')) {
         final String relPath = path.relative(entity.path, from: libDir.path);
-        if (!relPath.endsWith('.g.dart') &&
-            !relPath.endsWith('.freezed.dart') &&
-            !relPath.endsWith('.mocks.dart')) {
-          dartFiles.add(relPath);
+        final String normalized = relPath.replaceAll('\\', '/');
+        if (!validPathRegex.hasMatch(normalized)) continue;
+        if (!normalized.endsWith('.g.dart') &&
+            !normalized.endsWith('.freezed.dart') &&
+            !normalized.endsWith('.mocks.dart') &&
+            !_isPartFile(entity)) {
+          dartFiles.add(normalized);
         }
       }
     }
@@ -231,8 +278,7 @@ class TestAndFix {
       '// ignore_for_file: unused_import, non_constant_identifier_names',
     );
     for (var i = 0; i < dartFiles.length; i++) {
-      final String normalized = dartFiles[i].replaceAll('\\', '/');
-      buffer.writeln("import 'package:$pkgName/$normalized' as _i$i;");
+      buffer.writeln("import 'package:$pkgName/${dartFiles[i]}' as _i$i;");
     }
     buffer.writeln('void main() {}');
     ephemeralTest.writeAsStringSync(buffer.toString());
