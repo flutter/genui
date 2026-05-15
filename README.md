@@ -103,9 +103,9 @@ This diagram shows how packages depend on each other and how examples use them.
 
 ```mermaid
 graph TD
-  examples/catalog_gallery --> genui
+  dev_tools/catalog_gallery --> genui
   examples/simple_chat --> genui
-  examples/composer --> genui
+  dev_tools/composer --> genui
   examples/verdure --> genui_a2a
   genui_a2a --> genui
   genui --> genai_primitives

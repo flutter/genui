@@ -2,7 +2,7 @@
 
 Renders canned A2UI samples through `ChatScreen` with a `FakeAiClient` — no API key.
 
-From `examples/catalog_gallery`:
+From `dev_tools/catalog_gallery`:
 
 ```bash
 flutter pub get

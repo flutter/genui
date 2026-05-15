@@ -13,6 +13,6 @@ This is a standard Flutter app, and can be run with `flutter run`.
 
 **Run:**
 ```bash
-cd examples/catalog_gallery
+cd dev_tools/catalog_gallery
 flutter run
 ```

@@ -5,14 +5,24 @@
 import 'dart:io';
 
 import 'package:catalog_gallery/sample_parser.dart';
+import 'package:file/file.dart' as file_pkg;
 import 'package:flutter/material.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
+import 'src/sample_locator.dart';
 import 'src/test_http_client.dart';
 
 void main() {
+  final file_pkg.Directory? samplesDir = findSamplesDir();
+  if (samplesDir == null) {
+    test('Samples directory validation', () {
+      fail('Could not find samples directory.');
+    });
+    return;
+  }
+
   testWidgets('cinemaSeatSelection sample renders without error', (
     WidgetTester tester,
   ) async {
@@ -20,7 +30,7 @@ void main() {
     addTearDown(() => HttpOverrides.global = null);
     addTearDown(() => debugNetworkImageHttpClientProvider = null);
 
-    final file = File('samples/cinemaSeatSelection.sample');
+    final file = File('${samplesDir.path}/cinemaSeatSelection.sample');
     final String content = file.readAsStringSync();
     final Sample sample = SampleParser.parseString(content);
 
@@ -63,7 +73,7 @@ void main() {
     // addTearDown(() => debugNetworkImageHttpClientProvider = null);
 
     try {
-      final file = File('samples/nestedLayoutRecursive.sample');
+      final file = File('${samplesDir.path}/nestedLayoutRecursive.sample');
       final String content = file.readAsStringSync();
       final Sample sample = SampleParser.parseString(content);
 

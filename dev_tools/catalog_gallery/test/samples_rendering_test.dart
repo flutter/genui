@@ -12,30 +12,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
+import 'src/sample_locator.dart';
 import 'src/test_http_client.dart';
 
 void main() {
   const fs = LocalFileSystem();
-  Directory? samplesDir;
+  final Directory? samplesDir = findSamplesDir();
 
-  // Locate samples directory synchronously before tests run
-  final Directory current = fs.currentDirectory;
-  if (current.childDirectory('samples').existsSync()) {
-    samplesDir = current.childDirectory('samples');
-  } else if (current.childDirectory('../samples').existsSync()) {
-    samplesDir = current.childDirectory('../samples');
-  } else if (current.path.endsWith('/test')) {
-    final Directory parent = current.parent;
-    if (parent.childDirectory('samples').existsSync()) {
-      samplesDir = parent.childDirectory('samples');
-    }
-  }
-
-  if (samplesDir == null || !samplesDir.existsSync()) {
-    // If we can't find samples, we can't generate tests.
-    // We'll add a single failing test to report the error.
+  if (samplesDir == null) {
     test('Samples directory validation', () {
-      fail('Could not find samples directory. CWD: ${current.path}');
+      fail(
+        'Could not find samples directory. CWD: ${fs.currentDirectory.path}',
+      );
     });
     return;
   }
