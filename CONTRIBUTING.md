@@ -72,8 +72,6 @@ empty as possible.
 For Google-internal information see go/a2ui-internal.
 
 
-
-
 <!-- references -->
 
 [for-front-line]: https://github.com/flutter/genui/issues?q=is%3Aissue%20state%3Aopen%20-label%3AP0%20%20-label%3AP1%20-label%3AP2%20%20-label%3AP3%20-label%3Afront-line-handled

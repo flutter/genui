@@ -61,8 +61,6 @@ own version number:
 If you include `pubspec.lock` file to your PR, make sure to run `flutter pub upgrade`,
 when your Flutter is latest at beta channel.
 
-
-
 <!-- references -->
 
 [Semver]: https://semver.org/
