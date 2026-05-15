@@ -15,13 +15,12 @@ workspace:
   - examples/composer
   - examples/e2e
   - examples/simple_chat
-  - examples/travel_app
   - examples/verdure/client
 
   - packages/a2ui_core
   - packages/genui
   - packages/genui_a2a
-  - packages/json_schema_builder  
+  - packages/json_schema_builder
 
   - tool/fix_copyright
   - tool/release
