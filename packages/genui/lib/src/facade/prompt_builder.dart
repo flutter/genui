@@ -363,11 +363,15 @@ final class _BasicPromptBuilder extends PromptBuilder {
       catalog,
     ).toJson(indent: '  ');
 
+    String? activeCatalogId = catalog.catalogId
+        ?.replaceAll('"', '\\"')
+        .replaceAll('\n', '\\n');
+
     final fragments = <String>[
       ...systemPromptFragments,
       'Use the provided tools to respond to user using rich UI elements.',
-      if (catalog.catalogId != null)
-        'The active catalog ID is: "${catalog.catalogId!.replaceAll('"', '\\"').replaceAll('\n', '\\n')}".',
+      if (activeCatalogId != null)
+        'The active catalog ID is: "$activeCatalogId".',
       ...technicalPossibilities.systemPromptFragment(),
       ...catalog.systemPromptFragments,
       ...allowedOperations.systemPromptFragments,
