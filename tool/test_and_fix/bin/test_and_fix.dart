@@ -35,6 +35,20 @@ Future<int> main(List<String> arguments) async {
       help:
           'Runs tests and analysis on all projects, including those usually '
           'skipped.',
+    )
+    ..addFlag(
+      'coverage',
+      abbr: 'c',
+      negatable: false,
+      help:
+          'Runs tests with coverage and verifies against thresholds and '
+          'baseline.',
+    )
+    ..addFlag(
+      'update-baseline',
+      abbr: 'u',
+      negatable: false,
+      help: 'Updates the coverage baseline file with current high-water marks.',
     );
 
   final ArgResults argResults = parser.parse(arguments);
@@ -47,6 +61,9 @@ Future<int> main(List<String> arguments) async {
   final bool success = await TestAndFix().run(
     verbose: argResults['verbose'] as bool,
     all: argResults['all'] as bool,
+    coverage: argResults['coverage'] as bool,
+    updateBaseline: argResults['update-baseline'] as bool,
   );
+  exitCode = success ? 0 : 1;
   return success ? 0 : 1;
 }
