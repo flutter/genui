@@ -25,20 +25,22 @@ class DataModel {
     final dataPath = DataPath.parse(path);
     if (dataPath.isEmpty) return _data;
 
-    Object? current = _data;
+    Object? currentNode = _data;
     for (final String segment in dataPath.segments) {
-      if (current == null) return null;
-      if (current is Map<Object?, Object?>) {
-        current = current[segment];
-      } else if (current is List<Object?>) {
+      if (currentNode == null) return null;
+      if (currentNode is Map<String, Object?>) {
+        currentNode = currentNode[segment];
+      } else if (currentNode is List<Object?>) {
         final int? index = int.tryParse(segment);
-        if (index == null || index < 0 || index >= current.length) return null;
-        current = current[index];
+        if (index == null || index < 0 || index >= currentNode.length) {
+          return null;
+        }
+        currentNode = currentNode[index];
       } else {
         return null;
       }
     }
-    return current;
+    return currentNode;
   }
 
   /// Updates data at a specific path and notifies subscribers.
@@ -56,7 +58,7 @@ class DataModel {
           final String nextSegment = dataPath.segments[i + 1];
           final isNextNumeric = int.tryParse(nextSegment) != null;
 
-          if (current is Map<Object?, Object?>) {
+          if (current is Map<String, Object?>) {
             if (!current.containsKey(segment) || current[segment] == null) {
               current[segment] = isNextNumeric
                   ? <Object?>[]
@@ -96,7 +98,7 @@ class DataModel {
         }
 
         final String lastSegment = dataPath.segments.last;
-        if (current is Map<Object?, Object?>) {
+        if (current is Map<String, Object?>) {
           if (value == null) {
             current.remove(lastSegment);
           } else {
