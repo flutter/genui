@@ -6,31 +6,9 @@ import 'dart:async';
 
 import 'package:file/file.dart';
 import 'package:lcov_parser/lcov_parser.dart' as lcov;
-// ignore: implementation_imports
-import 'package:lcov_parser/src/models/lines.dart';
 import 'package:logging/logging.dart';
 
 import 'coverage_policy.dart';
-
-class PackageCoverageResult {
-  PackageCoverageResult({
-    required this.packageDir,
-    required this.threshold,
-    required this.baseline,
-    required this.currentCoverage,
-    required this.passed,
-    required this.delta,
-    required this.message,
-  });
-
-  final String packageDir;
-  final double threshold;
-  final double? baseline;
-  final double currentCoverage;
-  final bool passed;
-  final double delta;
-  final String message;
-}
 
 class CoverageVerifier {
   CoverageVerifier({required this.fs, Logger? logger})
@@ -67,7 +45,6 @@ class CoverageVerifier {
     final File baselineFile = fs.file(resolvedBaseline);
     final CoverageBaseline baseline = CoverageBaseline.load(baselineFile);
 
-    final results = <PackageCoverageResult>[];
     final newWaterMarks = <String, double>{};
     var allPassed = true;
 
@@ -99,17 +76,6 @@ class CoverageVerifier {
         _log.warning(
           'Warning: Missing lcov.info for $relativePackageDir. Ensure tests '
           'ran with coverage.',
-        );
-        results.add(
-          PackageCoverageResult(
-            packageDir: relativePackageDir,
-            threshold: pkgPolicy.threshold ?? policy.defaultThreshold,
-            baseline: baseline.highWaterMarks[relativePackageDir],
-            currentCoverage: 0.0,
-            passed: false,
-            delta: 0.0,
-            message: 'Missing lcov.info',
-          ),
         );
         allPassed = false;
         continue;
@@ -147,18 +113,6 @@ class CoverageVerifier {
           ? currentCoverage
           : prevBaseline;
 
-      results.add(
-        PackageCoverageResult(
-          packageDir: relativePackageDir,
-          threshold: threshold,
-          baseline: prevBaseline,
-          currentCoverage: currentCoverage,
-          passed: passed,
-          delta: delta,
-          message: statusMessage,
-        ),
-      );
-
       final String thresholdStr = '${threshold.toStringAsFixed(1)}%'.padRight(
         12,
       );
@@ -186,7 +140,7 @@ class CoverageVerifier {
     _log.info('-' * 85);
 
     if (updateBaseline) {
-      final updatedBaseline = CoverageBaseline(newWaterMarks);
+      final CoverageBaseline updatedBaseline = CoverageBaseline(newWaterMarks);
       updatedBaseline.save(baselineFile);
       _log.info('Successfully updated baseline file: ${policy.baselineFile}');
     }
@@ -216,7 +170,7 @@ class CoverageVerifier {
           continue;
         }
 
-        final LcovLinesDetails? lines = record.lines;
+        final lines = record.lines;
         if (lines != null) {
           totalFound += lines.found ?? 0;
           totalHits += lines.hit ?? 0;
