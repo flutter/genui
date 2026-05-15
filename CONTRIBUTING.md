@@ -67,44 +67,12 @@ Triage issues ready for second-line review:
 At the end of a triage session, the untriaged issue list should be as close to
 empty as possible.
 
-## Versioning
-
-We use [Semver] for package versioning, although before 1.0.0, we will be
-incrementing only the minor number for breaking changes and the patch number for
-non-breaking changes. After 1.0.0, we will be using standard Semver, bumping the
-major number for breaking changes.
-
-We release the following packages in lock step,
-with the same version number, so when one is released, they are all released:
-
-* `genui`
-* `genui_a2a`
-* `genui_firebase_ai`
-* `genui_google_generative_ui`
-
-These packages are released independently on their own schedule, with their
-own version number:
-
-* `genai_primitives`
-* `json_schema_builder`
-
-## Publishing
-
-Publishing is happening automatically via GitHub actions. 
-See [Publishing automation][publishing-automation] for more details.
-
-
-
-## pubspec.lock files
-
-`pubspec.lock` files are not git ignored to make the bots faster.
-
-If you include `pubspec.lock` file to your PR, make sure to run `flutter pub upgrade`,
-when your Flutter is latest at beta channel.
-
 ## Internal information
 
 For Google-internal information see go/a2ui-internal.
+
+
+
 
 <!-- references -->
 

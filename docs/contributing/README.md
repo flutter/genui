@@ -1,4 +1,4 @@
-# GenUI specifications
+# Contributing to this repository
 
 This folder provides guidance for contributors,
 targeted at both AI models and human developers.
@@ -11,6 +11,7 @@ This directory contains the following specifications:
 - [Design](design.md)
 - [Pull requests](pull_requests.md)
 - [Publishing](publishing.md)
+- [Examples](../../examples/README.md)
 
 ## Note for AI models
 
@@ -32,3 +33,36 @@ I have read and understood ./docs/contributing/README.md.
 
 To run a script in `tool/`, open the script in VSCode and press ⇧⌘B.
 
+## Versioning
+
+We use [Semver] for package versioning, although before 1.0.0, we will be
+incrementing only the minor number for breaking changes and the patch number for
+non-breaking changes. After 1.0.0, we will be using standard Semver, bumping the
+major number for breaking changes.
+
+We release the following packages in lock step,
+with the same version number, so when one is released, they are all released:
+
+* `genui`
+* `genui_a2a`
+* `genui_firebase_ai`
+* `genui_google_generative_ui`
+
+These packages are released independently on their own schedule, with their
+own version number:
+
+* `genai_primitives`
+* `json_schema_builder`
+
+## pubspec.lock files
+
+`pubspec.lock` files are not git ignored to make the bots faster.
+
+If you include `pubspec.lock` file to your PR, make sure to run `flutter pub upgrade`,
+when your Flutter is latest at beta channel.
+
+
+
+<!-- references -->
+
+[Semver]: https://semver.org/
