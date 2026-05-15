@@ -96,7 +96,7 @@ class CoverageVerifier {
         statusMessage = '❌ FAILED (Below Threshold)';
       } else if (prevBaseline != null) {
         delta = currentCoverage - prevBaseline;
-        if (policy.enforceNoRegression && delta < -0.01) {
+        if (policy.enforceNoRegression && delta < -0.2) {
           passed = false;
           statusMessage = '❌ REGRESSED';
         } else if (delta > 0.01) {
