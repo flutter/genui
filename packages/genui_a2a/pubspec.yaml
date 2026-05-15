@@ -16,9 +16,9 @@ environment:
 resolution: workspace
 
 dependencies:
+  collection: ^1.19.1
   flutter:
     sdk: flutter
-  freezed_annotation: ^3.1.0
   genui: ^0.9.0
   http: ^1.2.1
   json_annotation: ^4.9.0
@@ -32,7 +32,6 @@ dev_dependencies:
   dart_flutter_team_lints: ^3.5.2
   flutter_test:
     sdk: flutter
-  freezed: ^3.2.3
   json_serializable: ^6.8.0
   lints: ^6.0.0
 

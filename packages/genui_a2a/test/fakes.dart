@@ -14,9 +14,11 @@ class FakeA2AClient implements a2a.A2AClient {
   int getAgentCardCalled = 0;
   int messageStreamCalled = 0;
   int messageSendCalled = 0;
+  int cancelTaskCalled = 0;
 
   a2a.Message? lastMessageSendParams;
   a2a.Message? lastMessageStreamParams;
+  String? lastCancelTaskId;
 
   @override
   Future<a2a.AgentCard> getAgentCard() async {
@@ -69,7 +71,15 @@ class FakeA2AClient implements a2a.A2AClient {
 
   // Unimplemented methods
   @override
-  Future<a2a.Task> cancelTask(String taskId) => throw UnimplementedError();
+  Future<a2a.Task> cancelTask(String taskId) async {
+    cancelTaskCalled++;
+    lastCancelTaskId = taskId;
+    return a2a.Task(
+      id: taskId,
+      contextId: 'dummy-context',
+      status: const a2a.TaskStatus(state: a2a.TaskState.canceled),
+    );
+  }
 
   @override
   Future<void> deletePushNotificationConfig(String taskId, String configId) =>

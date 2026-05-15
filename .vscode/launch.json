@@ -14,8 +14,23 @@
       ]
     },
     {
+      "name": "verdure_client",
+      "cwd": "examples/verdure/client",
+      "request": "launch",
+      "type": "dart"
+    },
+    {
       "name": "travel_app",
       "cwd": "examples/travel_app",
+      "request": "launch",
+      "type": "dart",
+      "args": [
+        "--dart-define=GEMINI_API_KEY=${env:GEMINI_API_KEY}"
+      ]
+    },
+    {
+      "name": "verdure_client",
+      "cwd": "examples/verdure/client",
       "request": "launch",
       "type": "dart",
       "args": [

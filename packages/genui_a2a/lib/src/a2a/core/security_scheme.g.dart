@@ -11,7 +11,7 @@ part of 'security_scheme.dart';
 APIKeySecurityScheme _$APIKeySecuritySchemeFromJson(
   Map<String, dynamic> json,
 ) => APIKeySecurityScheme(
-  type: json['type'] as String? ?? 'apiKey',
+  type: json['type'] as String?,
   description: json['description'] as String?,
   name: json['name'] as String,
   in_: json['in'] as String,
@@ -29,7 +29,7 @@ Map<String, dynamic> _$APIKeySecuritySchemeToJson(
 HttpAuthSecurityScheme _$HttpAuthSecuritySchemeFromJson(
   Map<String, dynamic> json,
 ) => HttpAuthSecurityScheme(
-  type: json['type'] as String? ?? 'http',
+  type: json['type'] as String?,
   description: json['description'] as String?,
   scheme: json['scheme'] as String,
   bearerFormat: json['bearerFormat'] as String?,
@@ -47,7 +47,7 @@ Map<String, dynamic> _$HttpAuthSecuritySchemeToJson(
 OAuth2SecurityScheme _$OAuth2SecuritySchemeFromJson(
   Map<String, dynamic> json,
 ) => OAuth2SecurityScheme(
-  type: json['type'] as String? ?? 'oauth2',
+  type: json['type'] as String?,
   description: json['description'] as String?,
   flows: OAuthFlows.fromJson(json['flows'] as Map<String, dynamic>),
 );
@@ -63,7 +63,7 @@ Map<String, dynamic> _$OAuth2SecuritySchemeToJson(
 OpenIdConnectSecurityScheme _$OpenIdConnectSecuritySchemeFromJson(
   Map<String, dynamic> json,
 ) => OpenIdConnectSecurityScheme(
-  type: json['type'] as String? ?? 'openIdConnect',
+  type: json['type'] as String?,
   description: json['description'] as String?,
   openIdConnectUrl: json['openIdConnectUrl'] as String,
 );
@@ -79,7 +79,7 @@ Map<String, dynamic> _$OpenIdConnectSecuritySchemeToJson(
 MutualTlsSecurityScheme _$MutualTlsSecuritySchemeFromJson(
   Map<String, dynamic> json,
 ) => MutualTlsSecurityScheme(
-  type: json['type'] as String? ?? 'mutualTls',
+  type: json['type'] as String?,
   description: json['description'] as String?,
 );
 
@@ -90,7 +90,7 @@ Map<String, dynamic> _$MutualTlsSecuritySchemeToJson(
   'description': instance.description,
 };
 
-_OAuthFlows _$OAuthFlowsFromJson(Map<String, dynamic> json) => _OAuthFlows(
+OAuthFlows _$OAuthFlowsFromJson(Map<String, dynamic> json) => OAuthFlows(
   implicit: json['implicit'] == null
       ? null
       : OAuthFlow.fromJson(json['implicit'] as Map<String, dynamic>),
@@ -105,7 +105,7 @@ _OAuthFlows _$OAuthFlowsFromJson(Map<String, dynamic> json) => _OAuthFlows(
       : OAuthFlow.fromJson(json['authorizationCode'] as Map<String, dynamic>),
 );
 
-Map<String, dynamic> _$OAuthFlowsToJson(_OAuthFlows instance) =>
+Map<String, dynamic> _$OAuthFlowsToJson(OAuthFlows instance) =>
     <String, dynamic>{
       'implicit': instance.implicit?.toJson(),
       'password': instance.password?.toJson(),
@@ -113,17 +113,16 @@ Map<String, dynamic> _$OAuthFlowsToJson(_OAuthFlows instance) =>
       'authorizationCode': instance.authorizationCode?.toJson(),
     };
 
-_OAuthFlow _$OAuthFlowFromJson(Map<String, dynamic> json) => _OAuthFlow(
+OAuthFlow _$OAuthFlowFromJson(Map<String, dynamic> json) => OAuthFlow(
   authorizationUrl: json['authorizationUrl'] as String?,
   tokenUrl: json['tokenUrl'] as String?,
   refreshUrl: json['refreshUrl'] as String?,
   scopes: Map<String, String>.from(json['scopes'] as Map),
 );
 
-Map<String, dynamic> _$OAuthFlowToJson(_OAuthFlow instance) =>
-    <String, dynamic>{
-      'authorizationUrl': instance.authorizationUrl,
-      'tokenUrl': instance.tokenUrl,
-      'refreshUrl': instance.refreshUrl,
-      'scopes': instance.scopes,
-    };
+Map<String, dynamic> _$OAuthFlowToJson(OAuthFlow instance) => <String, dynamic>{
+  'authorizationUrl': instance.authorizationUrl,
+  'tokenUrl': instance.tokenUrl,
+  'refreshUrl': instance.refreshUrl,
+  'scopes': instance.scopes,
+};

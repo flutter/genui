@@ -9,11 +9,11 @@ part of 'events.dart';
 // **************************************************************************
 
 StatusUpdate _$StatusUpdateFromJson(Map<String, dynamic> json) => StatusUpdate(
-  kind: json['kind'] as String? ?? 'status-update',
+  kind: json['kind'] as String?,
   taskId: json['taskId'] as String,
   contextId: json['contextId'] as String,
   status: TaskStatus.fromJson(json['status'] as Map<String, dynamic>),
-  final_: json['final'] as bool? ?? false,
+  final_: json['final'] as bool?,
 );
 
 Map<String, dynamic> _$StatusUpdateToJson(StatusUpdate instance) =>
@@ -27,11 +27,11 @@ Map<String, dynamic> _$StatusUpdateToJson(StatusUpdate instance) =>
 
 TaskStatusUpdate _$TaskStatusUpdateFromJson(Map<String, dynamic> json) =>
     TaskStatusUpdate(
-      kind: json['kind'] as String? ?? 'task-status-update',
+      kind: json['kind'] as String?,
       taskId: json['taskId'] as String,
       contextId: json['contextId'] as String,
       status: TaskStatus.fromJson(json['status'] as Map<String, dynamic>),
-      final_: json['final'] as bool? ?? false,
+      final_: json['final'] as bool?,
     );
 
 Map<String, dynamic> _$TaskStatusUpdateToJson(TaskStatusUpdate instance) =>
@@ -45,7 +45,7 @@ Map<String, dynamic> _$TaskStatusUpdateToJson(TaskStatusUpdate instance) =>
 
 ArtifactUpdate _$ArtifactUpdateFromJson(Map<String, dynamic> json) =>
     ArtifactUpdate(
-      kind: json['kind'] as String? ?? 'artifact-update',
+      kind: json['kind'] as String?,
       taskId: json['taskId'] as String,
       contextId: json['contextId'] as String,
       artifact: Artifact.fromJson(json['artifact'] as Map<String, dynamic>),

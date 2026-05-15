@@ -8,8 +8,8 @@ part of 'list_tasks_result.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_ListTasksResult _$ListTasksResultFromJson(Map<String, dynamic> json) =>
-    _ListTasksResult(
+ListTasksResult _$ListTasksResultFromJson(Map<String, dynamic> json) =>
+    ListTasksResult(
       tasks: (json['tasks'] as List<dynamic>)
           .map((e) => Task.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -18,7 +18,7 @@ _ListTasksResult _$ListTasksResultFromJson(Map<String, dynamic> json) =>
       nextPageToken: json['nextPageToken'] as String,
     );
 
-Map<String, dynamic> _$ListTasksResultToJson(_ListTasksResult instance) =>
+Map<String, dynamic> _$ListTasksResultToJson(ListTasksResult instance) =>
     <String, dynamic>{
       'tasks': instance.tasks.map((e) => e.toJson()).toList(),
       'totalSize': instance.totalSize,

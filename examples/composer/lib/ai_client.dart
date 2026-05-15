@@ -6,7 +6,7 @@ import 'dart:async';
 
 import 'package:dartantic_ai/dartantic_ai.dart' as dartantic;
 
-import 'get_api_key.dart';
+import 'api_key.dart';
 
 /// An abstract interface for AI clients.
 abstract interface class AiClient {
@@ -23,8 +23,8 @@ abstract interface class AiClient {
 /// An implementation of [AiClient] using `package:dartantic_ai`.
 class DartanticAiClient implements AiClient {
   DartanticAiClient({String? modelName}) {
-    final String apiKey = getApiKey();
-    _provider = dartantic.GoogleProvider(apiKey: apiKey);
+    final String key = apiKey();
+    _provider = dartantic.GoogleProvider(apiKey: key);
     _agent = dartantic.Agent.forProvider(
       _provider,
       chatModelName: modelName ?? 'gemini-3-flash-preview',

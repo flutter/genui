@@ -8,13 +8,13 @@ part of 'agent_interface.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_AgentInterface _$AgentInterfaceFromJson(Map<String, dynamic> json) =>
-    _AgentInterface(
+AgentInterface _$AgentInterfaceFromJson(Map<String, dynamic> json) =>
+    AgentInterface(
       url: json['url'] as String,
       transport: $enumDecode(_$TransportProtocolEnumMap, json['transport']),
     );
 
-Map<String, dynamic> _$AgentInterfaceToJson(_AgentInterface instance) =>
+Map<String, dynamic> _$AgentInterfaceToJson(AgentInterface instance) =>
     <String, dynamic>{
       'url': instance.url,
       'transport': _$TransportProtocolEnumMap[instance.transport]!,

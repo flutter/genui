@@ -13,9 +13,8 @@ environment:
 workspace:
   - examples/catalog_gallery
   - examples/composer
-  - examples/eval
+  - examples/e2e
   - examples/simple_chat
-  - examples/travel_app
   - examples/verdure/client
 
   - packages/a2ui_core

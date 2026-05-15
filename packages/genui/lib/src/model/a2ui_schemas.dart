@@ -26,6 +26,8 @@ abstract final class A2uiSchemas {
           _formatNumberFunction(),
           _formatCurrencyFunction(),
           _formatDateFunction(),
+          _pluralizeFunction(),
+          _openUrlFunction(),
           _andFunction(),
           _orFunction(),
           _notFunction(),
@@ -198,6 +200,35 @@ abstract final class A2uiSchemas {
           ),
         },
         required: ['value', 'pattern'],
+      ),
+    );
+  }
+
+  static Schema _pluralizeFunction() {
+    return _functionDefinition(
+      name: 'pluralize',
+      description: 'Selects a localized string based on a numeric count.',
+      returnType: 'string',
+      args: S.object(
+        properties: {
+          'count': S.number(description: 'The numeric count.'),
+          'zero': S.string(description: 'String for zero count.'),
+          'one': S.string(description: 'String for count of one.'),
+          'other': S.string(description: 'Fallback string.'),
+        },
+        required: ['count', 'other'],
+      ),
+    );
+  }
+
+  static Schema _openUrlFunction() {
+    return _functionDefinition(
+      name: 'openUrl',
+      description: 'Opens a URL in a browser.',
+      returnType: 'void',
+      args: S.object(
+        properties: {'url': S.string(description: 'The URL to open.')},
+        required: ['url'],
       ),
     );
   }

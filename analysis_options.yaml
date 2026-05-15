@@ -5,6 +5,8 @@
 include: package:lints/recommended.yaml
 
 analyzer:
+  exclude:
+    - 'packages/genui/submodules/**'
   language:
     strict-casts: true
     strict-inference: true

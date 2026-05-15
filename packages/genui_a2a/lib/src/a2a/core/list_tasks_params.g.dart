@@ -8,8 +8,8 @@ part of 'list_tasks_params.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_ListTasksParams _$ListTasksParamsFromJson(Map<String, dynamic> json) =>
-    _ListTasksParams(
+ListTasksParams _$ListTasksParamsFromJson(Map<String, dynamic> json) =>
+    ListTasksParams(
       contextId: json['contextId'] as String?,
       status: $enumDecodeNullable(_$TaskStateEnumMap, json['status']),
       pageSize: (json['pageSize'] as num?)?.toInt() ?? 50,
@@ -20,7 +20,7 @@ _ListTasksParams _$ListTasksParamsFromJson(Map<String, dynamic> json) =>
       metadata: json['metadata'] as Map<String, dynamic>?,
     );
 
-Map<String, dynamic> _$ListTasksParamsToJson(_ListTasksParams instance) =>
+Map<String, dynamic> _$ListTasksParamsToJson(ListTasksParams instance) =>
     <String, dynamic>{
       'contextId': instance.contextId,
       'status': _$TaskStateEnumMap[instance.status],

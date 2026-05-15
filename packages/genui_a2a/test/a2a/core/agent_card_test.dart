@@ -27,11 +27,70 @@ void main() {
     test('can be serialized and deserialized from JSON', () {
       final json = jsonDecode(agentCardJson) as Map<String, Object?>;
       final agentCard = AgentCard.fromJson(json);
-      final Map<String, dynamic> serializedJson = agentCard.toJson();
+      final Map<String, Object?> serializedJson = agentCard.toJson();
       final agentCard2 = AgentCard.fromJson(serializedJson);
       expect(agentCard2, equals(agentCard));
       expect(agentCard.name, equals('GeoSpatial Route Planner Agent'));
       expect(agentCard.skills.length, equals(2));
+    });
+
+    test('copyWith works', () {
+      const agentCard = AgentCard(
+        protocolVersion: '0.2.9',
+        name: 'Test Agent',
+        description: 'A test agent.',
+        url: 'https://example.com/a2a',
+        version: '1.0.0',
+        capabilities: AgentCapabilities(),
+        defaultInputModes: [],
+        defaultOutputModes: [],
+        skills: [],
+      );
+      final AgentCard copy = agentCard.copyWith(name: 'New Name');
+      expect(copy.name, 'New Name');
+      expect(copy.protocolVersion, '0.2.9');
+    });
+
+    test('operator == and hashCode', () {
+      const agentCard1 = AgentCard(
+        protocolVersion: '0.2.9',
+        name: 'Test Agent',
+        description: 'A test agent.',
+        url: 'https://example.com/a2a',
+        version: '1.0.0',
+        capabilities: AgentCapabilities(),
+        defaultInputModes: [],
+        defaultOutputModes: [],
+        skills: [],
+      );
+      const agentCard2 = AgentCard(
+        protocolVersion: '0.2.9',
+        name: 'Test Agent',
+        description: 'A test agent.',
+        url: 'https://example.com/a2a',
+        version: '1.0.0',
+        capabilities: AgentCapabilities(),
+        defaultInputModes: [],
+        defaultOutputModes: [],
+        skills: [],
+      );
+      expect(agentCard1, agentCard2);
+      expect(agentCard1.hashCode, agentCard2.hashCode);
+    });
+
+    test('toString works', () {
+      const agentCard = AgentCard(
+        protocolVersion: '0.2.9',
+        name: 'Test Agent',
+        description: 'A test agent.',
+        url: 'https://example.com/a2a',
+        version: '1.0.0',
+        capabilities: AgentCapabilities(),
+        defaultInputModes: [],
+        defaultOutputModes: [],
+        skills: [],
+      );
+      expect(agentCard.toString(), contains('AgentCard'));
     });
   });
 }

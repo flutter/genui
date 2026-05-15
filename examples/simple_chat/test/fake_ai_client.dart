@@ -6,7 +6,7 @@ import 'dart:async';
 
 import 'package:dartantic_ai/dartantic_ai.dart' as dartantic;
 import 'package:genui/genui.dart';
-import 'package:simple_chat/ai_client.dart';
+import 'package:simple_chat/agent/ai_client.dart';
 
 /// A fake implementation of [AiClient] for testing.
 class FakeAiClient implements AiClient {
