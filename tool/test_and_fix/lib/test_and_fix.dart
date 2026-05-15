@@ -12,7 +12,7 @@ import 'package:process/process.dart';
 import 'package:process_runner/process_runner.dart';
 import 'package:yaml/yaml.dart';
 
-import 'src/coverage/coverage_verifier.dart';
+import 'src/verifiers/coverage_verifier.dart';
 
 class TestAndFix {
   TestAndFix({
