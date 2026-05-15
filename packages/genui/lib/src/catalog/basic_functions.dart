@@ -476,7 +476,7 @@ class PluralizeFunction extends SynchronousClientFunction {
   String get description =>
       'Returns a localized string based on the Common Locale Data Repository '
       '(CLDR) plural category of the count (zero, one, two, few, many, other). '
-      "Requires an 'other' fallback. For English, just use 'one' and 'other'.";
+      "Requires an 'other' fallback.";
 
   @override
   ClientFunctionReturnType get returnType => ClientFunctionReturnType.string;
@@ -484,20 +484,29 @@ class PluralizeFunction extends SynchronousClientFunction {
   @override
   Schema get argumentSchema => S.object(
     properties: {
-      'count': S.number(),
+      'value': S.number(),
       'zero': S.string(),
       'one': S.string(),
+      'two': S.string(),
+      'few': S.string(),
+      'many': S.string(),
       'other': S.string(),
     },
   );
 
   @override
   Object? executeSync(JsonMap args, ExecutionContext _) {
-    final Object? count = args['count'];
+    final Object? count = args['value'] ?? args['count'];
     if (count is! num) return '';
 
-    if (count == 0 && args.containsKey('zero')) return args['zero'];
-    if (count == 1 && args.containsKey('one')) return args['one'];
-    return args['other'] ?? '';
+    return Intl.plural(
+      count,
+      zero: args['zero'] as String?,
+      one: args['one'] as String?,
+      two: args['two'] as String?,
+      few: args['few'] as String?,
+      many: args['many'] as String?,
+      other: args['other'] as String? ?? '',
+    );
   }
 }

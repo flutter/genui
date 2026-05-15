@@ -50,8 +50,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           # Find all directories containing pubspec.yaml in packages, tools, and examples.
-          # examples/e2e is excluded, because it requires GEMINI_API_KEY and is exercised in other workflow
-          ALL_DIRS=$(find packages examples tool -name pubspec.yaml -not -path "*/.dart_tool/*" -not -path "examples/e2e/*" -exec dirname {} \;)
+          # tool/e2e is excluded, because it requires GEMINI_API_KEY and is exercised in other workflow
+          ALL_DIRS=$(find packages examples tool -name pubspec.yaml -not -path "*/.dart_tool/*" -not -path "tool/e2e/*" -exec dirname {} \;)
 
           # Get the list of changed files. The method depends on the event type.
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then

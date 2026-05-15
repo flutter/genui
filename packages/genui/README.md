@@ -407,7 +407,7 @@ This reactive data flow simplifies state management and creates a powerful, high
 ### Next steps
 
 Check out the [examples](../../examples) included in this repo! The
-[travel app](../../examples/travel_app) shows how to define your own widget
+[simple_chat](../../examples/simple_chat) shows how to define your own widget
 `Catalog` that the agent can use to generate domain-specific UI.
 
 If something is unclear or missing, please

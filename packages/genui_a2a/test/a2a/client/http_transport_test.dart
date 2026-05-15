@@ -4,6 +4,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui_a2a/src/a2a/a2a.dart';
+import 'package:http/http.dart' as http;
 
 import '../fakes.dart';
 
@@ -52,14 +53,63 @@ void main() {
 
       expect(
         () => transport.sendStream({}),
-        throwsA(
-          isA<A2AException>().having(
-            (e) => e.mapOrNull(unsupportedOperation: (_) => true),
-            'is unsupportedOperation',
-            true,
-          ),
+        throwsA(isA<A2AUnsupportedOperationException>()),
+      );
+    });
+    test('get throws A2AException.http on error status', () {
+      final transport = HttpTransport(
+        url: 'http://localhost:8080',
+        client: FakeHttpClient({}, statusCode: 404),
+      );
+
+      expect(transport.get('/test'), throwsA(isA<A2AHttpException>()));
+    });
+
+    test('get throws A2AException.network on ClientException', () {
+      final transport = HttpTransport(
+        url: 'http://localhost:8080',
+        client: FakeHttpClient(
+          {},
+          exceptionToThrow: http.ClientException('Network error'),
         ),
       );
+
+      expect(transport.get('/test'), throwsA(isA<A2ANetworkException>()));
+    });
+
+    test('send throws A2AException.network on ClientException', () {
+      final transport = HttpTransport(
+        url: 'http://localhost:8080',
+        client: FakeHttpClient(
+          {},
+          exceptionToThrow: http.ClientException('Network error'),
+        ),
+      );
+
+      expect(transport.send({}), throwsA(isA<A2ANetworkException>()));
+    });
+
+    test('send throws A2AException.parsing on FormatException', () {
+      final transport = HttpTransport(
+        url: 'http://localhost:8080',
+        client: FakeHttpClient(
+          {},
+          exceptionToThrow: const FormatException('Parsing error'),
+        ),
+      );
+
+      expect(transport.send({}), throwsA(isA<A2AParsingException>()));
+    });
+
+    test('close calls client.close', () {
+      final client = FakeHttpClient({});
+      final transport = HttpTransport(
+        url: 'http://localhost:8080',
+        client: client,
+      );
+
+      transport.close();
+      expect(client.closeCalled, 1);
     });
   });
 }

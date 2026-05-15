@@ -11,11 +11,16 @@ import 'package:http/http.dart' as http;
 class FakeHttpClient implements http.Client {
   final Map<String, Object?> response;
   final int statusCode;
+  final Exception? exceptionToThrow;
+  int closeCalled = 0;
 
-  FakeHttpClient(this.response, {this.statusCode = 200});
+  FakeHttpClient(this.response, {this.statusCode = 200, this.exceptionToThrow});
 
   @override
   Future<http.Response> get(Uri url, {Map<String, String>? headers}) async {
+    if (exceptionToThrow != null) {
+      throw exceptionToThrow!;
+    }
     return http.Response(jsonEncode(response), statusCode);
   }
 
@@ -26,7 +31,15 @@ class FakeHttpClient implements http.Client {
     Object? body,
     Encoding? encoding,
   }) async {
+    if (exceptionToThrow != null) {
+      throw exceptionToThrow!;
+    }
     return http.Response(jsonEncode(response), statusCode);
+  }
+
+  @override
+  void close() {
+    closeCalled++;
   }
 
   @override
@@ -41,6 +54,7 @@ class FakeTransport implements Transport {
   final Stream<Map<String, Object?>> stream;
 
   final List<Map<String, Object?>> requests = [];
+  final List<Map<String, String>> recordedHeaders = [];
 
   FakeTransport({
     required this.response,
@@ -53,6 +67,7 @@ class FakeTransport implements Transport {
     String path, {
     Map<String, String> headers = const {},
   }) async {
+    recordedHeaders.add(headers);
     return jsonDecode(jsonEncode(response)) as Map<String, Object?>;
   }
 
@@ -63,6 +78,7 @@ class FakeTransport implements Transport {
     Map<String, String> headers = const {},
   }) async {
     requests.add(request);
+    recordedHeaders.add(headers);
     return jsonDecode(jsonEncode(response)) as Map<String, Object?>;
   }
 
@@ -72,6 +88,7 @@ class FakeTransport implements Transport {
     Map<String, String> headers = const {},
   }) {
     requests.add(request);
+    recordedHeaders.add(headers);
     return stream;
   }
 

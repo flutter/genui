@@ -8,7 +8,7 @@ part of 'agent_skill.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_AgentSkill _$AgentSkillFromJson(Map<String, dynamic> json) => _AgentSkill(
+AgentSkill _$AgentSkillFromJson(Map<String, dynamic> json) => AgentSkill(
   id: json['id'] as String,
   name: json['name'] as String,
   description: json['description'] as String,
@@ -34,7 +34,7 @@ _AgentSkill _$AgentSkillFromJson(Map<String, dynamic> json) => _AgentSkill(
       .toList(),
 );
 
-Map<String, dynamic> _$AgentSkillToJson(_AgentSkill instance) =>
+Map<String, dynamic> _$AgentSkillToJson(AgentSkill instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,

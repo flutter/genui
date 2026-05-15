@@ -8,7 +8,7 @@ part of 'agent_card.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_AgentCard _$AgentCardFromJson(Map<String, dynamic> json) => _AgentCard(
+AgentCard _$AgentCardFromJson(Map<String, dynamic> json) => AgentCard(
   protocolVersion: json['protocolVersion'] as String,
   name: json['name'] as String,
   description: json['description'] as String,
@@ -55,9 +55,7 @@ _AgentCard _$AgentCardFromJson(Map<String, dynamic> json) => _AgentCard(
       json['supportsAuthenticatedExtendedCard'] as bool?,
 );
 
-Map<String, dynamic> _$AgentCardToJson(
-  _AgentCard instance,
-) => <String, dynamic>{
+Map<String, dynamic> _$AgentCardToJson(AgentCard instance) => <String, dynamic>{
   'protocolVersion': instance.protocolVersion,
   'name': instance.name,
   'description': instance.description,

@@ -8,8 +8,8 @@ part of 'agent_capabilities.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_AgentCapabilities _$AgentCapabilitiesFromJson(Map<String, dynamic> json) =>
-    _AgentCapabilities(
+AgentCapabilities _$AgentCapabilitiesFromJson(Map<String, dynamic> json) =>
+    AgentCapabilities(
       streaming: json['streaming'] as bool?,
       pushNotifications: json['pushNotifications'] as bool?,
       stateTransitionHistory: json['stateTransitionHistory'] as bool?,
@@ -18,7 +18,7 @@ _AgentCapabilities _$AgentCapabilitiesFromJson(Map<String, dynamic> json) =>
           .toList(),
     );
 
-Map<String, dynamic> _$AgentCapabilitiesToJson(_AgentCapabilities instance) =>
+Map<String, dynamic> _$AgentCapabilitiesToJson(AgentCapabilities instance) =>
     <String, dynamic>{
       'streaming': instance.streaming,
       'pushNotifications': instance.pushNotifications,
