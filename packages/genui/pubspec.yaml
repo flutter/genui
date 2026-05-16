@@ -11,7 +11,7 @@ issue_tracker: https://github.com/flutter/genui/issues
 
 environment:
   sdk: ">=3.10.0 <4.0.0"
-  flutter: ">=3.35.7 <4.0.0"
+  flutter: ">=3.35.7"
 
 resolution: workspace
 
