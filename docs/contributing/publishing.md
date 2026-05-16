@@ -11,7 +11,7 @@ There are two CI workflows that enable this automation:
 
 ## Passing the publish / validate job
 
-In general, the job [publish / validate](https://github.com/flutter/genui/actions/runs/25936562918) checks if all pub.dev packages are ready for publishing. 
+In general, the job [publish / validate](https://github.com/flutter/genui/actions/workflows/post_summaries.yaml) checks if all pub.dev packages are ready for publishing.
 
 To make sure your PR passes this validation, follow [firehose rules](https://github.com/dart-lang/ecosystem/tree/main/pkgs/firehose).
 
