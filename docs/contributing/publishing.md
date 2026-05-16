@@ -1,7 +1,7 @@
 
-# Publishing
+# Publishing 
 
-Publishing is happening automatically via GitHub actions, with help of
+Publishing to [pub.dev](https://pub.dev) is happening automatically via GitHub actions, with help of
 [firehose rules](https://github.com/dart-lang/ecosystem/tree/main/pkgs/firehose).
 
 There are two CI workflows that enable this automation:
@@ -11,7 +11,7 @@ There are two CI workflows that enable this automation:
 
 ## Making PR passing `publish / validate`
 
-In general, the job [publish / validate](https://github.com/flutter/genui/actions/runs/25936562918) checks if all [pub.dev](https://pub.dev) packages are release ready. 
+In general, the job [publish / validate](https://github.com/flutter/genui/actions/runs/25936562918) checks if all pub.dev packages are ready for publishing. 
 
 To make sure your PR passes this validation, follow [firehose rules](https://github.com/dart-lang/ecosystem/tree/main/pkgs/firehose).
 
@@ -23,6 +23,14 @@ The packages code should be always release ready. That means:
 
 2. If your feature is partially implemented, hide the feature's code behind a false by default, and use non-dev version.
 
+## Package categories
+
+`pub.dev` packages in this repo fall into three categories:
+
+1. **Not published**: they have `release: none` in their `pubspec.yaml`.
+2. **Mono-repo packages**: they have `resolution: workspace` in their `pubspec.yaml`, and are released together, with the same version number.
+3. **Independent packages**: they don't have `resolution` in their `pubspec.yaml`. They are released independently.
+
 ## Versioning
 
 We use [Semver] for package versioning, although before 1.0.0, we will be
@@ -30,18 +38,6 @@ incrementing only the minor number for breaking changes and the patch number for
 non-breaking changes. After 1.0.0, we will be using standard Semver, bumping the
 major number for breaking changes.
 
-We release the following packages in lock step,
-with the same version number, so when one is released, they are all released:
-
-* `genui`
-* `genui_a2a`
-* `genui_firebase_ai`
-* `genui_google_generative_ui`
-
-These packages are released independently on their own schedule, with their
-own version number:
-
-* `genai_primitives`
-* `json_schema_builder`
+<!-- references -->
 
 [Semver]: https://semver.org/ 
