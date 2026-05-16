@@ -17,7 +17,7 @@ To make sure your PR passes this validation, follow [firehose rules](https://git
 
 ## Package categories
 
-`pub.dev` packages in this repo fall into three categories:
+`pub.dev` packages in this repo fall into the following categories:
 
 1. **Not intended to be published**: they have `publish_to: none` in their `pubspec.yaml`.
 2. **Mono-repo packages**: they have `resolution: workspace` in their `pubspec.yaml`, and are released together, in lock-step, with the same version number.
