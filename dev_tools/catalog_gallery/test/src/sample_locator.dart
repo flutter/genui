@@ -15,7 +15,8 @@ Directory? findSamplesDir() {
   for (final candidate in <Directory>[
     current.childDirectory('samples'),
     current.childDirectory('../samples'),
-    if (current.path.endsWith('/test')) current.parent.childDirectory('samples'),
+    if (current.path.endsWith('/test'))
+      current.parent.childDirectory('samples'),
     current.childDirectory('dev_tools/catalog_gallery/samples'),
   ]) {
     if (candidate.existsSync()) return candidate;

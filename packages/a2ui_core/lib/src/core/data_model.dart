@@ -18,27 +18,29 @@ class DataModel {
   Object? _data;
   final Map<String, WeakReference<Signal<Object?>>> _signals = {};
 
-  DataModel([Object? initialData]) : _data = initialData ?? <String, dynamic>{};
+  DataModel([Object? initialData]) : _data = initialData ?? <String, Object?>{};
 
   /// Synchronously gets data at a specific JSON pointer path.
   Object? get(String path) {
     final dataPath = DataPath.parse(path);
     if (dataPath.isEmpty) return _data;
 
-    Object? current = _data;
+    Object? currentNode = _data;
     for (final String segment in dataPath.segments) {
-      if (current == null) return null;
-      if (current is Map) {
-        current = current[segment];
-      } else if (current is List) {
+      if (currentNode == null) return null;
+      if (currentNode is Map<String, Object?>) {
+        currentNode = currentNode[segment];
+      } else if (currentNode is List<Object?>) {
         final int? index = int.tryParse(segment);
-        if (index == null || index < 0 || index >= current.length) return null;
-        current = current[index];
+        if (index == null || index < 0 || index >= currentNode.length) {
+          return null;
+        }
+        currentNode = currentNode[index];
       } else {
         return null;
       }
     }
-    return current;
+    return currentNode;
   }
 
   /// Updates data at a specific path and notifies subscribers.
@@ -49,21 +51,21 @@ class DataModel {
       if (dataPath.isEmpty) {
         _data = value;
       } else {
-        _data ??= <String, dynamic>{};
+        _data ??= <String, Object?>{};
         Object? current = _data;
         for (var i = 0; i < dataPath.segments.length - 1; i++) {
           final String segment = dataPath.segments[i];
           final String nextSegment = dataPath.segments[i + 1];
           final isNextNumeric = int.tryParse(nextSegment) != null;
 
-          if (current is Map) {
+          if (current is Map<String, Object?>) {
             if (!current.containsKey(segment) || current[segment] == null) {
               current[segment] = isNextNumeric
                   ? <Object?>[]
-                  : <String, dynamic>{};
+                  : <String, Object?>{};
             }
             current = current[segment];
-          } else if (current is List) {
+          } else if (current is List<Object?>) {
             final int? index = int.tryParse(segment);
             if (index == null) {
               throw A2uiDataError(
@@ -83,7 +85,7 @@ class DataModel {
             if (current[index] == null) {
               current[index] = isNextNumeric
                   ? <Object?>[]
-                  : <String, dynamic>{};
+                  : <String, Object?>{};
             }
             current = current[index];
           } else {
@@ -96,13 +98,13 @@ class DataModel {
         }
 
         final String lastSegment = dataPath.segments.last;
-        if (current is Map) {
+        if (current is Map<String, Object?>) {
           if (value == null) {
             current.remove(lastSegment);
           } else {
             current[lastSegment] = value;
           }
-        } else if (current is List) {
+        } else if (current is List<Object?>) {
           final int? index = int.tryParse(lastSegment);
           if (index == null) {
             throw A2uiDataError(
@@ -130,8 +132,7 @@ class DataModel {
   /// Returns a [ReadonlySignal] for a specific path.
   /// Internally cached using a [WeakReference] to prevent leaks.
   ReadonlySignal<T?> watch<T>(String path) {
-    var normalizedPath = DataPath.parse(path).toString();
-    if (normalizedPath == '') normalizedPath = '/';
+    final normalizedPath = DataPath.parse(path).toString();
     final WeakReference<Signal<Object?>>? ref = _signals[normalizedPath];
     if (ref != null) {
       final Signal<Object?>? sig = ref.target;
@@ -147,24 +148,18 @@ class DataModel {
   }
 
   void _notifyPathAndRelated(DataPath dataPath) {
-    final normalizedPath = dataPath.toString();
-
-    // Notify all active signals that are related to this path
+    final changedPath = dataPath.toString();
+    final String changedDescendantPrefix = _descendantPrefix(changedPath);
     for (final String entryPath in _signals.keys.toList()) {
-      if (entryPath == '/' || entryPath == '') {
-        _getAndNotify(entryPath);
-        continue;
-      }
-
-      if (entryPath == normalizedPath) {
-        _getAndNotify(entryPath);
-      } else if (normalizedPath.startsWith('$entryPath/')) {
-        _getAndNotify(entryPath);
-      } else if (entryPath.startsWith('$normalizedPath/')) {
+      if (changedPath == entryPath ||
+          entryPath.startsWith(changedDescendantPrefix) ||
+          changedPath.startsWith(_descendantPrefix(entryPath))) {
         _getAndNotify(entryPath);
       }
     }
   }
+
+  static String _descendantPrefix(String path) => path == '/' ? '/' : '$path/';
 
   void _getAndNotify(String path) {
     final WeakReference<Signal<Object?>>? ref = _signals[path];
