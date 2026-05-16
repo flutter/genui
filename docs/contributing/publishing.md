@@ -15,21 +15,26 @@ In general, the job [publish / validate](https://github.com/flutter/genui/action
 
 To make sure your PR passes this validation, follow [firehose rules](https://github.com/dart-lang/ecosystem/tree/main/pkgs/firehose).
 
-## `-dev` vs non-`-dev` (production ready) versions
-
-The packages code should be always release ready. That means:
-
-1. Use `-dev` version if your changes don't touch any published code or docs. For example, you changed tests, tools, or not-publisshed docs.
-
-2. If your feature is partially implemented, hide the feature's code behind a false by default, and use non-dev version.
-
 ## Package categories
 
 `pub.dev` packages in this repo fall into three categories:
 
-1. **Not published**: they have `release: none` in their `pubspec.yaml`.
-2. **Mono-repo packages**: they have `resolution: workspace` in their `pubspec.yaml`, and are released together, with the same version number.
-3. **Independent packages**: they don't have `release: none` and `resolution` in their `pubspec.yaml`. They are released independently.
+1. **Not intended to be published**: they have `publish_to: none` in their `pubspec.yaml`.
+2. **Mono-repo packages**: they have `resolution: workspace` in their `pubspec.yaml`, and are released together, in lock-step, with the same version number.
+3. **Independent packages**: they don't have `publish_to` and `resolution` fields in their `pubspec.yaml`. They are released independently.
+4. **Not yet published packages**: they have `resolution: workspace` and `release: none` in their `pubspec.yaml`.
+
+## `-dev` vs non-`-dev` (production ready) versions
+
+The packages code should be always release ready. That means:
+
+1. Use `-dev` version if **at least one** of the following statements is true:
+
+   1.1. The package is planned to be released in future. In this case it is published with `-dev` suffix in order to reserve the package name.
+
+   1.2. The package's changes touches only pub.dev non-publishable code or docs (like tests, tools, or not-publishable docs) and it is not a mono-repo package in-lock with other package that has publishable code.
+
+2. If your feature is partially implemented, hide the feature's code behind a false by default, and use **release-ready** version.
 
 ## Versioning
 

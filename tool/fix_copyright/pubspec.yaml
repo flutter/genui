@@ -4,6 +4,7 @@
 
 name: fix_copyright
 description: A command line app to fix copyright headers.
+publish_to: none
 version: 0.1.0
 
 environment:
