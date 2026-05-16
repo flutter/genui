@@ -46,3 +46,7 @@ major number for breaking changes.
 <!-- references -->
 
 [Semver]: https://semver.org/ 
+
+## How publishing happens?
+
+TODO(polina-c): add information, https://github.com/google/A2UI/issues/1383
