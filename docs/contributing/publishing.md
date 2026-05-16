@@ -17,12 +17,13 @@ To make sure your PR passes this validation, follow [firehose rules](https://git
 
 ## Package categories
 
-`pub.dev` packages in this repo fall into the following categories:
+Packages in this repo fall into the following categories:
 
-1. **Not intended to be published**: they have `publish_to: none` in their `pubspec.yaml`.
-2. **Mono-repo packages**: they have `resolution: workspace` in their `pubspec.yaml`, and are released together, in lock-step, with the same version number.
-3. **Independent packages**: they don't have `publish_to` and `resolution` fields in their `pubspec.yaml`. They are released independently.
-4. **Not yet published packages**: they have `resolution: workspace` and `release: none` in their `pubspec.yaml`.
+1. **Not published**: `pubspec.yaml` contains `publish_to: none`. Workspace tools and example apps that are never pushed to pub.dev.
+2. **Not yet published**: the package's `version:` ends with a `-dev<N>` suffix (see "`-dev` vs non-`-dev`" below). Published to pub.dev only to reserve the name; not ready for general use yet.
+3. **Published**: any other package. Each has its own version cadence on pub.dev.
+
+Note: `resolution: workspace` in a `pubspec.yaml` is a tooling concern — it tells Dart to share dependency resolution and a lockfile with the monorepo, and it does **not** by itself imply anything about release cadence. A package can opt out of the workspace (omit `resolution: workspace`) to avoid circular dependencies or unrelated update churn while still being a published package.
 
 ## `-dev` vs non-`-dev` (production ready) versions
 
@@ -32,7 +33,7 @@ The packages code should be always release ready. That means:
 
    1.1. The package is planned to be released in the future. In this case it is published with `-dev` suffix in order to reserve the package name.
 
-   1.2. The package's changes touch only pub.dev non-publishable code or docs (like tests, tools, or not-publishable docs) and it is not a mono-repo package in lock-step with another package that has publishable code.
+   1.2. The package's changes touch only non-publishable code or docs (like tests, tools, or not-publishable docs).
 
    You can publish `-dev<number>` versions, if you need it for development. 
 
