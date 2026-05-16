@@ -8,7 +8,7 @@
 
 ## CI presubmit errors
 
-You may get CI presubmit errors on pull requests for several reasons. This sections explains how to fix some of not obvious ones.
+You may get CI presubmit errors on pull requests for several reasons. This section explains how to fix some of the less obvious ones.
 
 ### From `publish / validate` job
 
