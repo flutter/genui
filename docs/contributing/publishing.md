@@ -32,7 +32,7 @@ The packages code should be always release ready. That means:
 
    1.1. The package is planned to be released in future. In this case it is published with `-dev` suffix in order to reserve the package name.
 
-   1.2. The package's changes touches only pub.dev non-publishable code or docs (like tests, tools, or not-publishable docs) and it is not a mono-repo package in-lock with other package that has publishable code.
+   1.2. The package's changes touch only pub.dev non-publishable code or docs (like tests, tools, or not-publishable docs) and it is not a mono-repo package in lock-step with another package that has publishable code.
 
    You can publish `-dev<number>` versions, if you need it for development. 
 
