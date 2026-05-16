@@ -24,7 +24,6 @@ workspace:
 
   - tool/e2e
   - tool/fix_copyright
-  - tool/release
   - tool/test_and_fix
 
 flutter:
