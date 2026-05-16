@@ -23,7 +23,7 @@ jobs:
       sdk: beta # version of dart sdk to use for publishing
       use-flutter: true
       write-comments: false
-      checkout_submodules: true
+      checkout_submodules: false
     permissions:
       id-token: write
       pull-requests: write
