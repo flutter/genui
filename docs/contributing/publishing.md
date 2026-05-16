@@ -34,6 +34,8 @@ The packages code should be always release ready. That means:
 
    1.2. The package's changes touches only pub.dev non-publishable code or docs (like tests, tools, or not-publishable docs) and it is not a mono-repo package in-lock with other package that has publishable code.
 
+   You can publish `-dev<number>` versions, if you need it for development. 
+
 2. If your feature is partially implemented, hide the feature's code behind a false by default, and use **release-ready** version.
 
 ## Versioning

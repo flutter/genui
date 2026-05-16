@@ -1,5 +1,9 @@
 # `genui` Changelog
 
+## 0.9.1
+
+- **Feature**: Updated example/README.md.
+
 ## 0.9.0
 
 - **BREAKING**: Reorganized library exports (#866).
