@@ -29,7 +29,7 @@ The packages code should be always release ready. That means:
 
 1. **Not published**: they have `release: none` in their `pubspec.yaml`.
 2. **Mono-repo packages**: they have `resolution: workspace` in their `pubspec.yaml`, and are released together, with the same version number.
-3. **Independent packages**: they don't have `resolution` in their `pubspec.yaml`. They are released independently.
+3. **Independent packages**: they don't have `release: none` and `resolution` in their `pubspec.yaml`. They are released independently.
 
 ## Versioning
 
