@@ -1,3 +1,7 @@
+# Copyright 2025 The Flutter Authors.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
 # A CI configuration for pub-publish to write comments on PRs.
 
 name: Comment on the pull request
