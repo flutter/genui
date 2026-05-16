@@ -30,7 +30,7 @@ The packages code should be always release ready. That means:
 
 1. Use `-dev` version if **at least one** of the following statements is true:
 
-   1.1. The package is planned to be released in future. In this case it is published with `-dev` suffix in order to reserve the package name.
+   1.1. The package is planned to be released in the future. In this case it is published with `-dev` suffix in order to reserve the package name.
 
    1.2. The package's changes touch only pub.dev non-publishable code or docs (like tests, tools, or not-publishable docs) and it is not a mono-repo package in lock-step with another package that has publishable code.
 
