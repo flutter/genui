@@ -1,7 +1,7 @@
 
 # Publishing 
 
-Publishing to [pub.dev](https://pub.dev) is happening automatically via GitHub actions, with help of
+Publishing to [pub.dev](https://pub.dev) happens automatically via GitHub Actions, with the help of
 [firehose rules](https://github.com/dart-lang/ecosystem/tree/main/pkgs/firehose).
 
 There are two CI workflows that enable this automation:
