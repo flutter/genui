@@ -9,7 +9,7 @@ There are two CI workflows that enable this automation:
 1. [post_summaries.yaml](../../.github/workflows/post_summaries.yaml)
 2. [publish.yaml](../../.github/workflows/publish.yaml)
 
-## Making PR passing `publish / validate`
+## Passing the publish / validate job
 
 In general, the job [publish / validate](https://github.com/flutter/genui/actions/runs/25936562918) checks if all pub.dev packages are ready for publishing. 
 
