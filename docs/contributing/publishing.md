@@ -6,8 +6,8 @@ Publishing to [pub.dev](https://pub.dev) happens automatically via GitHub Action
 
 There are two CI workflows that enable this automation:
 
-1. [post_summaries.yaml](../../.github/workflows/post_summaries.yaml)
-2. [publish.yaml](../../.github/workflows/publish.yaml)
+1. [post_summaries.yaml](../../.github/workflows/post_summaries.yaml) - job `publish / validate` runs on pre-submit.
+2. [publish.yaml](../../.github/workflows/publish.yaml) - job `publish / publish` runs on tagging.
 
 ## Passing the publish / validate job
 
