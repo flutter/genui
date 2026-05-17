@@ -12,7 +12,13 @@ updates:
     labels:
       - "autosubmit"
   - package-ecosystem: "pub"
-    directory: "/"
+    directories:
+      - "/"
+      - "/packages/*"
+      - "/tool/*"
+      - "/dev_tools/*"
+      - "/examples/simple_chat"
+      - "/examples/verdure/client"
     schedule:
       interval: "daily"
     labels:

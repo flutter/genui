@@ -53,3 +53,22 @@ major number for breaking changes.
 ## How publishing happens?
 
 TODO(polina-c): add information, https://github.com/google/A2UI/issues/1383
+
+## How upgrade of dependencies (for both siblings and third party) happens?
+
+### For local development runs
+
+For packages with `resolution: workspace` in their pubspec.yaml, pub resolves every sibling from its local source directory — not from pub.dev, as long as its `version:` satisfies the consumer's constraint.
+
+If a local bump escapes that constraint (e.g. `^0.9.0` → `0.10.0`), update the consumer's `pubspec.yaml` in the same PR. Otherwise pub silently falls back to the published version on pub.dev.
+
+### For runs by external packages
+
+After a new version of a dependency (including sibling package in this repo) is published, this is how upgrade will happen:
+
+1. [Dependabot] detects the new version on pub.dev and opens a PR per dependency, bumping the constraint in each consuming `pubspec.yaml`. See [About Dependabot version updates] for details.
+2. The PR runs `publish / validate` and the rest of CI.
+3. A maintainer reviews and merges the PR.
+
+[Dependabot]: ../../.github/dependabot.yaml
+[About Dependabot version updates]: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/about-dependabot-version-updates

@@ -14,7 +14,7 @@ resolution: workspace
 
 # Add regular dependencies here.
 dependencies:
-  analyzer: ^9.0.0
+  analyzer: ^12.1.0
   args: ^2.7.0
   coverage: ^1.15.0
   file: ^7.0.1
