@@ -78,7 +78,7 @@ class WorkspaceVerifier {
       void checkDependencies(String depsKey) {
         final Object? deps = consumerYaml[depsKey];
         if (deps is YamlMap) {
-          for (final depEntry in deps.entries) {
+          for (final MapEntry<dynamic, dynamic> depEntry in deps.entries) {
             final depName = depEntry.key.toString();
 
             // Only care about dependencies that exist in our workspace
