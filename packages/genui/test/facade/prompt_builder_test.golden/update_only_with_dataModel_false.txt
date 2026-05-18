@@ -16,7 +16,7 @@ Use the provided tools to respond to user using rich UI elements.
 
 -------------------------------------
 
-The active catalog ID is: "test_catalog".
+The active catalog ID is: "test_catalog". You must use this catalog ID when creating surfaces.
 
 -------------------------------------
 
