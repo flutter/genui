@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:io';
+
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../primitives/simple_items.dart';
@@ -10,6 +12,12 @@ import 'catalog.dart';
 /// Provides a set of pre-defined, reusable schema objects for common
 /// A2UI patterns, simplifying the creation of CatalogItem definitions.
 abstract final class A2uiSchemas {
+  static String get _commonTypesUri {
+    return File(
+      'submodules/a2ui/specification/v0_9/json/common_types.json',
+    ).absolute.uri.toString();
+  }
+
   /// Defines the usage of the function registry.
   static Schema clientFunctions() {
     return S.list(
@@ -281,7 +289,7 @@ abstract final class A2uiSchemas {
   /// Schema for a validation check, including logic and an error message.
   static Schema validationCheck({String? description}) {
     return S.combined(
-      $ref: r'common_types.json#/$defs/CheckRule',
+      $ref: '$_commonTypesUri#/\$defs/CheckRule',
       description: description,
     );
   }
@@ -307,7 +315,7 @@ abstract final class A2uiSchemas {
       );
     }
     return S.combined(
-      $ref: r'common_types.json#/$defs/DynamicString',
+      $ref: '$_commonTypesUri#/\$defs/DynamicString',
       description: description,
     );
   }
@@ -316,7 +324,7 @@ abstract final class A2uiSchemas {
   /// data-bound path to a number in the DataModel.
   static Schema numberReference({String? description}) {
     return S.combined(
-      $ref: r'common_types.json#/$defs/DynamicNumber',
+      $ref: '$_commonTypesUri#/\$defs/DynamicNumber',
       description: description,
     );
   }
@@ -325,7 +333,7 @@ abstract final class A2uiSchemas {
   /// data-bound path to a boolean in the DataModel.
   static Schema booleanReference({String? description}) {
     return S.combined(
-      $ref: r'common_types.json#/$defs/DynamicBoolean',
+      $ref: '$_commonTypesUri#/\$defs/DynamicBoolean',
       description: description,
     );
   }
@@ -372,7 +380,7 @@ abstract final class A2uiSchemas {
   /// Can be either a server-side event or a client-side function call.
   static Schema action({String? description}) {
     return S.combined(
-      $ref: r'common_types.json#/$defs/Action',
+      $ref: '$_commonTypesUri#/\$defs/Action',
       description: description,
     );
   }
@@ -381,7 +389,7 @@ abstract final class A2uiSchemas {
   /// data-bound path to an array of strings.
   static Schema stringArrayReference({String? description}) {
     return S.combined(
-      $ref: r'common_types.json#/$defs/DynamicStringList',
+      $ref: '$_commonTypesUri#/\$defs/DynamicStringList',
       description: description,
     );
   }

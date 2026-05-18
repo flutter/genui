@@ -115,7 +115,7 @@ final class CatalogItem {
     final List<Object?> requiredProps =
         originalMap['required'] as List<Object?>? ?? <Object?>[];
 
-    return ObjectSchema.fromMap(<String, Object?>{
+    final schema = ObjectSchema.fromMap(<String, Object?>{
       ...originalMap,
       'properties': <String, Object?>{
         ...properties,
@@ -125,7 +125,9 @@ final class CatalogItem {
         },
       },
       'required': <Object?>['component', ...requiredProps],
+      'additionalProperties': true,
     });
+    return schema;
   }
 
   /// The builder for this widget.
