@@ -296,16 +296,16 @@ abstract final class A2uiSchemas {
     List<String>? enumValues,
   }) {
     if (enumValues != null) {
-      final literal = S.string(
-        description: 'A literal string value.',
-        enumValues: enumValues,
-      );
-      final Schema binding = dataBindingSchema(
-        description: 'A path to a string.',
-      );
-      final Schema function = functionCall();
       return S.combined(
-        oneOf: [literal, binding, function],
+        allOf: [
+          S.combined($ref: '$_commonTypesUri#/\$defs/DynamicString'),
+          S.combined(
+            anyOf: [
+              S.string(enumValues: enumValues),
+              S.object(),
+            ],
+          ),
+        ],
         description: description,
       );
     }
