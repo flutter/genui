@@ -41,5 +41,5 @@ dev_dependencies:
 
 flutter:
   assets:
-    - submodules/a2ui/specification/v0_9/json/common_types.json
-    - submodules/a2ui/specification/v0_9/json/server_to_client.json
+    - assets/schemas/common_types.json
+    - assets/schemas/server_to_client.json

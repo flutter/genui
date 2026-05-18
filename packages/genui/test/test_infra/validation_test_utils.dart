@@ -56,9 +56,15 @@ void validateCatalogExamples(
             components: components,
           );
 
-          final String commonTypesContent = File(
+          var file = File(
             'submodules/a2ui/specification/v0_9/json/common_types.json',
-          ).readAsStringSync();
+          );
+          if (!file.existsSync()) {
+            file = File(
+              '../../submodules/a2ui/specification/v0_9/json/common_types.json',
+            );
+          }
+          final String commonTypesContent = file.readAsStringSync();
           final commonTypesSchema = Schema.fromMap(
             jsonDecode(commonTypesContent) as Map<String, Object?>,
           );

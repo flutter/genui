@@ -12,11 +12,11 @@ const String commonTypesSchemaId =
 
 /// Asset path for common A2UI types schema.
 const String commonTypesAssetKey =
-    'packages/genui/submodules/a2ui/specification/v0_9/json/common_types.json';
+    'packages/genui/assets/schemas/common_types.json';
 
 /// Asset path for server-to-client message envelope schema.
 const String serverToClientAssetKey =
-    'packages/genui/submodules/a2ui/specification/v0_9/json/server_to_client.json';
+    'packages/genui/assets/schemas/server_to_client.json';
 
 /// Local filesystem path to common A2UI types schema (for test and development
 /// utilities).
