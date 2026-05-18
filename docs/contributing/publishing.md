@@ -76,7 +76,10 @@ After a new version of a dependency (including sibling package in this repo) is 
 
 1. [Dependabot] detects the new version on pub.dev and opens a PR per dependency, bumping the constraint in each consuming `pubspec.yaml`. See [About Dependabot version updates] for details.
 2. The PR runs `publish / validate` and the rest of CI.
-3. A maintainer reviews and merges the PR.
+3. A maintainer reviews and merges the PR. 
+
+TODO: Consume solution for [dependabot issue][dependabot/dependabot-core#15057] when it is fixed.
 
 [Dependabot]: ../../.github/dependabot.yaml
 [About Dependabot version updates]: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/about-dependabot-version-updates
+[dependabot/dependabot-core#15057]: https://github.com/dependabot/dependabot-core/issues/15057
