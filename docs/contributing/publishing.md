@@ -25,13 +25,13 @@ Packages in this repo fall into the following categories:
 
 ## About `resolution: workspace`
 
-`resolution: workspace` in a `pubspec.yaml` is a tooling concern and it does **not** by itself imply anything about release cadence:
+`resolution: workspace` in a `pubspec.yaml`:
 
-1. It tells Dart to share dependency resolution and a lockfile with the monorepo.
+1. Tells Dart to share dependency resolution and a lockfile with the monorepo.
 
-2. It tells to use current repo as a source for the package, not pub.dev (for local runs).
+2. Tells to use current repo as a source for the package, not pub.dev (for local runs).
 
-A package can opt out of the workspace (omit `resolution: workspace`) to have separate dependency resolution.
+Note that a package can opt out (by omitting `resolution: workspace`) to have separate dependency resolution.
 
 ## `-dev` vs non-`-dev` (production ready) versions
 
