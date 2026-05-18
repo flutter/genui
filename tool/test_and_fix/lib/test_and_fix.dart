@@ -41,7 +41,7 @@ class TestAndFix {
   }) async {
     root ??= fs.currentDirectory;
     final List<Directory> projects = await findProjects(root, all: all);
-    
+
     final workspaceVerifier = WorkspaceVerifier(fs: fs, logger: _log);
     final bool workspaceValid = await workspaceVerifier.verify(
       repoRoot: root,
