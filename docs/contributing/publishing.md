@@ -23,7 +23,15 @@ Packages in this repo fall into the following categories:
 2. **Not yet published**: the package's `version:` ends with a `-dev<N>` suffix (see "`-dev` vs non-`-dev`" below). Published to pub.dev only to reserve the name; not ready for general use yet.
 3. **Published**: any other package. Each has its own version cadence on pub.dev.
 
-Note: `resolution: workspace` in a `pubspec.yaml` is a tooling concern — it tells Dart to share dependency resolution and a lockfile with the monorepo, and it does **not** by itself imply anything about release cadence. A package can opt out of the workspace (omit `resolution: workspace`) to avoid circular dependencies or unrelated update churn while still being a published package.
+## About `resolution: workspace`
+
+`resolution: workspace` in a `pubspec.yaml` is a tooling concern and it does **not** by itself imply anything about release cadence:
+
+1. It tells Dart to share dependency resolution and a lockfile with the monorepo.
+
+2. It tells to use current repo as a source for the package, not pub.dev (for local runs).
+
+A package can opt out of the workspace (omit `resolution: workspace`) to have separate dependency resolution.
 
 ## `-dev` vs non-`-dev` (production ready) versions
 
