@@ -126,7 +126,7 @@ When constructing UI, you must output a VALID A2UI JSON object representing one 
 -----COMMON_TYPES_START-----
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://a2ui.org/specification/v0_9/common_types.json",
+  "$id": "common_types.json",
   "title": "A2UI Common Types",
   "description": "Common type definitions used across A2UI schemas.",
   "$defs": {

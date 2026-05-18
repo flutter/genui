@@ -4,14 +4,14 @@
 
 import 'package:json_schema_builder/json_schema_builder.dart';
 
+import '../primitives/constants.dart';
 import '../primitives/simple_items.dart';
 import 'catalog.dart';
 
 /// Provides a set of pre-defined, reusable schema objects for common
 /// A2UI patterns, simplifying the creation of CatalogItem definitions.
 abstract final class A2uiSchemas {
-  static String get _commonTypesUri =>
-      'https://a2ui.org/specification/v0_9/common_types.json';
+  static String get _commonTypesUri => commonTypesSchemaId;
 
   /// Defines the usage of the function registry.
   static Schema clientFunctions() {

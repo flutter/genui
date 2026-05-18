@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../model/catalog.dart';
+import '../primitives/constants.dart';
 import '../primitives/simple_items.dart';
 
 /// Common fragments for prompts, to explain agent behavior.
@@ -120,11 +121,9 @@ abstract class PromptBuilder {
   }
 
   static Future<(String, String)> _loadSchemas() async {
-    final String commonTypes = await rootBundle.loadString(
-      'packages/genui/submodules/a2ui/specification/v0_9/json/common_types.json',
-    );
+    final String commonTypes = await rootBundle.loadString(commonTypesAssetKey);
     final String serverToClient = await rootBundle.loadString(
-      'packages/genui/submodules/a2ui/specification/v0_9/json/server_to_client.json',
+      serverToClientAssetKey,
     );
     return (commonTypes, serverToClient);
   }
@@ -372,14 +371,23 @@ final class _BasicPromptBuilder extends PromptBuilder {
 
   final JsonMap? clientDataModel;
 
+  final TechnicalPossibilities technicalPossibilities;
+
   Iterable<String> _fragmentsToPrompt(Iterable<String> fragments) =>
       fragments.map((e) => e.trim());
-
-  final TechnicalPossibilities technicalPossibilities;
 
   @override
   Iterable<String> systemPrompt() {
     final String catalogSchema = _generateCatalogSchema(catalog);
+
+    final String cleanCommonTypes = commonTypesSchema.replaceAll(
+      commonTypesSchemaId,
+      'common_types.json',
+    );
+    final String cleanServerToClient = serverToClientSchema.replaceAll(
+      commonTypesSchemaId,
+      'common_types.json',
+    );
 
     final fragments = <String>[
       ...systemPromptFragments,
@@ -387,9 +395,9 @@ final class _BasicPromptBuilder extends PromptBuilder {
       ...technicalPossibilities.systemPromptFragment(),
       ...catalog.systemPromptFragments,
       ...allowedOperations.systemPromptFragments,
-      _fenced(commonTypesSchema, sectionName: 'COMMON TYPES'),
+      _fenced(cleanCommonTypes, sectionName: 'COMMON TYPES'),
       _fenced(catalogSchema, sectionName: 'CATALOG SCHEMA'),
-      _fenced(serverToClientSchema, sectionName: 'MESSAGE SCHEMA'),
+      _fenced(cleanServerToClient, sectionName: 'MESSAGE SCHEMA'),
       ?_encodedDataModel(clientDataModel),
     ];
 
@@ -501,9 +509,7 @@ final class _BasicPromptBuilder extends PromptBuilder {
     };
 
     final String json = const JsonEncoder.withIndent('  ').convert(catalogJson);
-    const commonTypesUri =
-        'https://a2ui.org/specification/v0_9/common_types.json';
-    return json.replaceAll(commonTypesUri, 'common_types.json');
+    return json.replaceAll(commonTypesSchemaId, 'common_types.json');
   }
 
   static String? _encodedDataModel(JsonMap? clientDataModel) {
