@@ -20,7 +20,7 @@ To make sure your PR passes this validation, follow [firehose rules](https://git
 Packages in this repo fall into the following categories:
 
 1. **Not published**: `pubspec.yaml` contains `publish_to: none`. Workspace tools and example apps that are never pushed to pub.dev.
-2. **Not yet published**: the package's `version:` ends with a `-dev<N>` suffix (see "`-dev` vs non-`-dev`" below). Published to pub.dev to reserve the name or to test the package; not ready for general use yet. Format: `0.1.0-dev002`.
+2. **Not yet published**: the package's `version:` ends with a `-dev<N>` suffix (see "`-dev` vs non-`-dev`" below). Published to pub.dev to reserve the name or to test the package; not ready for general use yet.
 3. **Published**: any other package. Each has its own version cadence on pub.dev.
 
 ## About `resolution: workspace`
@@ -37,7 +37,7 @@ Note that a package can opt out (by omitting `resolution: workspace`) to have se
 
 The packages code should be always release ready. That means:
 
-1. Use `-dev` version if **at least one** of the following statements is true:
+1. Use `-dev` version (format `0.1.0-dev002`) if **at least one** of the following statements is true:
 
    1.1. The package is planned to be released in the future. In this case it is published with `-dev` suffix in order to reserve the package name.
 
