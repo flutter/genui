@@ -411,7 +411,8 @@ final class _BasicPromptBuilder extends PromptBuilder {
               },
               'required': {
                 'component',
-                ...?item.dataSchema.value['required'] as List?,
+                if (item.dataSchema.value['required'] is List)
+                  ...(item.dataSchema.value['required'] as List),
               }.toList(),
             },
           ],
