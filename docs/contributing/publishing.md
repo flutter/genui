@@ -20,7 +20,7 @@ To make sure your PR passes this validation, follow [firehose rules](https://git
 Packages in this repo fall into the following categories:
 
 1. **Not published**: `pubspec.yaml` contains `publish_to: none`. Workspace tools and example apps that are never pushed to pub.dev.
-2. **Not yet published**: the package's `version:` ends with a `-dev<N>` suffix (see "`-dev` vs non-`-dev`" below). Published to pub.dev only to reserve the name; not ready for general use yet.
+2. **Not yet published**: the package's `version:` ends with a `-dev<N>` suffix (see "`-dev` vs non-`-dev`" below). Published to pub.dev to reserve the name or to test the package; not ready for general use yet. Format: `0.1.0-dev002`.
 3. **Published**: any other package. Each has its own version cadence on pub.dev.
 
 ## About `resolution: workspace`
