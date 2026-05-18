@@ -84,12 +84,7 @@ abstract class PromptBuilder {
     String importancePrefix = defaultImportancePrefix,
     JsonMap? clientDataModel,
   }) async {
-    final String commonTypes = await rootBundle.loadString(
-      'packages/genui/submodules/a2ui/specification/v0_9/json/common_types.json',
-    );
-    final String serverToClient = await rootBundle.loadString(
-      'packages/genui/submodules/a2ui/specification/v0_9/json/server_to_client.json',
-    );
+    final (String commonTypes, String serverToClient) = await _loadSchemas();
     return _BasicPromptBuilder(
       catalog: catalog,
       systemPromptFragments: systemPromptFragments,
@@ -111,12 +106,7 @@ abstract class PromptBuilder {
         const TechnicalPossibilities(),
     JsonMap? clientDataModel,
   }) async {
-    final String commonTypes = await rootBundle.loadString(
-      'packages/genui/submodules/a2ui/specification/v0_9/json/common_types.json',
-    );
-    final String serverToClient = await rootBundle.loadString(
-      'packages/genui/submodules/a2ui/specification/v0_9/json/server_to_client.json',
-    );
+    final (String commonTypes, String serverToClient) = await _loadSchemas();
     return _BasicPromptBuilder(
       catalog: catalog,
       systemPromptFragments: systemPromptFragments,
@@ -127,6 +117,16 @@ abstract class PromptBuilder {
       commonTypesSchema: commonTypes,
       serverToClientSchema: serverToClient,
     );
+  }
+
+  static Future<(String, String)> _loadSchemas() async {
+    final String commonTypes = await rootBundle.loadString(
+      'packages/genui/submodules/a2ui/specification/v0_9/json/common_types.json',
+    );
+    final String serverToClient = await rootBundle.loadString(
+      'packages/genui/submodules/a2ui/specification/v0_9/json/server_to_client.json',
+    );
+    return (commonTypes, serverToClient);
   }
 
   Iterable<String> systemPrompt();
