@@ -45,7 +45,7 @@ The packages code should be always release ready. That means:
 
    You can publish `-dev<number>` versions, if you need it for development. 
 
-2. If your feature is partially implemented, hide the feature's code behind a false-by-default flag, and use **release-ready** version.
+2. If your feature is partially implemented, hide the feature's code behind a false-by-default flag, and use **release-ready** version. (There is no detailed guidance how to define this flag yet. It should be outlined when it is needed. Please create an issue if you need it soon.)
 
 ## Versioning
 
