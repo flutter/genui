@@ -1,5 +1,9 @@
 # `genai_primitives` Changelog
 
+## 0.2.4
+
+- **Feature**: Use `log` instead of `print` in example ([#546dab9be](https://github.com/flutter/genui/commit/546dab9be)).
+
 ## 0.2.3
 
 - **Feature**: Add methods `copyWith` and `concatenate` to `ChatMessage` (#760).

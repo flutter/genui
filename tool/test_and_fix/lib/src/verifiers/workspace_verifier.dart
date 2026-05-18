@@ -54,7 +54,8 @@ class WorkspaceVerifier {
               );
             } on FormatException {
               _log.warning(
-                'Warning: Could not parse version "$versionStr" for package $name.',
+                'Warning: Could not parse version "$versionStr" '
+                'for package $name.',
               );
             }
           }
@@ -101,15 +102,16 @@ class WorkspaceVerifier {
 
                 if (!constraint.allows(actualVersion)) {
                   _log.severe(
-                    '❌ Error in $consumerPath: depends on $depName $constraintStr '
-                    'but local version is $actualVersion.',
+                    '❌ Error in $consumerPath: depends on $depName '
+                    '$constraintStr but local version is $actualVersion.',
                   );
                   passedForPackage = false;
                   allPassed = false;
                 }
               } on FormatException {
                 _log.warning(
-                  'Warning: Could not parse constraint "$constraintStr" for dependency $depName in $consumerName.',
+                  'Warning: Could not parse constraint "$constraintStr" '
+                  'for dependency $depName in $consumerName.',
                 );
               }
             }
@@ -130,10 +132,12 @@ class WorkspaceVerifier {
     if (!allPassed) {
       _log.severe('\n❌ Workspace version constraint verification failed.');
       _log.severe(
-        'Dart workspace resolution will silently fall back to pub.dev if local constraints are not met.',
+        'Dart workspace resolution will silently fall back to pub.dev '
+        'if local constraints are not met.',
       );
       _log.severe(
-        'Please update the failing constraints to allow the local sibling version.',
+        'Please update the failing constraints to allow the local '
+        'sibling version.',
       );
       return false;
     }
