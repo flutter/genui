@@ -68,7 +68,7 @@ TODO(polina-c): add information, https://github.com/google/A2UI/issues/1383
 
 For packages with `resolution: workspace` in their pubspec.yaml, pub resolves every sibling from its local source directory — not from pub.dev, as long as its `version:` satisfies the consumer's constraint.
 
-If a local bump escapes that constraint (e.g. `^0.9.0` → `0.10.0`), update the consumer's `pubspec.yaml` in the same PR. Otherwise pub silently falls back to the published version on pub.dev.
+If a local bump escapes that constraint (e.g. `^0.9.0` → `0.10.0`), you must update the consumer's `pubspec.yaml` in the same PR. While `dart pub` natively silently falls back to the published version on pub.dev, **our `test_and_fix` CI suite contains a verification step that will explicitly throw an error** and fail your PR if internal workspace version constraints are not met.
 
 ### For runs by external packages
 
