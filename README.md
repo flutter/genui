@@ -53,9 +53,7 @@ chatbots and next-generation agent-based user experiences.
 
 ## Look & feel
 
-### Interactive [travel app example](examples/travel_app/)
-
-<img src="docs/assets/travel_app_genui_example.gif" alt="GenUI Travel App Demo" height="500">
+<img src="docs/assets/genui_example_demo.gif" alt="GenUI Demo" height="500">
 
 _The GIF above shows how GenUI enables dynamic, interactive UI generation,_
 _instead of text descriptions or code from a traditional AI coding agent._
@@ -65,7 +63,7 @@ _instead of text descriptions or code from a traditional AI coding agent._
 This UI is not generated in the form of code; rather, it's generated at runtime
 based on a widget catalog from the developers' project.
 
-<img src="docs/assets/travel_app_genui_example.png" alt="GenUI Features Breakdown" height="600">
+<img src="docs/assets/genui_features_breakdown.png" alt="GenUI Features Breakdown" height="600">
 
 ## Implementation goals
 
@@ -105,9 +103,9 @@ This diagram shows how packages depend on each other and how examples use them.
 
 ```mermaid
 graph TD
-  examples/catalog_gallery --> genui
+  dev_tools/catalog_gallery --> genui
   examples/simple_chat --> genui
-  examples/travel_app --> genui
+  dev_tools/composer --> genui
   examples/verdure --> genui_a2a
   genui_a2a --> genui
   genui --> genai_primitives
