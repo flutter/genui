@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:io';
-
 import 'package:file/file.dart';
 import 'package:logging/logging.dart';
 import 'package:pub_semver/pub_semver.dart';
@@ -42,12 +40,12 @@ class WorkspaceVerifier {
       try {
         final Object? yaml = loadYaml(pubspecFile.readAsStringSync());
         if (yaml is YamlMap) {
-          final String? name = yaml['name']?.toString();
-          final String? versionStr = yaml['version']?.toString();
+          final name = yaml['name']?.toString();
+          final versionStr = yaml['version']?.toString();
 
           if (name != null && name.isNotEmpty && versionStr != null) {
             try {
-              final Version version = Version.parse(versionStr);
+              final version = Version.parse(versionStr);
               localPackages[name] = version;
               packagePubspecs[name] = yaml;
               packagePaths[name] = fs.path.relative(
@@ -67,20 +65,20 @@ class WorkspaceVerifier {
     }
 
     // 2. Verify all internal dependencies against the actual local versions
-    bool allPassed = true;
+    var allPassed = true;
 
     for (final MapEntry<String, YamlMap> entry in packagePubspecs.entries) {
       final String consumerName = entry.key;
       final YamlMap consumerYaml = entry.value;
       final String consumerPath = packagePaths[consumerName]!;
 
-      bool passedForPackage = true;
+      var passedForPackage = true;
 
       void checkDependencies(String depsKey) {
         final Object? deps = consumerYaml[depsKey];
         if (deps is YamlMap) {
           for (final depEntry in deps.entries) {
-            final String depName = depEntry.key.toString();
+            final depName = depEntry.key.toString();
 
             // Only care about dependencies that exist in our workspace
             if (localPackages.containsKey(depName)) {
@@ -98,9 +96,7 @@ class WorkspaceVerifier {
               }
 
               try {
-                final VersionConstraint constraint = VersionConstraint.parse(
-                  constraintStr,
-                );
+                final constraint = VersionConstraint.parse(constraintStr);
                 final Version actualVersion = localPackages[depName]!;
 
                 if (!constraint.allows(actualVersion)) {
