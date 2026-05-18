@@ -34,7 +34,7 @@ I have read and understood ./docs/contributing/README.md.
 To run a script in `tool/`:
 
 - If you are on mac and use VS Code, open the script and press `⇧⌘B` (see [.vscode/tasks.json](../../.vscode/tasks.json)).
-- Otherwise, run `sh <path/to/script.sh>` from any directory.
+- Otherwise, you can invoke the scripts on the command line from any directory.
 
 ## pubspec.lock files
 
