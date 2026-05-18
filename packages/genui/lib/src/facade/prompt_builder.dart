@@ -1,9 +1,7 @@
 // Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -456,9 +454,8 @@ final class _BasicPromptBuilder extends PromptBuilder {
     };
 
     final String json = const JsonEncoder.withIndent('  ').convert(catalogJson);
-    final commonTypesUri = File(
-      'submodules/a2ui/specification/v0_9/json/common_types.json',
-    ).absolute.uri.toString();
+    const commonTypesUri =
+        'https://a2ui.org/specification/v0_9/common_types.json';
     return json.replaceAll(commonTypesUri, 'common_types.json');
   }
 
