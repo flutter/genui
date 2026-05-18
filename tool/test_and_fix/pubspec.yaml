@@ -4,7 +4,6 @@
 
 name: test_and_fix
 description: A command-line tool to run tests and apply fixes to the genui monorepo.
-version: 0.1.0
 publish_to: none
 
 environment:
