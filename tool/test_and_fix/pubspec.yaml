@@ -4,7 +4,6 @@
 
 name: test_and_fix
 description: A command-line tool to run tests and apply fixes to the genui monorepo.
-version: 0.1.0
 publish_to: none
 
 environment:
@@ -14,7 +13,9 @@ resolution: workspace
 
 # Add regular dependencies here.
 dependencies:
-  analyzer: ^9.0.0
+  # analyzer 10.0.2+ requires meta ^1.18.0, but the Flutter SDK currently
+  # pins meta 1.17.0. Cap below 10.0.2 until Flutter ships a newer meta.
+  analyzer: ">=8.0.0 <10.0.2"
   args: ^2.7.0
   coverage: ^1.15.0
   file: ^7.0.1
@@ -24,6 +25,7 @@ dependencies:
   path: ^1.9.1
   process: ^5.0.5
   process_runner: ^4.2.4
+  pub_semver: ^2.2.0
   yaml: ^3.1.3
 
 dev_dependencies:

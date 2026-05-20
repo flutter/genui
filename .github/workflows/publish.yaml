@@ -1,0 +1,31 @@
+# Copyright 2025 The Flutter Authors.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# A CI configuration to auto-publish pub packages.
+
+name: Publish
+
+on:
+  workflow_dispatch: # This means the job is manual-only.
+  # TODO(polina): re-enable the pull_request trigger in a follow-up PRs.
+  # pull_request:
+  #   branches: [ main ]
+  #   types: [opened, synchronize, reopened, labeled, unlabeled]
+  # push:
+  #   # Match <package-name>-v<version> publish tags
+  #   tags: [ '[A-z0-9]+-v[0-9]+.[0-9]+.[0-9]+' ]
+
+jobs:
+  publish:
+    if: ${{ github.repository_owner == 'flutter' }}
+    uses: dart-lang/ecosystem/.github/workflows/publish.yaml@main
+    with:
+      # See https://github.com/dart-lang/ecosystem/tree/main/pkgs/firehose#options
+      sdk: beta # version of dart sdk to use for publishing
+      use-flutter: true
+      write-comments: false
+      checkout_submodules: false
+    permissions:
+      id-token: write
+      pull-requests: write
