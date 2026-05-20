@@ -140,17 +140,5 @@ void main() {
       final String prompt = builder.systemPromptJoined();
       expect(prompt, isNot(contains('The active catalog ID is:')));
     });
-
-    test('is sanitized in system prompt', () {
-      final catalog = Catalog([
-        BasicCatalogItems.text,
-      ], catalogId: 'my_custom_\\\r\ncatalog"');
-      final builder = PromptBuilder.chat(catalog: catalog);
-      final String prompt = builder.systemPromptJoined();
-      expect(
-        prompt,
-        contains('The active catalog ID is: "my_custom_\\\\\\r\\ncatalog\\"".'),
-      );
-    });
   });
 }

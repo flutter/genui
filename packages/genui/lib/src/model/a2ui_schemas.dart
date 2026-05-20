@@ -436,7 +436,12 @@ abstract final class A2uiSchemas {
         'the component tree.',
     properties: {
       surfaceIdKey: S.string(description: 'The unique ID for the surface.'),
-      'catalogId': S.string(description: 'The URI of the component catalog.'),
+      'catalogId': S.string(
+        description:
+            'A string that uniquely identifies this catalog. This is typically '
+            'a URI, but the URI is never accessed, only used as a unique '
+            'identifier.',
+      ),
       'theme': S.object(
         description: 'Theme parameters for the surface.',
         additionalProperties: true,

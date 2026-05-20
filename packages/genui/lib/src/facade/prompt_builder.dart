@@ -363,11 +363,7 @@ final class _BasicPromptBuilder extends PromptBuilder {
       catalog,
     ).toJson(indent: '  ');
 
-    final String? activeCatalogId = catalog.catalogId
-        ?.replaceAll('\\', '\\\\')
-        .replaceAll('"', '\\"')
-        .replaceAll('\n', '\\n')
-        .replaceAll('\r', '\\r');
+    final String? activeCatalogId = catalog.catalogId;
 
     final fragments = <String>[
       ...systemPromptFragments,
