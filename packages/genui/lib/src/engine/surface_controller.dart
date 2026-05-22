@@ -108,6 +108,9 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
     } on A2uiValidationException catch (e) {
       genUiLogger.warning('Validation failed for surface ${e.surfaceId}: $e');
       reportError(e, StackTrace.current);
+      // ignore: avoid_catching_errors
+    } on Error {
+      rethrow;
     } catch (exception, stackTrace) {
       genUiLogger.severe(
         'Error handling message: $message',

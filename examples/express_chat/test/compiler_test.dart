@@ -203,10 +203,31 @@ root = Column([
 
       expect(components, hasLength(3));
 
-      final Map<String, dynamic> colComp =
-          components.firstWhere((c) => c['id'] == 'root');
+      final Map<String, dynamic> colComp = components.firstWhere(
+        (c) => c['id'] == 'root',
+      );
       expect(colComp['component'], 'Column');
       expect(colComp['children'], ['inline_Text_0', 'inline_Text_1']);
+    });
+
+    test('compile absolute data model assignments', () {
+      const dsl = '''
+root = Text("Status")
+\$/icon = "check"
+\$/user/profile/firstName = "Alice"
+\$/user/profile/age = 30
+''';
+
+      final Map<String, dynamic> envelope = compiler.compile(dsl);
+      final createSurface = envelope['createSurface'] as Map<String, dynamic>;
+      final dataModel = createSurface['dataModel'] as Map<String, dynamic>;
+
+      expect(dataModel, {
+        'icon': 'check',
+        'user': {
+          'profile': {'firstName': 'Alice', 'age': 30},
+        },
+      });
     });
   });
 }

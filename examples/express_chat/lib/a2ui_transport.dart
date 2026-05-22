@@ -176,6 +176,8 @@ class ExpressChatA2aTransport implements Transport {
             compiledMap['createSurface'] as Map<String, dynamic>;
         final componentsList =
             createSurface.remove('components') as List<dynamic>?;
+        final dataModelMap =
+            createSurface.remove('dataModel') as Map<String, dynamic>?;
 
         // 1. Emit CreateSurface message
         final createMsg = A2uiMessage.fromJson(compiledMap);
@@ -192,6 +194,20 @@ class ExpressChatA2aTransport implements Transport {
           };
           final updateMsg = A2uiMessage.fromJson(updateMap);
           _adapter.addMessage(updateMsg);
+        }
+
+        // 3. Emit UpdateDataModel message if present
+        if (dataModelMap != null && dataModelMap.isNotEmpty) {
+          final dataMap = <String, dynamic>{
+            'version': 'v0.9',
+            'updateDataModel': <String, dynamic>{
+              'surfaceId': surfaceId,
+              'path': '/',
+              'value': dataModelMap,
+            },
+          };
+          final dataMsg = A2uiMessage.fromJson(dataMap);
+          _adapter.addMessage(dataMsg);
         }
       } catch (e) {
         // Gracefully fallback if express compilation fails

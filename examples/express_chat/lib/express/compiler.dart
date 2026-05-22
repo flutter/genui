@@ -470,7 +470,9 @@ class ExpressCompiler {
 
     final List<String> statements = [];
     StringBuffer? currentStatement;
-    final assignmentStartRegex = RegExp(r'^[a-zA-Z_][a-zA-Z0-9_]*\s*=');
+    final assignmentStartRegex = RegExp(
+      r'^(?:[a-zA-Z_][a-zA-Z0-9_-]*|\$[a-zA-Z0-9_/]+)\s*=',
+    );
 
     for (final line in lines) {
       if (line.contains('<a2ui>') || line.contains('</a2ui>')) {
@@ -492,23 +494,30 @@ class ExpressCompiler {
     }
 
     final Map<String, dynamic> rawSymbols = {};
+    final Map<String, dynamic> pathAssignments = {};
 
     for (final stmt in statements) {
       if (!stmt.contains('=')) {
         continue;
       }
       final int index = stmt.indexOf('=');
-      final String varName = stmt.substring(0, index).trim();
+      final String leftHandSide = stmt.substring(0, index).trim();
       final String exprText = stmt.substring(index + 1).trim();
 
       try {
         final List<Token> tokens = tokenize(exprText);
         final parser = TokenParser(tokens);
-        rawSymbols[varName] = parser.parseExpression();
+        final Object? parsedExpr = parser.parseExpression();
+
+        if (leftHandSide.startsWith(r'$/')) {
+          pathAssignments[leftHandSide] = parsedExpr;
+        } else {
+          rawSymbols[leftHandSide] = parsedExpr;
+        }
       } catch (e) {
         // Recover gracefully: register dummy loading text for the failed
         // branch.
-        rawSymbols[varName] = {
+        rawSymbols[leftHandSide] = {
           'call': 'Text',
           'args': ['Loading...'],
         };
@@ -544,6 +553,17 @@ class ExpressCompiler {
       }
     }
 
+    final Map<String, dynamic> dataModelAccumulator = {};
+    for (final MapEntry<String, dynamic> entry in pathAssignments.entries) {
+      final String pathKey = entry.key.substring(2); // strip $/
+      final Object? evaluated = _compileValue(
+        entry.value,
+        rawSymbols,
+        compiledComponents,
+      );
+      _setValueAtPath(dataModelAccumulator, pathKey, evaluated);
+    }
+
     final String resolvedCatalogId = catalogId.isNotEmpty
         ? catalogId
         : (helper.catalog.catalogId ?? 'https://a2ui.org/catalog.json');
@@ -554,6 +574,7 @@ class ExpressCompiler {
         'surfaceId': surfaceId,
         'catalogId': resolvedCatalogId,
         'components': compiledComponents,
+        'dataModel': dataModelAccumulator,
       },
     };
   }
@@ -888,6 +909,25 @@ class ExpressCompiler {
 
     return val;
   }
+
+  /// Helper method to structuredly set values at a nested JSON [path].
+  void _setValueAtPath(Map<String, dynamic> map, String path, Object? value) {
+    final List<String> keys = path
+        .split('/')
+        .where((k) => k.isNotEmpty)
+        .toList();
+    if (keys.isEmpty) return;
+
+    var current = map;
+    for (var i = 0; i < keys.length - 1; i++) {
+      final String key = keys[i];
+      if (!current.containsKey(key) || current[key] is! Map) {
+        current[key] = <String, dynamic>{};
+      }
+      current = current[key] as Map<String, dynamic>;
+    }
+    current[keys.last] = value;
+  }
 }
 
 /// Generates A2UI Express contract signatures based on the introspection
@@ -951,7 +991,8 @@ class ExpressPromptGenerator {
 # A2UI Express Output Contract
 
 You must output the user interface using the compact A2UI Express DSL notation.
-You MUST surround the entire A2UI Express DSL block with the sentinel tags `<a2ui>` and `</a2ui>`.
+You MUST surround the entire A2UI Express DSL block with the sentinel tags
+`<a2ui>` and `</a2ui>`.
 
 ## Grammar Rules
 
@@ -982,6 +1023,10 @@ You MUST surround the entire A2UI Express DSL block with the sentinel tags `<a2u
 8. Nested functions: call client functions directly using catalog signatures,
    for example openUrl("https://example.com").
 
+9. Data model population: Assign a value directly to an absolute data path
+   (e.g. \$/path/to/key = "value") to populate or initialize values inside
+   the shared dataModel. The value can be a primitive, array, or map.
+
 ## Positional Component Signatures
 
 Use these exact positional signatures to instantiate components. Do not
@@ -1002,6 +1047,8 @@ repField = TextField("Representative", \$/form/rep, "Enter name")
 valueField = TextField(
   "Deal Value", \$/form/value, "0.00", "number", [?required]
 )
+\$/form/rep = "John Doe"
+\$/form/value = 1500.00
 </a2ui>
 ''';
   }

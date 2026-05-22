@@ -39,6 +39,7 @@ If there is no way to itemize all the options, either use the component '${Basic
   static final String climbingLocations =
       '''
 IMPORTANT: Always immediately display the matching climbing locations using the rich 'ClimbingLocation' component card in your response. Do not ask the user for more information, preferences, or clarification first. Show the best matches (like beginner-friendly locations) immediately in A2UI Express syntax.
+IMPORTANT: You MUST surround the entire A2UI Express layout DSL block with the sentinel tags '<a2ui>' and '</a2ui>' to separate it from your conversational explanation.
 
 Available Climbing Locations (use these exact identifiers in ClimbingLocation):
 - 'kraft_boulders': Kraft Boulders (Outdoor, Free, Bouldering, Beginner/Intermediate/Advanced)
@@ -55,9 +56,11 @@ You must compose the final layout tree under the reserved 'root' variable using 
 Do not add any extra submit or confirmation buttons next to '${climbingLocationItem.name}' since it already contains a 'Learn more' button.
 
 Example:
+<a2ui>
 root = Column([loc1, loc2])
 loc1 = ClimbingLocation("kraft_boulders")
 loc2 = ClimbingLocation("lone_mountain")
+</a2ui>
 
 When the user clicks 'Learn more' on a '${climbingLocationItem.name}', a UI action named 'learnMoreAboutLocation' will be sent with the location's identifier and name in its context. Respond with detailed information about that specific location.
 ''';
