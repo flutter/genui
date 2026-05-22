@@ -14,6 +14,7 @@ workspace:
   - dev_tools/catalog_gallery
   - dev_tools/composer
 
+  - examples/express_chat
   - examples/simple_chat
   - examples/verdure/client
 

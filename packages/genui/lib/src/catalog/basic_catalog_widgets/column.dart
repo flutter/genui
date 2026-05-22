@@ -17,6 +17,11 @@ const _verticalColumnSpacing = 8.0;
 final _schema = S.object(
   description: 'A layout widget that arranges its children vertically.',
   properties: {
+    'children': A2uiSchemas.componentArrayReference(
+      description:
+          'Either an explicit list of widget IDs for the children, or a '
+          'template with a data binding to the list of children.',
+    ),
     'justify': S.string(
       description: 'How children are aligned on the main axis. ',
       enumValues: [
@@ -32,11 +37,6 @@ final _schema = S.object(
     'align': S.string(
       description: 'How children are aligned on the cross axis. ',
       enumValues: ['start', 'center', 'end', 'stretch'],
-    ),
-    'children': A2uiSchemas.componentArrayReference(
-      description:
-          'Either an explicit list of widget IDs for the children, or a '
-          'template with a data binding to the list of children.',
     ),
   },
   required: ['children'],
