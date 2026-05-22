@@ -19,10 +19,10 @@ class ExtractionResult {
 ExtractionResult extractExpressAndText(String fullText) {
   final List<String> explanationLines = [];
   final List<String> dslLines = [];
-  
+
   final List<String> lines = fullText.split('\n');
   var insideCodeBlock = false;
-  
+
   final assignmentRegex = RegExp(
     r'^[a-zA-Z_][a-zA-Z0-9_]*\s*=\s*[a-zA-Z_][a-zA-Z0-9_-]*\(',
   );
@@ -33,7 +33,7 @@ ExtractionResult extractExpressAndText(String fullText) {
       insideCodeBlock = !insideCodeBlock;
       continue; // skip backticks line
     }
-    
+
     if (insideCodeBlock) {
       dslLines.add(line);
     } else {
@@ -44,7 +44,7 @@ ExtractionResult extractExpressAndText(String fullText) {
       }
     }
   }
-  
+
   return ExtractionResult(
     explanationLines.join('\n').trim(),
     dslLines.join('\n').trim(),
@@ -64,11 +64,11 @@ class ExpressChatA2aTransport implements Transport {
       StreamController<String>.broadcast();
 
   ExpressChatA2aTransport({AiClient? aiClient, required this.catalog})
-      : _compiler = ExpressCompiler(catalog) {
+    : _compiler = ExpressCompiler(catalog) {
     final assignmentRegex = RegExp(
       r'^[a-zA-Z_][a-zA-Z0-9_]*\s*=\s*[a-zA-Z_][a-zA-Z0-9_-]*\(',
     );
-    
+
     _agent = SimpleChatAgent(
       aiClient: aiClient,
       onChunkFromAgent: (chunk) {
@@ -79,7 +79,7 @@ class ExpressChatA2aTransport implements Transport {
           final String incompleteLine = lines.last;
           _lineBuffer.clear();
           _lineBuffer.write(incompleteLine);
-          
+
           for (var i = 0; i < lines.length - 1; i++) {
             final String line = lines[i];
             final String trimmed = line.trim();
@@ -105,7 +105,7 @@ class ExpressChatA2aTransport implements Transport {
     final assignmentRegex = RegExp(
       r'^[a-zA-Z_][a-zA-Z0-9_]*\s*=\s*[a-zA-Z_][a-zA-Z0-9_-]*\(',
     );
-    
+
     // Intercept the agent's response to parse it at completion
     final interceptAgent = SimpleChatAgent(
       aiClient: _agent.aiClient,
@@ -118,7 +118,7 @@ class ExpressChatA2aTransport implements Transport {
           final String incompleteLine = lines.last;
           _lineBuffer.clear();
           _lineBuffer.write(incompleteLine);
-          
+
           for (var i = 0; i < lines.length - 1; i++) {
             final String line = lines[i];
             final String trimmed = line.trim();
@@ -132,8 +132,8 @@ class ExpressChatA2aTransport implements Transport {
     );
     // Sync the history with standard agent; Just to match lists, but let's
     // copy history instead
-    interceptAgent.addSystemMessage(''); 
-    
+    interceptAgent.addSystemMessage('');
+
     // We temporarily replace/simulate the agent run to gather full text
     await _agent.handleRequestFromRenderer(message);
 
@@ -146,19 +146,20 @@ class ExpressChatA2aTransport implements Transport {
         !assignmentRegex.hasMatch(trimmedRemaining)) {
       _textStreamController.add(remaining);
     }
-    
+
     // Standard agent completes and updates its history.
     // Let's find the last model response from the agent's history
     final String lastModelResponse = _agent.history.last.text;
-    
+
     final ExtractionResult result = extractExpressAndText(lastModelResponse);
-    
+
     if (result.expressDsl.isNotEmpty) {
       try {
-        final surfaceId =
-            'surface_${DateTime.now().millisecondsSinceEpoch}';
-        final Map<String, dynamic> compiledMap =
-            _compiler.compile(result.expressDsl, surfaceId: surfaceId);
+        final surfaceId = 'surface_${DateTime.now().millisecondsSinceEpoch}';
+        final Map<String, dynamic> compiledMap = _compiler.compile(
+          result.expressDsl,
+          surfaceId: surfaceId,
+        );
 
         final createSurface =
             compiledMap['createSurface'] as Map<String, dynamic>;
@@ -176,7 +177,7 @@ class ExpressChatA2aTransport implements Transport {
             'updateComponents': <String, dynamic>{
               'surfaceId': surfaceId,
               'components': componentsList,
-            }
+            },
           };
           final updateMsg = A2uiMessage.fromJson(updateMap);
           _adapter.addMessage(updateMsg);

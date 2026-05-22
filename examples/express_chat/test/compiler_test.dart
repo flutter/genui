@@ -58,8 +58,10 @@ repField = TextField(\$/form/rep, "Representative")
 valueField = TextField(\$/form/value, "Deal Value", "number", ?required)
 ''';
 
-      final Map<String, dynamic> envelope =
-          compiler.compile(dsl, surfaceId: 'test_surf');
+      final Map<String, dynamic> envelope = compiler.compile(
+        dsl,
+        surfaceId: 'test_surf',
+      );
       expect(envelope['version'], 'v0.9');
       final createSurface = envelope['createSurface'] as Map<String, dynamic>;
       expect(createSurface['surfaceId'], 'test_surf');
@@ -68,19 +70,22 @@ valueField = TextField(\$/form/value, "Deal Value", "number", ?required)
           (createSurface['components'] as List).cast<Map<String, dynamic>>();
       expect(components, hasLength(3));
 
-      final Map<String, dynamic> rootComp =
-          components.firstWhere((c) => c['id'] == 'root');
+      final Map<String, dynamic> rootComp = components.firstWhere(
+        (c) => c['id'] == 'root',
+      );
       expect(rootComp['component'], 'Column');
       expect(rootComp['children'], ['repField', 'valueField']);
 
-      final Map<String, dynamic> repComp =
-          components.firstWhere((c) => c['id'] == 'repField');
+      final Map<String, dynamic> repComp = components.firstWhere(
+        (c) => c['id'] == 'repField',
+      );
       expect(repComp['component'], 'TextField');
       expect(repComp['label'], 'Representative');
       expect(repComp['value'], {'path': '/form/rep'});
 
-      final Map<String, dynamic> valComp =
-          components.firstWhere((c) => c['id'] == 'valueField');
+      final Map<String, dynamic> valComp = components.firstWhere(
+        (c) => c['id'] == 'valueField',
+      );
       expect(valComp['component'], 'TextField');
       expect(valComp['label'], 'Deal Value');
       expect(valComp['value'], {'path': '/form/value'});
@@ -110,24 +115,26 @@ saveLabel = Text("Save")
       final List<Map<String, dynamic>> components =
           (createSurface['components'] as List).cast<Map<String, dynamic>>();
 
-      final Map<String, dynamic> welcomeComp =
-          components.firstWhere((c) => c['id'] == 'welcome');
+      final Map<String, dynamic> welcomeComp = components.firstWhere(
+        (c) => c['id'] == 'welcome',
+      );
       expect(welcomeComp['text'], {
         'call': 'formatString',
         'args': {'value': 'Welcome, \${/user/name}!'},
         'returnType': 'string',
       });
 
-      final Map<String, dynamic> buttonComp =
-          components.firstWhere((c) => c['id'] == 'saveButton');
+      final Map<String, dynamic> buttonComp = components.firstWhere(
+        (c) => c['id'] == 'saveButton',
+      );
       expect(buttonComp['variant'], 'primary');
       expect(buttonComp['action'], {
         'event': {
           'name': 'submitDeal',
           'context': {
             'rep': {'path': '/form/rep'},
-          }
-        }
+          },
+        },
       });
     });
 
@@ -142,20 +149,19 @@ saveLabel = Text("Save")
 
       expect(components, hasLength(2));
 
-      final Map<String, dynamic> textComp =
-          components.firstWhere((c) => c['id'] == 'txt_root_0');
+      final Map<String, dynamic> textComp = components.firstWhere(
+        (c) => c['id'] == 'txt_root_0',
+      );
       expect(textComp['component'], 'Text');
       expect(textComp['text'], 'Submit');
 
-      final Map<String, dynamic> buttonComp =
-          components.firstWhere((c) => c['id'] == 'root');
+      final Map<String, dynamic> buttonComp = components.firstWhere(
+        (c) => c['id'] == 'root',
+      );
       expect(buttonComp['component'], 'Button');
       expect(buttonComp['child'], 'txt_root_0');
       expect(buttonComp['action'], {
-        'event': {
-          'name': 'Send Request',
-          'context': const <String, dynamic>{},
-        }
+        'event': {'name': 'Send Request', 'context': const <String, dynamic>{}},
       });
     });
 
@@ -169,13 +175,15 @@ saveLabel = Text("Save")
 
       expect(components, hasLength(2));
 
-      final Map<String, dynamic> colComp =
-          components.firstWhere((c) => c['id'] == 'root');
+      final Map<String, dynamic> colComp = components.firstWhere(
+        (c) => c['id'] == 'root',
+      );
       expect(colComp['component'], 'Column');
       expect(colComp['children'], ['inline_Text_0']);
 
-      final Map<String, dynamic> textComp =
-          components.firstWhere((c) => c['id'] == 'inline_Text_0');
+      final Map<String, dynamic> textComp = components.firstWhere(
+        (c) => c['id'] == 'inline_Text_0',
+      );
       expect(textComp['component'], 'Text');
       expect(textComp['text'], 'Hello');
     });

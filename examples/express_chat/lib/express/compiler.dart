@@ -2,41 +2,95 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+/// A high-performance compiler and parser library for A2UI Express scripts.
+///
+/// Exposes lexer tokenization, recursive-descent AST parsing, catalog schema
+/// introspection helpers, and prompt contract generation facilities.
+library;
+
 import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:genui/genui.dart';
 
+/// The token kinds supported by the A2UI Express lexer.
 enum TokenKind {
+  /// String literal token enclosed in double quotes (e.g. `"label"`).
   string,
+
+  /// Absolute or relative path reference in the data model (starts with `$`
+  /// followed by alphanumeric path segments).
   path,
+
+  /// Client-side check rule validation (starts with `?` followed by the check
+  /// name).
   check,
+
+  /// Numeric literal token (integer or decimal).
   number,
+
+  /// Boolean literal token (`true` or `false`).
   boolean,
+
+  /// Null value literal token (`null`).
   nullValue,
+
+  /// An alphanumeric identifier representing a component or function name.
   identifier,
+
+  /// Left parenthesis token `(`.
   lparen,
+
+  /// Right parenthesis token `)`.
   rparen,
+
+  /// Left bracket token `[`.
   lbracket,
+
+  /// Right bracket token `]`.
   rbracket,
+
+  /// Comma separator token `,`.
   comma,
+
+  /// Equals assignment token `=`.
   equals,
+
+  /// Colon key-value separator token `:`.
   colon,
+
+  /// Left curly brace token `{`.
   lbrace,
+
+  /// Right curly brace token `}`.
   rbrace,
-  ws
+
+  /// Whitespace token (ignored by parser).
+  ws,
 }
 
+/// Represents a lexical token parsed from A2UI Express input.
 class Token {
+  /// The category/type of this token.
   final TokenKind kind;
+
+  /// The parsed semantic value (e.g., `double`, `bool`, or stripped `String`).
   final Object? value;
+
+  /// The raw matched substring from the input source code.
   final String text;
 
+  /// Creates a lexical [Token] with its type, value, and original source text.
   Token(this.kind, this.value, this.text);
 
   @override
   String toString() => 'Token(${kind.name}, $value)';
 }
 
+/// Scans the input [text] and produces a flat list of scanned [Token]
+/// objects.
+///
+/// Throws a [FormatException] if any unrecognized character sequence is
+/// encountered.
 List<Token> tokenize(String text) {
   final List<Token> tokens = [];
   var index = 0;
@@ -77,7 +131,9 @@ List<Token> tokenize(String text) {
 
         Object? value = matchedText;
         if (kind == TokenKind.string) {
-          value = matchedText.substring(1, matchedText.length - 1).replaceAll(r'\"', '"');
+          value = matchedText
+              .substring(1, matchedText.length - 1)
+              .replaceAll(r'\"', '"');
         } else if (kind == TokenKind.number) {
           value = num.parse(matchedText);
         } else if (kind == TokenKind.boolean) {
@@ -97,12 +153,19 @@ List<Token> tokenize(String text) {
   return tokens;
 }
 
+/// A recursive-descent parser that parses a list of [Token] objects into an
+/// AST.
 class TokenParser {
+  /// The sequence of scanned tokens.
   final List<Token> tokens;
+
+  /// The current parsing index pointer.
   int pos = 0;
 
+  /// Creates a [TokenParser] wrapping a token stream.
   TokenParser(this.tokens);
 
+  /// Inspects the current token at the pointer without consuming it.
   Token? peek() {
     if (pos < tokens.length) {
       return tokens[pos];
@@ -110,6 +173,10 @@ class TokenParser {
     return null;
   }
 
+  /// Consumes and returns the current token, optionally validating its [kind].
+  ///
+  /// Throws a [FormatException] if the pointer is at the end of input or
+  /// if the token category mismatch.
   Token consume([TokenKind? kind]) {
     final Token? tok = peek();
     if (tok == null) {
@@ -124,6 +191,9 @@ class TokenParser {
     return tok;
   }
 
+  /// Parses the current expression subtree recursively.
+  ///
+  /// Supports arrays, paths, check rules, function calls, and primitive values.
   Object? parseExpression() {
     final Token? tok = peek();
     if (tok == null) {
@@ -159,6 +229,7 @@ class TokenParser {
     throw FormatException('Unexpected token ${kind.name}: ${tok.text}');
   }
 
+  /// Parses a comma-separated array literal enclosed in brackets `[...]`.
   List<Object?> parseArray() {
     consume(TokenKind.lbracket);
     final List<Object?> items = [];
@@ -174,6 +245,8 @@ class TokenParser {
     return items;
   }
 
+  /// Parses a client-side check rule starting with `?` (e.g. `?required` or
+  /// `?length(min, max)`).
   Map<String, Object?> parseCheck() {
     final Token tok = consume(TokenKind.check);
     final String name = (tok.value as String).substring(1); // strip ?
@@ -194,6 +267,8 @@ class TokenParser {
     return {'check': name, 'args': args};
   }
 
+  /// Parses a function call expression (e.g. `ComponentName(args)` or
+  /// `FunctionName(args)`).
   Map<String, Object?> parseCall(String name) {
     consume(TokenKind.lparen);
     final List<Object?> args = [];
@@ -219,6 +294,7 @@ class TokenParser {
     return {'call': name, 'args': args};
   }
 
+  /// Parses a key-value map literal enclosed in braces `{key: value, ...}`.
   Map<String, Object?> parseMap() {
     consume(TokenKind.lbrace);
     final Map<String, Object?> res = {};
@@ -241,20 +317,34 @@ class TokenParser {
   }
 }
 
+/// Helper class that inspects active in-memory catalog schemas to map
+/// positional signatures.
 class CatalogSchemaHelper {
+  /// The wrapped component/functions [Catalog].
   final Catalog catalog;
 
+  /// Maps component names to their properties keys list in schema order.
   final Map<String, List<String>> componentProperties = {};
+
+  /// Maps component names to their required property keys list.
   final Map<String, List<String>> componentRequired = {};
+
+  /// Maps component names to whether they support checks validation rules.
   final Map<String, bool> componentIsCheckable = {};
 
+  /// Maps function names to their argument properties list.
   final Map<String, List<String>> functionProperties = {};
+
+  /// Maps function names to their required argument keys list.
   final Map<String, List<String>> functionRequired = {};
 
+  /// Creates a [CatalogSchemaHelper] and triggers schema parsing for [catalog].
   CatalogSchemaHelper(this.catalog) {
     _loadMappings();
   }
 
+  /// Iterates through catalog items and functions to establish property key
+  /// ordering maps.
   void _loadMappings() {
     for (final CatalogItem item in catalog.items) {
       final String name = item.name;
@@ -333,22 +423,40 @@ class CatalogSchemaHelper {
     }
   }
 
+  /// Returns the properties list in schema declaration order for [name].
   List<String> getComponentProperties(String name) =>
       componentProperties[name] ?? const [];
+
+  /// Returns the required property keys list for component [name].
   List<String> getComponentRequired(String name) =>
       componentRequired[name] ?? const [];
+
+  /// Returns whether component [name] supports check validation rules.
   bool isCheckable(String name) => componentIsCheckable[name] ?? false;
+
+  /// Returns the argument properties list in schema order for function [name].
   List<String> getFunctionProperties(String name) =>
       functionProperties[name] ?? const [];
+
+  /// Returns the required argument keys list for function [name].
   List<String> getFunctionRequired(String name) =>
       functionRequired[name] ?? const [];
 }
 
+/// A high-performance compiler that converts A2UI Express DSL scripts into
+/// valid A2UI envelopes.
 class ExpressCompiler {
+  /// The catalog schema helper holding property mapping configurations.
   final CatalogSchemaHelper helper;
 
+  /// Creates an [ExpressCompiler] instance mapping against [catalog].
   ExpressCompiler(Catalog catalog) : helper = CatalogSchemaHelper(catalog);
 
+  /// Compiles A2UI Express script [dslText] into a flat JSON-compatible
+  /// envelope structure.
+  ///
+  /// Returns a `Map<String, dynamic>` containing `createSurface` and the
+  /// compiled flat components array.
   Map<String, dynamic> compile(
     String dslText, {
     String surfaceId = 'default_surface',
@@ -378,7 +486,7 @@ class ExpressCompiler {
         // Recover gracefully: register dummy loading text for the failed branch
         rawSymbols[varName] = {
           'call': 'Text',
-          'args': ['Loading...']
+          'args': ['Loading...'],
         };
       }
     }
@@ -401,8 +509,12 @@ class ExpressCompiler {
     for (final MapEntry<String, dynamic> entry in rawSymbols.entries) {
       final String varName = entry.key;
       final Object? ast = entry.value;
-      final Map<String, dynamic>? compDict =
-          _compileAstNode(varName, ast, rawSymbols, compiledComponents);
+      final Map<String, dynamic>? compDict = _compileAstNode(
+        varName,
+        ast,
+        rawSymbols,
+        compiledComponents,
+      );
       if (compDict != null) {
         compiledComponents.add(compDict);
       }
@@ -418,10 +530,12 @@ class ExpressCompiler {
         'surfaceId': surfaceId,
         'catalogId': resolvedCatalogId,
         'components': compiledComponents,
-      }
+      },
     };
   }
 
+  /// Compiles an individual variable's AST node into flat component
+  /// dictionary format.
   Map<String, dynamic>? _compileAstNode(
     String varName,
     Object? ast,
@@ -436,7 +550,8 @@ class ExpressCompiler {
     final args = ast['args'] as List<Object?>;
 
     if (!helper.componentProperties.containsKey(compName)) {
-      // Not a component, could be a standalone action/helper; skip writing as component
+      // Not a component, could be a standalone action/helper; skip writing
+      // as component.
       return null;
     }
 
@@ -513,7 +628,7 @@ class ExpressCompiler {
           'event': <String, dynamic>{
             'name': mappedVal,
             'context': const <String, dynamic>{},
-          }
+          },
         };
       }
 
@@ -534,8 +649,9 @@ class ExpressCompiler {
       final String propName = properties[idx];
       if (propName == 'checks') {
         final List<Map<String, dynamic>> compiledChecks = [];
-        final List<Object?> rawChecks =
-            args[idx] is List ? args[idx] as List : [args[idx]];
+        final List<Object?> rawChecks = args[idx] is List
+            ? args[idx] as List
+            : [args[idx]];
 
         for (final rc in rawChecks) {
           if (rc is Map<String, dynamic> && rc.containsKey('check')) {
@@ -543,8 +659,9 @@ class ExpressCompiler {
             final checkArgs = rc['args'] as List<Object?>;
             final Map<String, dynamic> compiledArgs = {};
 
-            final List<String> checkProps =
-                helper.getFunctionProperties(checkName);
+            final List<String> checkProps = helper.getFunctionProperties(
+              checkName,
+            );
             var messageVal =
                 '${checkName[0].toUpperCase()}${checkName.substring(1)} '
                 'check failed';
@@ -556,8 +673,9 @@ class ExpressCompiler {
             if (checkProps.isNotEmpty && checkProps[0] == 'value') {
               if (explicitArgs.isNotEmpty &&
                   explicitArgs[0] is Map<String, dynamic> &&
-                  (explicitArgs[0] as Map<String, dynamic>)
-                      .containsKey('path')) {
+                  (explicitArgs[0] as Map<String, dynamic>).containsKey(
+                    'path',
+                  )) {
                 // already has a path, do nothing
               } else {
                 if (siblingValuePath != null) {
@@ -573,7 +691,10 @@ class ExpressCompiler {
               final int propTargetIdx = cIdx + startPropIdx;
               if (propTargetIdx < checkProps.length) {
                 compiledArgs[checkProps[propTargetIdx]] = _compileValue(
-                    explicitArgs[cIdx], rawSymbols, compiledComponents);
+                  explicitArgs[cIdx],
+                  rawSymbols,
+                  compiledComponents,
+                );
               } else {
                 if (explicitArgs[cIdx] is String) {
                   messageVal = explicitArgs[cIdx] as String;
@@ -582,10 +703,7 @@ class ExpressCompiler {
             }
 
             compiledChecks.add({
-              'condition': {
-                'call': checkName,
-                'args': compiledArgs,
-              },
+              'condition': {'call': checkName, 'args': compiledArgs},
               'message': messageVal,
             });
           }
@@ -597,6 +715,7 @@ class ExpressCompiler {
     return compDict;
   }
 
+  /// Compiles an individual AST node value into valid A2UI equivalents.
   Object? _compileValue(
     Object? val,
     Map<String, dynamic> rawSymbols,
@@ -632,22 +751,21 @@ class ExpressCompiler {
 
         // Is it a reserved Template signature?
         if (fnName == 'Template') {
-          final pathVal = _compileValue(
-            fnArgs[0],
-            rawSymbols,
-            compiledComponents,
-            isAction: isAction,
-          ) as Map<String, dynamic>;
+          final pathVal =
+              _compileValue(
+                    fnArgs[0],
+                    rawSymbols,
+                    compiledComponents,
+                    isAction: isAction,
+                  )
+                  as Map<String, dynamic>;
           final Object? compIdVal = _compileValue(
             fnArgs[1],
             rawSymbols,
             compiledComponents,
             isAction: isAction,
           );
-          return {
-            'path': pathVal['path'],
-            'componentId': compIdVal,
-          };
+          return {'path': pathVal['path'], 'componentId': compIdVal};
         }
 
         // Is it a reserved Event signature?
@@ -666,10 +784,7 @@ class ExpressCompiler {
             );
           }
           return {
-            'event': {
-              'name': eventName,
-              'context': compiledContext,
-            }
+            'event': {'name': eventName, 'context': compiledContext},
           };
         }
 
@@ -691,10 +806,7 @@ class ExpressCompiler {
           // Wrap in functionCall only if inside an action field
           if (isAction) {
             return {
-              'functionCall': {
-                'call': fnName,
-                'args': compiledArgs,
-              }
+              'functionCall': {'call': fnName, 'args': compiledArgs},
             };
           }
 
@@ -717,35 +829,36 @@ class ExpressCompiler {
         return {
           'call': fnName,
           'args': fnArgs
-              .map((a) => _compileValue(
-                    a,
-                    rawSymbols,
-                    compiledComponents,
-                    isAction: isAction,
-                  ))
+              .map(
+                (a) => _compileValue(
+                  a,
+                  rawSymbols,
+                  compiledComponents,
+                  isAction: isAction,
+                ),
+              )
               .toList(),
         };
       }
 
-      return val.map((k, v) => MapEntry(
-            k,
-            _compileValue(
-              v,
-              rawSymbols,
-              compiledComponents,
-              isAction: isAction,
-            ),
-          ));
+      return val.map(
+        (k, v) => MapEntry(
+          k,
+          _compileValue(v, rawSymbols, compiledComponents, isAction: isAction),
+        ),
+      );
     }
 
     if (val is List) {
       return val
-          .map((item) => _compileValue(
-                item,
-                rawSymbols,
-                compiledComponents,
-                isAction: isAction,
-              ))
+          .map(
+            (item) => _compileValue(
+              item,
+              rawSymbols,
+              compiledComponents,
+              isAction: isAction,
+            ),
+          )
           .toList();
     }
 
@@ -753,16 +866,22 @@ class ExpressCompiler {
   }
 }
 
+/// Generates A2UI Express contract signatures based on the introspection
+/// helper.
 class ExpressPromptGenerator {
+  /// The active catalog helper.
   final CatalogSchemaHelper helper;
 
+  /// Creates an [ExpressPromptGenerator] wrapping [catalog].
   ExpressPromptGenerator(Catalog catalog)
-      : helper = CatalogSchemaHelper(catalog);
+    : helper = CatalogSchemaHelper(catalog);
 
+  /// Generates compact positional signatures for all components in the
+  /// catalog.
   String generateComponentSignatures() {
     final List<String> signatures = [];
-    final List<String> sortedNames =
-        helper.componentProperties.keys.toList()..sort();
+    final List<String> sortedNames = helper.componentProperties.keys.toList()
+      ..sort();
     for (final name in sortedNames) {
       final List<String> props = helper.getComponentProperties(name);
       final List<String> reqs = helper.getComponentRequired(name);
@@ -778,10 +897,12 @@ class ExpressPromptGenerator {
     return signatures.join('\n');
   }
 
+  /// Generates compact signatures for all client logic functions in the
+  /// catalog.
   String generateFunctionSignatures() {
     final List<String> signatures = [];
-    final List<String> sortedNames =
-        helper.functionProperties.keys.toList()..sort();
+    final List<String> sortedNames = helper.functionProperties.keys.toList()
+      ..sort();
     for (final name in sortedNames) {
       final List<String> props = helper.getFunctionProperties(name);
       final List<String> reqs = helper.getFunctionRequired(name);
@@ -797,6 +918,7 @@ class ExpressPromptGenerator {
     return signatures.join('\n');
   }
 
+  /// Returns the complete system prompt contract text to guide the LLM.
   String generatePrompt() {
     final String compSigs = generateComponentSignatures();
     final String funcSigs = generateFunctionSignatures();
@@ -811,7 +933,8 @@ You must output the user interface using the compact A2UI Express DSL notation.
 1. Output exactly one variable assignment statement per line:
    variable_name = ComponentName(arg1, arg2, ...)
 
-2. The interface tree must have a single entry point assigned to the reserved variable 'root'.
+2. The interface tree must have a single entry point assigned to the
+   reserved variable 'root'.
 
 3. Primitives:
    - Strings: enclose in double quotes, e.g., "label"
@@ -821,8 +944,9 @@ You must output the user interface using the compact A2UI Express DSL notation.
 
 4. Lists: represent as arrays, e.g., [child1, child2]
 
-5. Data bindings: prefix absolute paths in the data model with '\$', e.g., \$/user/firstName.
-   Prefix relative list scopes with '\$', e.g., \$firstName.
+5. Data bindings: prefix absolute paths in the data model with '\$',
+   e.g., \$/user/firstName. Prefix relative list scopes with '\$',
+   e.g., \$firstName.
 
 6. Logic and validation: prefix client check rules with '?', e.g., ?required or
    ?regex("^[0-9]{5}\$").
@@ -835,12 +959,14 @@ You must output the user interface using the compact A2UI Express DSL notation.
 
 ## Positional Component Signatures
 
-Use these exact positional signatures to instantiate components. Do not output property keys:
+Use these exact positional signatures to instantiate components. Do not
+output property keys:
 $compSigs
 
 ## Positional Function Signatures
 
-Use these exact positional signatures to instantiate check rules or logic functions:
+Use these exact positional signatures to instantiate check rules or logic
+functions:
 $funcSigs
 
 ## Examples
@@ -848,17 +974,27 @@ $funcSigs
 ```
 root = Column([repField, valueField])
 repField = TextField("Representative", \$/form/rep, "Enter name")
-valueField = TextField("Deal Value", \$/form/value, "0.00", "number", [?required])
+valueField = TextField(
+  "Deal Value", \$/form/value, "0.00", "number", [?required]
+)
 ```
 ''';
   }
 }
 
+/// Conforms to the [PromptBuilder] facade in GenUI to provide A2UI Express
+/// system prompts.
 class ExpressPromptBuilder implements PromptBuilder {
+  /// The registered component/functions [catalog].
   final Catalog catalog;
+
+  /// High-level conversational prompt fragments.
   final Iterable<String> systemPromptFragments;
+
+  /// Optional client-side mock data model schema configuration.
   final Map<String, dynamic>? clientDataModel;
 
+  /// Creates an [ExpressPromptBuilder] with its catalog and prompts fragments.
   ExpressPromptBuilder({
     required this.catalog,
     this.systemPromptFragments = const [],
@@ -888,8 +1024,9 @@ class ExpressPromptBuilder implements PromptBuilder {
 
   static String _encodedDataModel(Map<String, dynamic>? clientDataModel) {
     if (clientDataModel == null) return '';
-    final String encodedModel =
-        const JsonEncoder.withIndent('  ').convert(clientDataModel);
+    final String encodedModel = const JsonEncoder.withIndent(
+      '  ',
+    ).convert(clientDataModel);
     return 'Client Data Model:\n$encodedModel';
   }
 }

@@ -16,7 +16,8 @@ import 'primitives/app_mode.dart';
 import 'primitives/climbing/a2ui_components/climbing.dart';
 import 'primitives/message.dart';
 
-export 'agent/ai_client.dart' show AiClient, DartanticAiClient, GemmaLocalAiClient;
+export 'agent/ai_client.dart'
+    show AiClient, DartanticAiClient, GemmaLocalAiClient;
 
 /// System prompts used to configure the chat sessions in this example.
 abstract final class Prompts {

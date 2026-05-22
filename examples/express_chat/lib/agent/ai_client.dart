@@ -100,18 +100,12 @@ class GemmaLocalAiClient implements AiClient {
         } else if (msg.role == dartantic.ChatMessageRole.model) {
           role = 'assistant';
         }
-        messagesPayload.add({
-          'role': role,
-          'content': msg.text,
-        });
+        messagesPayload.add({'role': role, 'content': msg.text});
       }
-      
+
       // Add final user prompt if not already in history
       if (history.isEmpty || history.last.text != prompt) {
-        messagesPayload.add({
-          'role': 'user',
-          'content': prompt,
-        });
+        messagesPayload.add({'role': 'user', 'content': prompt});
       }
 
       final Map<String, Object> payload = {
