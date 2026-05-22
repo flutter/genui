@@ -21,25 +21,23 @@ ExtractionResult extractExpressAndText(String fullText) {
   final List<String> dslLines = [];
 
   final List<String> lines = fullText.split('\n');
-  var insideCodeBlock = false;
-
-  final assignmentRegex = RegExp(
-    r'^[a-zA-Z_][a-zA-Z0-9_]*\s*=\s*[a-zA-Z_][a-zA-Z0-9_-]*\(',
-  );
+  var insideA2ui = false;
 
   for (final line in lines) {
     final String trimmed = line.trim();
-    if (trimmed.startsWith('```')) {
-      insideCodeBlock = !insideCodeBlock;
-      continue; // skip backticks line
+    if (trimmed.contains('<a2ui>')) {
+      insideA2ui = true;
+      continue;
+    }
+    if (trimmed.contains('</a2ui>')) {
+      insideA2ui = false;
+      continue;
     }
 
-    if (insideCodeBlock) {
+    if (insideA2ui) {
       dslLines.add(line);
     } else {
-      if (assignmentRegex.hasMatch(trimmed)) {
-        dslLines.add(line);
-      } else {
+      if (!trimmed.startsWith('```')) {
         explanationLines.add(line);
       }
     }
@@ -59,16 +57,13 @@ class ExpressChatA2aTransport implements Transport {
   final ExpressCompiler _compiler;
 
   final StringBuffer _lineBuffer = StringBuffer();
+  bool _insideA2ui = false;
 
   final StreamController<String> _textStreamController =
       StreamController<String>.broadcast();
 
   ExpressChatA2aTransport({AiClient? aiClient, required this.catalog})
     : _compiler = ExpressCompiler(catalog) {
-    final assignmentRegex = RegExp(
-      r'^[a-zA-Z_][a-zA-Z0-9_]*\s*=\s*[a-zA-Z_][a-zA-Z0-9_-]*\(',
-    );
-
     _agent = SimpleChatAgent(
       aiClient: aiClient,
       onChunkFromAgent: (chunk) {
@@ -83,8 +78,16 @@ class ExpressChatA2aTransport implements Transport {
           for (var i = 0; i < lines.length - 1; i++) {
             final String line = lines[i];
             final String trimmed = line.trim();
-            if (!trimmed.startsWith('```') &&
-                !assignmentRegex.hasMatch(trimmed)) {
+            if (trimmed.contains('<a2ui>')) {
+              _insideA2ui = true;
+              continue;
+            }
+            if (trimmed.contains('</a2ui>')) {
+              _insideA2ui = false;
+              continue;
+            }
+
+            if (!_insideA2ui && !trimmed.startsWith('```')) {
               _textStreamController.add('$line\n');
             }
           }
@@ -102,9 +105,7 @@ class ExpressChatA2aTransport implements Transport {
   @override
   Future<void> sendRequest(ChatMessage message) async {
     final buffer = StringBuffer();
-    final assignmentRegex = RegExp(
-      r'^[a-zA-Z_][a-zA-Z0-9_]*\s*=\s*[a-zA-Z_][a-zA-Z0-9_-]*\(',
-    );
+    _insideA2ui = false;
 
     // Intercept the agent's response to parse it at completion
     final interceptAgent = SimpleChatAgent(
@@ -122,8 +123,16 @@ class ExpressChatA2aTransport implements Transport {
           for (var i = 0; i < lines.length - 1; i++) {
             final String line = lines[i];
             final String trimmed = line.trim();
-            if (!trimmed.startsWith('```') &&
-                !assignmentRegex.hasMatch(trimmed)) {
+            if (trimmed.contains('<a2ui>')) {
+              _insideA2ui = true;
+              continue;
+            }
+            if (trimmed.contains('</a2ui>')) {
+              _insideA2ui = false;
+              continue;
+            }
+
+            if (!_insideA2ui && !trimmed.startsWith('```')) {
               _textStreamController.add('$line\n');
             }
           }
@@ -142,8 +151,10 @@ class ExpressChatA2aTransport implements Transport {
     _lineBuffer.clear();
     final String trimmedRemaining = remaining.trim();
     if (remaining.isNotEmpty &&
-        !trimmedRemaining.startsWith('```') &&
-        !assignmentRegex.hasMatch(trimmedRemaining)) {
+        !trimmedRemaining.contains('<a2ui>') &&
+        !trimmedRemaining.contains('</a2ui>') &&
+        !_insideA2ui &&
+        !trimmedRemaining.startsWith('```')) {
       _textStreamController.add(remaining);
     }
 

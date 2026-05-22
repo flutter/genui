@@ -187,5 +187,26 @@ saveLabel = Text("Save")
       expect(textComp['component'], 'Text');
       expect(textComp['text'], 'Hello');
     });
+
+    test('compile formatted multi-line statements', () {
+      const dsl = '''
+root = Column([
+  Text("Line 1"),
+  Text("Line 2")
+])
+''';
+
+      final Map<String, dynamic> envelope = compiler.compile(dsl);
+      final createSurface = envelope['createSurface'] as Map<String, dynamic>;
+      final List<Map<String, dynamic>> components =
+          (createSurface['components'] as List).cast<Map<String, dynamic>>();
+
+      expect(components, hasLength(3));
+
+      final Map<String, dynamic> colComp =
+          components.firstWhere((c) => c['id'] == 'root');
+      expect(colComp['component'], 'Column');
+      expect(colComp['children'], ['inline_Text_0', 'inline_Text_1']);
+    });
   });
 }

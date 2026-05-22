@@ -468,22 +468,46 @@ class ExpressCompiler {
         .where((e) => e.isNotEmpty)
         .toList();
 
-    final Map<String, dynamic> rawSymbols = {};
+    final List<String> statements = [];
+    StringBuffer? currentStatement;
+    final assignmentStartRegex = RegExp(r'^[a-zA-Z_][a-zA-Z0-9_]*\s*=');
 
     for (final line in lines) {
-      if (!line.contains('=')) {
+      if (line.contains('<a2ui>') || line.contains('</a2ui>')) {
         continue;
       }
-      final int index = line.indexOf('=');
-      final String varName = line.substring(0, index).trim();
-      final String exprText = line.substring(index + 1).trim();
+      if (assignmentStartRegex.hasMatch(line)) {
+        if (currentStatement != null) {
+          statements.add(currentStatement.toString().trim());
+        }
+        currentStatement = StringBuffer(line);
+      } else {
+        if (currentStatement != null) {
+          currentStatement.write('\n$line');
+        }
+      }
+    }
+    if (currentStatement != null) {
+      statements.add(currentStatement.toString().trim());
+    }
+
+    final Map<String, dynamic> rawSymbols = {};
+
+    for (final stmt in statements) {
+      if (!stmt.contains('=')) {
+        continue;
+      }
+      final int index = stmt.indexOf('=');
+      final String varName = stmt.substring(0, index).trim();
+      final String exprText = stmt.substring(index + 1).trim();
 
       try {
         final List<Token> tokens = tokenize(exprText);
         final parser = TokenParser(tokens);
         rawSymbols[varName] = parser.parseExpression();
       } catch (e) {
-        // Recover gracefully: register dummy loading text for the failed branch
+        // Recover gracefully: register dummy loading text for the failed
+        // branch.
         rawSymbols[varName] = {
           'call': 'Text',
           'args': ['Loading...'],
@@ -927,6 +951,7 @@ class ExpressPromptGenerator {
 # A2UI Express Output Contract
 
 You must output the user interface using the compact A2UI Express DSL notation.
+You MUST surround the entire A2UI Express DSL block with the sentinel tags `<a2ui>` and `</a2ui>`.
 
 ## Grammar Rules
 
@@ -971,13 +996,13 @@ $funcSigs
 
 ## Examples
 
-```
+<a2ui>
 root = Column([repField, valueField])
 repField = TextField("Representative", \$/form/rep, "Enter name")
 valueField = TextField(
   "Deal Value", \$/form/value, "0.00", "number", [?required]
 )
-```
+</a2ui>
 ''';
   }
 }
