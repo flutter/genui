@@ -6,7 +6,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:genkit/genkit.dart' as genkit;
-import 'package:genkit/src/core/action.dart';
 import 'package:genui/genui.dart';
 import 'package:genui_express/genui_express.dart';
 import 'package:logging/logging.dart';
@@ -87,7 +86,7 @@ sealed class ChatSession extends ChangeNotifier {
       GenuiExpressLocalModels.register(effectiveAi);
     }
     final genkit.ModelRef<dynamic> effectiveModel =
-        model ?? genkit.modelRef('local/apple-foundation-models');
+        model ?? genkit.modelRef('local/http-completion');
 
     return switch (mode) {
       AppMode.customCatalog => A2uiChatSession(
@@ -195,11 +194,7 @@ class TextOnlyChatSession extends ChatSession {
         ),
       );
 
-      final ActionStream<
-        genkit.GenerateResponseChunk<dynamic>,
-        genkit.GenerateResponseHelper<dynamic>
-      >
-      stream = _ai.generateStream<dynamic, dynamic>(
+      final stream = _ai.generateStream<dynamic, dynamic>(
         model: _model,
         messages: _messagesHistory,
       );
