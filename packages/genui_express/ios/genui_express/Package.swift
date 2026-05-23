@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "genui_express",
     platforms: [
-        .iOS("13.0")
+        .iOS("18.0")
     ],
     products: [
         .library(name: "genui-express", targets: ["genui_express"])

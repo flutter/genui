@@ -4,8 +4,11 @@
 
 import Flutter
 import Foundation
-import NaturalLanguage
 import UIKit
+
+#if canImport(LanguageModeling)
+import LanguageModeling
+#endif
 
 public class GenuiExpressPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
   private var eventSink: FlutterEventSink?
@@ -29,12 +32,14 @@ public class GenuiExpressPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
     case "checkAvailability":
+      #if canImport(LanguageModeling)
       if #available(iOS 18.0, macOS 15.0, *) {
         let available = LanguageModelSession.hasCapability(.textGeneration)
         result(available)
-      } else {
-        result(false)
+        return
       }
+      #endif
+      result(false)
     default:
       result(FlutterMethodNotImplemented)
     }
@@ -58,6 +63,7 @@ public class GenuiExpressPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
 
     let systemPrompt = args["systemPrompt"] as? String
 
+    #if canImport(LanguageModeling)
     if #available(iOS 18.0, macOS 15.0, *) {
       activeTask = Task {
         do {
@@ -85,16 +91,17 @@ public class GenuiExpressPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
           )
         }
       }
-    } else {
-      events(
-        FlutterError(
-          code: "UNSUPPORTED_OS",
-          message: "FoundationModels requires iOS 18.0 or newer",
-          details: nil
-        )
-      )
+      return nil
     }
+    #endif
 
+    events(
+      FlutterError(
+        code: "UNSUPPORTED_OS",
+        message: "FoundationModels requires iOS 18.0 or newer and the LanguageModeling framework",
+        details: nil
+      )
+    )
     return nil
   }
 

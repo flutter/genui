@@ -87,7 +87,7 @@ sealed class ChatSession extends ChangeNotifier {
       GenuiExpressLocalModels.register(effectiveAi);
     }
     final genkit.ModelRef<dynamic> effectiveModel =
-        model ?? genkit.modelRef('local/http-completion');
+        model ?? genkit.modelRef('local/apple-foundation-models');
 
     return switch (mode) {
       AppMode.customCatalog => A2uiChatSession(
