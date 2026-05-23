@@ -10,6 +10,9 @@ import 'package:collection/collection.dart';
 import 'package:flutter/services.dart';
 import 'package:genkit/genkit.dart';
 
+import 'on_device_plugins_stub.dart'
+    if (dart.library.js_interop) 'on_device_plugins_web.dart';
+
 const _channel = MethodChannel('genui_express/local_ai');
 const _eventChannel = EventChannel('genui_express/local_ai_stream');
 
@@ -46,6 +49,8 @@ class GenuiExpressLocalModels {
   /// Registers Apple Intelligence (FoundationModels), Android AI Edge (Gemini Nano),
   /// and local developer HTTP models with the given [ai] instance.
   static void register(Genkit ai) {
+    // 0. Register Chrome built-in AI plugin conditionally
+    registerChromeAI(ai);
     // 1. Apple Intelligence model
     ai.defineModel(
       name: 'local/apple-foundation-models',
