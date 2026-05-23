@@ -10,6 +10,9 @@ import 'package:genui/genui.dart';
 import 'package:genui_express/genui_express.dart';
 import 'package:logging/logging.dart';
 
+import 'chrome_plugin_stub.dart'
+    if (dart.library.js_interop) 'chrome_plugin_web.dart';
+
 import 'primitives/app_mode.dart';
 import 'primitives/climbing/a2ui_components/climbing.dart';
 import 'primitives/message.dart';
@@ -81,7 +84,8 @@ sealed class ChatSession extends ChangeNotifier {
     genkit.ModelRef<dynamic>? model,
     required AppMode mode,
   }) {
-    final genkit.Genkit effectiveAi = ai ?? genkit.Genkit(isDevEnv: false);
+    final genkit.Genkit effectiveAi =
+        ai ?? genkit.Genkit(isDevEnv: false, plugins: getPlatformPlugins());
     if (ai == null) {
       GenuiExpressLocalModels.register(effectiveAi);
     }

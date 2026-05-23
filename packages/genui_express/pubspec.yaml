@@ -26,7 +26,6 @@ dependencies:
   genkit: ^0.13.2
 
   collection: any
-  genkit_chrome: ^0.0.8
 dev_dependencies:
   flutter_test:
     sdk: flutter
