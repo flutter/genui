@@ -132,15 +132,21 @@ class GenuiExpressLocalModels {
         final client = HttpClient();
         final buffer = StringBuffer();
         try {
-          // Default to local Ollama's OpenAI-compatible completions endpoint
-          final Uri uri = Uri.parse(
-            'http://localhost:11434/v1/chat/completions',
-          );
+          // Support dynamic configurations via request options,
+          // defaulting to the local MLX server on port 8080.
+          final String baseUrl =
+              request.config?['baseUrl'] as String? ??
+              'http://localhost:8080/v1';
+          final String modelName =
+              request.config?['model'] as String? ??
+              'mlx-community/gemma-4-e2b-it-4bit';
+
+          final Uri uri = Uri.parse('$baseUrl/chat/completions');
           final HttpClientRequest httpReq = await client.postUrl(uri);
           httpReq.headers.contentType = ContentType.json;
 
           final payload = {
-            'model': 'gemma',
+            'model': modelName,
             'messages': [
               if (systemInstruction != null)
                 {'role': 'system', 'content': systemInstruction},
