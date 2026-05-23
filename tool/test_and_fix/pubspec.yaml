@@ -13,9 +13,7 @@ resolution: workspace
 
 # Add regular dependencies here.
 dependencies:
-  # analyzer 10.0.2+ requires meta ^1.18.0, but the Flutter SDK currently
-  # pins meta 1.17.0. Cap below 10.0.2 until Flutter ships a newer meta.
-  analyzer: ">=8.0.0 <10.0.2"
+  analyzer: ">=10.0.0 <14.0.0"
   args: ^2.7.0
   coverage: ^1.15.0
   file: ^7.0.1

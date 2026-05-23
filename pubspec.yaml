@@ -21,6 +21,8 @@ workspace:
   - packages/a2ui_core
   - packages/genui
   - packages/genui_a2a
+  - packages/genui_express
+  - packages/genui_express/example
   - packages/json_schema_builder
 
   - tool/e2e

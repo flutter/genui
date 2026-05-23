@@ -1,0 +1,46 @@
+# Copyright 2025 The Flutter Authors.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+name: genui_express
+description: Integrates A2UI Express compilation and local on-device AI engines with GenUI.
+version: 0.9.1
+homepage: https://github.com/flutter/genui/tree/main/packages/genui_express
+license: BSD-3-Clause
+issue_tracker: https://github.com/flutter/genui/issues
+
+environment:
+  sdk: ^3.12.0
+  flutter: ">=3.3.0"
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+  web: ^1.0.0
+  plugin_platform_interface: ^2.0.2
+  genui: ^0.9.1
+  genkit: ^0.13.2
+
+  collection: any
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.example.genui_express
+        pluginClass: GenuiExpressPlugin
+      ios:
+        pluginClass: GenuiExpressPlugin
+      macos:
+        pluginClass: GenuiExpressPlugin
+      web:
+        pluginClass: GenuiExpressWeb
+        fileName: genui_express_web.dart
