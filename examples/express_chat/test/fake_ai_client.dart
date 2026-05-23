@@ -4,63 +4,73 @@
 
 import 'dart:async';
 
-import 'package:dartantic_ai/dartantic_ai.dart' as dartantic;
-import 'package:express_chat/agent/ai_client.dart';
-import 'package:genui/genui.dart';
+import 'package:collection/collection.dart';
+import 'package:genkit/genkit.dart' as genkit;
 
-/// A fake implementation of [AiClient] for testing.
-class FakeAiClient implements AiClient {
-  final StreamController<A2uiMessage> _a2uiMessageController =
-      StreamController<A2uiMessage>.broadcast();
+/// A Genkit-based fake client implementation for integration tests.
+class FakeGenkitClient {
+  final genkit.Genkit ai = genkit.Genkit(isDevEnv: false);
+  final List<String> responses = [];
+  final List<String> receivedPrompts = [];
 
-  final StreamController<String> _textResponseController =
-      StreamController<String>.broadcast();
+  FakeGenkitClient() {
+    ai.defineModel(
+      name: 'local/fake-model',
+      fn: (request, context) async {
+        // Extract the user prompt from request messages
+        final genkit.Message? userMessage = request.messages.lastWhereOrNull(
+          (m) => m.role == genkit.Role.user,
+        );
+        final String prompt =
+            userMessage?.content
+                .where((p) => p.isText)
+                .map((p) => p.text)
+                .join('') ??
+            '';
+        receivedPrompts.add(prompt);
 
-  // Queue of responses to send for each request.
-  final List<String> _responses = [];
+        if (responses.isEmpty) {
+          const resp = 'I have no response for that.';
+          context.sendChunk(
+            genkit.ModelResponseChunk(content: [genkit.TextPart(text: resp)]),
+          );
+          return genkit.ModelResponse(
+            finishReason: genkit.FinishReason.stop,
+            message: genkit.Message(
+              role: genkit.Role.model,
+              content: [genkit.TextPart(text: resp)],
+            ),
+          );
+        }
 
-  final List<String> _receivedPrompts = [];
-  List<String> get receivedPrompts => List.unmodifiable(_receivedPrompts);
+        final String response = responses.removeAt(0);
 
-  Stream<A2uiMessage> get a2uiMessageStream => _a2uiMessageController.stream;
+        // Simulate streaming chunks
+        const chunkSize = 10;
+        for (var i = 0; i < response.length; i += chunkSize) {
+          final int end = (i + chunkSize < response.length)
+              ? i + chunkSize
+              : response.length;
+          final String chunk = response.substring(i, end);
+          context.sendChunk(
+            genkit.ModelResponseChunk(content: [genkit.TextPart(text: chunk)]),
+          );
+          await Future<void>.delayed(const Duration(milliseconds: 1));
+        }
 
-  Stream<String> get textResponseStream => _textResponseController.stream;
+        return genkit.ModelResponse(
+          finishReason: genkit.FinishReason.stop,
+          message: genkit.Message(
+            role: genkit.Role.model,
+            content: [genkit.TextPart(text: response)],
+          ),
+        );
+      },
+    );
+  }
 
   /// Adds a response to the queue.
   void addResponse(String response) {
-    _responses.add(response);
-  }
-
-  @override
-  Stream<String> sendStream(
-    String prompt, {
-    required List<dartantic.ChatMessage> history,
-  }) async* {
-    _receivedPrompts.add(prompt);
-    if (_responses.isEmpty) {
-      yield 'I have no response for that.';
-      return;
-    }
-
-    final String response = _responses.removeAt(0);
-
-    // Simulate streaming by yielding characters or chunks
-    // For simplicity, we can just yield the whole thing or split it.
-    // Let's split it into small chunks to simulate network.
-    const chunkSize = 10;
-    for (var i = 0; i < response.length; i += chunkSize) {
-      final int end = (i + chunkSize < response.length)
-          ? i + chunkSize
-          : response.length;
-      yield response.substring(i, end);
-      // tiny delay
-      await Future<void>.delayed(const Duration(milliseconds: 10));
-    }
-  }
-
-  @override
-  void dispose() {
-    _a2uiMessageController.close();
-    _textResponseController.close();
+    responses.add(response);
   }
 }

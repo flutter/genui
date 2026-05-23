@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:genkit/genkit.dart' as genkit;
 import 'package:logging/logging.dart';
 
 import 'chat_session.dart';
@@ -37,9 +38,10 @@ class MyApp extends StatelessWidget {
 }
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key, this.aiClient});
+  const ChatScreen({super.key, this.ai, this.model});
 
-  final AiClient? aiClient;
+  final genkit.Genkit? ai;
+  final genkit.ModelRef<dynamic>? model;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -67,7 +69,11 @@ class _ChatScreenState extends State<ChatScreen> {
       _chatSession.removeListener(_scrollToBottom);
       _chatSession.dispose();
     }
-    _chatSession = ChatSession(aiClient: widget.aiClient, mode: _appMode);
+    _chatSession = ChatSession(
+      ai: widget.ai,
+      model: widget.model,
+      mode: _appMode,
+    );
     // Add a listener to scroll to bottom when messages change.
     _chatSession.addListener(_scrollToBottom);
     _textController.text = _defaultUserMessage;

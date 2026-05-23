@@ -15,9 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('A2UI Express Local GenUI'),
-        ),
+        appBar: AppBar(title: const Text('A2UI Express Local GenUI')),
         body: const Center(
           child: Text('GenUI Express successfully initialized!'),
         ),

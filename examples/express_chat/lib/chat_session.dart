@@ -5,19 +5,15 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:genkit/genkit.dart' as genkit;
+import 'package:genkit/src/core/action.dart';
 import 'package:genui/genui.dart';
+import 'package:genui_express/genui_express.dart';
 import 'package:logging/logging.dart';
 
-import 'a2ui_transport.dart';
-import 'agent/agent.dart';
-import 'agent/ai_client.dart';
-import 'express/compiler.dart';
 import 'primitives/app_mode.dart';
 import 'primitives/climbing/a2ui_components/climbing.dart';
 import 'primitives/message.dart';
-
-export 'agent/ai_client.dart'
-    show AiClient, DartanticAiClient, GemmaLocalAiClient;
 
 /// System prompts used to configure the chat sessions in this example.
 abstract final class Prompts {
@@ -81,17 +77,33 @@ final Catalog _customCatalog = _basicCatalog.copyWith(
 sealed class ChatSession extends ChangeNotifier {
   ChatSession._();
 
-  factory ChatSession({AiClient? aiClient, required AppMode mode}) {
+  factory ChatSession({
+    genkit.Genkit? ai,
+    genkit.ModelRef<dynamic>? model,
+    required AppMode mode,
+  }) {
+    final genkit.Genkit effectiveAi = ai ?? genkit.Genkit(isDevEnv: false);
+    if (ai == null) {
+      GenuiExpressLocalModels.register(effectiveAi);
+    }
+    final genkit.ModelRef<dynamic> effectiveModel =
+        model ?? genkit.modelRef('local/http-completion');
+
     return switch (mode) {
       AppMode.customCatalog => A2uiChatSession(
-        aiClient: aiClient,
+        ai: effectiveAi,
+        model: effectiveModel,
         catalog: _customCatalog,
       ),
       AppMode.basicCatalog => A2uiChatSession(
-        aiClient: aiClient,
+        ai: effectiveAi,
+        model: effectiveModel,
         catalog: _basicCatalog,
       ),
-      AppMode.textOnly => TextOnlyChatSession(aiClient: aiClient),
+      AppMode.textOnly => TextOnlyChatSession(
+        ai: effectiveAi,
+        model: effectiveModel,
+      ),
     };
   }
 
@@ -150,16 +162,23 @@ sealed class ChatSession extends ChangeNotifier {
 
 /// A chat session that only supports text messages.
 class TextOnlyChatSession extends ChatSession {
-  TextOnlyChatSession({AiClient? aiClient}) : super._() {
-    final AiClient effectiveClient = aiClient ?? GemmaLocalAiClient();
-    _agent = SimpleChatAgent(
-      aiClient: effectiveClient,
-      onChunkFromAgent: _updateAiMessage,
+  TextOnlyChatSession({
+    required genkit.Genkit ai,
+    required genkit.ModelRef<dynamic> model,
+  }) : _ai = ai,
+       _model = model,
+       super._() {
+    _messagesHistory.add(
+      genkit.Message(
+        role: genkit.Role.system,
+        content: [genkit.TextPart(text: Prompts.summary)],
+      ),
     );
-    _agent.addSystemMessage(Prompts.summary);
   }
 
-  late final SimpleChatAgent _agent;
+  final genkit.Genkit _ai;
+  final genkit.ModelRef<dynamic> _model;
+  final List<genkit.Message> _messagesHistory = [];
 
   @override
   Future<void> sendMessage(String text) async {
@@ -168,29 +187,57 @@ class TextOnlyChatSession extends ChatSession {
     _currentAiMessage = null;
     _addUserMessage(text);
 
-    await _runRequest(
-      () => _agent.handleRequestFromRenderer(ChatMessage.user(text)),
-    );
+    await _runRequest(() async {
+      _messagesHistory.add(
+        genkit.Message(
+          role: genkit.Role.user,
+          content: [genkit.TextPart(text: text)],
+        ),
+      );
+
+      final ActionStream<
+        genkit.GenerateResponseChunk<dynamic>,
+        genkit.GenerateResponseHelper<dynamic>
+      >
+      stream = _ai.generateStream<dynamic, dynamic>(
+        model: _model,
+        messages: _messagesHistory,
+      );
+
+      final buffer = StringBuffer();
+      await for (final chunk in stream) {
+        if (chunk.text.isNotEmpty) {
+          buffer.write(chunk.text);
+          _updateAiMessage(chunk.text);
+        }
+      }
+
+      _messagesHistory.add(
+        genkit.Message(
+          role: genkit.Role.model,
+          content: [genkit.TextPart(text: buffer.toString())],
+        ),
+      );
+    });
   }
 }
 
 /// A chat session that supports generative UI.
 class A2uiChatSession extends ChatSession {
-  A2uiChatSession({AiClient? aiClient, required Catalog catalog})
-    : _catalog = catalog,
-      super._() {
-    final AiClient effectiveClient = aiClient ?? GemmaLocalAiClient();
-    _transport = ExpressChatA2aTransport(
-      aiClient: effectiveClient,
-      catalog: catalog,
-    );
+  A2uiChatSession({
+    required genkit.Genkit ai,
+    required genkit.ModelRef<dynamic> model,
+    required Catalog catalog,
+  }) : _catalog = catalog,
+       super._() {
+    _transport = ExpressLocalTransport(ai: ai, model: model, catalog: catalog);
     _surfaceController = SurfaceController(catalogs: [catalog]);
     _init();
   }
 
   final Catalog _catalog;
 
-  late final ExpressChatA2aTransport _transport;
+  late final ExpressLocalTransport _transport;
   late final SurfaceController _surfaceController;
 
   @override
@@ -212,7 +259,7 @@ class A2uiChatSession extends ChatSession {
     _surfaceSub = _surfaceController.surfaceUpdates.listen(_onSurfaceUpdate);
 
     _transport.addSystemMessage(
-      ExpressPromptBuilder(
+      ExpressPromptBuilder.chat(
         catalog: _catalog,
         systemPromptFragments: [
           Prompts.summary,

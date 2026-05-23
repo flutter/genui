@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:express_chat/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:genkit/genkit.dart' as genkit;
 import 'package:integration_test/integration_test.dart';
 import 'package:logging/logging.dart';
 import 'package:network_image_mock/network_image_mock.dart';
@@ -94,7 +95,7 @@ void main() {
 Future<void> _runTestForSample(
   WidgetTester tester,
   String samplePath,
-  Future<void> Function(WidgetTester, FakeAiClient) verify,
+  Future<void> Function(WidgetTester, FakeGenkitClient) verify,
 ) async {
   // Read sample file
   final file = File(samplePath);
@@ -103,17 +104,22 @@ Future<void> _runTestForSample(
   }
   final String jsonString = await file.readAsString();
 
-  // Initialize FakeAiClient
-  final fakeAiClient = FakeAiClient();
+  // Initialize FakeGenkitClient
+  final fakeClient = FakeGenkitClient();
 
   // Queue the response
   // SurfaceController expects A2UI messages to be wrapped in markdown code
   // blocks or detectable as structured content. Standard LLM behavior using
   // GenUi is to return ```json ... ``` blocks.
-  fakeAiClient.addResponse('Here is the UI:\n```json\n$jsonString\n```');
+  fakeClient.addResponse('Here is the UI:\n```json\n$jsonString\n```');
 
   await tester.pumpWidget(
-    MaterialApp(home: ChatScreen(aiClient: fakeAiClient)),
+    MaterialApp(
+      home: ChatScreen(
+        ai: fakeClient.ai,
+        model: genkit.modelRef('local/fake-model'),
+      ),
+    ),
   );
 
   // Trigger a message to start the flow
@@ -131,5 +137,5 @@ Future<void> _runTestForSample(
   }
 
   // Run verification
-  await verify(tester, fakeAiClient);
+  await verify(tester, fakeClient);
 }

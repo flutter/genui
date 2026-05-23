@@ -3,20 +3,25 @@
 // found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:convert';
 
-import 'package:genkit/genkit.dart' hide TextPart;
+import 'package:genkit/genkit.dart' as genkit;
 import 'package:genui/genui.dart';
 
 import '../compiler/express_compiler.dart';
 
 /// A [Transport] implementation that coordinates local Genkit LLM inference
-/// streams and compiles their Express layout DSL outputs into A2UI messages.
+/// streams, maintains session conversation history, and compiles layout DSL outputs.
+///
+/// Following the Robustness Principle (Postel's Law), it resiliently handles
+/// both compact A2UI Express layout DSL blocks (fenced in `<a2ui>`) and standard
+/// A2UI JSON specifications (fenced in ```json).
 class ExpressLocalTransport implements Transport {
   /// The core Genkit engine instance.
-  final Genkit ai;
+  final genkit.Genkit ai;
 
   /// The target Genkit model reference.
-  final ModelRef model;
+  final genkit.ModelRef<dynamic> model;
 
   /// The A2UI Express compiler instance.
   final ExpressCompiler compiler;
@@ -28,9 +33,12 @@ class ExpressLocalTransport implements Transport {
   final StreamController<String> _textStreamController =
       StreamController<String>.broadcast();
 
+  final List<ChatMessage> _history = [];
   final StringBuffer _lineBuffer = StringBuffer();
   final List<String> _dslLines = [];
+  final List<String> _jsonLines = [];
   bool _insideA2ui = false;
+  bool _insideJson = false;
 
   ExpressLocalTransport({
     required this.ai,
@@ -38,38 +46,65 @@ class ExpressLocalTransport implements Transport {
     required this.catalog,
   }) : compiler = ExpressCompiler(catalog);
 
+  /// Exposes the unmodifiable conversation history list.
+  List<ChatMessage> get history => List.unmodifiable(_history);
+
+  /// Appends a system message to the session conversation history.
+  void addSystemMessage(String content) {
+    _history.add(ChatMessage.system(content));
+  }
+
   @override
   Stream<A2uiMessage> get incomingMessages => _adapter.incomingMessages;
 
   @override
   Stream<String> get incomingText => _textStreamController.stream;
 
+  /// Maps standard A2UI [ChatMessage] objects to Genkit-compatible [genkit.Message] structures.
+  genkit.Message _mapToGenkitMessage(ChatMessage msg) {
+    final genkit.Role role = switch (msg.role) {
+      ChatMessageRole.system => genkit.Role.system,
+      ChatMessageRole.user => genkit.Role.user,
+      ChatMessageRole.model => genkit.Role.model,
+    };
+
+    final List<genkit.Part> parts = [];
+    for (final part in msg.parts) {
+      if (part.isUiInteractionPart) {
+        parts.add(genkit.TextPart(text: part.asUiInteractionPart!.interaction));
+      } else if (part is TextPart) {
+        parts.add(genkit.TextPart(text: part.text));
+      }
+    }
+
+    return genkit.Message(role: role, content: parts);
+  }
+
   @override
   Future<void> sendRequest(ChatMessage message) async {
     // Reset stream interception states
     _insideA2ui = false;
+    _insideJson = false;
     _dslLines.clear();
+    _jsonLines.clear();
     _lineBuffer.clear();
 
-    // Extract prompt text from ChatMessage parts
-    final buffer = StringBuffer();
-    for (final part in message.parts) {
-      if (part.isUiInteractionPart) {
-        buffer.write(part.asUiInteractionPart!.interaction);
-      } else if (part is TextPart) {
-        buffer.write(part.text);
-      }
-    }
+    // Add user message to internal history list
+    _history.add(message);
 
-    final String promptText = buffer.toString();
-    if (promptText.isEmpty) return;
+    // Construct Genkit history messages list representing the entire conversation
+    final genkitHistory = _history.map(_mapToGenkitMessage).toList();
 
-    // Invoke Genkit generation stream
-    final stream = ai.generateStream(model: model, prompt: promptText);
+    // Invoke Genkit generation stream using the complete history messages list
+    final stream = ai.generateStream(model: model, messages: genkitHistory);
+
+    final fullResponseBuffer = StringBuffer();
 
     await for (final chunk in stream) {
       final String chunkText = chunk.text;
       if (chunkText.isEmpty) continue;
+
+      fullResponseBuffer.write(chunkText);
 
       // Buffers chunks and splits them by lines to isolate sentinel tags
       _lineBuffer.write(chunkText);
@@ -84,6 +119,7 @@ class ExpressLocalTransport implements Transport {
         for (var i = 0; i < lines.length - 1; i++) {
           final String line = lines[i];
           final String trimmed = line.trim();
+
           if (trimmed.contains('<a2ui>')) {
             _insideA2ui = true;
             continue;
@@ -92,9 +128,19 @@ class ExpressLocalTransport implements Transport {
             _insideA2ui = false;
             continue;
           }
+          if (trimmed.contains('```json')) {
+            _insideJson = true;
+            continue;
+          }
+          if (trimmed.contains('```') && _insideJson) {
+            _insideJson = false;
+            continue;
+          }
 
           if (_insideA2ui) {
             _dslLines.add(line);
+          } else if (_insideJson) {
+            _jsonLines.add(line);
           } else {
             if (!trimmed.startsWith('```')) {
               _textStreamController.add('$line\n');
@@ -113,9 +159,15 @@ class ExpressLocalTransport implements Transport {
         _insideA2ui = true;
       } else if (trimmedRemaining.contains('</a2ui>')) {
         _insideA2ui = false;
+      } else if (trimmedRemaining.contains('```json')) {
+        _insideJson = true;
+      } else if (trimmedRemaining.contains('```') && _insideJson) {
+        _insideJson = false;
       } else {
         if (_insideA2ui) {
           _dslLines.add(remaining);
+        } else if (_insideJson) {
+          _jsonLines.add(remaining);
         } else {
           if (!trimmedRemaining.startsWith('```')) {
             _textStreamController.add(remaining);
@@ -124,7 +176,11 @@ class ExpressLocalTransport implements Transport {
       }
     }
 
-    // Compile DSL scripts if accumulated
+    // Append final full model response to the conversation history
+    final responseText = fullResponseBuffer.toString();
+    _history.add(ChatMessage.model(responseText));
+
+    // 1. Compile DSL scripts if accumulated
     if (_dslLines.isNotEmpty) {
       final String dslText = _dslLines.join('\n').trim();
       if (dslText.isNotEmpty) {
@@ -143,11 +199,11 @@ class ExpressLocalTransport implements Transport {
           final dataModelMap =
               createSurface.remove('dataModel') as Map<String, dynamic>?;
 
-          // 1. Emit CreateSurface
+          // Emit CreateSurface
           final createMsg = A2uiMessage.fromJson(compiledMap);
           _adapter.addMessage(createMsg);
 
-          // 2. Emit UpdateComponents if present
+          // Emit UpdateComponents if present
           if (componentsList != null && componentsList.isNotEmpty) {
             final updateMap = <String, dynamic>{
               'version': 'v0.9',
@@ -160,7 +216,7 @@ class ExpressLocalTransport implements Transport {
             _adapter.addMessage(updateMsg);
           }
 
-          // 3. Emit UpdateDataModel if present
+          // Emit UpdateDataModel if present
           if (dataModelMap != null && dataModelMap.isNotEmpty) {
             final dataMap = <String, dynamic>{
               'version': 'v0.9',
@@ -176,6 +232,31 @@ class ExpressLocalTransport implements Transport {
         } catch (e) {
           _textStreamController.add(
             '\n*(Failed to compile A2UI Express response: $e)*\n',
+          );
+        }
+      }
+    }
+
+    // 2. Parse standard JSON envelopes if accumulated (liberal support for both Maps and Lists)
+    if (_jsonLines.isNotEmpty) {
+      final String jsonText = _jsonLines.join('\n').trim();
+      if (jsonText.isNotEmpty) {
+        try {
+          final parsed = jsonDecode(jsonText);
+          if (parsed is List) {
+            for (final item in parsed) {
+              if (item is Map<String, dynamic>) {
+                final a2uiMsg = A2uiMessage.fromJson(item);
+                _adapter.addMessage(a2uiMsg);
+              }
+            }
+          } else if (parsed is Map<String, dynamic>) {
+            final a2uiMsg = A2uiMessage.fromJson(parsed);
+            _adapter.addMessage(a2uiMsg);
+          }
+        } catch (e) {
+          _textStreamController.add(
+            '\n*(Failed to parse standard JSON response: $e)*\n',
           );
         }
       }
