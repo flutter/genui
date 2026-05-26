@@ -81,6 +81,64 @@ void main() {
       expect(changeCount, 1);
     });
 
+    test('notifies descendant watches on root changes', () {
+      final model = DataModel({
+        'user': {'name': 'Alice'},
+        'stale': 'present',
+      });
+      final ReadonlySignal<Object?> nameWatch = model.watch('/user/name');
+      final ReadonlySignal<Object?> staleWatch = model.watch('/stale');
+      var nameChangeCount = 0;
+      var staleChangeCount = 0;
+      nameWatch.subscribe((_) => nameChangeCount++);
+      staleWatch.subscribe((_) => staleChangeCount++);
+      nameChangeCount = 0;
+      staleChangeCount = 0;
+
+      model.set('/', {
+        'user': {'name': 'Bob'},
+      });
+
+      expect(nameChangeCount, 1);
+      expect(nameWatch.value, 'Bob');
+      expect(staleChangeCount, 1);
+      expect(staleWatch.value, isNull);
+    });
+
+    test('notifies root watch on root set', () {
+      final model = DataModel({'foo': 'bar'});
+      final ReadonlySignal<Object?> rootWatch = model.watch('/');
+      var changeCount = 0;
+      rootWatch.subscribe((_) => changeCount++);
+      changeCount = 0;
+
+      model.set('/', {'baz': 'qux'});
+      expect(changeCount, 1);
+      expect(rootWatch.value, {'baz': 'qux'});
+    });
+
+    test('does not notify unrelated paths', () {
+      final model = DataModel({'a': 1, 'b': 2});
+      final ReadonlySignal<Object?> bWatch = model.watch('/b');
+      var bChangeCount = 0;
+      bWatch.subscribe((_) => bChangeCount++);
+      bChangeCount = 0;
+
+      model.set('/a', 99);
+      expect(bChangeCount, 0);
+    });
+
+    test('does not notify a sibling whose name shares a prefix', () {
+      final model = DataModel({'foo': 1, 'foobar': 2});
+      final ReadonlySignal<Object?> foobarWatch = model.watch('/foobar');
+      var foobarChangeCount = 0;
+      foobarWatch.subscribe((_) => foobarChangeCount++);
+      foobarChangeCount = 0;
+
+      model.set('/foo', 99);
+      expect(foobarChangeCount, 0);
+    });
+
     test('removes keys when setting null', () {
       final model = DataModel({'foo': 'bar'});
       model.set('/foo', null);

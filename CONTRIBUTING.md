@@ -1,25 +1,10 @@
-# Contributing to GenUI for Flutter
+# Contributing to this repository
 
-## Guidelines
+## Coding guidelines
 
-Please follow [Flutter contributor guidelines][flutter_guidelines].
-
-## Run Examples
-
-To run examples:
-
-1. Configure Firebase as described in [README.md][readme_md].
-2. Run `flutter run`.
-
-NOTE: For Google-internal projects see go/flutter-genui-internal.
-
-## Shell scripts
-
-To run a script in `tool/`, open the script in VSCode and press ⇧⌘B.
-
-## Detailed documentation for contributors
-
-See [docs/contributing.md](docs/contributing.md).
+Please follow:
+  * [Flutter-wide contributor guidelines][flutter_guidelines].
+  * [A2UI-specific guidelines](docs/contributing/README.md).
 
 ## Issue triage
 
@@ -57,7 +42,7 @@ of the front-line triage include:
 
 ### Periodic second-line triage
 
-### Bi-weekly during the planning meeting
+#### Bi-weekly during the planning meeting
 
 Check that existing issues are labeled and organized appropriately:
 
@@ -66,7 +51,7 @@ Check that existing issues are labeled and organized appropriately:
 * Set a milestone to all [P0 and P1 issues][p0_p1_issues_without_milestone].
 * Add all [projectless open issues][projectless_open_issues] to the "genui" project.
 
-### Weekly during the planning meeting
+#### Weekly during the planning meeting
 
 Triage issues ready for second-line review:
 
@@ -82,40 +67,15 @@ Triage issues ready for second-line review:
 At the end of a triage session, the untriaged issue list should be as close to
 empty as possible.
 
-## Versioning
+## Internal information
 
-We use [Semver] for package versioning, although before 1.0.0, we will be
-incrementing only the minor number for breaking changes and the patch number for
-non-breaking changes. After 1.0.0, we will be using standard Semver, bumping the
-major number for breaking changes.
+For Google-internal information see go/a2ui-internal.
 
-We release the following packages in lock step,
-with the same version number, so when one is released, they are all released:
 
-* `genui`
-* `genui_a2a`
-* `genui_firebase_ai`
-* `genui_google_generative_ui`
+<!-- references -->
 
-These packages are released independently on their own schedule, with their
-own version number:
-
-* `genai_primitives`
-* `json_schema_builder`
-
-"Releasing" consititutes manually publishing them all to [pub.dev] after the
-pull request containing the version bump has passed CI. The packages must be
-published by someone with permission to publish under the labs.flutter.org
-owner.
-
-Use the [release tool](tool/release/README.md) to help automate the process of
-releasing a new version.
-
-[pub.dev]: https://pub.dev
-[Semver]: https://semver.org/
 [for-front-line]: https://github.com/flutter/genui/issues?q=is%3Aissue%20state%3Aopen%20-label%3AP0%20%20-label%3AP1%20-label%3AP2%20%20-label%3AP3%20-label%3Afront-line-handled
 [flutter_guidelines]: https://github.com/flutter/flutter/blob/master/CONTRIBUTING.md
-[readme_md]: packages/genui/README.md#configure-firebase-ai-logic
 [assigned_p2_p3_issues]: https://github.com/flutter/genui/issues?q=is%3Aopen%20is%3Aissue%20label%3AP2%2CP3%20assignee%3A*
 [p0_p1_issues_without_milestone]: https://github.com/flutter/genui/issues?q=is%3Aopen%20is%3Aissue%20label%3AP1%2CP0%20no%3Amilestone
 [projectless_open_issues]: https://github.com/flutter/genui/issues?q=is%3Aopen%20is%3Aissue%20no%3Aproject
@@ -124,14 +84,3 @@ releasing a new version.
 [P1]: https://github.com/flutter/genui/labels?q=P1
 [P2]: https://github.com/flutter/genui/labels?q=P2
 [P3]: https://github.com/flutter/genui/labels?q=P3
-
-## pubspec.lock files
-
-`pubspec.lock` files are not git ignored to make the bots faster.
-
-If you include `pubspec.lock` file to your PR, make sure to run `flutter pub upgrade`,
-when your Flutter is latest at beta channel.
-
-## Internal information
-
-For Google-internal information see go/a2ui-internal.

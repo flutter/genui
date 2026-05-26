@@ -258,5 +258,85 @@ void main() {
         isTrue,
       );
     });
+
+    test('coverage mode generates ephemeral tests and checks LCOV', () async {
+      final Directory root = fs.directory('test_root').absolute..createSync();
+      root
+          .childFile('coverage_policy.yaml')
+          .writeAsStringSync('default_threshold: 50.0');
+      root
+          .childFile('coverage_baseline.yaml')
+          .writeAsStringSync('project: 50.0');
+
+      final Directory project = root.childDirectory('project')..createSync();
+      project
+          .childFile('pubspec.yaml')
+          .writeAsStringSync(
+            'name: my_pkg\ndependencies:\n  flutter:\n    sdk: flutter',
+          );
+      project.childDirectory('lib').createSync();
+      project.childFile('lib/foo.dart').writeAsStringSync('void foo() {}');
+      project
+          .childFile('lib/foo_part.dart')
+          .writeAsStringSync('part of \'foo.dart\';\nvoid bar() {}');
+      project
+          .childFile('lib/malicious"quote.dart')
+          .writeAsStringSync('void bad() {}');
+      project.childDirectory('test').createSync();
+
+      final Directory lcovDir = project.childDirectory('coverage')
+        ..createSync();
+      lcovDir
+          .childFile('lcov.info')
+          .writeAsStringSync(
+            'SF:lib/foo.dart\nDA:1,1\nLF:1\nLH:1\nend_of_record',
+          );
+
+      processManager.fakeResults = {
+        FakeInvocationRecord(const [
+          'dart',
+          'fix',
+          '--apply',
+          '.',
+        ], workingDirectory: root.path): [
+          ProcessResult(0, 0, '', ''),
+        ],
+        FakeInvocationRecord(const [
+          'dart',
+          'format',
+          '.',
+        ], workingDirectory: root.path): [
+          ProcessResult(0, 0, '', ''),
+        ],
+        FakeInvocationRecord(const [
+          'dart',
+          'run',
+          'tool/fix_copyright/bin/fix_copyright.dart',
+          '--force',
+        ], workingDirectory: root.path): [
+          ProcessResult(0, 0, '', ''),
+        ],
+        FakeInvocationRecord(const [
+          'dart',
+          'analyze',
+        ], workingDirectory: project.path): [
+          ProcessResult(0, 0, '', ''),
+        ],
+        FakeInvocationRecord(const [
+          'flutter',
+          'test',
+          '--coverage',
+        ], workingDirectory: project.path): [
+          ProcessResult(0, 0, '', ''),
+        ],
+      };
+
+      final bool success = await testAndFix.run(root: root, coverage: true);
+      expect(success, isTrue);
+      expect(
+        project.childFile('test/ephemeral_coverage_all_test.dart').existsSync(),
+        isFalse,
+      );
+    });
   });
 }

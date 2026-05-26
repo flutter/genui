@@ -12,9 +12,11 @@ import 'package:test/test.dart';
 
 void main() {
   final testSuiteDir = Directory(
-    'submodules/JSON-Schema-Test-Suite/tests/draft2020-12',
+    '../../submodules/JSON-Schema-Test-Suite/tests/draft2020-12',
   );
-  final remoteDir = Directory('submodules/JSON-Schema-Test-Suite/remotes');
+  final remoteDir = Directory(
+    '../../submodules/JSON-Schema-Test-Suite/remotes',
+  );
 
   // Optional tests are not required to pass for full compliance.
   final optionalTestSuiteDir = Directory('${testSuiteDir.path}/optional');

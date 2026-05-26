@@ -1,0 +1,22 @@
+# Copyright 2025 The Flutter Authors.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# A CI configuration for pub-publish to write comments on PRs.
+
+name: Comment on the pull request
+
+on:
+  workflow_dispatch: # This means the job is manual-only.
+  # TODO(polina): re-enable the workflow_run trigger in a follow-up PRs.
+  # workflow_run:
+  #   workflows: 
+  #     - Publish
+  #   types:
+  #     - completed
+
+jobs:
+  upload:
+    uses: dart-lang/ecosystem/.github/workflows/post_summaries.yaml@main
+    permissions:
+      pull-requests: write

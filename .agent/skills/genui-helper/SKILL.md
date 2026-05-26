@@ -51,9 +51,9 @@ When creating a new UI component in `genui`:
 ## References
 
 - A2UI Specification
-  - Available in the submodule at @packages/genui/submodules/a2ui
-  - The specification documentation is available in @packages/genui/submodules/a2ui/specification/v0.9/docs
-  - The specification schemas are available in @packages/genui/submodules/a2ui/specification/v0.9/json
+  - Available in the submodule at @submodules/a2ui
+  - The specification documentation is available in @submodules/a2ui/specification/v0.9/docs
+  - The specification schemas are available in @submodules/a2ui/specification/v0.9/json
   - Because it is a submodule, you may need to update the submodule to get the latest specification.
 - To find out details of a specific dart compiler diagnostic message, use the following url format to look up the details:
   - https://dart.dev/tools/diagnostics/<message_id>
