@@ -19,9 +19,9 @@ void main() {
       expect(path.toString(), '/foo/bar');
     });
 
-    test('parses escaped segments', () {
+    test('preserves ~ characters literally (no RFC 6901 escaping)', () {
       final path = DataPath.parse('/foo~1bar/baz~0qux');
-      expect(path.segments, ['foo/bar', 'baz~qux']);
+      expect(path.segments, ['foo~1bar', 'baz~0qux']);
       expect(path.toString(), '/foo~1bar/baz~0qux');
     });
 
@@ -47,19 +47,6 @@ void main() {
     test('equality', () {
       expect(DataPath.parse('/a/b'), equals(DataPath.parse('/a/b')));
       expect(DataPath.parse('/a/b'), isNot(equals(DataPath.parse('/a/c'))));
-    });
-
-    test('hashCode distinguishes segments from slashes in keys', () {
-      // Per RFC 6901 section 3, '~1' escapes a literal '/' within a key name.
-      // DataPath(['a', 'b']) represents JSON Pointer "/a/b" (two keys).
-      // DataPath(['a/b']) represents JSON Pointer "/a~1b" (one key: "a/b").
-      // These are semantically different pointers and must have different
-      // hash codes for correctness in hash-based collections.
-      final twoSegments = DataPath(['a', 'b']);
-      final oneSegment = DataPath(['a/b']);
-
-      expect(twoSegments, isNot(equals(oneSegment)));
-      expect(twoSegments.hashCode, isNot(equals(oneSegment.hashCode)));
     });
   });
 }

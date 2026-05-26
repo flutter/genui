@@ -12,13 +12,29 @@ import '../primitives/reactivity.dart';
 /// allocate a billion-element list.
 const int maxAutoVivifyIndex = 10000;
 
+/// Returns a mutable copy of JSON-like maps/lists so later nested writes do
+/// not fail when callers pass const or otherwise unmodifiable literals.
+Object? _mutableJsonLike(Object? value) {
+  if (value is Map) {
+    return <String, Object?>{
+      for (final entry in value.entries)
+        entry.key.toString(): _mutableJsonLike(entry.value),
+    };
+  }
+  if (value is List) {
+    return <Object?>[for (final item in value) _mutableJsonLike(item)];
+  }
+  return value;
+}
+
 /// A standalone, observable data store representing the client-side state.
 /// It handles JSON Pointer path resolution and reactive signal management.
 class DataModel {
   Object? _data;
   final Map<String, WeakReference<Signal<Object?>>> _signals = {};
 
-  DataModel([Object? initialData]) : _data = initialData ?? <String, Object?>{};
+  DataModel([Object? initialData])
+    : _data = _mutableJsonLike(initialData ?? <String, Object?>{});
 
   /// Synchronously gets data at a specific JSON pointer path.
   Object? get(String path) {
@@ -49,7 +65,7 @@ class DataModel {
 
     batch(() {
       if (dataPath.isEmpty) {
-        _data = value;
+        _data = _mutableJsonLike(value);
       } else {
         _data ??= <String, Object?>{};
         Object? current = _data;
@@ -102,7 +118,7 @@ class DataModel {
           if (value == null) {
             current.remove(lastSegment);
           } else {
-            current[lastSegment] = value;
+            current[lastSegment] = _mutableJsonLike(value);
           }
         } else if (current is List<Object?>) {
           final int? index = int.tryParse(lastSegment);
@@ -121,7 +137,7 @@ class DataModel {
           while (current.length <= index) {
             current.add(null);
           }
-          current[index] = value;
+          current[index] = _mutableJsonLike(value);
         }
       }
 
