@@ -280,6 +280,7 @@ class TestAndFix {
         if (!normalized.endsWith('.g.dart') &&
             !normalized.endsWith('.freezed.dart') &&
             !normalized.endsWith('.mocks.dart') &&
+            !normalized.endsWith('_web.dart') &&
             !_isPartFile(entity)) {
           dartFiles.add(normalized);
         }

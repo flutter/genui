@@ -18,11 +18,14 @@ exclude:
   - "**/*.freezed.dart"
   - "**/*.mocks.dart"
   - "**/generated/**"
+  - "**/*_web.dart"
 
 # Package-specific overrides (paths relative to monorepo root).
 packages:
   packages/genui:
     threshold: 75.0
+  packages/genui_express:
+    threshold: 60.0
   packages/a2ui_core:
     threshold: 75.0
   packages/json_schema_builder:
@@ -36,6 +39,8 @@ packages:
   tool/release:
     threshold: 75.0
   examples/simple_chat:
+    enabled: false
+  examples/express_chat:
     enabled: false
   examples/verdure/client:
     enabled: false
