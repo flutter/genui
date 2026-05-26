@@ -5,6 +5,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 import 'package:genui_express/genui_express.dart';
+import 'package:genui_express/src/compiler/parser.dart';
+import 'package:genui_express/src/compiler/token.dart';
 
 void main() {
   group('A2UI Express Tokenizer & Parser', () {

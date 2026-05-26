@@ -89,11 +89,11 @@ sealed class ChatSession extends ChangeNotifier {
     if (ai == null) {
       GenuiExpressLocalModels.register(effectiveAi);
     }
-    final genkit.ModelRef<dynamic> effectiveModel =
+    final genkit.ModelRef<Object?> effectiveModel =
         model ??
         (kIsWeb
             ? genkit.modelRef('chrome/gemini-nano')
-            : genkit.modelRef('local/http-completion'));
+            : genkit.modelRef(GenuiExpressLocalModels.httpCompletion));
 
     return switch (mode) {
       AppMode.customCatalog => A2uiChatSession(

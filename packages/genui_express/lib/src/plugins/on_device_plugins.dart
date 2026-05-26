@@ -17,6 +17,15 @@ const _eventChannel = EventChannel('genui_express/local_ai_stream');
 class GenuiExpressLocalModels {
   GenuiExpressLocalModels._();
 
+  /// Apple Intelligence local foundation models reference.
+  static const String appleFoundationModels = 'local/apple-foundation-models';
+
+  /// Google Android AI Edge (Gemini Nano) reference.
+  static const String androidAiEdge = 'local/android-ai-edge';
+
+  /// Developer local HTTP completions model reference.
+  static const String httpCompletion = 'local/http-completion';
+
   /// Helper to extract the prompt (last user message) and system instruction
   /// from a [ModelRequest].
   static (String prompt, String? systemInstruction) _extractInputs(
@@ -48,7 +57,7 @@ class GenuiExpressLocalModels {
   static void register(Genkit ai) {
     // 1. Apple Intelligence model
     ai.defineModel(
-      name: 'local/apple-foundation-models',
+      name: appleFoundationModels,
       fn: (request, context) async {
         final (String prompt, String? systemInstruction) = _extractInputs(
           request,
@@ -90,7 +99,7 @@ class GenuiExpressLocalModels {
 
     // 2. Android AI Edge model
     ai.defineModel(
-      name: 'local/android-ai-edge',
+      name: androidAiEdge,
       fn: (request, context) async {
         final (String prompt, String? systemInstruction) = _extractInputs(
           request,
@@ -132,7 +141,7 @@ class GenuiExpressLocalModels {
 
     // 3. Local HTTP Completions model
     ai.defineModel(
-      name: 'local/http-completion',
+      name: httpCompletion,
       fn: (request, context) async {
         final (String prompt, String? systemInstruction) = _extractInputs(
           request,
