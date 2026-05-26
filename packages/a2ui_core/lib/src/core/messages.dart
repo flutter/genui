@@ -10,6 +10,11 @@ abstract class A2uiMessage {
   A2uiMessage({this.version = 'v0.9'});
 
   /// Deserializes a JSON envelope into a typed [A2uiMessage].
+  ///
+  /// Throws [A2uiValidationError] if the `version` field is missing or is
+  /// not exactly `'v0.9'`, or if the envelope does not contain exactly one
+  /// of the known action keys (`createSurface`, `updateComponents`,
+  /// `updateDataModel`, `deleteSurface`).
   factory A2uiMessage.fromJson(Map<String, dynamic> json) {
     final Object? rawVersion = json['version'];
     if (rawVersion is! String) {
@@ -65,11 +70,20 @@ abstract class A2uiMessage {
 
     if (json.containsKey('updateDataModel')) {
       final body = json['updateDataModel'] as Map<String, dynamic>;
-      return UpdateDataModelMessage(
+      // Preserve the wire-level distinction between "value omitted" (remove
+      // the key) and "value: null" (set to null) — see UpdateDataModelMessage.
+      if (body.containsKey('value')) {
+        return UpdateDataModelMessage(
+          version: version,
+          surfaceId: body['surfaceId'] as String,
+          path: body['path'] as String?,
+          value: body['value'],
+        );
+      }
+      return UpdateDataModelMessage.removeKey(
         version: version,
         surfaceId: body['surfaceId'] as String,
         path: body['path'] as String?,
-        value: body['value'],
       );
     }
 
@@ -137,17 +151,44 @@ class UpdateComponentsMessage extends A2uiMessage {
 }
 
 /// Updates the data model for an existing surface.
+///
+/// The wire protocol distinguishes between two intents the renderer guide
+/// treats differently:
+///
+/// - `"value": <x>` (present, possibly `null`): set the value at [path].
+/// - omitted `value` key: remove the key at [path] (sparse-clear for lists).
+///
+/// To keep that distinction lossless through parse/serialize, the default
+/// constructor marks `hasValue = true` (the message carries an explicit
+/// value, which may be `null`), and [UpdateDataModelMessage.removeKey]
+/// constructs the "value omitted" form.
 class UpdateDataModelMessage extends A2uiMessage {
   final String surfaceId;
   final String? path;
   final Object? value;
 
+  /// True iff the message carries an explicit `value` on the wire. When
+  /// false, the `value` key is absent from the JSON envelope and the
+  /// receiver should treat the message as a "remove key at [path]".
+  final bool hasValue;
+
+  /// Constructs a message that sets [path] to [value]. `value` is part of
+  /// the envelope even when `null`.
   UpdateDataModelMessage({
     super.version,
     required this.surfaceId,
     this.path,
     this.value,
-  });
+  }) : hasValue = true;
+
+  /// Constructs a message that removes the key at [path] (no `value` field
+  /// on the wire).
+  UpdateDataModelMessage.removeKey({
+    super.version,
+    required this.surfaceId,
+    this.path,
+  }) : value = null,
+       hasValue = false;
 
   @override
   Map<String, dynamic> toJson() => {
@@ -155,7 +196,7 @@ class UpdateDataModelMessage extends A2uiMessage {
     'updateDataModel': {
       'surfaceId': surfaceId,
       if (path != null) 'path': path,
-      if (value != null) 'value': value,
+      if (hasValue) 'value': value,
     },
   };
 }
