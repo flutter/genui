@@ -39,7 +39,7 @@ packages:
   tool/release:
     threshold: 75.0
   examples/simple_chat:
-    enabled: false
+    threshold: 30.0
   examples/express_chat:
     threshold: 30.0
   examples/verdure/client:
