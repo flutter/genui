@@ -4,7 +4,7 @@
 
 name: genui_express
 description: Integrates A2UI Express compilation and local on-device AI engines with GenUI.
-version: 0.9.1
+version: 0.1.0
 homepage: https://github.com/flutter/genui/tree/main/packages/genui_express
 license: BSD-3-Clause
 issue_tracker: https://github.com/flutter/genui/issues
