@@ -41,6 +41,6 @@ packages:
   examples/simple_chat:
     enabled: false
   examples/express_chat:
-    enabled: false
+    threshold: 30.0
   examples/verdure/client:
     enabled: false
