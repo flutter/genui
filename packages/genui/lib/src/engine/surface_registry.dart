@@ -4,9 +4,10 @@
 
 import 'dart:async';
 
+import 'package:a2ui_core/a2ui_core.dart' hide Catalog, DataContext;
 import 'package:flutter/foundation.dart';
 
-import '../model/ui_models.dart';
+import '../model/ui_models.dart' as genui_model;
 import '../primitives/logging.dart';
 
 /// Events emitted by the [SurfaceRegistry].
@@ -14,31 +15,30 @@ sealed class RegistryEvent {}
 
 /// An event indicating that a new surface has been added.
 class SurfaceAdded extends RegistryEvent {
-  /// Creates a [SurfaceAdded] event.
-  SurfaceAdded(this.surfaceId, this.definition);
+  SurfaceAdded(this.surfaceId, this.surface);
   final String surfaceId;
-  final SurfaceDefinition definition;
+  final SurfaceModel surface;
 }
 
 /// An event indicating that a surface has been removed.
 class SurfaceRemoved extends RegistryEvent {
-  /// Creates a [SurfaceRemoved] event.
   SurfaceRemoved(this.surfaceId);
   final String surfaceId;
 }
 
-/// An event indicating that a surface has been updated.
+/// An event indicating that a surface's components were updated.
 class SurfaceUpdated extends RegistryEvent {
-  /// Creates a [SurfaceUpdated] event.
-  SurfaceUpdated(this.surfaceId, this.definition);
+  SurfaceUpdated(this.surfaceId, this.surface);
   final String surfaceId;
-  final SurfaceDefinition definition;
+  final SurfaceModel surface;
 }
 
-/// Manages the lifecycle and storage of [SurfaceDefinition]s.
+/// Tracks live [SurfaceModel]s by surface ID and exposes Flutter-friendly
+/// [ValueListenable]s for them, plus a registry-event stream.
 class SurfaceRegistry {
-  final Map<String, ValueNotifier<SurfaceDefinition?>> _surfaces = {};
-  // Track creation/update order for cleanup policies
+  final Map<String, ValueNotifier<SurfaceModel?>> _surfaces = {};
+  final Map<String, ValueNotifier<genui_model.SurfaceDefinition?>>
+  _definitions = {};
   final List<String> _surfaceOrder = [];
   final StreamController<RegistryEvent> _eventController =
       StreamController.broadcast();
@@ -47,83 +47,112 @@ class SurfaceRegistry {
   Stream<RegistryEvent> get events => _eventController.stream;
 
   /// The list of surface IDs in the order they were created or updated.
-  ///
-  /// This is used by cleanup strategies to determine which surfaces to remove.
   List<String> get surfaceOrder => List.unmodifiable(_surfaceOrder);
 
-  /// Returns a [ValueListenable] that tracks the definition of the surface
-  /// with the given [surfaceId].
-  ///
-  /// If the surface does not exist, a new notifier is created with a null
-  /// value.
-  ValueListenable<SurfaceDefinition?> watchSurface(String surfaceId) {
+  /// Returns a [ValueListenable] that tracks the surface with the given
+  /// [surfaceId]. The value is `null` until the surface is registered, and
+  /// becomes `null` again when it is removed.
+  ValueListenable<SurfaceModel?> watchSurface(String surfaceId) {
     if (!_surfaces.containsKey(surfaceId)) {
-      genUiLogger.fine('Adding new surface $surfaceId');
-    } else {
-      genUiLogger.fine('Fetching surface notifier for $surfaceId');
+      genUiLogger.fine('Adding new surface watcher for $surfaceId');
     }
     return _surfaces.putIfAbsent(
       surfaceId,
-      () => ValueNotifier<SurfaceDefinition?>(null),
+      () => ValueNotifier<SurfaceModel?>(null),
     );
   }
 
-  /// Updates the definition of a surface.
-  ///
-  /// If [isNew] is true, a [SurfaceAdded] event is emitted. Otherwise, a
-  /// [SurfaceUpdated] event is emitted.
-  void updateSurface(
+  /// Returns a [ValueListenable] that tracks the source-compatible snapshot
+  /// definition for the given [surfaceId].
+  ValueListenable<genui_model.SurfaceDefinition?> watchDefinition(
     String surfaceId,
-    SurfaceDefinition definition, {
-    bool isNew = false,
-  }) {
-    final ValueNotifier<SurfaceDefinition?> notifier = _surfaces.putIfAbsent(
+  ) {
+    return _definitions.putIfAbsent(
       surfaceId,
-      () => ValueNotifier(null),
+      () => ValueNotifier<genui_model.SurfaceDefinition?>(null),
     );
-    notifier.value = definition;
-
-    _surfaceOrder.remove(surfaceId);
-    _surfaceOrder.add(surfaceId);
-
-    if (isNew) {
-      genUiLogger.info('Created new surface $surfaceId');
-      _eventController.add(SurfaceAdded(surfaceId, definition));
-    } else {
-      // genUiLogger.info('Updated surface $surfaceId'); // Optional logging
-      _eventController.add(SurfaceUpdated(surfaceId, definition));
-    }
   }
 
-  /// Removes a surface from the registry.
+  /// Registers a new surface, emitting a [SurfaceAdded] event.
+  void addSurface(SurfaceModel surface) {
+    final ValueNotifier<SurfaceModel<ComponentApi>?> notifier = _surfaces
+        .putIfAbsent(surface.id, () => ValueNotifier<SurfaceModel?>(null));
+    notifier.value = surface;
+    _definitions
+        .putIfAbsent(
+          surface.id,
+          () => ValueNotifier<genui_model.SurfaceDefinition?>(null),
+        )
+        .value = genui_model.SurfaceDefinition.fromCore(
+      surface,
+    );
+    _surfaceOrder
+      ..remove(surface.id)
+      ..add(surface.id);
+    genUiLogger.info('Created new surface ${surface.id}');
+    _eventController.add(SurfaceAdded(surface.id, surface));
+  }
+
+  /// Signals that the components of a surface have changed.
+  void notifyUpdated(SurfaceModel surface) {
+    _surfaceOrder
+      ..remove(surface.id)
+      ..add(surface.id);
+    _definitions
+        .putIfAbsent(
+          surface.id,
+          () => ValueNotifier<genui_model.SurfaceDefinition?>(null),
+        )
+        .value = genui_model.SurfaceDefinition.fromCore(
+      surface,
+    );
+    _eventController.add(SurfaceUpdated(surface.id, surface));
+  }
+
+  /// Removes a surface from the registry, emitting a [SurfaceRemoved] event.
   ///
-  /// Emits a [SurfaceRemoved] event if the surface existed.
+  /// The per-id [ValueNotifier] is kept (not removed from the map, not
+  /// disposed) so that any widget already listening to it stays connected.
+  /// If a surface with the same id is later created, the existing notifier's
+  /// value is updated and the widget gets notified — without this, the
+  /// widget would be stranded on a dead notifier.
+  ///
+  /// The [SurfaceModel] itself is owned by the substrate's
+  /// `core.SurfaceGroupModel` and disposed there; this registry only nulls
+  /// out the notifier value.
   void removeSurface(String surfaceId) {
-    if (_surfaces.containsKey(surfaceId)) {
-      genUiLogger.info('Deleting surface $surfaceId');
-      final ValueNotifier<SurfaceDefinition?>? notifier = _surfaces.remove(
-        surfaceId,
-      );
-      notifier?.dispose();
-      _surfaceOrder.remove(surfaceId);
-      _eventController.add(SurfaceRemoved(surfaceId));
-    }
+    final ValueNotifier<SurfaceModel<ComponentApi>?>? notifier =
+        _surfaces[surfaceId];
+    if (notifier == null || notifier.value == null) return;
+    genUiLogger.info('Deleting surface $surfaceId');
+    notifier.value = null;
+    _definitions[surfaceId]?.value = null;
+    _surfaceOrder.remove(surfaceId);
+    _eventController.add(SurfaceRemoved(surfaceId));
   }
 
-  /// Returns true if the registry contains a surface with the given
+  /// Returns true if the registry has a watcher (or live surface) for
   /// [surfaceId].
-  bool hasSurface(String surfaceId) => _surfaces.containsKey(surfaceId);
+  bool hasSurface(String surfaceId) => _surfaces[surfaceId]?.value != null;
 
-  /// Returns the current definition of the surface with the given [surfaceId],
-  /// or null if it doesn't exist.
-  SurfaceDefinition? getSurface(String surfaceId) =>
-      _surfaces[surfaceId]?.value;
+  /// Returns the current surface with the given [surfaceId], or `null`.
+  SurfaceModel? getSurface(String surfaceId) => _surfaces[surfaceId]?.value;
 
-  /// Disposes of the registry and all its resources.
+  /// Disposes of the registry and all per-surface notifiers. The underlying
+  /// [SurfaceModel]s are owned and disposed by the substrate's
+  /// `core.SurfaceGroupModel`, not by this registry.
   void dispose() {
     _eventController.close();
-    for (final ValueNotifier<SurfaceDefinition?> notifier in _surfaces.values) {
+    for (final ValueNotifier<SurfaceModel<ComponentApi>?> notifier
+        in _surfaces.values) {
       notifier.dispose();
     }
+    for (final ValueNotifier<genui_model.SurfaceDefinition?> notifier
+        in _definitions.values) {
+      notifier.dispose();
+    }
+    _surfaces.clear();
+    _definitions.clear();
+    _surfaceOrder.clear();
   }
 }
