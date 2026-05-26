@@ -5,6 +5,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
@@ -16,8 +17,8 @@ import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
 import '../model/chat_message.dart';
 import '../model/data_model.dart';
+import '../model/schema_validation.dart' as schema_validation;
 import '../model/ui_models.dart';
-import '../primitives/constants.dart';
 import '../primitives/logging.dart';
 
 import 'data_model_store.dart';
@@ -25,50 +26,59 @@ import 'surface_registry.dart' as surface_reg;
 
 /// The runtime controller for the GenUI system.
 ///
-/// Orchestrates the lifecycle of UI surfaces, manages communication with the
-/// AI service, and handles data model updates.
+/// Thin Flutter-side wrapper around [core.MessageProcessor]: the substrate
+/// owns the canonical A2UI state-mutation rules (create/update/delete
+/// surfaces and their components/data models) and this class adds the
+/// Flutter-specific concerns on top: pre-create message buffering, schema
+/// validation against the genui catalog, and a [SurfaceUpdate] stream the
+/// Flutter facade subscribes to.
 interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
-  /// Creates a [SurfaceController].
-  ///
-  /// The [catalogs] parameter defines the set of component catalogs available
-  /// for use by surfaces managed by this controller.
-  ///
-  /// The [pendingUpdateTimeout] specifies how long to wait for a surface
-  /// creation message before discarding buffered updates for that surface.
   SurfaceController({
     required this.catalogs,
     this.pendingUpdateTimeout = const Duration(minutes: 1),
-  });
+  }) {
+    _processor = core.MessageProcessor<core.ComponentApi>(
+      // Growable: handleMessage may inject stub catalogs for unknown
+      // catalogIds (see comment near _processor.catalogs.add below).
+      catalogs: catalogs.map((c) => c.coreCatalog).toList(),
+    );
+    _processor.groupModel.onSurfaceCreated.addListener(_onCoreSurfaceCreated);
+    _processor.groupModel.onSurfaceDeleted.addListener(_onCoreSurfaceDeleted);
+  }
 
   /// The catalogs available to surfaces in this engine.
   final Iterable<Catalog> catalogs;
 
-  /// The timeout for pending updates waiting for a surface creation.
+  /// The timeout for buffered updates waiting for a surface creation.
   final Duration pendingUpdateTimeout;
 
+  late final core.MessageProcessor<core.ComponentApi> _processor;
   late final surface_reg.SurfaceRegistry _registry =
       surface_reg.SurfaceRegistry();
-  late final DataModelStore _store = DataModelStore();
+  late final DataModelStore _store = DataModelStore(
+    lookup: (String surfaceId) {
+      final core.SurfaceModel? surface = _registry.getSurface(surfaceId);
+      if (surface == null) return null;
+      return InMemoryDataModel.wrap(surface.dataModel);
+    },
+  );
 
   final _onSubmit = StreamController<ChatMessage>.broadcast();
-  final _pendingUpdates = <String, List<A2uiMessage>>{};
+  final _pendingUpdates = <String, List<core.A2uiMessage>>{};
   final _pendingUpdateTimers = <String, Timer>{};
 
-  // Expose registry events as surface updates
   @override
   Stream<SurfaceUpdate> get surfaceUpdates => _registry.events.map(
     (e) => switch (e) {
-      surface_reg.SurfaceAdded(:final surfaceId, :final definition) =>
-        SurfaceAdded(surfaceId, definition),
-      surface_reg.SurfaceUpdated(:final surfaceId, :final definition) =>
-        ComponentsUpdated(surfaceId, definition),
+      surface_reg.SurfaceAdded(:final surfaceId, :final surface) =>
+        SurfaceAdded(surfaceId, surface),
+      surface_reg.SurfaceUpdated(:final surfaceId, :final surface) =>
+        ComponentsUpdated(surfaceId, surface),
       surface_reg.SurfaceRemoved(:final surfaceId) => SurfaceRemoved(surfaceId),
     },
   );
 
   /// A stream of messages to be submitted to the AI service.
-  ///
-  /// This includes user actions and validation errors.
   Stream<ChatMessage> get onSubmit => _onSubmit.stream;
 
   /// The IDs of the currently active surfaces.
@@ -87,35 +97,176 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   /// The registry of surfaces managed by this controller.
   surface_reg.SurfaceRegistry get registry => _registry;
 
-  /// The store of data models managed by this controller.
+  /// The source-compatible store of data models managed by this controller.
   DataModelStore get store => _store;
 
-  /// Process an [message] from the AI service.
+  /// Processes a message from the AI service.
   ///
-  /// Decodes the message and updates the state of the relevant surface,
-  /// provided the message passes validation.
-  ///
-  /// If validation fails, a [A2uiValidationException] is caught and logged,
-  /// and an error message is sent back via [onSubmit].
+  /// Delegates the canonical state mutation to [core.MessageProcessor] and
+  /// adds Flutter-specific concerns around it (pre-create buffering of
+  /// updates, schema validation of the resulting component set, and
+  /// surface-level `ComponentsUpdated` emission for the [surfaceUpdates]
+  /// stream).
   @override
   void handleMessage(A2uiMessage message) {
     genUiLogger.info(
       'SurfaceController.handleMessage received: ${message.runtimeType}',
     );
+    _handleCoreMessage(message.toCoreMessage());
+  }
+
+  /// Internal entry point used by buffered/flushed messages where we already
+  /// hold the substrate representation. Public callers go through
+  /// [handleMessage] with the GenUI facade type.
+  void _handleCoreMessage(core.A2uiMessage coreMessage) {
+    // Empty surfaceId — reject before delegating so the substrate doesn't
+    // create a surface with id "".
+    if (coreMessage is core.CreateSurfaceMessage &&
+        coreMessage.surfaceId.isEmpty) {
+      reportError(
+        A2uiValidationException(
+          'Surface ID cannot be empty',
+          surfaceId: '',
+          path: 'surfaceId',
+        ),
+        StackTrace.current,
+      );
+      return;
+    }
+
+    // Buffer updates that arrive before their surface is created.
+    final String? bufferSurfaceId = _bufferSurfaceIdIfNoSurface(coreMessage);
+    if (bufferSurfaceId != null) {
+      _bufferMessage(bufferSurfaceId, coreMessage);
+      return;
+    }
+
+    // If a createSurface refers to a catalogId we do not have, register an
+    // empty stub so the substrate's "catalog not found" check passes. This
+    // mirrors the previous lenient behavior where unknown catalogIds were
+    // accepted with an empty component set — useful for tests/demos that
+    // do not pre-register every catalog the server may send.
+    if (coreMessage is core.CreateSurfaceMessage) {
+      final core.CreateSurfaceMessage createMessage = coreMessage;
+      if (!_processor.catalogs.any((c) => c.id == createMessage.catalogId)) {
+        _processor.catalogs.add(
+          core.Catalog<core.ComponentApi>(
+            id: createMessage.catalogId,
+            components: const [],
+          ),
+        );
+      }
+    }
 
     try {
-      _handleMessageInternal(message);
+      _processor.processMessages([coreMessage]);
+    } on core.A2uiStateError catch (e) {
+      genUiLogger.warning('State error from MessageProcessor: ${e.message}');
+      reportError(
+        A2uiValidationException(
+          e.message,
+          surfaceId: _surfaceIdOf(coreMessage),
+        ),
+        StackTrace.current,
+      );
+      return;
+    } on core.A2uiValidationError catch (e) {
+      genUiLogger.warning(
+        'Validation error from MessageProcessor: ${e.message}',
+      );
+      reportError(
+        A2uiValidationException(
+          e.message,
+          surfaceId: _surfaceIdOf(coreMessage),
+        ),
+        StackTrace.current,
+      );
+      return;
     } on A2uiValidationException catch (e) {
       genUiLogger.warning('Validation failed for surface ${e.surfaceId}: $e');
       reportError(e, StackTrace.current);
+      return;
     } catch (exception, stackTrace) {
       genUiLogger.severe(
-        'Error handling message: $message',
+        'Error handling message: $coreMessage',
         exception,
         stackTrace,
       );
       reportError(exception, stackTrace);
+      return;
     }
+
+    // Genui-side post-mutation handling. The substrate has already applied
+    // the mutation by this point — these are additive Flutter/genui
+    // concerns the substrate does not own.
+    if (coreMessage is core.UpdateComponentsMessage) {
+      final core.SurfaceModel<core.ComponentApi>? surface = _processor
+          .groupModel
+          .getSurface(coreMessage.surfaceId);
+      if (surface != null) {
+        // Emit a surface-level "components updated" so subscribers to
+        // `surfaceUpdates` can react without listening to every
+        // ComponentModel individually.
+        _registry.notifyUpdated(surface);
+        // Validate the resulting component set against the genui catalog
+        // schema. Mutation is not rolled back on validation failure — we
+        // surface the error and let the caller decide.
+        try {
+          final Catalog? genuiCatalog = catalogs.firstWhereOrNull(
+            (c) => c.catalogId == surface.catalog.id,
+          );
+          if (genuiCatalog != null) {
+            _validateComponents(coreMessage.surfaceId, surface, genuiCatalog);
+          }
+        } on A2uiValidationException catch (e) {
+          genUiLogger.warning(
+            'Schema validation failed for surface ${e.surfaceId}: $e',
+          );
+          reportError(e, StackTrace.current);
+        }
+      }
+    }
+  }
+
+  /// Returns the surfaceId of [message] if it is an update for a surface
+  /// that does not yet exist (and therefore needs to be buffered), or null
+  /// if no buffering is needed.
+  String? _bufferSurfaceIdIfNoSurface(core.A2uiMessage message) {
+    final String? targetId = switch (message) {
+      core.UpdateComponentsMessage(:final surfaceId) => surfaceId,
+      core.UpdateDataModelMessage(:final surfaceId) => surfaceId,
+      _ => null,
+    };
+    if (targetId == null) return null;
+    if (_processor.groupModel.getSurface(targetId) != null) return null;
+    return targetId;
+  }
+
+  String? _surfaceIdOf(core.A2uiMessage message) => switch (message) {
+    core.CreateSurfaceMessage(:final surfaceId) => surfaceId,
+    core.UpdateComponentsMessage(:final surfaceId) => surfaceId,
+    core.UpdateDataModelMessage(:final surfaceId) => surfaceId,
+    core.DeleteSurfaceMessage(:final surfaceId) => surfaceId,
+    _ => null,
+  };
+
+  void _onCoreSurfaceCreated(core.SurfaceModel<core.ComponentApi> surface) {
+    _registry.addSurface(surface);
+    // Flush any updates that arrived for this surfaceId before createSurface.
+    final List<core.A2uiMessage>? pending = _pendingUpdates.remove(surface.id);
+    _pendingUpdateTimers.remove(surface.id)?.cancel();
+    if (pending != null) {
+      for (final core.A2uiMessage msg in pending) {
+        _handleCoreMessage(msg);
+      }
+    }
+  }
+
+  void _onCoreSurfaceDeleted(String surfaceId) {
+    _pendingUpdates.remove(surfaceId);
+    _pendingUpdateTimers.remove(surfaceId)?.cancel();
+    _store.removeDataModel(surfaceId);
+    _registry.removeSurface(surfaceId);
   }
 
   /// Reports an error to the AI service.
@@ -149,103 +300,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
     );
   }
 
-  void _handleMessageInternal(A2uiMessage message) {
-    switch (message) {
-      case CreateSurface(
-        :final surfaceId,
-        :final catalogId,
-        :final theme,
-        :final sendDataModel,
-      ):
-        if (surfaceId.isEmpty) {
-          throw A2uiValidationException(
-            'Surface ID cannot be empty',
-            surfaceId: surfaceId,
-            path: 'surfaceId',
-          );
-        }
-
-        final List<A2uiMessage>? pending = _pendingUpdates.remove(surfaceId);
-        _pendingUpdateTimers.remove(surfaceId)?.cancel();
-
-        _store.getDataModel(surfaceId); // Ensure model exists
-
-        final SurfaceDefinition? existing = _registry.getSurface(surfaceId);
-        final SurfaceDefinition newDefinition =
-            (existing ?? SurfaceDefinition(surfaceId: surfaceId)).copyWith(
-              catalogId: catalogId,
-              theme: theme,
-            );
-
-        if (sendDataModel) {
-          _store.attachSurface(surfaceId);
-        } else {
-          _store.detachSurface(surfaceId);
-        }
-
-        _registry.updateSurface(
-          surfaceId,
-          newDefinition,
-          isNew: existing == null,
-        );
-
-        final Catalog? catalog = _findCatalogForDefinition(newDefinition);
-        if (catalog != null) {
-          newDefinition.validate(catalog.definition);
-        }
-
-        if (pending != null) {
-          for (final A2uiMessage msg in pending) {
-            _handleMessageInternal(msg);
-          }
-        }
-
-      case UpdateComponents(:final surfaceId, :final components):
-        if (!_registry.hasSurface(surfaceId)) {
-          _bufferMessage(surfaceId, message);
-          return;
-        }
-
-        final SurfaceDefinition current = _registry.getSurface(surfaceId)!;
-        final Map<String, Component> newComponents = Map.of(current.components);
-        for (final component in components) {
-          newComponents[component.id] = component;
-        }
-
-        _registry.updateSurface(
-          surfaceId,
-          current.copyWith(components: newComponents),
-        );
-
-        final SurfaceDefinition updatedDefinition = _registry.getSurface(
-          surfaceId,
-        )!;
-        final Catalog? catalog = _findCatalogForDefinition(updatedDefinition);
-        if (catalog != null) {
-          updatedDefinition.validate(catalog.definition);
-        }
-
-      case UpdateDataModel(:final surfaceId, :final path, :final value):
-        if (!_registry.hasSurface(surfaceId)) {
-          _bufferMessage(surfaceId, message);
-          return;
-        }
-
-        final DataModel model = _store.getDataModel(surfaceId);
-        model.update(path, value);
-
-      // Note: We don't trigger a surface update here to avoid full UI refreshes
-      // on data changes. Components should listen to the DataModel directly.
-
-      case DeleteSurface(:final surfaceId):
-        _pendingUpdates.remove(surfaceId);
-        _pendingUpdateTimers.remove(surfaceId)?.cancel();
-        _registry.removeSurface(surfaceId);
-        _store.removeDataModel(surfaceId);
-    }
-  }
-
-  void _bufferMessage(String surfaceId, A2uiMessage message) {
+  void _bufferMessage(String surfaceId, core.A2uiMessage message) {
     _pendingUpdates.putIfAbsent(surfaceId, () => []).add(message);
     if (!_pendingUpdateTimers.containsKey(surfaceId)) {
       _pendingUpdateTimers[surfaceId] = Timer(pendingUpdateTimeout, () {
@@ -255,10 +310,8 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
     }
   }
 
-  /// Handles a UI event from a surface.
-  ///
-  /// Converts the event into a [ChatMessage] and adds it to the [onSubmit]
-  /// stream.
+  /// Handles a UI event from a surface — converts a [UserActionEvent] into
+  /// a [ChatMessage] sent on [onSubmit].
   void handleUiEvent(UiEvent event) {
     if (event is! UserActionEvent) return;
     _onSubmit.add(
@@ -273,22 +326,41 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
     );
   }
 
-  Catalog? _findCatalogForDefinition(SurfaceDefinition definition) {
-    genUiLogger.fine(
-      'Finding catalog for ${definition.catalogId} in '
-      '${catalogs.map((c) => c.catalogId).toList()}',
+  Catalog? _findCatalogForSurface(String surfaceId) {
+    final core.SurfaceModel<core.ComponentApi>? surface = _registry.getSurface(
+      surfaceId,
     );
-    return catalogs.firstWhereOrNull(
-      (catalog) => catalog.catalogId == definition.catalogId,
+    if (surface == null) return null;
+    return catalogs.firstWhereOrNull((c) => c.catalogId == surface.catalog.id);
+  }
+
+  /// Validates the components currently in [surface] against [catalog]'s
+  /// schema. Throws [A2uiValidationException] on the first failing component.
+  void _validateComponents(
+    String surfaceId,
+    core.SurfaceModel<core.ComponentApi> surface,
+    Catalog catalog,
+  ) {
+    schema_validation.validateComponents(
+      surfaceId: surfaceId,
+      components: surface.componentsModel.all.map(
+        (c) => (id: c.id, type: c.type, json: c.toJson()),
+      ),
+      schema: catalog.definition,
     );
   }
 
   /// Disposes of the controller and releases all resources.
-  ///
-  /// Closes the [onSubmit] stream and cancels any pending timers.
   void dispose() {
-    _registry.dispose();
+    _processor.groupModel.onSurfaceCreated.removeListener(
+      _onCoreSurfaceCreated,
+    );
+    _processor.groupModel.onSurfaceDeleted.removeListener(
+      _onCoreSurfaceDeleted,
+    );
+    _processor.groupModel.dispose();
     _store.dispose();
+    _registry.dispose();
     _onSubmit.close();
     for (final Timer timer in _pendingUpdateTimers.values) {
       timer.cancel();
@@ -296,7 +368,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   }
 }
 
-class _ControllerContext implements SurfaceContext {
+class _ControllerContext implements LiveSurfaceContext {
   _ControllerContext(this._controller, this.surfaceId);
   final SurfaceController _controller;
 
@@ -304,30 +376,33 @@ class _ControllerContext implements SurfaceContext {
   final String surfaceId;
 
   @override
-  ValueListenable<SurfaceDefinition?> get definition =>
+  ValueListenable<core.SurfaceModel?> get surface =>
       _controller.registry.watchSurface(surfaceId);
 
   @override
-  DataModel get dataModel => _controller.store.getDataModel(surfaceId);
+  ValueListenable<SurfaceDefinition?> get definition =>
+      _controller.registry.watchDefinition(surfaceId);
 
   @override
-  Catalog? get catalog {
-    final ValueListenable<SurfaceDefinition?> definitions = _controller.registry
-        .watchSurface(surfaceId);
-    final SurfaceDefinition? definition = definitions.value;
-    final String catalogId = definition?.catalogId ?? basicCatalogId;
-    return _controller.catalogs.firstWhereOrNull(
-      (catalog) => catalog.catalogId == catalogId,
-    );
+  DataModel get dataModel {
+    final core.SurfaceModel? s = _controller.registry.getSurface(surfaceId);
+    if (s == null) {
+      throw StateError(
+        'SurfaceContext.dataModel accessed for surface "$surfaceId" '
+        'before the surface was created. Guard on `definition.value != null` '
+        'or wait for a SurfaceAdded event before reading the data model.',
+      );
+    }
+    return InMemoryDataModel.wrap(s.dataModel);
   }
 
   @override
-  void handleUiEvent(UiEvent event) {
-    _controller.handleUiEvent(event);
-  }
+  Catalog? get catalog => _controller._findCatalogForSurface(surfaceId);
 
   @override
-  void reportError(Object error, StackTrace? stack) {
-    _controller.reportError(error, stack);
-  }
+  void handleUiEvent(UiEvent event) => _controller.handleUiEvent(event);
+
+  @override
+  void reportError(Object error, StackTrace? stack) =>
+      _controller.reportError(error, stack);
 }

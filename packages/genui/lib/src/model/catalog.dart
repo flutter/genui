@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
@@ -135,27 +136,17 @@ interface class Catalog {
     }
 
     genUiLogger.info('Building widget ${item.name} with id ${itemContext.id}');
-    return KeyedSubtree(
-      key: ValueKey(itemContext.id),
-      child: item.widgetBuilder(
-        CatalogItemContext(
-          data: itemContext.data,
-          id: itemContext.id,
-          type: widgetType,
-          buildChild: (String childId, [DataContext? childDataContext]) =>
-              itemContext.buildChild(
-                childId,
-                childDataContext ?? itemContext.dataContext,
-              ),
-          dispatchEvent: itemContext.dispatchEvent,
-          buildContext: itemContext.buildContext,
-          dataContext: itemContext.dataContext,
-          getComponent: itemContext.getComponent,
-          getCatalogItem: (String type) =>
-              items.firstWhereOrNull((item) => item.name == type),
-          surfaceId: itemContext.surfaceId,
-          reportError: itemContext.reportError,
-        ),
+    // Per-id identity is provided by the Surface's _ComponentBuilder wrapper,
+    // so no KeyedSubtree is needed here.
+    return item.widgetBuilder(
+      itemContext.withOverrides(
+        buildChild: (String childId, [DataContext? childDataContext]) =>
+            itemContext.buildChild(
+              childId,
+              childDataContext ?? itemContext.dataContext,
+            ),
+        getCatalogItem: (String type) =>
+            items.firstWhereOrNull((item) => item.name == type),
       ),
     );
   }
@@ -261,4 +252,32 @@ class CatalogItemNotFoundException implements Exception {
     }
     return buffer.toString();
   }
+}
+
+/// Adapter exposing a [CatalogItem] as a substrate [core.ComponentApi].
+class _CatalogItemComponentApi implements core.ComponentApi {
+  _CatalogItemComponentApi(this._item);
+  final CatalogItem _item;
+
+  @override
+  String get name => _item.name;
+
+  @override
+  Schema get schema => _item.dataSchema;
+}
+
+/// Extension on [Catalog] that builds the substrate-facing
+/// [core.Catalog] view of the genui catalog.
+extension CatalogCoreView on Catalog {
+  /// Returns a [core.Catalog] populated from this catalog's items, with each
+  /// [CatalogItem] adapted into a [core.ComponentApi]. Used when constructing
+  /// a [core.SurfaceModel] so the surface has real component metadata
+  /// (instead of an empty stub) for substrate-side lookups.
+  core.Catalog<core.ComponentApi> get coreCatalog =>
+      core.Catalog<core.ComponentApi>(
+        id: catalogId ?? 'genui_inline_$hashCode',
+        components: items
+            .map<core.ComponentApi>(_CatalogItemComponentApi.new)
+            .toList(growable: false),
+      );
 }

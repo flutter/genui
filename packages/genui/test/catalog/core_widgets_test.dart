@@ -78,8 +78,9 @@ void main() {
       ];
 
       await pumpWidgetWithDefinition(tester, 'root', components);
-      controller!.store
-          .getDataModel('testSurface')
+      controller!
+          .contextFor('testSurface')
+          .dataModel
           .update(DataPath('/myText'), 'Hello from data model');
       await tester.pumpAndSettle();
 
@@ -131,8 +132,9 @@ void main() {
       ];
 
       await pumpWidgetWithDefinition(tester, 'field', components);
-      controller!.store
-          .getDataModel('testSurface')
+      controller!
+          .contextFor('testSurface')
+          .dataModel
           .update(DataPath('/myValue'), 'initial');
       await tester.pumpAndSettle();
 
@@ -144,8 +146,9 @@ void main() {
       // Test onChanged
       await tester.enterText(textFieldFinder, 'new value');
       expect(
-        controller!.store
-            .getDataModel('testSurface')
+        controller!
+            .contextFor('testSurface')
+            .dataModel
             .getValue<String>(DataPath('/myValue')),
         'new value',
       );

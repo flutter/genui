@@ -181,35 +181,53 @@ class _A2uiParserStream {
     }
   }
 
+  /// JSON keys that mark a payload as intended to be an A2UI message envelope.
+  /// If parsing fails on a payload that looks like an envelope, treat the
+  /// failure as a validation error rather than fall back to emitting plain
+  /// text. `version` is included because a payload that carries `version`
+  /// is clearly an attempted envelope even if its action key is unknown or
+  /// malformed.
+  static const _a2uiEnvelopeKeys = {
+    'version',
+    'createSurface',
+    'updateComponents',
+    'updateDataModel',
+    'deleteSurface',
+  };
+
+  bool _looksLikeA2uiEnvelope(Map<String, Object?> json) =>
+      json.keys.any(_a2uiEnvelopeKeys.contains);
+
   void _emitMessage(Object json) {
     if (json is Map<String, Object?>) {
-      try {
-        _controller.add(A2uiMessageEvent(A2uiMessage.fromJson(json)));
-        _wasLastEventA2ui = true;
-      } on A2uiValidationException catch (e) {
-        _controller.addError(e);
-        _wasLastEventA2ui = false;
-      } catch (_) {
-        // Failed to parse A2UI message structure (e.g. invalid type
-        // discriminator)
-        _controller.add(TextEvent(jsonEncode(json)));
-        _wasLastEventA2ui = false;
-      }
+      _tryEmitOne(json);
     } else if (json is List) {
       for (final Object? item in json) {
         if (item is Map<String, Object?>) {
-          try {
-            _controller.add(A2uiMessageEvent(A2uiMessage.fromJson(item)));
-            _wasLastEventA2ui = true;
-          } on A2uiValidationException catch (e) {
-            _controller.addError(e);
-            _wasLastEventA2ui = false;
-          } catch (_) {
-            _controller.add(TextEvent(jsonEncode(item)));
-            _wasLastEventA2ui = false;
-          }
+          _tryEmitOne(item);
         }
       }
+    }
+  }
+
+  void _tryEmitOne(Map<String, Object?> json) {
+    try {
+      _controller.add(A2uiMessageEvent(A2uiMessage.fromJson(json)));
+      _wasLastEventA2ui = true;
+    } catch (e) {
+      if (_looksLikeA2uiEnvelope(json)) {
+        _controller.addError(
+          A2uiValidationException(
+            'Failed to parse A2UI message',
+            json: json,
+            cause: e,
+          ),
+        );
+      } else {
+        // Not an A2UI envelope — emit as plain text.
+        _controller.add(TextEvent(jsonEncode(json)));
+      }
+      _wasLastEventA2ui = false;
     }
   }
 

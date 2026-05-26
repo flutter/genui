@@ -100,6 +100,49 @@ void main() {
       expect(message.toJson(), containsPair('version', 'v0.9'));
     });
 
+    test('UpdateDataModel preserves explicit null value', () {
+      final message = A2uiMessage.fromJson(<String, Object?>{
+        'version': 'v0.9',
+        'updateDataModel': <String, Object?>{
+          surfaceIdKey: 's1',
+          'path': '/x',
+          'value': null,
+        },
+      });
+
+      final update = message as UpdateDataModel;
+      expect(update.path, DataPath('/x'));
+      expect(update.value, isNull);
+      expect(update.hasValue, isTrue);
+
+      final body = update.toJson()['updateDataModel'] as Map<String, Object?>;
+      expect(body.containsKey('value'), isTrue);
+      expect(body['value'], isNull);
+    });
+
+    test('UpdateDataModel preserves omitted value as remove-key', () {
+      final message = UpdateDataModel.removeKey(
+        surfaceId: 's1',
+        path: DataPath('/x'),
+      );
+
+      final body = message.toJson()['updateDataModel'] as Map<String, Object?>;
+      expect(message.path, DataPath('/x'));
+      expect(message.hasValue, isFalse);
+      expect(body.containsKey('value'), isFalse);
+
+      final reparsed =
+          A2uiMessage.fromJson(<String, Object?>{
+                'version': 'v0.9',
+                'updateDataModel': <String, Object?>{
+                  surfaceIdKey: 's1',
+                  'path': '/x',
+                },
+              })
+              as UpdateDataModel;
+      expect(reparsed.hasValue, isFalse);
+    });
+
     test('DeleteSurface.toJson includes version', () {
       const message = DeleteSurface(surfaceId: 's1');
       expect(message.toJson(), containsPair('version', 'v0.9'));
