@@ -7,6 +7,6 @@
 library;
 
 export 'interfaces/a2ui_message_sink.dart';
-export 'interfaces/surface_context.dart';
+export 'interfaces/surface_context.dart' hide LiveSurfaceContext;
 export 'interfaces/surface_host.dart';
 export 'interfaces/transport.dart';
