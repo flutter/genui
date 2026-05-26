@@ -30,7 +30,7 @@ void main() {
         'TextField(\$/form/value, "Deal Value", "number", ?required)',
       );
       final parser = TokenParser(tokens);
-      final ast = parser.parseExpression() as Map<String, dynamic>;
+      final ast = parser.parseExpression() as Map<String, Object?>;
 
       expect(ast['call'], 'TextField');
       final args = ast['args'] as List<Object?>;
@@ -58,32 +58,32 @@ repField = TextField(\$/form/rep, "Representative")
 valueField = TextField(\$/form/value, "Deal Value", "number", ?required)
 ''';
 
-      final Map<String, dynamic> envelope = compiler.compile(
+      final Map<String, Object?> envelope = compiler.compile(
         dsl,
         surfaceId: 'test_surf',
       );
       expect(envelope['version'], 'v0.9');
-      final createSurface = envelope['createSurface'] as Map<String, dynamic>;
+      final createSurface = envelope['createSurface'] as Map<String, Object?>;
       expect(createSurface['surfaceId'], 'test_surf');
 
-      final List<Map<String, dynamic>> components =
-          (createSurface['components'] as List).cast<Map<String, dynamic>>();
+      final List<Map<String, Object?>> components =
+          (createSurface['components'] as List).cast<Map<String, Object?>>();
       expect(components, hasLength(3));
 
-      final Map<String, dynamic> rootComp = components.firstWhere(
+      final Map<String, Object?> rootComp = components.firstWhere(
         (c) => c['id'] == 'root',
       );
       expect(rootComp['component'], 'Column');
       expect(rootComp['children'], ['repField', 'valueField']);
 
-      final Map<String, dynamic> repComp = components.firstWhere(
+      final Map<String, Object?> repComp = components.firstWhere(
         (c) => c['id'] == 'repField',
       );
       expect(repComp['component'], 'TextField');
       expect(repComp['label'], 'Representative');
       expect(repComp['value'], {'path': '/form/rep'});
 
-      final Map<String, dynamic> valComp = components.firstWhere(
+      final Map<String, Object?> valComp = components.firstWhere(
         (c) => c['id'] == 'valueField',
       );
       expect(valComp['component'], 'TextField');
@@ -94,10 +94,10 @@ valueField = TextField(\$/form/value, "Deal Value", "number", ?required)
       // Verify implicit path validation injection
       final checks = valComp['checks'] as List<Object?>;
       expect(checks, hasLength(1));
-      final firstCheck = checks[0] as Map<String, dynamic>;
-      final condition = firstCheck['condition'] as Map<String, dynamic>;
+      final firstCheck = checks[0] as Map<String, Object?>;
+      final condition = firstCheck['condition'] as Map<String, Object?>;
       expect(condition['call'], 'required');
-      final conditionArgs = condition['args'] as Map<String, dynamic>;
+      final conditionArgs = condition['args'] as Map<String, Object?>;
       expect(conditionArgs['value'], {'path': '/form/value'});
       expect(firstCheck['message'], 'Required check failed');
     });
@@ -110,12 +110,12 @@ saveButton = Button(saveLabel, Event("submitDeal", {rep: \$/form/rep}), "primary
 saveLabel = Text("Save")
 ''';
 
-      final Map<String, dynamic> envelope = compiler.compile(dsl);
-      final createSurface = envelope['createSurface'] as Map<String, dynamic>;
-      final List<Map<String, dynamic>> components =
-          (createSurface['components'] as List).cast<Map<String, dynamic>>();
+      final Map<String, Object?> envelope = compiler.compile(dsl);
+      final createSurface = envelope['createSurface'] as Map<String, Object?>;
+      final List<Map<String, Object?>> components =
+          (createSurface['components'] as List).cast<Map<String, Object?>>();
 
-      final Map<String, dynamic> welcomeComp = components.firstWhere(
+      final Map<String, Object?> welcomeComp = components.firstWhere(
         (c) => c['id'] == 'welcome',
       );
       expect(welcomeComp['text'], {
@@ -124,7 +124,7 @@ saveLabel = Text("Save")
         'returnType': 'string',
       });
 
-      final Map<String, dynamic> buttonComp = components.firstWhere(
+      final Map<String, Object?> buttonComp = components.firstWhere(
         (c) => c['id'] == 'saveButton',
       );
       expect(buttonComp['variant'], 'primary');
@@ -141,47 +141,47 @@ saveLabel = Text("Save")
     test('resilient compile of missing root and auto-wrapping strings', () {
       const dsl = 'submit_button = Button("Submit", "Send Request")';
 
-      final Map<String, dynamic> envelope = compiler.compile(dsl);
+      final Map<String, Object?> envelope = compiler.compile(dsl);
       expect(envelope['version'], 'v0.9');
-      final createSurface = envelope['createSurface'] as Map<String, dynamic>;
-      final List<Map<String, dynamic>> components =
-          (createSurface['components'] as List).cast<Map<String, dynamic>>();
+      final createSurface = envelope['createSurface'] as Map<String, Object?>;
+      final List<Map<String, Object?>> components =
+          (createSurface['components'] as List).cast<Map<String, Object?>>();
 
       expect(components, hasLength(2));
 
-      final Map<String, dynamic> textComp = components.firstWhere(
+      final Map<String, Object?> textComp = components.firstWhere(
         (c) => c['id'] == 'txt_root_0',
       );
       expect(textComp['component'], 'Text');
       expect(textComp['text'], 'Submit');
 
-      final Map<String, dynamic> buttonComp = components.firstWhere(
+      final Map<String, Object?> buttonComp = components.firstWhere(
         (c) => c['id'] == 'root',
       );
       expect(buttonComp['component'], 'Button');
       expect(buttonComp['child'], 'txt_root_0');
       expect(buttonComp['action'], {
-        'event': {'name': 'Send Request', 'context': const <String, dynamic>{}},
+        'event': {'name': 'Send Request', 'context': const <String, Object?>{}},
       });
     });
 
     test('compile inline nested components without re-wrapping', () {
       const dsl = 'root = Column([Text("Hello")])';
 
-      final Map<String, dynamic> envelope = compiler.compile(dsl);
-      final createSurface = envelope['createSurface'] as Map<String, dynamic>;
-      final List<Map<String, dynamic>> components =
-          (createSurface['components'] as List).cast<Map<String, dynamic>>();
+      final Map<String, Object?> envelope = compiler.compile(dsl);
+      final createSurface = envelope['createSurface'] as Map<String, Object?>;
+      final List<Map<String, Object?>> components =
+          (createSurface['components'] as List).cast<Map<String, Object?>>();
 
       expect(components, hasLength(2));
 
-      final Map<String, dynamic> colComp = components.firstWhere(
+      final Map<String, Object?> colComp = components.firstWhere(
         (c) => c['id'] == 'root',
       );
       expect(colComp['component'], 'Column');
       expect(colComp['children'], ['inline_Text_0']);
 
-      final Map<String, dynamic> textComp = components.firstWhere(
+      final Map<String, Object?> textComp = components.firstWhere(
         (c) => c['id'] == 'inline_Text_0',
       );
       expect(textComp['component'], 'Text');
@@ -196,14 +196,14 @@ root = Column([
 ])
 ''';
 
-      final Map<String, dynamic> envelope = compiler.compile(dsl);
-      final createSurface = envelope['createSurface'] as Map<String, dynamic>;
-      final List<Map<String, dynamic>> components =
-          (createSurface['components'] as List).cast<Map<String, dynamic>>();
+      final Map<String, Object?> envelope = compiler.compile(dsl);
+      final createSurface = envelope['createSurface'] as Map<String, Object?>;
+      final List<Map<String, Object?>> components =
+          (createSurface['components'] as List).cast<Map<String, Object?>>();
 
       expect(components, hasLength(3));
 
-      final Map<String, dynamic> colComp = components.firstWhere(
+      final Map<String, Object?> colComp = components.firstWhere(
         (c) => c['id'] == 'root',
       );
       expect(colComp['component'], 'Column');
@@ -218,9 +218,9 @@ root = Text("Status")
 \$/user/profile/age = 30
 ''';
 
-      final Map<String, dynamic> envelope = compiler.compile(dsl);
-      final createSurface = envelope['createSurface'] as Map<String, dynamic>;
-      final dataModel = createSurface['dataModel'] as Map<String, dynamic>;
+      final Map<String, Object?> envelope = compiler.compile(dsl);
+      final createSurface = envelope['createSurface'] as Map<String, Object?>;
+      final dataModel = createSurface['dataModel'] as Map<String, Object?>;
 
       expect(dataModel, {
         'icon': 'check',

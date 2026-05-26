@@ -18,7 +18,7 @@ class ExpressPromptBuilder implements PromptBuilder {
   final Iterable<String> systemPromptFragments;
 
   /// Optional client-side mock data model schema configuration.
-  final Map<String, dynamic>? clientDataModel;
+  final Map<String, Object?>? clientDataModel;
 
   /// Allowed operations config if using custom builder.
   final SurfaceOperations? allowedOperations;
@@ -69,7 +69,7 @@ class ExpressPromptBuilder implements PromptBuilder {
     String sectionSeparator = '\n-------------------------------------\n\n',
   }) => systemPrompt().map((e) => '${e.trim()}\n').join(sectionSeparator);
 
-  static String _encodedDataModel(Map<String, dynamic>? clientDataModel) {
+  static String _encodedDataModel(Map<String, Object?>? clientDataModel) {
     if (clientDataModel == null) return '';
     final String encodedModel = const JsonEncoder.withIndent(
       '  ',

@@ -22,20 +22,20 @@ class GenuiExpressLocalModels {
   static (String prompt, String? systemInstruction) _extractInputs(
     ModelRequest request,
   ) {
-    final userMessage = request.messages.lastWhereOrNull(
+    final Message? userMessage = request.messages.lastWhereOrNull(
       (m) => m.role == Role.user,
     );
-    final prompt =
+    final String prompt =
         userMessage?.content
             .where((p) => p.isText)
             .map((p) => p.text)
             .join('') ??
         '';
 
-    final systemMessage = request.messages.firstWhereOrNull(
+    final Message? systemMessage = request.messages.firstWhereOrNull(
       (m) => m.role == Role.system,
     );
-    final systemInstruction = systemMessage?.content
+    final String? systemInstruction = systemMessage?.content
         .where((p) => p.isText)
         .map((p) => p.text)
         .join('');
@@ -43,20 +43,23 @@ class GenuiExpressLocalModels {
     return (prompt, systemInstruction);
   }
 
-  /// Registers Apple Intelligence (FoundationModels), Android AI Edge (Gemini Nano),
-  /// and local developer HTTP models with the given [ai] instance.
+  /// Registers Apple Intelligence (FoundationModels), Android AI Edge (Gemini
+  /// Nano), and local developer HTTP models with the given [ai] instance.
   static void register(Genkit ai) {
     // 1. Apple Intelligence model
     ai.defineModel(
       name: 'local/apple-foundation-models',
       fn: (request, context) async {
-        final (prompt, systemInstruction) = _extractInputs(request);
+        final (String prompt, String? systemInstruction) = _extractInputs(
+          request,
+        );
 
-        final isAvailable =
+        final bool isAvailable =
             await _channel.invokeMethod<bool>('checkAvailability') ?? false;
         if (!isAvailable) {
           throw StateError(
-            'FoundationModels framework is not available or configured on this device.',
+            'FoundationModels framework is not available or configured on '
+            'this device.',
           );
         }
 
@@ -89,13 +92,16 @@ class GenuiExpressLocalModels {
     ai.defineModel(
       name: 'local/android-ai-edge',
       fn: (request, context) async {
-        final (prompt, systemInstruction) = _extractInputs(request);
+        final (String prompt, String? systemInstruction) = _extractInputs(
+          request,
+        );
 
-        final isAvailable =
+        final bool isAvailable =
             await _channel.invokeMethod<bool>('checkAvailability') ?? false;
         if (!isAvailable) {
           throw StateError(
-            'Google AI Edge SDK is not available or configured on this device.',
+            'Google AI Edge SDK is not available or configured on this '
+            'device.',
           );
         }
 
@@ -128,7 +134,9 @@ class GenuiExpressLocalModels {
     ai.defineModel(
       name: 'local/http-completion',
       fn: (request, context) async {
-        final (prompt, systemInstruction) = _extractInputs(request);
+        final (String prompt, String? systemInstruction) = _extractInputs(
+          request,
+        );
         final client = HttpClient();
         final buffer = StringBuffer();
         try {
@@ -145,7 +153,7 @@ class GenuiExpressLocalModels {
           final HttpClientRequest httpReq = await client.postUrl(uri);
           httpReq.headers.contentType = ContentType.json;
 
-          final payload = {
+          final Map<String, Object> payload = {
             'model': modelName,
             'messages': [
               if (systemInstruction != null)

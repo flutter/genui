@@ -6,9 +6,9 @@ import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
 /// The web-specific implementation of the GenuiExpress plugin.
 class GenuiExpressWeb {
-  /// Registers this class as the web implementation of [GenuiExpressPlatform].
+  /// Registers this class as the web implementation of the plugin.
   static void registerWith(Registrar registrar) {
-    // We do not need custom web method channels, but this is required by Flutter
-    // web compilation tools to compile the project successfully.
+    // We do not need custom web method channels, but this is required by
+    // Flutter web compilation tools to compile the project successfully.
   }
 }

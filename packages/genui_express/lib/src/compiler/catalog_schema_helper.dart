@@ -37,16 +37,16 @@ class CatalogSchemaHelper {
       final String name = item.name;
       final Map<String, Object?> schema = item.dataSchema.value;
 
-      final props = <String, dynamic>{};
+      final props = <String, Object?>{};
       final reqs = <String>[];
       var isCheckable = false;
 
-      final subSchemas = <Map<String, dynamic>>[schema];
+      final subSchemas = <Map<String, Object?>>[schema];
       if (schema.containsKey('allOf')) {
         final Object? allOf = schema['allOf'];
         if (allOf is List) {
-          for (final sub in allOf) {
-            if (sub is Map<String, dynamic>) {
+          for (final Object? sub in allOf) {
+            if (sub is Map<String, Object?>) {
               subSchemas.add(sub);
             }
           }
@@ -62,7 +62,7 @@ class CatalogSchemaHelper {
         }
         if (sub.containsKey('properties')) {
           final Object? p = sub['properties'];
-          if (p is Map<String, dynamic>) {
+          if (p is Map<String, Object?>) {
             props.addAll(p);
           }
         }
@@ -92,10 +92,10 @@ class CatalogSchemaHelper {
 
     for (final ClientFunction func in catalog.functions) {
       final String name = func.name;
-      final Map<String, dynamic> schema =
-          func.argumentSchema.value as Map<String, dynamic>? ?? const {};
-      final Map<String, dynamic> props =
-          schema['properties'] as Map<String, dynamic>? ?? const {};
+      final Map<String, Object?> schema =
+          func.argumentSchema.value as Map<String, Object?>? ?? const {};
+      final Map<String, Object?> props =
+          schema['properties'] as Map<String, Object?>? ?? const {};
       final List<Object?> reqs =
           schema['required'] as List<Object?>? ?? const [];
 

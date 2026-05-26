@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genkit/genkit.dart' as genkit;
 import 'package:genui/genui.dart';
@@ -18,7 +20,9 @@ void main() {
     });
 
     test('stream mixed text and compiled layout', () async {
-      final model = genkit.modelRef('local/mock-dsl-model');
+      final genkit.ModelRef<Object?> model = genkit.modelRef<Object?>(
+        'local/mock-dsl-model',
+      );
 
       // Register a mock model streaming Express DSL layouts
       ai.defineModel(
@@ -37,7 +41,7 @@ void main() {
                 content: [genkit.TextPart(text: chunk)],
               ),
             );
-            await Future.delayed(const Duration(milliseconds: 1));
+            await Future<void>.delayed(const Duration(milliseconds: 1));
           }
 
           return genkit.ModelResponse(
@@ -59,11 +63,15 @@ void main() {
       final List<String> textChunks = [];
       final List<A2uiMessage> messages = [];
 
-      final textSub = transport.incomingText.listen(textChunks.add);
-      final messageSub = transport.incomingMessages.listen(messages.add);
+      final StreamSubscription<String> textSub = transport.incomingText.listen(
+        textChunks.add,
+      );
+      final StreamSubscription<A2uiMessage> messageSub = transport
+          .incomingMessages
+          .listen(messages.add);
 
       await transport.sendRequest(ChatMessage.user('Hello'));
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       // Verify conversational text streaming
       expect(textChunks, hasLength(2));
@@ -81,10 +89,12 @@ void main() {
       final updateMsg = messages[1] as UpdateComponents;
       expect(updateMsg.components, hasLength(2));
 
-      final buttonComp = updateMsg.components.firstWhere((c) => c.id == 'root');
+      final Component buttonComp = updateMsg.components.firstWhere(
+        (c) => c.id == 'root',
+      );
       expect(buttonComp.type, 'Button');
       expect(buttonComp.properties['action'], {
-        'event': {'name': 'saveAction', 'context': const <String, dynamic>{}},
+        'event': {'name': 'saveAction', 'context': const <String, Object?>{}},
       });
 
       await textSub.cancel();
@@ -93,7 +103,9 @@ void main() {
     });
 
     test('stream standard JSON array', () async {
-      final model = genkit.modelRef('local/mock-json-model');
+      final genkit.ModelRef<Object?> model = genkit.modelRef<Object?>(
+        'local/mock-json-model',
+      );
 
       // Register a mock model streaming standard A2UI JSON array envelopes
       ai.defineModel(
@@ -133,7 +145,7 @@ void main() {
                 content: [genkit.TextPart(text: chunk)],
               ),
             );
-            await Future.delayed(const Duration(milliseconds: 1));
+            await Future<void>.delayed(const Duration(milliseconds: 1));
           }
 
           return genkit.ModelResponse(
@@ -155,11 +167,15 @@ void main() {
       final List<String> textChunks = [];
       final List<A2uiMessage> messages = [];
 
-      final textSub = transport.incomingText.listen(textChunks.add);
-      final messageSub = transport.incomingMessages.listen(messages.add);
+      final StreamSubscription<String> textSub = transport.incomingText.listen(
+        textChunks.add,
+      );
+      final StreamSubscription<A2uiMessage> messageSub = transport
+          .incomingMessages
+          .listen(messages.add);
 
       await transport.sendRequest(ChatMessage.user('Hello JSON'));
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       // Verify conversational text streaming
       expect(textChunks, hasLength(2));

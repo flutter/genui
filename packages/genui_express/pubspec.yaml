@@ -16,20 +16,19 @@ environment:
 resolution: workspace
 
 dependencies:
+  collection: any
   flutter:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  web: ^1.0.0
-  plugin_platform_interface: ^2.0.2
-  genui: ^0.9.1
   genkit: ^0.13.2
-
-  collection: any
+  genui: ^0.9.1
+  plugin_platform_interface: ^2.0.2
+  web: ^1.0.0
 dev_dependencies:
+  flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
-  flutter_lints: ^6.0.0
 
 flutter:
   plugin:

@@ -11,17 +11,18 @@ import 'package:genui/genui.dart';
 import '../compiler/express_compiler.dart';
 
 /// A [Transport] implementation that coordinates local Genkit LLM inference
-/// streams, maintains session conversation history, and compiles layout DSL outputs.
+/// streams, maintains session conversation history, and compiles layout DSL
+/// outputs.
 ///
 /// Following the Robustness Principle (Postel's Law), it resiliently handles
-/// both compact A2UI Express layout DSL blocks (fenced in `<a2ui>`) and standard
-/// A2UI JSON specifications (fenced in ```json).
+/// both compact A2UI Express layout DSL blocks (fenced in `<a2ui>`) and
+/// standard A2UI JSON specifications (fenced in ```json).
 class ExpressLocalTransport implements Transport {
   /// The core Genkit engine instance.
   final genkit.Genkit ai;
 
   /// The target Genkit model reference.
-  final genkit.ModelRef<dynamic> model;
+  final genkit.ModelRef<Object?> model;
 
   /// The A2UI Express compiler instance.
   final ExpressCompiler compiler;
@@ -60,7 +61,8 @@ class ExpressLocalTransport implements Transport {
   @override
   Stream<String> get incomingText => _textStreamController.stream;
 
-  /// Maps standard A2UI [ChatMessage] objects to Genkit-compatible [genkit.Message] structures.
+  /// Maps standard A2UI [ChatMessage] objects to Genkit-compatible
+  /// [genkit.Message] structures.
   genkit.Message _mapToGenkitMessage(ChatMessage msg) {
     final genkit.Role role = switch (msg.role) {
       ChatMessageRole.system => genkit.Role.system,
@@ -69,7 +71,7 @@ class ExpressLocalTransport implements Transport {
     };
 
     final List<genkit.Part> parts = [];
-    for (final part in msg.parts) {
+    for (final StandardPart part in msg.parts) {
       if (part.isUiInteractionPart) {
         parts.add(genkit.TextPart(text: part.asUiInteractionPart!.interaction));
       } else if (part is TextPart) {
@@ -92,11 +94,18 @@ class ExpressLocalTransport implements Transport {
     // Add user message to internal history list
     _history.add(message);
 
-    // Construct Genkit history messages list representing the entire conversation
-    final genkitHistory = _history.map(_mapToGenkitMessage).toList();
+    // Construct Genkit history messages list representing the entire
+    // conversation
+    final List<genkit.Message> genkitHistory = _history
+        .map(_mapToGenkitMessage)
+        .toList();
 
     // Invoke Genkit generation stream using the complete history messages list
-    final stream = ai.generateStream(model: model, messages: genkitHistory);
+    final Stream<genkit.GenerateResponseChunk<Object?>> stream = ai
+        .generateStream<Object?, Object?>(
+          model: model,
+          messages: genkitHistory,
+        );
 
     final fullResponseBuffer = StringBuffer();
 
@@ -108,7 +117,7 @@ class ExpressLocalTransport implements Transport {
 
       // Buffers chunks and splits them by lines to isolate sentinel tags
       _lineBuffer.write(chunkText);
-      final String currentText = _lineBuffer.toString();
+      final currentText = _lineBuffer.toString();
       final List<String> lines = currentText.split('\n');
 
       if (lines.length > 1) {
@@ -185,19 +194,18 @@ class ExpressLocalTransport implements Transport {
       final String dslText = _dslLines.join('\n').trim();
       if (dslText.isNotEmpty) {
         try {
-          final String surfaceId =
-              'surface_${DateTime.now().millisecondsSinceEpoch}';
-          final Map<String, dynamic> compiledMap = compiler.compile(
+          final surfaceId = 'surface_${DateTime.now().millisecondsSinceEpoch}';
+          final Map<String, Object?> compiledMap = compiler.compile(
             dslText,
             surfaceId: surfaceId,
           );
 
           final createSurface =
-              compiledMap['createSurface'] as Map<String, dynamic>;
+              compiledMap['createSurface'] as Map<String, Object?>;
           final componentsList =
-              createSurface.remove('components') as List<dynamic>?;
+              createSurface.remove('components') as List<Object?>?;
           final dataModelMap =
-              createSurface.remove('dataModel') as Map<String, dynamic>?;
+              createSurface.remove('dataModel') as Map<String, Object?>?;
 
           // Emit CreateSurface
           final createMsg = A2uiMessage.fromJson(compiledMap);
@@ -205,9 +213,9 @@ class ExpressLocalTransport implements Transport {
 
           // Emit UpdateComponents if present
           if (componentsList != null && componentsList.isNotEmpty) {
-            final updateMap = <String, dynamic>{
+            final updateMap = <String, Object?>{
               'version': 'v0.9',
-              'updateComponents': <String, dynamic>{
+              'updateComponents': <String, Object?>{
                 'surfaceId': surfaceId,
                 'components': componentsList,
               },
@@ -218,9 +226,9 @@ class ExpressLocalTransport implements Transport {
 
           // Emit UpdateDataModel if present
           if (dataModelMap != null && dataModelMap.isNotEmpty) {
-            final dataMap = <String, dynamic>{
+            final dataMap = <String, Object?>{
               'version': 'v0.9',
-              'updateDataModel': <String, dynamic>{
+              'updateDataModel': <String, Object?>{
                 'surfaceId': surfaceId,
                 'path': '/',
                 'value': dataModelMap,
@@ -237,20 +245,21 @@ class ExpressLocalTransport implements Transport {
       }
     }
 
-    // 2. Parse standard JSON envelopes if accumulated (liberal support for both Maps and Lists)
+    // 2. Parse standard JSON envelopes if accumulated (liberal support for
+    // both Maps and Lists)
     if (_jsonLines.isNotEmpty) {
       final String jsonText = _jsonLines.join('\n').trim();
       if (jsonText.isNotEmpty) {
         try {
-          final parsed = jsonDecode(jsonText);
+          final Object? parsed = jsonDecode(jsonText);
           if (parsed is List) {
-            for (final item in parsed) {
-              if (item is Map<String, dynamic>) {
+            for (final Object? item in parsed) {
+              if (item is Map<String, Object?>) {
                 final a2uiMsg = A2uiMessage.fromJson(item);
                 _adapter.addMessage(a2uiMsg);
               }
             }
-          } else if (parsed is Map<String, dynamic>) {
+          } else if (parsed is Map<String, Object?>) {
             final a2uiMsg = A2uiMessage.fromJson(parsed);
             _adapter.addMessage(a2uiMsg);
           }

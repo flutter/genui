@@ -21,9 +21,9 @@ class ExpressCompiler {
   /// Compiles A2UI Express script [dslText] into a flat JSON-compatible
   /// envelope structure.
   ///
-  /// Returns a `Map<String, dynamic>` containing `createSurface` and the
+  /// Returns a `Map<String, Object?>` containing `createSurface` and the
   /// compiled flat components array.
-  Map<String, dynamic> compile(
+  Map<String, Object?> compile(
     String dslText, {
     String surfaceId = 'default_surface',
     String catalogId = '',
@@ -59,8 +59,8 @@ class ExpressCompiler {
       statements.add(currentStatement.toString().trim());
     }
 
-    final Map<String, dynamic> rawSymbols = {};
-    final Map<String, dynamic> pathAssignments = {};
+    final Map<String, Object?> rawSymbols = {};
+    final Map<String, Object?> pathAssignments = {};
 
     for (final stmt in statements) {
       if (!stmt.contains('=')) {
@@ -90,7 +90,7 @@ class ExpressCompiler {
       }
     }
 
-    final List<Map<String, dynamic>> compiledComponents = [];
+    final List<Map<String, Object?>> compiledComponents = [];
 
     if (!rawSymbols.containsKey('root')) {
       if (rawSymbols.isNotEmpty) {
@@ -105,10 +105,10 @@ class ExpressCompiler {
       }
     }
 
-    for (final MapEntry<String, dynamic> entry in rawSymbols.entries) {
+    for (final MapEntry<String, Object?> entry in rawSymbols.entries) {
       final String varName = entry.key;
       final Object? ast = entry.value;
-      final Map<String, dynamic>? compDict = _compileAstNode(
+      final Map<String, Object?>? compDict = _compileAstNode(
         varName,
         ast,
         rawSymbols,
@@ -119,8 +119,8 @@ class ExpressCompiler {
       }
     }
 
-    final Map<String, dynamic> dataModelAccumulator = {};
-    for (final MapEntry<String, dynamic> entry in pathAssignments.entries) {
+    final Map<String, Object?> dataModelAccumulator = {};
+    for (final MapEntry<String, Object?> entry in pathAssignments.entries) {
       final String pathKey = entry.key.substring(2); // strip $/
       final Object? evaluated = _compileValue(
         entry.value,
@@ -147,13 +147,13 @@ class ExpressCompiler {
 
   /// Compiles an individual variable's AST node into flat component
   /// dictionary format.
-  Map<String, dynamic>? _compileAstNode(
+  Map<String, Object?>? _compileAstNode(
     String varName,
     Object? ast,
-    Map<String, dynamic> rawSymbols,
-    List<Map<String, dynamic>> compiledComponents,
+    Map<String, Object?> rawSymbols,
+    List<Map<String, Object?>> compiledComponents,
   ) {
-    if (ast is! Map<String, dynamic> || !ast.containsKey('call')) {
+    if (ast is! Map<String, Object?> || !ast.containsKey('call')) {
       return null;
     }
 
@@ -167,7 +167,7 @@ class ExpressCompiler {
     }
 
     final List<String> properties = helper.getComponentProperties(compName);
-    final Map<String, dynamic> compDict = {
+    final Map<String, Object?> compDict = {
       'id': varName,
       'component': compName,
     };
@@ -200,7 +200,7 @@ class ExpressCompiler {
           !mappedVal.startsWith('txt_') &&
           !rawSymbols.containsKey(mappedVal)) {
         final syntheticId = 'txt_${varName}_$idx';
-        compiledComponents.add(<String, dynamic>{
+        compiledComponents.add(<String, Object?>{
           'id': syntheticId,
           'component': 'Text',
           'text': mappedVal,
@@ -217,7 +217,7 @@ class ExpressCompiler {
               !item.startsWith('txt_') &&
               !rawSymbols.containsKey(item)) {
             final syntheticId = 'txt_${varName}_c$cIdx';
-            compiledComponents.add(<String, dynamic>{
+            compiledComponents.add(<String, Object?>{
               'id': syntheticId,
               'component': 'Text',
               'text': item,
@@ -235,10 +235,10 @@ class ExpressCompiler {
           !mappedVal.startsWith('inline_') &&
           !mappedVal.startsWith('txt_') &&
           !rawSymbols.containsKey(mappedVal)) {
-        mappedVal = <String, dynamic>{
-          'event': <String, dynamic>{
+        mappedVal = <String, Object?>{
+          'event': <String, Object?>{
             'name': mappedVal,
-            'context': const <String, dynamic>{},
+            'context': const <String, Object?>{},
           },
         };
       }
@@ -246,7 +246,7 @@ class ExpressCompiler {
       compDict[propName] = mappedVal;
 
       if (propName == 'value' &&
-          mappedVal is Map<String, dynamic> &&
+          mappedVal is Map<String, Object?> &&
           mappedVal.containsKey('path')) {
         siblingValuePath = mappedVal;
       }
@@ -259,16 +259,16 @@ class ExpressCompiler {
       }
       final String propName = properties[idx];
       if (propName == 'checks') {
-        final List<Map<String, dynamic>> compiledChecks = [];
-        final List<Object?> rawChecks = args[idx] is List
-            ? args[idx] as List
+        final List<Map<String, Object?>> compiledChecks = [];
+        final List<Object?> rawChecks = args[idx] is List<Object?>
+            ? args[idx] as List<Object?>
             : [args[idx]];
 
         for (final rc in rawChecks) {
-          if (rc is Map<String, dynamic> && rc.containsKey('check')) {
+          if (rc is Map<String, Object?> && rc.containsKey('check')) {
             final checkName = rc['check'] as String;
             final checkArgs = rc['args'] as List<Object?>;
-            final Map<String, dynamic> compiledArgs = {};
+            final Map<String, Object?> compiledArgs = {};
 
             final List<String> checkProps = helper.getFunctionProperties(
               checkName,
@@ -283,8 +283,8 @@ class ExpressCompiler {
             // Handle implicit target 'value' injection
             if (checkProps.isNotEmpty && checkProps[0] == 'value') {
               if (explicitArgs.isNotEmpty &&
-                  explicitArgs[0] is Map<String, dynamic> &&
-                  (explicitArgs[0] as Map<String, dynamic>).containsKey(
+                  explicitArgs[0] is Map<String, Object?> &&
+                  (explicitArgs[0] as Map<String, Object?>).containsKey(
                     'path',
                   )) {
                 // already has a path, do nothing
@@ -329,11 +329,11 @@ class ExpressCompiler {
   /// Compiles an individual AST node value into valid A2UI equivalents.
   Object? _compileValue(
     Object? val,
-    Map<String, dynamic> rawSymbols,
-    List<Map<String, dynamic>> compiledComponents, {
+    Map<String, Object?> rawSymbols,
+    List<Map<String, Object?>> compiledComponents, {
     bool isAction = false,
   }) {
-    if (val is Map<String, dynamic>) {
+    if (val is Map<String, Object?>) {
       if (val.containsKey('path')) {
         return val;
       }
@@ -348,7 +348,7 @@ class ExpressCompiler {
         // If it is a component call, auto-flatten it!
         if (helper.componentProperties.containsKey(fnName)) {
           final syntheticId = 'inline_${fnName}_${compiledComponents.length}';
-          final Map<String, dynamic>? inlineComp = _compileAstNode(
+          final Map<String, Object?>? inlineComp = _compileAstNode(
             syntheticId,
             val,
             rawSymbols,
@@ -369,7 +369,7 @@ class ExpressCompiler {
                     compiledComponents,
                     isAction: isAction,
                   )
-                  as Map<String, dynamic>;
+                  as Map<String, Object?>;
           final Object? compIdVal = _compileValue(
             fnArgs[1],
             rawSymbols,
@@ -383,10 +383,10 @@ class ExpressCompiler {
         if (fnName == 'Event') {
           final eventName = fnArgs.isNotEmpty ? fnArgs[0] as String : '';
           final contextMap = fnArgs.length > 1
-              ? fnArgs[1] as Map<String, dynamic>
-              : const <String, dynamic>{};
-          final Map<String, dynamic> compiledContext = {};
-          for (final MapEntry<String, dynamic> entry in contextMap.entries) {
+              ? fnArgs[1] as Map<String, Object?>
+              : const <String, Object?>{};
+          final Map<String, Object?> compiledContext = {};
+          for (final MapEntry<String, Object?> entry in contextMap.entries) {
             compiledContext[entry.key] = _compileValue(
               entry.value,
               rawSymbols,
@@ -402,7 +402,7 @@ class ExpressCompiler {
         // Is it a regular catalog function?
         if (helper.functionProperties.containsKey(fnName)) {
           final List<String> fnProps = helper.getFunctionProperties(fnName);
-          final Map<String, dynamic> compiledArgs = {};
+          final Map<String, Object?> compiledArgs = {};
           for (var idx = 0; idx < fnArgs.length; idx++) {
             if (idx < fnProps.length) {
               compiledArgs[fnProps[idx]] = _compileValue(
@@ -422,7 +422,7 @@ class ExpressCompiler {
           }
 
           // Compile direct dynamic function call expression (with returnType!)
-          final Map<String, dynamic> resExpr = {
+          final Map<String, Object?> resExpr = {
             'call': fnName,
             'args': compiledArgs,
           };
@@ -477,7 +477,7 @@ class ExpressCompiler {
   }
 
   /// Helper method to structuredly set values at a nested JSON [path].
-  void _setValueAtPath(Map<String, dynamic> map, String path, Object? value) {
+  void _setValueAtPath(Map<String, Object?> map, String path, Object? value) {
     final List<String> keys = path
         .split('/')
         .where((k) => k.isNotEmpty)
@@ -487,10 +487,10 @@ class ExpressCompiler {
     var current = map;
     for (var i = 0; i < keys.length - 1; i++) {
       final String key = keys[i];
-      if (!current.containsKey(key) || current[key] is! Map) {
-        current[key] = <String, dynamic>{};
+      if (!current.containsKey(key) || current[key] is! Map<String, Object?>) {
+        current[key] = <String, Object?>{};
       }
-      current = current[key] as Map<String, dynamic>;
+      current = current[key] as Map<String, Object?>;
     }
     current[keys.last] = value;
   }
