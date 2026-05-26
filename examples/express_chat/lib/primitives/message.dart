@@ -36,10 +36,10 @@ class MessageView extends StatelessWidget {
       }
     }
 
-    assert(
-      host != null,
-      'A SurfaceHost is required to render surface $surfaceId',
-    );
-    return Surface(surfaceContext: host!.contextFor(surfaceId));
+    final SurfaceHost? host = this.host;
+    if (host == null) {
+      return Text('Error: Missing SurfaceHost for surface $surfaceId');
+    }
+    return Surface(surfaceContext: host.contextFor(surfaceId));
   }
 }

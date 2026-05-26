@@ -2,7 +2,7 @@
 
 Renders canned A2UI samples through `ChatScreen` with a `FakeAiClient` — no API key.
 
-From `examples/simple_chat`:
+From `examples/express_chat`:
 
 ```bash
 flutter pub get

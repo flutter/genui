@@ -114,7 +114,7 @@ sealed class ChatSession extends ChangeNotifier {
   }
 
   final List<Message> _messages = [];
-  List<Message> get messages => List.unmodifiable(_messages);
+  List<Message> get messages => _messages;
 
   bool _isProcessing = false;
   bool get isProcessing => _isProcessing;
@@ -201,10 +201,11 @@ class TextOnlyChatSession extends ChatSession {
         ),
       );
 
-      final stream = _ai.generateStream<dynamic, dynamic>(
-        model: _model,
-        messages: _messagesHistory,
-      );
+      final Stream<genkit.GenerateResponseChunk<dynamic>> stream = _ai
+          .generateStream<dynamic, dynamic>(
+            model: _model,
+            messages: _messagesHistory,
+          );
 
       final buffer = StringBuffer();
       await for (final chunk in stream) {

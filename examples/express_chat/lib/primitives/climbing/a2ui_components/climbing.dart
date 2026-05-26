@@ -32,7 +32,18 @@ final CatalogItem climbingLocationItem = CatalogItem(
   ],
   widgetBuilder: (itemContext) {
     final data = itemContext.data as Map<String, dynamic>;
-    final identifier = data['identifier'] as String;
+    final Object? identifier = data['identifier'];
+    if (identifier is! String) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Text(
+            'Invalid or missing climbing location identifier',
+            style: TextStyle(color: Colors.red),
+          ),
+        ),
+      );
+    }
 
     final int index = climbingLocations.indexWhere(
       (v) => v.identifier == identifier,
