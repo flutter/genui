@@ -4,11 +4,12 @@
 
 import 'dart:async';
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
+
 import '../interfaces/transport.dart';
 import '../model/a2ui_message.dart';
 import '../model/chat_message.dart';
 import '../model/generation_events.dart';
-
 import 'a2ui_parser_transformer.dart';
 
 export '../model/generation_events.dart'
@@ -56,8 +57,18 @@ class A2uiTransportAdapter implements Transport {
   }
 
   /// Feeds a raw A2UI message (e.g. from a tool output or separate channel).
-  void addMessage(A2uiMessage message) {
-    _messageStream.add(message);
+  void addMessage(Object message) {
+    if (message is A2uiMessage) {
+      _messageStream.add(message);
+      return;
+    }
+    if (message is core.A2uiMessage) {
+      _messageStream.add(A2uiMessage.fromCore(message));
+      return;
+    }
+    throw ArgumentError(
+      'Unsupported A2UI message type: ${message.runtimeType}',
+    );
   }
 
   /// A stream of sanitizer text for the chat UI.

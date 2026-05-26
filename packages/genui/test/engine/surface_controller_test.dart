@@ -71,7 +71,7 @@ void main() {
       expect(definition.catalogId, 'test_catalog');
       expect(controller.registry.getSurface(surfaceId), isNotNull);
       expect(
-        controller.registry.getSurface(surfaceId)!.catalogId,
+        controller.registry.getSurface(surfaceId)!.catalog.id,
         'test_catalog',
       );
     });
@@ -147,11 +147,38 @@ void main() {
 
     test('surface() creates a new ValueNotifier if one does not exist', () {
       final ValueListenable<SurfaceDefinition?> notifier1 = controller.registry
-          .watchSurface('s1');
+          .watchDefinition('s1');
       final ValueListenable<SurfaceDefinition?> notifier2 = controller.registry
-          .watchSurface('s1');
+          .watchDefinition('s1');
       expect(notifier1, same(notifier2));
       expect(notifier1.value, isNull);
+    });
+
+    test('store exposes the live surface data model facade', () {
+      const surfaceId = 's1';
+      controller.handleMessage(
+        const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+      );
+      controller.handleMessage(
+        const UpdateDataModel(
+          surfaceId: surfaceId,
+          path: DataPath.root,
+          value: {'name': 'Alice'},
+        ),
+      );
+
+      final DataModel model = controller.store.getDataModel(surfaceId);
+      expect(model.getValue<String>(DataPath('/name')), 'Alice');
+      expect(controller.store.dataModels[surfaceId], same(model));
+
+      controller.handleMessage(
+        UpdateDataModel(
+          surfaceId: surfaceId,
+          path: DataPath('/name'),
+          value: 'Bob',
+        ),
+      );
+      expect(model.getValue<String>(DataPath('/name')), 'Bob');
     });
 
     test('dispose() closes the updates stream', () async {
@@ -170,9 +197,6 @@ void main() {
     });
 
     test('can handle UI event', () async {
-      controller.store
-          .getDataModel('testSurface')
-          .update(DataPath('/myValue'), 'testValue');
       final Future<ChatMessage> future = controller.onSubmit.first;
       final now = DateTime.now();
       final event = UserActionEvent(
@@ -277,7 +301,8 @@ void main() {
       await Future<void>.delayed(Duration.zero);
 
       final SurfaceDefinition? surface = shortTimeoutController.registry
-          .getSurface(surfaceId);
+          .watchDefinition(surfaceId)
+          .value;
       expect(surface, isNotNull);
       // Updates NOT applied, so components should be empty (or default)
       expect(surface!.components, isEmpty);
