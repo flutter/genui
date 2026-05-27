@@ -43,7 +43,8 @@ class DataModel {
     return currentNode;
   }
 
-  /// Updates data at a specific path and notifies subscribers.
+  /// Writes [value] at [path]. `value: null` sets the key to `null`; use
+  /// [remove] to delete a key.
   void set(String path, Object? value) {
     final dataPath = DataPath.parse(path);
 
@@ -51,82 +52,118 @@ class DataModel {
       if (dataPath.isEmpty) {
         _data = value;
       } else {
-        _data ??= <String, Object?>{};
-        Object? current = _data;
-        for (var i = 0; i < dataPath.segments.length - 1; i++) {
-          final String segment = dataPath.segments[i];
-          final String nextSegment = dataPath.segments[i + 1];
-          final isNextNumeric = int.tryParse(nextSegment) != null;
+        final Object? parent = _walkToParent(dataPath, path, autoVivify: true);
+        _writeLeaf(parent, dataPath.segments.last, value, path);
+      }
+      _notifyPathAndRelated(dataPath);
+    });
+  }
 
-          if (current is Map<String, Object?>) {
-            if (!current.containsKey(segment) || current[segment] == null) {
-              current[segment] = isNextNumeric
-                  ? <Object?>[]
-                  : <String, Object?>{};
-            }
-            current = current[segment];
-          } else if (current is List<Object?>) {
-            final int? index = int.tryParse(segment);
-            if (index == null) {
-              throw A2uiDataError(
-                "Cannot use non-numeric segment '$segment' on a list.",
-                path: path,
-              );
-            }
-            if (index < 0 || index > maxAutoVivifyIndex) {
-              throw A2uiDataError(
-                'List index out of bounds: $index (max $maxAutoVivifyIndex)',
-                path: path,
-              );
-            }
-            while (current.length <= index) {
-              current.add(null);
-            }
-            if (current[index] == null) {
-              current[index] = isNextNumeric
-                  ? <Object?>[]
-                  : <String, Object?>{};
-            }
-            current = current[index];
-          } else {
-            throw A2uiDataError(
-              "Cannot set path '$path': intermediate segment '$segment' is a "
-              'primitive.',
-              path: path,
-            );
-          }
-        }
+  /// Removes the value at [path]. For map keys this deletes the key; for
+  /// list indices it sets the slot to null and preserves length.
+  /// No-op if any intermediate segment is missing or wrong-typed.
+  /// `remove('/')` resets the data model to an empty map.
+  void remove(String path) {
+    final dataPath = DataPath.parse(path);
 
+    batch(() {
+      if (dataPath.isEmpty) {
+        _data = <String, Object?>{};
+      } else {
+        final Object? parent = _walkToParent(dataPath, path, autoVivify: false);
+        if (parent == null) return;
         final String lastSegment = dataPath.segments.last;
-        if (current is Map<String, Object?>) {
-          if (value == null) {
-            current.remove(lastSegment);
-          } else {
-            current[lastSegment] = value;
-          }
-        } else if (current is List<Object?>) {
+        if (parent is Map<String, Object?>) {
+          parent.remove(lastSegment);
+        } else if (parent is List<Object?>) {
           final int? index = int.tryParse(lastSegment);
-          if (index == null) {
-            throw A2uiDataError(
-              "Cannot use non-numeric segment '$lastSegment' on a list.",
-              path: path,
-            );
-          }
-          if (index < 0 || index > maxAutoVivifyIndex) {
-            throw A2uiDataError(
-              'List index out of bounds: $index (max $maxAutoVivifyIndex)',
-              path: path,
-            );
-          }
+          if (index == null || index < 0 || index >= parent.length) return;
+          parent[index] = null;
+        }
+      }
+      _notifyPathAndRelated(dataPath);
+    });
+  }
+
+  Object? _walkToParent(
+    DataPath dataPath,
+    String path, {
+    required bool autoVivify,
+  }) {
+    if (autoVivify) _data ??= <String, Object?>{};
+    Object? current = _data;
+    for (var i = 0; i < dataPath.segments.length - 1; i++) {
+      final String segment = dataPath.segments[i];
+      final String nextSegment = dataPath.segments[i + 1];
+      final isNextNumeric = int.tryParse(nextSegment) != null;
+
+      if (current is Map<String, Object?>) {
+        if (!current.containsKey(segment) || current[segment] == null) {
+          if (!autoVivify) return null;
+          current[segment] = isNextNumeric ? <Object?>[] : <String, Object?>{};
+        }
+        current = current[segment];
+      } else if (current is List<Object?>) {
+        final int? index = int.tryParse(segment);
+        if (index == null) {
+          throw A2uiDataError(
+            "Cannot use non-numeric segment '$segment' on a list.",
+            path: path,
+          );
+        }
+        if (index < 0 || index > maxAutoVivifyIndex) {
+          throw A2uiDataError(
+            'List index out of bounds: $index (max $maxAutoVivifyIndex)',
+            path: path,
+          );
+        }
+        if (index >= current.length || current[index] == null) {
+          if (!autoVivify) return null;
           while (current.length <= index) {
             current.add(null);
           }
-          current[index] = value;
+          current[index] = isNextNumeric ? <Object?>[] : <String, Object?>{};
         }
+        current = current[index];
+      } else {
+        if (!autoVivify) return null;
+        throw A2uiDataError(
+          "Cannot set path '$path': intermediate segment '$segment' is a "
+          'primitive.',
+          path: path,
+        );
       }
+    }
+    return current;
+  }
 
-      _notifyPathAndRelated(dataPath);
-    });
+  void _writeLeaf(
+    Object? parent,
+    String lastSegment,
+    Object? value,
+    String path,
+  ) {
+    if (parent is Map<String, Object?>) {
+      parent[lastSegment] = value;
+    } else if (parent is List<Object?>) {
+      final int? index = int.tryParse(lastSegment);
+      if (index == null) {
+        throw A2uiDataError(
+          "Cannot use non-numeric segment '$lastSegment' on a list.",
+          path: path,
+        );
+      }
+      if (index < 0 || index > maxAutoVivifyIndex) {
+        throw A2uiDataError(
+          'List index out of bounds: $index (max $maxAutoVivifyIndex)',
+          path: path,
+        );
+      }
+      while (parent.length <= index) {
+        parent.add(null);
+      }
+      parent[index] = value;
+    }
   }
 
   /// Returns a [ReadonlySignal] for a specific path.

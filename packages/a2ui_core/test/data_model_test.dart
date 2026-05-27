@@ -139,9 +139,36 @@ void main() {
       expect(foobarChangeCount, 0);
     });
 
-    test('removes keys when setting null', () {
-      final model = DataModel({'foo': 'bar'});
+    test('set(path, null) sets the key to literal null', () {
+      final model = DataModel(<String, Object?>{'foo': 'bar', 'baz': 1});
       model.set('/foo', null);
+      expect(model.get('/'), {'foo': null, 'baz': 1});
+    });
+
+    test('remove(path) deletes the key from a map', () {
+      final model = DataModel(<String, Object?>{'foo': 'bar', 'baz': 1});
+      model.remove('/foo');
+      expect(model.get('/'), {'baz': 1});
+    });
+
+    test('remove(path) sets a list index to null and preserves length', () {
+      final model = DataModel(<String, Object?>{
+        'items': <Object?>['a', 'b', 'c'],
+      });
+      model.remove('/items/1');
+      expect(model.get('/items'), ['a', null, 'c']);
+    });
+
+    test('remove(path) is a no-op for non-existent paths', () {
+      final model = DataModel(<String, Object?>{'foo': 'bar'});
+      model.remove('/nonexistent');
+      model.remove('/foo/nested/deep');
+      expect(model.get('/'), {'foo': 'bar'});
+    });
+
+    test('remove(/) resets the data model to an empty map', () {
+      final model = DataModel(<String, Object?>{'foo': 'bar', 'baz': 1});
+      model.remove('/');
       expect(model.get('/'), isEmpty);
     });
 

@@ -108,7 +108,12 @@ class MessageProcessor<T extends ComponentApi> {
       throw A2uiStateError('Surface not found: ${message.surfaceId}');
     }
 
-    surface.dataModel.set(message.path ?? '/', message.value);
+    final String path = message.path ?? '/';
+    if (message.hasValue) {
+      surface.dataModel.set(path, message.value);
+    } else {
+      surface.dataModel.remove(path);
+    }
   }
 
   void _processDeleteSurface(DeleteSurfaceMessage message) {
@@ -136,7 +141,6 @@ class MessageProcessor<T extends ComponentApi> {
       final Map<String, dynamic> jsonSchema = entry.value.schema.toJsonMap();
       _processRefs(jsonSchema);
 
-      // Wrap in A2UI envelope
       components[entry.key] = {
         'allOf': [
           {'\$ref': 'common_types.json#/\$defs/ComponentCommon'},

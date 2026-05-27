@@ -9,7 +9,7 @@ abstract class A2uiMessage {
   final String version;
   A2uiMessage({this.version = 'v0.9'});
 
-  /// Deserializes a JSON envelope into a typed [A2uiMessage].
+  /// Parses an A2UI JSON message into a typed [A2uiMessage].
   factory A2uiMessage.fromJson(Map<String, dynamic> json) {
     final String version = json['version'] as String? ?? 'v0.9';
 
@@ -35,11 +35,18 @@ abstract class A2uiMessage {
 
     if (json.containsKey('updateDataModel')) {
       final body = json['updateDataModel'] as Map<String, dynamic>;
-      return UpdateDataModelMessage(
+      if (body.containsKey('value')) {
+        return UpdateDataModelMessage(
+          version: version,
+          surfaceId: body['surfaceId'] as String,
+          path: body['path'] as String?,
+          value: body['value'],
+        );
+      }
+      return UpdateDataModelMessage.removeKey(
         version: version,
         surfaceId: body['surfaceId'] as String,
         path: body['path'] as String?,
-        value: body['value'],
       );
     }
 
@@ -111,13 +118,21 @@ class UpdateDataModelMessage extends A2uiMessage {
   final String surfaceId;
   final String? path;
   final Object? value;
+  final bool hasValue;
 
   UpdateDataModelMessage({
     super.version,
     required this.surfaceId,
     this.path,
     this.value,
-  });
+  }) : hasValue = true;
+
+  UpdateDataModelMessage.removeKey({
+    super.version,
+    required this.surfaceId,
+    this.path,
+  }) : value = null,
+       hasValue = false;
 
   @override
   Map<String, dynamic> toJson() => {
@@ -125,7 +140,7 @@ class UpdateDataModelMessage extends A2uiMessage {
     'updateDataModel': {
       'surfaceId': surfaceId,
       if (path != null) 'path': path,
-      if (value != null) 'value': value,
+      if (hasValue) 'value': value,
     },
   };
 }

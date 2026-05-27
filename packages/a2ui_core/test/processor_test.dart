@@ -67,6 +67,42 @@ void main() {
       expect(surface?.dataModel.get('/user/name'), 'Alice');
     });
 
+    test('updateDataModel with explicit value: null sets key to null', () {
+      processor.processMessages([
+        CreateSurfaceMessage(surfaceId: 's1', catalogId: catalog.id),
+        UpdateDataModelMessage(
+          surfaceId: 's1',
+          path: '/user/name',
+          value: 'Alice',
+        ),
+        UpdateDataModelMessage(
+          surfaceId: 's1',
+          path: '/user/name',
+          value: null,
+        ),
+      ]);
+
+      final SurfaceModel<ComponentApi>? surface = processor.groupModel
+          .getSurface('s1');
+      expect(surface?.dataModel.get('/user'), {'name': null});
+    });
+
+    test('updateDataModel with omitted value (removeKey) deletes the key', () {
+      processor.processMessages([
+        CreateSurfaceMessage(surfaceId: 's1', catalogId: catalog.id),
+        UpdateDataModelMessage(
+          surfaceId: 's1',
+          path: '/user/name',
+          value: 'Alice',
+        ),
+        UpdateDataModelMessage.removeKey(surfaceId: 's1', path: '/user/name'),
+      ]);
+
+      final SurfaceModel<ComponentApi>? surface = processor.groupModel
+          .getSurface('s1');
+      expect(surface?.dataModel.get('/user'), isEmpty);
+    });
+
     test('deletes surface', () {
       processor.processMessages([
         CreateSurfaceMessage(surfaceId: 's1', catalogId: catalog.id),
