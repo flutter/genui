@@ -105,6 +105,25 @@ void main() {
       );
     });
 
+    test('throws when version field is missing', () {
+      expect(
+        () => A2uiMessage.fromJson({
+          'createSurface': {'surfaceId': 's1', 'catalogId': 'c1'},
+        }),
+        throwsA(isA<A2uiValidationError>()),
+      );
+    });
+
+    test('throws when version is not v0.9', () {
+      expect(
+        () => A2uiMessage.fromJson({
+          'version': 'v0.8',
+          'createSurface': {'surfaceId': 's1', 'catalogId': 'c1'},
+        }),
+        throwsA(isA<A2uiValidationError>()),
+      );
+    });
+
     test('roundtrips through toJson/fromJson', () {
       final original = CreateSurfaceMessage(
         surfaceId: 's1',
