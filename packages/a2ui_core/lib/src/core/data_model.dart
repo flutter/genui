@@ -106,12 +106,14 @@ class DataModel {
       } else if (current is List<Object?>) {
         final int? index = int.tryParse(segment);
         if (index == null) {
+          if (!autoVivify) return null;
           throw A2uiDataError(
             "Cannot use non-numeric segment '$segment' on a list.",
             path: path,
           );
         }
         if (index < 0 || index > maxAutoVivifyIndex) {
+          if (!autoVivify) return null;
           throw A2uiDataError(
             'List index out of bounds: $index (max $maxAutoVivifyIndex)',
             path: path,
@@ -163,6 +165,11 @@ class DataModel {
         parent.add(null);
       }
       parent[index] = value;
+    } else {
+      throw A2uiDataError(
+        "Cannot set path '$path': parent is a primitive.",
+        path: path,
+      );
     }
   }
 

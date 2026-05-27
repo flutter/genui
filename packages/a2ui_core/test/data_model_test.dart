@@ -183,5 +183,32 @@ void main() {
         throwsA(isA<A2uiDataError>()),
       );
     });
+
+    test(
+      'remove(path) no-ops on out-of-bounds or non-numeric list indices',
+      () {
+        final model = DataModel(<String, Object?>{
+          'items': <Object?>['a', 'b'],
+        });
+        model.remove('/items/999999999');
+        model.remove('/items/foo/bar');
+        expect(model.get('/items'), ['a', 'b']);
+      },
+    );
+
+    test('set(path, value) throws when the parent is a primitive', () {
+      final model = DataModel();
+      model.set('/x', 5);
+      expect(() => model.set('/x/y', 'oops'), throwsA(isA<A2uiDataError>()));
+    });
+
+    test(
+      'set throws when the root is a primitive and the path is non-empty',
+      () {
+        final model = DataModel();
+        model.set('/', 5);
+        expect(() => model.set('/x', 'oops'), throwsA(isA<A2uiDataError>()));
+      },
+    );
   });
 }
