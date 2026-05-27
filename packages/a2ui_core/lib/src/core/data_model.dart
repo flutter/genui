@@ -94,13 +94,13 @@ class DataModel {
     Object? current = _data;
     for (var i = 0; i < dataPath.segments.length - 1; i++) {
       final String segment = dataPath.segments[i];
-      final String nextSegment = dataPath.segments[i + 1];
-      final isNextNumeric = int.tryParse(nextSegment) != null;
 
       if (current is Map<String, Object?>) {
         if (!current.containsKey(segment) || current[segment] == null) {
           if (!autoVivify) return null;
-          current[segment] = isNextNumeric ? <Object?>[] : <String, Object?>{};
+          current[segment] = int.tryParse(dataPath.segments[i + 1]) != null
+              ? <Object?>[]
+              : <String, Object?>{};
         }
         current = current[segment];
       } else if (current is List<Object?>) {
@@ -124,7 +124,9 @@ class DataModel {
           while (current.length <= index) {
             current.add(null);
           }
-          current[index] = isNextNumeric ? <Object?>[] : <String, Object?>{};
+          current[index] = int.tryParse(dataPath.segments[i + 1]) != null
+              ? <Object?>[]
+              : <String, Object?>{};
         }
         current = current[index];
       } else {
