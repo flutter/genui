@@ -86,14 +86,19 @@ void main() {
     });
 
     test('parses updateDataModel with explicit null value', () {
-      final msg = A2uiMessage.fromJson({
-        'version': 'v0.9',
-        'updateDataModel': {'surfaceId': 's1', 'path': '/x', 'value': null},
-      });
+      final message =
+          A2uiMessage.fromJson({
+                'version': 'v0.9',
+                'updateDataModel': {
+                  'surfaceId': 's1',
+                  'path': '/x',
+                  'value': null,
+                },
+              })
+              as UpdateDataModelMessage;
 
-      final ud = msg as UpdateDataModelMessage;
-      expect(ud.value, isNull);
-      expect(ud.hasValue, isTrue);
+      expect(message.value, isNull);
+      expect(message.hasValue, isTrue);
     });
 
     test('round-trips an explicit-null updateDataModel value', () {
@@ -101,12 +106,14 @@ void main() {
         'version': 'v0.9',
         'updateDataModel': {'surfaceId': 's1', 'path': '/x', 'value': null},
       });
-      final Map<String, dynamic> json = original.toJson();
-      final body = json['updateDataModel'] as Map<String, dynamic>;
-      expect(body.containsKey('value'), isTrue);
-      expect(body['value'], isNull);
+      final Map<String, Object?> serialized = original.toJson();
+      final updateDataModelBody =
+          serialized['updateDataModel'] as Map<String, Object?>;
+      expect(updateDataModelBody.containsKey('value'), isTrue);
+      expect(updateDataModelBody['value'], isNull);
 
-      final reparsed = A2uiMessage.fromJson(json) as UpdateDataModelMessage;
+      final reparsed =
+          A2uiMessage.fromJson(serialized) as UpdateDataModelMessage;
       expect(reparsed.hasValue, isTrue);
       expect(reparsed.value, isNull);
     });
@@ -116,8 +123,9 @@ void main() {
         surfaceId: 's1',
         path: '/x',
       );
-      final body = omitted.toJson()['updateDataModel'] as Map<String, dynamic>;
-      expect(body.containsKey('value'), isFalse);
+      final updateDataModelBody =
+          omitted.toJson()['updateDataModel'] as Map<String, Object?>;
+      expect(updateDataModelBody.containsKey('value'), isFalse);
 
       final reparsed =
           A2uiMessage.fromJson(omitted.toJson()) as UpdateDataModelMessage;
