@@ -26,6 +26,22 @@ sealed class A2uiMessage {
           json: json,
         );
       }
+      const messageBodyKeys = {
+        'createSurface',
+        'updateComponents',
+        'updateDataModel',
+        'deleteSurface',
+      };
+      final List<String> presentKeys = messageBodyKeys
+          .where(json.containsKey)
+          .toList();
+      if (presentKeys.length > 1) {
+        throw A2uiValidationException(
+          'A2UI message must contain exactly one of '
+          '${messageBodyKeys.join(', ')}; got ${presentKeys.join(', ')}.',
+          json: json,
+        );
+      }
       if (json case {'createSurface': JsonMap data}) {
         try {
           return CreateSurface.fromJson(data);

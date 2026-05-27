@@ -119,6 +119,18 @@ void main() {
       );
     });
 
+    test('fromJson throws when more than one message type is set', () {
+      final json = <String, Object>{
+        'version': 'v0.9',
+        'createSurface': {surfaceIdKey: 's1', 'catalogId': 'c1'},
+        'updateComponents': {surfaceIdKey: 's1', 'components': <Object?>[]},
+      };
+      expect(
+        () => A2uiMessage.fromJson(json),
+        throwsA(isA<A2uiValidationException>()),
+      );
+    });
+
     test('fromJson throws on missing or invalid version', () {
       final json = <String, Object>{
         'createSurface': {surfaceIdKey: 's1', 'catalogId': 'c1'},
