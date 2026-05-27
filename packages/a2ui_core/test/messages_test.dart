@@ -124,6 +124,16 @@ void main() {
       );
     });
 
+    test('throws when version is not a string', () {
+      expect(
+        () => A2uiMessage.fromJson({
+          'version': 123,
+          'createSurface': {'surfaceId': 's1', 'catalogId': 'c1'},
+        }),
+        throwsA(isA<A2uiValidationError>()),
+      );
+    });
+
     test('roundtrips through toJson/fromJson', () {
       final original = CreateSurfaceMessage(
         surfaceId: 's1',
