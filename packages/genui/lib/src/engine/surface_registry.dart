@@ -120,7 +120,10 @@ class SurfaceRegistry {
     );
   }
 
-  /// Registers a new surface, emitting a [SurfaceAdded] event.
+  /// Registers a new surface, emitting a [SurfaceAdded] event. Intended
+  /// for GenUI internals; external callers should drive surface lifecycle
+  /// through `SurfaceController.handleMessage`.
+  @internal
   void addSurface(SurfaceModel surface) {
     final ValueNotifier<SurfaceModel<ComponentApi>?> notifier = _surfaces
         .putIfAbsent(surface.id, () => ValueNotifier<SurfaceModel?>(null));
@@ -140,7 +143,9 @@ class SurfaceRegistry {
     _eventController.add(SurfaceAdded.fromCore(surface.id, surface));
   }
 
-  /// Signals that the components of a surface have changed.
+  /// Signals that the components of a surface have changed. Intended for
+  /// GenUI internals.
+  @internal
   void notifyUpdated(SurfaceModel surface) {
     _surfaceOrder
       ..remove(surface.id)

@@ -154,6 +154,20 @@ void main() {
       expect(notifier1.value, isNull);
     });
 
+    test('public SurfaceAdded / ComponentsUpdated constructors are '
+        'definition-based', () {
+      final def = SurfaceDefinition(surfaceId: 's1');
+      final added = SurfaceAdded('s1', def);
+      expect(added.surfaceId, 's1');
+      expect(added.definition, same(def));
+      expect(added.surface, isNull);
+
+      final updated = ComponentsUpdated('s1', def);
+      expect(updated.surfaceId, 's1');
+      expect(updated.definition, same(def));
+      expect(updated.surface, isNull);
+    });
+
     test(
       'registry watchSurface/getSurface expose SurfaceDefinition snapshots',
       () {

@@ -272,30 +272,51 @@ sealed class SurfaceUpdate {
 
 /// Fired when a new surface is created.
 final class SurfaceAdded extends SurfaceUpdate {
-  SurfaceAdded(super.surfaceId, this.surface);
+  /// Constructs from a [SurfaceDefinition]. The live [surface] is `null`
+  /// when constructed via this path (intended for tests/mocks);
+  /// `SurfaceController` uses [SurfaceAdded.fromCore] internally so
+  /// real-world events have both fields populated.
+  SurfaceAdded(super.surfaceId, this.definition) : surface = null;
 
-  /// Live `a2ui_core` surface model. Intended for GenUI internals; most
-  /// consumers should read [definition] instead.
+  /// Internal: constructs from a live core surface, populating both
+  /// [surface] and [definition].
   @internal
-  final core.SurfaceModel surface;
+  SurfaceAdded.fromCore(super.surfaceId, core.SurfaceModel coreSurface)
+    : surface = coreSurface,
+      definition = SurfaceDefinition.fromCore(coreSurface);
 
-  /// Snapshot facade. Materialized lazily so lifecycle-only listeners don't
-  /// pay the snapshot cost.
-  late final SurfaceDefinition definition = SurfaceDefinition.fromCore(surface);
+  /// Live `a2ui_core` surface model. Null when constructed via the public
+  /// constructor; populated when emitted by `SurfaceController`. Intended
+  /// for GenUI internals.
+  @internal
+  final core.SurfaceModel? surface;
+
+  /// Snapshot definition for this surface.
+  final SurfaceDefinition definition;
 }
 
 /// Fired when an existing surface's component set is modified.
 final class ComponentsUpdated extends SurfaceUpdate {
-  ComponentsUpdated(super.surfaceId, this.surface);
+  /// Constructs from a [SurfaceDefinition]. See [SurfaceAdded] for the
+  /// relationship between this constructor and
+  /// [ComponentsUpdated.fromCore].
+  ComponentsUpdated(super.surfaceId, this.definition) : surface = null;
 
-  /// Live `a2ui_core` surface model. Intended for GenUI internals; most
-  /// consumers should read [definition] instead.
+  /// Internal: constructs from a live core surface, populating both
+  /// [surface] and [definition].
   @internal
-  final core.SurfaceModel surface;
+  ComponentsUpdated.fromCore(super.surfaceId, core.SurfaceModel coreSurface)
+    : surface = coreSurface,
+      definition = SurfaceDefinition.fromCore(coreSurface);
 
-  /// Snapshot facade. Materialized lazily so lifecycle-only listeners don't
-  /// pay the snapshot cost.
-  late final SurfaceDefinition definition = SurfaceDefinition.fromCore(surface);
+  /// Live `a2ui_core` surface model. Null when constructed via the public
+  /// constructor; populated when emitted by `SurfaceController`. Intended
+  /// for GenUI internals.
+  @internal
+  final core.SurfaceModel? surface;
+
+  /// Snapshot definition for this surface.
+  final SurfaceDefinition definition;
 }
 
 /// Fired when a surface is deleted.

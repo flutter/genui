@@ -102,6 +102,10 @@ These are substrate behavior changes, not rename requirements:
    of silently reusing the existing surface.
 7. **JSON Pointer `~0`/`~1` escapes are not interpreted.** Paths split on `/`,
    matching the web core behavior.
+8. **`SurfaceRegistry.updateSurface(...)` is removed.** Surface lifecycle
+   updates now flow through `SurfaceController.handleMessage`; the
+   definition-only push path is no longer supported. `addSurface` and
+   `notifyUpdated` exist on `SurfaceRegistry` but are marked `@internal`.
 
 ## On the future of the compatibility facades
 
