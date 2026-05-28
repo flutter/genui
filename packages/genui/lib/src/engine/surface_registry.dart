@@ -15,12 +15,15 @@ sealed class RegistryEvent {}
 
 /// An event indicating that a new surface has been added.
 class SurfaceAdded extends RegistryEvent {
-  SurfaceAdded(this.surfaceId, this.surface);
+  SurfaceAdded(this.surfaceId, this.surface)
+    : definition = genui_model.SurfaceDefinition.fromCore(surface);
   final String surfaceId;
 
+  /// Snapshot definition for this surface.
+  final genui_model.SurfaceDefinition definition;
+
   /// Live `a2ui_core` surface model. Intended for GenUI internals; most
-  /// consumers should read `SurfaceUpdate.definition` from the public
-  /// `SurfaceController.surfaceUpdates` stream instead.
+  /// consumers should read [definition] instead.
   @internal
   final SurfaceModel surface;
 }
@@ -33,12 +36,15 @@ class SurfaceRemoved extends RegistryEvent {
 
 /// An event indicating that a surface's components were updated.
 class SurfaceUpdated extends RegistryEvent {
-  SurfaceUpdated(this.surfaceId, this.surface);
+  SurfaceUpdated(this.surfaceId, this.surface)
+    : definition = genui_model.SurfaceDefinition.fromCore(surface);
   final String surfaceId;
 
+  /// Snapshot definition for this surface.
+  final genui_model.SurfaceDefinition definition;
+
   /// Live `a2ui_core` surface model. Intended for GenUI internals; most
-  /// consumers should read `SurfaceUpdate.definition` from the public
-  /// `SurfaceController.surfaceUpdates` stream instead.
+  /// consumers should read [definition] instead.
   @internal
   final SurfaceModel surface;
 }
@@ -59,18 +65,13 @@ class SurfaceRegistry {
   /// The list of surface IDs in the order they were created or updated.
   List<String> get surfaceOrder => List.unmodifiable(_surfaceOrder);
 
-  /// Returns a [ValueListenable] that tracks the surface with the given
-  /// [surfaceId]. The value is `null` until the surface is registered, and
-  /// becomes `null` again when it is removed.
-  ValueListenable<SurfaceModel?> watchSurface(String surfaceId) {
-    if (!_surfaces.containsKey(surfaceId)) {
-      genUiLogger.fine('Adding new surface watcher for $surfaceId');
-    }
-    return _surfaces.putIfAbsent(
-      surfaceId,
-      () => ValueNotifier<SurfaceModel?>(null),
-    );
-  }
+  /// Returns a [ValueListenable] tracking the
+  /// [genui_model.SurfaceDefinition] snapshot for [surfaceId]. The value is
+  /// `null` until the surface is registered, and becomes `null` again when
+  /// it is removed.
+  ValueListenable<genui_model.SurfaceDefinition?> watchSurface(
+    String surfaceId,
+  ) => watchDefinition(surfaceId);
 
   /// Returns a [ValueListenable] tracking the
   /// [genui_model.SurfaceDefinition] snapshot for [surfaceId].
@@ -80,6 +81,19 @@ class SurfaceRegistry {
     return _definitions.putIfAbsent(
       surfaceId,
       () => ValueNotifier<genui_model.SurfaceDefinition?>(null),
+    );
+  }
+
+  /// Returns a [ValueListenable] tracking the live core surface model for
+  /// [surfaceId]. Intended for GenUI internals.
+  @internal
+  ValueListenable<SurfaceModel?> watchLiveSurface(String surfaceId) {
+    if (!_surfaces.containsKey(surfaceId)) {
+      genUiLogger.fine('Adding new surface watcher for $surfaceId');
+    }
+    return _surfaces.putIfAbsent(
+      surfaceId,
+      () => ValueNotifier<SurfaceModel?>(null),
     );
   }
 
@@ -140,8 +154,15 @@ class SurfaceRegistry {
   /// [surfaceId].
   bool hasSurface(String surfaceId) => _surfaces[surfaceId]?.value != null;
 
-  /// Returns the current surface with the given [surfaceId], or `null`.
-  SurfaceModel? getSurface(String surfaceId) => _surfaces[surfaceId]?.value;
+  /// Returns the current [genui_model.SurfaceDefinition] snapshot for the
+  /// given [surfaceId], or `null` if the surface does not exist.
+  genui_model.SurfaceDefinition? getSurface(String surfaceId) =>
+      _definitions[surfaceId]?.value;
+
+  /// Returns the live core surface model for [surfaceId], or `null` if the
+  /// surface does not exist. Intended for GenUI internals.
+  @internal
+  SurfaceModel? getLiveSurface(String surfaceId) => _surfaces[surfaceId]?.value;
 
   /// Disposes of the registry and all per-surface notifiers. The underlying
   /// [SurfaceModel]s are owned and disposed by the substrate's

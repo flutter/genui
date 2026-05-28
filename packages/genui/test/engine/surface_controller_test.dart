@@ -71,7 +71,7 @@ void main() {
       expect(definition.catalogId, 'test_catalog');
       expect(controller.registry.getSurface(surfaceId), isNotNull);
       expect(
-        controller.registry.getSurface(surfaceId)!.catalog.id,
+        controller.registry.getSurface(surfaceId)!.catalogId,
         'test_catalog',
       );
     });
