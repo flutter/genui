@@ -71,7 +71,7 @@ major number for breaking changes.
    1. A tag [like this](https://github.com/flutter/genui/releases/tag/json_schema_builder-v0.1.4) will be created. 
    2. The job [publish / publish](https://github.com/flutter/genui/actions/runs/26526524277) will start.
 
-## How upgrade of dependencies (for both siblings and third party) happens?
+## How upgrade of dependencies happens?
 
 ### For local development runs
 
@@ -112,6 +112,13 @@ This section describes how it was configured so that it can be reproduced in cas
    dart-lang/ecosystem/.github/workflows/publish.yaml@*,
    dart-lang/ecosystem/.github/workflows/post_summaries.yaml@*,
    ```
+
+### Setup workflow permissions for the repo
+
+1. Open https://github.com/flutter/genui/settings/actions
+2. Find the section "Workflow permissions"
+3. Select "Read and write permissions"
+4. Click "Save"
 
 ### Configure pub.dev for each package 
 
