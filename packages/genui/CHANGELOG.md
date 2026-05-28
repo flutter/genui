@@ -18,12 +18,11 @@
   lifecycle now flows through `SurfaceController.handleMessage`; the
   definition-only push path could not be preserved without diverging from
   the live `a2ui_core` surface model. `SurfaceRegistry.addSurface` /
-  `notifyUpdated` exist as replacements but are marked `@internal`.
+  `notifyUpdated` exist as internal lifecycle hooks and are marked
+  `@internal`.
 - **Internal**: The live `core.SurfaceModel` fields on `SurfaceAdded` /
   `ComponentsUpdated` are marked `@internal`. Most consumers should read
   `SurfaceUpdate.definition` instead.
-
-## 0.9.2
 
 ## 0.9.1
 
