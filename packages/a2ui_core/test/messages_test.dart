@@ -134,10 +134,7 @@ void main() {
       );
     });
 
-    test('throws when envelope contains more than one message-body key', () {
-      // The v0.9 schema is oneOf the four message-body keys; an envelope
-      // that carries more than one is invalid and must not be silently
-      // coerced to whichever branch happens to be checked first.
+    test('throws when more than one message type is present', () {
       expect(
         () => A2uiMessage.fromJson({
           'version': 'v0.9',
