@@ -250,7 +250,7 @@ List<ClimbingLocationInfo> climbingLocations = [
   ),
   const ClimbingLocationInfo(
     identifier: 'red_rock_climbing_center',
-    image: '296x3072x2048.jpg',
+    image: 'mountain_15.jpeg',
     name: 'Red Rock Climbing Center',
     address: '8201 W Charleston Blvd, Las Vegas, NV',
     climbingTypes: [
@@ -267,7 +267,7 @@ List<ClimbingLocationInfo> climbingLocations = [
   ),
   const ClimbingLocationInfo(
     identifier: 'lone_mountain',
-    image: '29x4000x2670.jpg',
+    image: 'mountain_16.jpeg',
     name: 'Lone Mountain',
     address: 'Las Vegas, NV',
     climbingTypes: [ClimbingType.lead],
