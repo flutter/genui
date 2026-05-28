@@ -202,7 +202,7 @@ List<ClimbingLocationInfo> climbingLocations = [
   ),
   const ClimbingLocationInfo(
     identifier: 'moderate_mecca',
-    image: '243x2300x1533.jpg',
+    image: 'mountain_11.jpeg',
     name: 'Moderate Mecca',
     address: 'Calico Hills, Red Rock Canyon, NV',
     climbingTypes: [ClimbingType.lead, ClimbingType.topRope],
@@ -211,7 +211,7 @@ List<ClimbingLocationInfo> climbingLocations = [
   ),
   const ClimbingLocationInfo(
     identifier: 'the_black_corridor',
-    image: '247x3264x2168.jpg',
+    image: 'mountain_12.jpeg',
     name: 'The Black Corridor',
     address: 'Red Rock Canyon, NV',
     climbingTypes: [ClimbingType.lead],
@@ -220,7 +220,7 @@ List<ClimbingLocationInfo> climbingLocations = [
   ),
   const ClimbingLocationInfo(
     identifier: 'origin_climbing_fitness',
-    image: '287x4288x2848.jpg',
+    image: 'mountain_13.jpeg',
     name: 'Origin Climbing + Fitness',
     address: '7585 S Rainbow Blvd, Las Vegas, NV',
     climbingTypes: [
@@ -237,7 +237,7 @@ List<ClimbingLocationInfo> climbingLocations = [
   ),
   const ClimbingLocationInfo(
     identifier: 'the_refuge_climbing_center',
-    image: '28x4928x3264.jpg',
+    image: 'mountain_14.jpeg',
     name: 'The Refuge Climbing Center',
     address: '6283 S Valley View Blvd, Las Vegas, NV',
     climbingTypes: [ClimbingType.bouldering],
