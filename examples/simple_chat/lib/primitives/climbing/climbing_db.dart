@@ -276,7 +276,7 @@ List<ClimbingLocationInfo> climbingLocations = [
   ),
   const ClimbingLocationInfo(
     identifier: 'mount_charleston',
-    image: '343x2304x1536.jpg',
+    image: 'mountain_17.jpeg',
     name: 'Mount Charleston',
     address: 'Mt Charleston, NV',
     climbingTypes: [ClimbingType.lead],
