@@ -67,7 +67,7 @@ major number for breaking changes.
    2. Click the 'Publish release' button.
 
 3.  **Auto**: 
-   1. The tag [like this](https://github.com/flutter/genui/releases/tag/json_schema_builder-v0.1.4) will be created. 
+   1. A tag [like this](https://github.com/flutter/genui/releases/tag/json_schema_builder-v0.1.4) will be created. 
    2. The job [publish / publish](https://github.com/flutter/genui/actions/runs/26526524277) will start.
 
 ## How upgrade of dependencies (for both siblings and third party) happens?
