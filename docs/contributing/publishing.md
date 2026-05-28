@@ -62,9 +62,9 @@ major number for breaking changes.
 
 1. **Auto**: The workflow job `publish /validate` will add table [like this](https://github.com/flutter/genui/pull/941#issuecomment-4556675732) to each PR.
 
-2. **Manual**: After reviewing and merging PR, for each 'ready to publish' and non-dev versions the author of the PR should:
-   1. Click link in the column 'Publish tag' in the above table.
-   2. Click 'Publish release' button. 
+2. **Manual**: After reviewing and merging the PR, for each 'ready to publish' and non-dev version the author of the PR should:
+   1. Click the link in the column 'Publish tag' in the above table.
+   2. Click the 'Publish release' button.
 
 3.  **Auto**: 
    1. The tag [like this](https://github.com/flutter/genui/releases/tag/json_schema_builder-v0.1.4) will be created. 
