@@ -101,7 +101,7 @@ This section describes how it was configured so that it can be reproduced in cas
 ### Setup org permissions
 
 1. Open https://github.com/organizations/<YOUR_ORG>/settings/actions
-2. Find section "Allow or block specified actions and reusable workflows"
+2. Find the section "Allow or block specified actions and reusable workflows"
 3. Add these values (if they are already here, they will be de-dupped automatically):
 
    peter-evans/create-or-update-comment@*,
