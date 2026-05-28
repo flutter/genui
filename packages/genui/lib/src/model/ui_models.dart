@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:collection/collection.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
+import 'package:meta/meta.dart' show internal;
 
 import '../primitives/constants.dart';
 import '../primitives/simple_items.dart';
@@ -273,7 +274,9 @@ sealed class SurfaceUpdate {
 final class SurfaceAdded extends SurfaceUpdate {
   SurfaceAdded(super.surfaceId, this.surface);
 
-  /// The live core surface model.
+  /// Live `a2ui_core` surface model. Intended for GenUI internals; most
+  /// consumers should read [definition] instead.
+  @internal
   final core.SurfaceModel surface;
 
   /// Snapshot facade. Materialized lazily so lifecycle-only listeners don't
@@ -285,7 +288,9 @@ final class SurfaceAdded extends SurfaceUpdate {
 final class ComponentsUpdated extends SurfaceUpdate {
   ComponentsUpdated(super.surfaceId, this.surface);
 
-  /// The live core surface model.
+  /// Live `a2ui_core` surface model. Intended for GenUI internals; most
+  /// consumers should read [definition] instead.
+  @internal
   final core.SurfaceModel surface;
 
   /// Snapshot facade. Materialized lazily so lifecycle-only listeners don't

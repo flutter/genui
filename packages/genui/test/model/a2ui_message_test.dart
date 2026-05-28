@@ -143,6 +143,32 @@ void main() {
       expect(reparsed.hasValue, isFalse);
     });
 
+    test(
+      'UpdateDataModel.toCoreMessage/fromCore preserves explicit null value',
+      () {
+        final original = UpdateDataModel(surfaceId: 's1', path: DataPath('/x'));
+        expect(original.hasValue, isTrue);
+        expect(original.value, isNull);
+
+        final roundtripped = UpdateDataModel.fromCore(original.toCoreMessage());
+        expect(roundtripped.hasValue, isTrue);
+        expect(roundtripped.value, isNull);
+        expect(roundtripped.path, DataPath('/x'));
+      },
+    );
+
+    test('UpdateDataModel.toCoreMessage/fromCore preserves omitted value', () {
+      final original = UpdateDataModel.removeKey(
+        surfaceId: 's1',
+        path: DataPath('/x'),
+      );
+      expect(original.hasValue, isFalse);
+
+      final roundtripped = UpdateDataModel.fromCore(original.toCoreMessage());
+      expect(roundtripped.hasValue, isFalse);
+      expect(roundtripped.path, DataPath('/x'));
+    });
+
     test('DeleteSurface.toJson includes version', () {
       const message = DeleteSurface(surfaceId: 's1');
       expect(message.toJson(), containsPair('version', 'v0.9'));

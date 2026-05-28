@@ -227,6 +227,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
 
   void _onCoreSurfaceCreated(core.SurfaceModel<core.ComponentApi> surface) {
     _registry.addSurface(surface);
+    _store.attachLive(surface.id, InMemoryDataModel.wrap(surface.dataModel));
     final List<core.A2uiMessage>? pending = _pendingUpdates.remove(surface.id);
     _pendingUpdateTimers.remove(surface.id)?.cancel();
     if (pending != null) {
@@ -358,17 +359,7 @@ class _ControllerContext implements LiveSurfaceContext {
       _controller.registry.watchDefinition(surfaceId);
 
   @override
-  DataModel get dataModel {
-    final core.SurfaceModel? s = _controller.registry.getSurface(surfaceId);
-    if (s == null) {
-      throw StateError(
-        'SurfaceContext.dataModel accessed for surface "$surfaceId" '
-        'before the surface was created. Guard on `definition.value != null` '
-        'or wait for a SurfaceAdded event before reading the data model.',
-      );
-    }
-    return InMemoryDataModel.wrap(s.dataModel);
-  }
+  DataModel get dataModel => _controller.store.getDataModel(surfaceId);
 
   @override
   Catalog? get catalog => _controller._findCatalogForSurface(surfaceId);

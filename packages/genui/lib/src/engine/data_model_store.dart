@@ -8,11 +8,11 @@ import '../model/data_model.dart';
 /// `a2ui_core.SurfaceGroupModel`.
 ///
 /// Kept to preserve the legacy `SurfaceController.store` /
-/// `store.getDataModel(surfaceId)` API. The lookup callback (provided by
-/// `SurfaceController`) redirects active surfaces to the substrate's live
-/// `surface.dataModel`; ids without a live surface fall back to a standalone
-/// in-memory model, preserving the pre-migration "data survives before
-/// createSurface" behavior.
+/// `store.getDataModel(surfaceId)` API. Pre-`createSurface`, returns a
+/// standalone in-memory model; when `SurfaceController` later attaches a
+/// live surface via [attachLive], any data written to the standalone model
+/// is migrated into the live one and future [getDataModel] calls return the
+/// live wrapper.
 ///
 /// Slated for removal alongside the rest of the GenUI->a2ui_core facade
 /// renames. New code should read from `SurfaceController.registry
@@ -35,6 +35,21 @@ class DataModelStore {
       return _liveDataModels.putIfAbsent(surfaceId, () => liveModel);
     }
     return _dataModels.putIfAbsent(surfaceId, InMemoryDataModel.new);
+  }
+
+  /// Caches [liveModel] for [surfaceId] and migrates any pre-create
+  /// fallback data into it. Callers that had a reference to the fallback
+  /// model must refetch via [getDataModel].
+  void attachLive(String surfaceId, DataModel liveModel) {
+    final DataModel? fallback = _dataModels.remove(surfaceId);
+    if (fallback != null) {
+      final Object? snapshot = fallback.getValue<Object?>(DataPath.root);
+      if (snapshot != null) {
+        liveModel.update(DataPath.root, snapshot);
+      }
+      fallback.dispose();
+    }
+    _liveDataModels[surfaceId] = liveModel;
   }
 
   /// Removes the data model for the given [surfaceId] and detaches the surface.
