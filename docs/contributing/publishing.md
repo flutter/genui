@@ -101,7 +101,11 @@ This section describes how it was configured so that it can be reproduced in cas
 
 ### Setup org permissions
 
-1. Open https://github.com/organizations/<YOUR_ORG>/settings/actions
+In https://github.com/organizations/<YOUR_ORG>/settings:
+
+**Make sure GitHub Actions can run external workflows:**
+
+1. Select "Actions" at the left
 2. Find the section "Allow or block specified actions and reusable workflows"
 3. Add these values (if they are already here, they will be de-dupped automatically):
 
@@ -112,6 +116,14 @@ This section describes how it was configured so that it can be reproduced in cas
    dart-lang/ecosystem/.github/workflows/publish.yaml@*,
    dart-lang/ecosystem/.github/workflows/post_summaries.yaml@*,
    ```
+
+**Make sure workflows can publish packages:**
+
+1. Open https://github.com/flutter/genui/settings/actions
+2. Find the section "Workflows"  
+3. Click "Enable workflows"
+4. Select "Allow all workflows"  
+5. Click "Save"
 
 ### Setup workflow permissions for the repo
 
