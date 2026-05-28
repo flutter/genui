@@ -69,9 +69,9 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
       // Registry-emitted events always populate `surface` via
       // `SurfaceAdded.fromCore` / `SurfaceUpdated.fromCore`.
       surface_reg.SurfaceAdded(:final surfaceId, :final surface) =>
-        SurfaceAdded(surfaceId, surface!),
+        SurfaceAdded.fromCore(surfaceId, surface!),
       surface_reg.SurfaceUpdated(:final surfaceId, :final surface) =>
-        ComponentsUpdated(surfaceId, surface!),
+        ComponentsUpdated.fromCore(surfaceId, surface!),
       surface_reg.SurfaceRemoved(:final surfaceId) => SurfaceRemoved(surfaceId),
     },
   );
