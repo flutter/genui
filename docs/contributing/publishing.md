@@ -60,7 +60,15 @@ major number for breaking changes.
 
 ## How publishing happens?
 
-TODO(polina-c): add information, https://github.com/google/A2UI/issues/1383
+1. **Auto**: The workflow job `publish /validate` will add table [like this](https://github.com/flutter/genui/pull/941#issuecomment-4556675732) to each PR.
+
+2. **Manual**: After reviewing and merging PR, for each 'ready to publish' and non-dev versions the author of the PR should:
+   1. Click link in the column 'Publish tag' in the above table.
+   2. Click 'Publish release' button. 
+
+3.  **Auto**: 
+   1. The tag [like this](https://github.com/flutter/genui/releases/tag/json_schema_builder-v0.1.4) will be created. 
+   2. The job [publish / publish](https://github.com/flutter/genui/actions/runs/26526524277) will start.
 
 ## How upgrade of dependencies (for both siblings and third party) happens?
 
@@ -88,13 +96,13 @@ TODO: Consume solution for [dependabot issue][dependabot/dependabot-core#15057] 
 
 This repository is already configured for publishing. 
 
-This section is needed in case of repo transfer or forking.
+This section describes how it was configured so that it can be reproduced in case of repo transfer or forking.
 
-### Setup org permissions to use ecosystem actions
+### Setup org permissions
 
 1. Open https://github.com/organizations/<YOUR_ORG>/settings/actions
 2. Find section "Allow or block specified actions and reusable workflows"
-3. Add these values (if they are already here, they will be auto-dedupped):
+3. Add these values (if they are already here, they will be de-dupped automatically):
 
    peter-evans/create-or-update-comment@*,
    peter-evans/create-pull-request@*,
@@ -108,12 +116,6 @@ This section is needed in case of repo transfer or forking.
 This requires uploader/admin rights on the package.
 
 1. Go to https://pub.dev/packages/<YOUR_PACKAGE_NAME>/admin
-2. Under "Automated publishing", enable "Publishing from GitHub Actions".
+2. Under "Automated publishing", enable "Publishing from GitHub Actions" for both `push` and `workflow_dispatch` events.
 3. Set Repository to `flutter/genui`.
-4. Set Tag pattern to `{{package}}-v{{version}}`.
-5. Leave environment blank unless you also set `environment:` in the workflow.
-
-### ?
-
-
-
+4. Set Tag pattern to `<YOUR_PACKAGE_NAME>-v<version>`.
