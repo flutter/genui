@@ -71,11 +71,8 @@ abstract interface class DataModel {
   T? getValue<T>(DataPath absolutePath);
 }
 
-/// Standard in-memory implementation of [DataModel].
-///
-/// This is a source-compatible facade over `a2ui_core.DataModel`; it keeps the
-/// legacy GenUI API shape while delegating storage and reactivity to the core
-/// substrate.
+/// Standard in-memory implementation of [DataModel]. Facade over
+/// `a2ui_core.DataModel`.
 class InMemoryDataModel implements DataModel {
   /// Creates an empty in-memory data model.
   InMemoryDataModel() : _core = core.DataModel(), _ownsCore = true;
@@ -110,7 +107,7 @@ class InMemoryDataModel implements DataModel {
     required ValueListenable<T> source,
     bool twoWay = false,
   }) {
-    final VoidCallback cleanup = bindExternalStateForDataModel(
+    final VoidCallback cleanup = _bindExternalState(
       dataModel: this,
       path: path,
       source: source,
@@ -327,11 +324,7 @@ Future<JsonMap> resolveContext(
   return resolved;
 }
 
-/// Binds an external state [source] to a [path] in a GenUI [DataModel].
-///
-/// Kept as a top-level helper for branch-internal code; the legacy public API
-/// is [DataModel.bindExternalState].
-VoidCallback bindExternalStateForDataModel<T>({
+VoidCallback _bindExternalState<T>({
   required DataModel dataModel,
   required DataPath path,
   required ValueListenable<T> source,
@@ -381,22 +374,6 @@ VoidCallback bindExternalStateForDataModel<T>({
     source.removeListener(onSourceChanged);
     removeModelListener?.call();
   };
-}
-
-/// Compatibility alias for branch-local callers that used the temporary
-/// top-level helper name.
-VoidCallback bindExternalState<T>({
-  required DataModel dataModel,
-  required Object path,
-  required ValueListenable<T> source,
-  bool twoWay = false,
-}) {
-  return bindExternalStateForDataModel(
-    dataModel: dataModel,
-    path: _toDataPath(path),
-    source: source,
-    twoWay: twoWay,
-  );
 }
 
 /// Bridges a preact_signals [core.ReadonlySignal] to a Flutter

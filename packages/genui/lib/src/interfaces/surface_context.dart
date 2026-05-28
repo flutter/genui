@@ -10,9 +10,6 @@ import '../model/data_model.dart';
 import '../model/ui_models.dart';
 
 /// An interface for a specific UI surface context.
-///
-/// This provides access to the source-compatible surface snapshot and data
-/// model facade for a single surface.
 abstract interface class SurfaceContext {
   /// The ID of the surface this context is bound to.
   String get surfaceId;
@@ -33,13 +30,11 @@ abstract interface class SurfaceContext {
   void reportError(Object error, StackTrace? stack);
 }
 
-/// Internal live-surface extension used by GenUI's own controller/widget pair.
-///
-/// External/custom [SurfaceContext] implementations only need the legacy
-/// [SurfaceContext.definition] API; when this live interface is available the
-/// renderer can subscribe to per-component core updates for granular rebuilds.
+/// GenUI-internal extension of [SurfaceContext] that exposes the live core
+/// surface model so the renderer can subscribe to per-component updates for
+/// granular rebuilds. External implementations only need to satisfy
+/// [SurfaceContext].
 @internal
 abstract interface class LiveSurfaceContext implements SurfaceContext {
-  /// The live core surface model for this surface.
   ValueListenable<core.SurfaceModel?> get surface;
 }

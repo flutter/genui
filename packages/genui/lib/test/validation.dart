@@ -81,9 +81,9 @@ Future<List<ExampleValidationError>> validateCatalogItemExamples(
       components: components,
     );
 
-    // `a2ui_core.UpdateComponentsMessage.toJson()` wraps the body in an
-    // outer envelope (`{'version': ..., 'updateComponents': {...}}`); the
-    // schema here validates the body shape only.
+    // `a2ui_core.UpdateComponentsMessage.toJson()` produces
+    // `{'version': ..., 'updateComponents': {...}}`; the schema here
+    // validates the body shape only.
     final List<ValidationError> validationErrors = await schema.validate(
       surfaceUpdate.toJson()['updateComponents'],
     );

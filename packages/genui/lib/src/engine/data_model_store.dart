@@ -4,35 +4,21 @@
 
 import '../model/data_model.dart';
 
-/// A compatibility facade over the per-surface data models managed by
+/// A facade over per-surface data models managed by
 /// `a2ui_core.SurfaceGroupModel`.
 ///
-/// Earlier `package:genui` releases kept a separate per-surface
-/// `InMemoryDataModel` registry here, distinct from anything the substrate
-/// owned. Post-`a2ui_core` migration, the canonical data model lives on
-/// `core.SurfaceModel.dataModel`; this class exists to preserve the old
-/// public API (`SurfaceController.store`, `store.getDataModel(surfaceId)`)
-/// while transparently returning a [DataModel] wrapper over the live
-/// substrate model.
+/// Kept to preserve the legacy `SurfaceController.store` /
+/// `store.getDataModel(surfaceId)` API. The lookup callback (provided by
+/// `SurfaceController`) redirects active surfaces to the substrate's live
+/// `surface.dataModel`; ids without a live surface fall back to a standalone
+/// in-memory model, preserving the pre-migration "data survives before
+/// createSurface" behavior.
 ///
-/// The [lookup] callback is what does the substrate redirection: GenUI's
-/// own `SurfaceController` constructs the store with a lookup that returns
-/// `InMemoryDataModel.wrap(surface.dataModel)` for active surfaces. When
-/// no live surface exists for a requested id, [getDataModel] falls back to
-/// a standalone in-memory model — preserving the prior "data survives
-/// before createSurface" leniency that some integration paths relied on.
-///
-/// This class will be removed in the same follow-up PR that renames the
-/// rest of GenUI's facade types to match `a2ui_core` directly; new code
-/// should prefer reading from the surface's own data model via
-/// `SurfaceController.registry.getSurface(id)?.dataModel`.
+/// Slated for removal alongside the rest of the GenUI->a2ui_core facade
+/// renames. New code should read from `SurfaceController.registry
+/// .getSurface(id)?.dataModel` directly.
 class DataModelStore {
   /// Creates a [DataModelStore].
-  ///
-  /// When [lookup] returns a model for a surface, that live model is used
-  /// instead of creating a standalone fallback model. This keeps the legacy
-  /// store API source-compatible while GenUI's own controller stores data in
-  /// the a2ui_core-backed surface model.
   DataModelStore({DataModel? Function(String surfaceId)? lookup})
     : _lookup = lookup;
 

@@ -136,8 +136,8 @@ interface class Catalog {
     }
 
     genUiLogger.info('Building widget ${item.name} with id ${itemContext.id}');
-    // Per-id identity is provided by the Surface's _ComponentBuilder wrapper,
-    // so no KeyedSubtree is needed here.
+    // No KeyedSubtree: per-id identity comes from the Surface widget's
+    // _ComponentBuilder wrapper.
     return item.widgetBuilder(
       itemContext.withOverrides(
         buildChild: (String childId, [DataContext? childDataContext]) =>
@@ -254,7 +254,6 @@ class CatalogItemNotFoundException implements Exception {
   }
 }
 
-/// Adapter exposing a [CatalogItem] as a substrate [core.ComponentApi].
 class _CatalogItemComponentApi implements core.ComponentApi {
   _CatalogItemComponentApi(this._item);
   final CatalogItem _item;
@@ -266,13 +265,11 @@ class _CatalogItemComponentApi implements core.ComponentApi {
   Schema get schema => _item.dataSchema;
 }
 
-/// Extension on [Catalog] that builds the substrate-facing
-/// [core.Catalog] view of the genui catalog.
+/// Substrate-facing [core.Catalog] view of a genui [Catalog].
 extension CatalogCoreView on Catalog {
-  /// Returns a [core.Catalog] populated from this catalog's items, with each
-  /// [CatalogItem] adapted into a [core.ComponentApi]. Used when constructing
-  /// a [core.SurfaceModel] so the surface has real component metadata
-  /// (instead of an empty stub) for substrate-side lookups.
+  /// Returns a [core.Catalog] populated from this catalog's items, used when
+  /// constructing a [core.SurfaceModel] so substrate-side lookups see real
+  /// component metadata instead of an empty stub.
   core.Catalog<core.ComponentApi> get coreCatalog =>
       core.Catalog<core.ComponentApi>(
         id: catalogId ?? 'genui_inline_$hashCode',

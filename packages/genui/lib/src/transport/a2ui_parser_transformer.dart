@@ -181,13 +181,11 @@ class _A2uiParserStream {
     }
   }
 
-  /// JSON keys that mark a payload as intended to be an A2UI message envelope.
-  /// If parsing fails on a payload that looks like an envelope, treat the
-  /// failure as a validation error rather than fall back to emitting plain
-  /// text. `version` is included because a payload that carries `version`
-  /// is clearly an attempted envelope even if its action key is unknown or
-  /// malformed.
-  static const _a2uiEnvelopeKeys = {
+  /// Top-level keys that mark a JSON payload as an attempted A2UI message.
+  /// If parsing fails on one of these, surface a validation error rather
+  /// than fall back to plain text. `version` is included so a
+  /// malformed-but-versioned payload still counts as an attempted message.
+  static const _a2uiMessageKeys = {
     'version',
     'createSurface',
     'updateComponents',
@@ -195,8 +193,8 @@ class _A2uiParserStream {
     'deleteSurface',
   };
 
-  bool _looksLikeA2uiEnvelope(Map<String, Object?> json) =>
-      json.keys.any(_a2uiEnvelopeKeys.contains);
+  bool _looksLikeA2uiMessage(Map<String, Object?> json) =>
+      json.keys.any(_a2uiMessageKeys.contains);
 
   void _emitMessage(Object json) {
     if (json is Map<String, Object?>) {
@@ -215,7 +213,7 @@ class _A2uiParserStream {
       _controller.add(A2uiMessageEvent(A2uiMessage.fromJson(json)));
       _wasLastEventA2ui = true;
     } catch (e) {
-      if (_looksLikeA2uiEnvelope(json)) {
+      if (_looksLikeA2uiMessage(json)) {
         _controller.addError(
           A2uiValidationException(
             'Failed to parse A2UI message',
@@ -224,7 +222,7 @@ class _A2uiParserStream {
           ),
         );
       } else {
-        // Not an A2UI envelope — emit as plain text.
+        // Not an A2UI message; emit as plain text.
         _controller.add(TextEvent(jsonEncode(json)));
       }
       _wasLastEventA2ui = false;
