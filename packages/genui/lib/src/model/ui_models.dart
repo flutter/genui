@@ -276,7 +276,7 @@ final class SurfaceAdded extends SurfaceUpdate {
   /// when constructed via this path (intended for tests/mocks);
   /// `SurfaceController` uses [SurfaceAdded.fromCore] internally so
   /// real-world events have both fields populated.
-  SurfaceAdded(super.surfaceId, this.definition) : surface = null;
+  const SurfaceAdded(super.surfaceId, this.definition) : surface = null;
 
   /// Internal: constructs from a live core surface, populating both
   /// [surface] and [definition].
@@ -300,7 +300,7 @@ final class ComponentsUpdated extends SurfaceUpdate {
   /// Constructs from a [SurfaceDefinition]. See [SurfaceAdded] for the
   /// relationship between this constructor and
   /// [ComponentsUpdated.fromCore].
-  ComponentsUpdated(super.surfaceId, this.definition) : surface = null;
+  const ComponentsUpdated(super.surfaceId, this.definition) : surface = null;
 
   /// Internal: constructs from a live core surface, populating both
   /// [surface] and [definition].
