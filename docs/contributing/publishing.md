@@ -21,7 +21,7 @@ Packages in this repo fall into the following categories:
 
 1. **Not published**: `pubspec.yaml` contains `publish_to: none`. Workspace tools and example apps that are never pushed to pub.dev.
 2. **Not yet published**: the package's `version:` ends with a `-dev` suffix (see "`-dev` vs non-`-dev`" below). It is published to pub.dev only with `-dev` suffix to reserve the name.
-3. **Published**: the package has at least one non-dev version in pub.dev.
+3. **Published**: the package has at least one non-dev version on pub.dev.
 
 ## About `resolution: workspace`
 
