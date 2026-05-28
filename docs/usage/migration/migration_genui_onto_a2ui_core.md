@@ -8,6 +8,26 @@ The goal is to make this PR about the substrate swap (#811): shared protocol
 parsing, shared surface/data-model state, and granular Flutter rebuilds. Public
 API renames for closer web/core parity are deferred to a follow-up PR (#801).
 
+## Scope
+
+Substrate / state migration only. Deferred to follow-ups:
+
+- Catalog widget bodies stay on `CatalogItemContext`. A typed-props authoring
+  API (flutter/genui#801) is on hold until the upstream Node Layer
+  (A2UI#1282) settles.
+- Action dispatch and `sendDataModel` synchronization still flow through the
+  existing GenUI path, not `core.SurfaceGroupModel.onAction` or
+  `MessageProcessor.getClientDataModel()`.
+- `GenericBinder` is not exposed as a Flutter-side public API.
+- `UpdateDataModelMessage.hasValue` is parsed and serialized losslessly
+  through the genui facade (with round-trip test coverage), but runtime
+  mutation still treats both `value: null` and an omitted `value` as "remove
+  the key" pending flutter/genui#938 (adds `DataModel.remove` and the
+  processor-level branch).
+- `DataPath` no longer interprets RFC 6901 `~0` / `~1` escapes, matching the
+  TypeScript reference implementation. A2UI#1499 tracks the spec
+  clarification.
+
 ## What stays source-compatible in this PR
 
 GenUI applications and catalog authors should continue to use the existing

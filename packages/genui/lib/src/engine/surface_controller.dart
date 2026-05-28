@@ -226,8 +226,12 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   };
 
   void _onCoreSurfaceCreated(core.SurfaceModel<core.ComponentApi> surface) {
-    _registry.addSurface(surface);
+    // Migrate pre-create fallback data into the live model BEFORE notifying
+    // registry listeners; otherwise a synchronous listener could call
+    // contextFor(...).dataModel and cache an empty live wrapper before the
+    // fallback's data is copied in.
     _store.attachLive(surface.id, InMemoryDataModel.wrap(surface.dataModel));
+    _registry.addSurface(surface);
     final List<core.A2uiMessage>? pending = _pendingUpdates.remove(surface.id);
     _pendingUpdateTimers.remove(surface.id)?.cancel();
     if (pending != null) {
