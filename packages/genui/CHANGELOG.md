@@ -14,9 +14,14 @@
 - **Behavior**: JSON Pointer `~0`/`~1` escapes are not interpreted on
   `DataPath`; paths split on `/`, matching the web reference implementation
   (see A2UI#1499 tracking spec clarification).
-- **Internal**: `SurfaceRegistry` and the live `core.SurfaceModel` fields
-  on `SurfaceAdded` / `ComponentsUpdated` are marked `@internal`. Most
-  consumers should read `SurfaceUpdate.definition` instead.
+- **BREAKING**: `SurfaceRegistry.updateSurface(...)` is removed. Surface
+  lifecycle now flows through `SurfaceController.handleMessage`; the
+  definition-only push path could not be preserved without diverging from
+  the live `a2ui_core` surface model. `SurfaceRegistry.addSurface` /
+  `notifyUpdated` exist as replacements but are marked `@internal`.
+- **Internal**: The live `core.SurfaceModel` fields on `SurfaceAdded` /
+  `ComponentsUpdated` are marked `@internal`. Most consumers should read
+  `SurfaceUpdate.definition` instead.
 
 ## 0.9.2
 
