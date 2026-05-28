@@ -1,6 +1,26 @@
 # `genui` Changelog
 
+## 0.10.0 (in progress)
+
+- **Refactor**: Migrate the runtime substrate onto `package:a2ui_core`.
+  Public GenUI types are preserved as compatibility facades; see
+  [docs/usage/migration/migration_genui_onto_a2ui_core.md](../../docs/usage/migration/migration_genui_onto_a2ui_core.md).
+- **Behavior**: `DataModel` writes are stricter (core data errors on
+  type-mismatched intermediate paths and excessively large list indices)
+  and sparse list writes now fill skipped entries with `null` instead of
+  silently dropping them.
+- **Behavior**: A duplicate `createSurface` for an already-active surface
+  id is now an error.
+- **Behavior**: JSON Pointer `~0`/`~1` escapes are not interpreted on
+  `DataPath`; paths split on `/`, matching the web reference implementation
+  (see A2UI#1499 tracking spec clarification).
+- **Internal**: `SurfaceRegistry` and the live `core.SurfaceModel` fields
+  on `SurfaceAdded` / `ComponentsUpdated` are marked `@internal`. Most
+  consumers should read `SurfaceUpdate.definition` instead.
+
 ## 0.9.2
+
+## 0.9.1
 
 - **Feature**: Updated example/README.md.
 

@@ -35,6 +35,7 @@ class SurfaceUpdated extends RegistryEvent {
 
 /// Tracks live [SurfaceModel]s by surface ID and exposes Flutter-friendly
 /// [ValueListenable]s for them, plus a registry-event stream.
+@internal
 class SurfaceRegistry {
   final Map<String, ValueNotifier<SurfaceModel?>> _surfaces = {};
   final Map<String, ValueNotifier<genui_model.SurfaceDefinition?>>

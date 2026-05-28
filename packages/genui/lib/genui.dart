@@ -13,7 +13,7 @@ library;
 
 export 'src/catalog.dart';
 export 'src/development_utilities.dart';
-export 'src/engine.dart' hide SurfaceAdded, SurfaceRemoved;
+export 'src/engine.dart' hide SurfaceAdded, SurfaceRegistry, SurfaceRemoved;
 export 'src/facade.dart';
 export 'src/functions.dart';
 export 'src/interfaces.dart';

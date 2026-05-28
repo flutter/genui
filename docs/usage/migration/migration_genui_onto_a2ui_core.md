@@ -25,8 +25,15 @@ GenUI applications and catalog authors should continue to use the existing
   and `reportError`.
 - `UiPart.create(definition: SurfaceDefinition(...))`.
 
-You should **not** need to add `a2ui_core` to application/example packages just
-to consume GenUI. `package:genui` does not re-export raw `a2ui_core` symbols.
+Most consumers should **not** need to add `a2ui_core` to application or example
+packages. Catalog widget authors and apps that use the existing facade API stay
+on GenUI types.
+
+The exception is integrators reaching for the live surface model. A few APIs
+that exist for GenUI-internal use cross the boundary and expose
+`a2ui_core.SurfaceModel`: `SurfaceAdded.surface`, `ComponentsUpdated.surface`,
+and `SurfaceRegistry`. These are marked `@internal`; use the `definition`
+snapshot fields instead unless you specifically need live core access.
 
 ## What changed internally
 

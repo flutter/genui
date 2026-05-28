@@ -181,6 +181,32 @@ void main() {
       expect(model.getValue<String>(DataPath('/name')), 'Bob');
     });
 
+    test('contextFor(surfaceId).dataModel returns a writable model '
+        'before createSurface', () {
+      const surfaceId = 'pre_create';
+      final DataModel model = controller.contextFor(surfaceId).dataModel;
+      expect(() => model.update(DataPath('/foo'), 'bar'), returnsNormally);
+      expect(model.getValue<String>(DataPath('/foo')), 'bar');
+    });
+
+    test('pre-create data written via contextFor is migrated into the live '
+        'surface model when createSurface arrives', () async {
+      const surfaceId = 'migrate_me';
+      controller
+          .contextFor(surfaceId)
+          .dataModel
+          .update(DataPath('/name'), 'Alice');
+
+      controller.handleMessage(
+        const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+      );
+
+      // Post-create, contextFor.dataModel routes through the live core
+      // surface model, so reading back here proves the migration landed.
+      final DataModel model = controller.contextFor(surfaceId).dataModel;
+      expect(model.getValue<String>(DataPath('/name')), 'Alice');
+    });
+
     test('dispose() closes the updates stream', () async {
       var isClosed = false;
       controller.surfaceUpdates.listen(
