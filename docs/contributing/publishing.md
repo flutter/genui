@@ -20,8 +20,8 @@ To make sure your PR passes this validation, follow [firehose rules](https://git
 Packages in this repo fall into the following categories:
 
 1. **Not published**: `pubspec.yaml` contains `publish_to: none`. Workspace tools and example apps that are never pushed to pub.dev.
-2. **Not yet published**: the package's `version:` ends with a `-dev<N>` suffix (see "`-dev` vs non-`-dev`" below). Published to pub.dev to reserve the name or to test the package; not ready for general use yet.
-3. **Published**: any other package. Each has its own version cadence on pub.dev.
+2. **Not yet published**: the package's `version:` ends with a `-dev` suffix (see "`-dev` vs non-`-dev`" below). It is published to pub.dev only with `-dev` suffix to reserve the name.
+3. **Published**: the package has at least one non-dev version in pub.dev.
 
 ## About `resolution: workspace`
 
@@ -41,9 +41,9 @@ The packages code should be always release ready. That means:
 
    1.1. The package is planned to be released in the future. In this case it is published with `-dev` suffix in order to reserve the package name.
 
-   1.2. The package's changes touch only non-publishable code or docs (like tests, tools, or not-publishable docs).
+   1.2. The package's last changes touch only non-publishable code or docs (like tests, tools, or not-publishable docs).
 
-   You can publish `-dev<number>` versions (where `<number>` is a three-digit, zero padded integer like `-dev003`), if you need it for development. 
+   You can publish `-dev<number>` versions any time (where `<number>` is a three-digit, zero padded integer like `-dev003`), if you need it for development. 
 
 2. If your feature is partially implemented, hide the feature's code behind a false-by-default flag, and use **release-ready** version. (There is no detailed guidance how to define this flag yet. It should be outlined when it is needed. Please create an issue if you need it soon.)
 
