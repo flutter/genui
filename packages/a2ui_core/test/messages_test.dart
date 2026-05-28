@@ -134,6 +134,20 @@ void main() {
       );
     });
 
+    test('throws when envelope contains more than one message-body key', () {
+      // The v0.9 schema is oneOf the four message-body keys; an envelope
+      // that carries more than one is invalid and must not be silently
+      // coerced to whichever branch happens to be checked first.
+      expect(
+        () => A2uiMessage.fromJson({
+          'version': 'v0.9',
+          'createSurface': {'surfaceId': 's1', 'catalogId': 'c1'},
+          'updateComponents': {'surfaceId': 's1', 'components': <Object?>[]},
+        }),
+        throwsA(isA<A2uiValidationError>()),
+      );
+    });
+
     test('roundtrips through toJson/fromJson', () {
       final original = CreateSurfaceMessage(
         surfaceId: 's1',
