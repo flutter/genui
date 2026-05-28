@@ -101,13 +101,12 @@ This section describes how it was configured so that it can be reproduced in cas
 
 ### Setup org permissions
 
-In https://github.com/organizations/<YOUR_ORG>/settings:
+In https://github.com/organizations/flutter/settings/actions:
 
 **Make sure GitHub Actions can run external workflows:**
 
-1. Select "Actions" at the left
-2. Find the section "Allow or block specified actions and reusable workflows"
-3. Add these values (if they are already here, they will be de-dupped automatically):
+1. Find the section "Allow or block specified actions and reusable workflows"
+2. Add these values (if they are already here, they will be de-dupped automatically):
 
    ```
    peter-evans/create-or-update-comment@*,
@@ -119,11 +118,8 @@ In https://github.com/organizations/<YOUR_ORG>/settings:
 
 **Make sure workflows can publish packages:**
 
-1. Open https://github.com/flutter/genui/settings/actions
-2. Find the section "Workflows"  
-3. Click "Enable workflows"
-4. Select "Allow all workflows"  
-5. Click "Save"
+1. Find the section "Workflow permissions".
+2. Select "Read and write permissions".
 
 ### Setup workflow permissions for the repo
 
