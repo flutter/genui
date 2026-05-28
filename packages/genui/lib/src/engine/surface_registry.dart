@@ -17,6 +17,11 @@ sealed class RegistryEvent {}
 class SurfaceAdded extends RegistryEvent {
   SurfaceAdded(this.surfaceId, this.surface);
   final String surfaceId;
+
+  /// Live `a2ui_core` surface model. Intended for GenUI internals; most
+  /// consumers should read `SurfaceUpdate.definition` from the public
+  /// `SurfaceController.surfaceUpdates` stream instead.
+  @internal
   final SurfaceModel surface;
 }
 
@@ -30,12 +35,16 @@ class SurfaceRemoved extends RegistryEvent {
 class SurfaceUpdated extends RegistryEvent {
   SurfaceUpdated(this.surfaceId, this.surface);
   final String surfaceId;
+
+  /// Live `a2ui_core` surface model. Intended for GenUI internals; most
+  /// consumers should read `SurfaceUpdate.definition` from the public
+  /// `SurfaceController.surfaceUpdates` stream instead.
+  @internal
   final SurfaceModel surface;
 }
 
 /// Tracks live [SurfaceModel]s by surface ID and exposes Flutter-friendly
 /// [ValueListenable]s for them, plus a registry-event stream.
-@internal
 class SurfaceRegistry {
   final Map<String, ValueNotifier<SurfaceModel?>> _surfaces = {};
   final Map<String, ValueNotifier<genui_model.SurfaceDefinition?>>

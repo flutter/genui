@@ -28,11 +28,15 @@ class DataModelStore {
   final Set<String> _attachedSurfaces = {};
 
   /// Retrieves the data model for the given [surfaceId], creating it if it
-  /// does not exist.
+  /// does not exist. Already-attached live models are returned directly
+  /// without re-invoking [_lookup].
   DataModel getDataModel(String surfaceId) {
+    final DataModel? cached = _liveDataModels[surfaceId];
+    if (cached != null) return cached;
     final DataModel? liveModel = _lookup?.call(surfaceId);
     if (liveModel != null) {
-      return _liveDataModels.putIfAbsent(surfaceId, () => liveModel);
+      _liveDataModels[surfaceId] = liveModel;
+      return liveModel;
     }
     return _dataModels.putIfAbsent(surfaceId, InMemoryDataModel.new);
   }
@@ -44,9 +48,7 @@ class DataModelStore {
     final DataModel? fallback = _dataModels.remove(surfaceId);
     if (fallback != null) {
       final Object? snapshot = fallback.getValue<Object?>(DataPath.root);
-      if (snapshot != null) {
-        liveModel.update(DataPath.root, snapshot);
-      }
+      liveModel.update(DataPath.root, snapshot);
       fallback.dispose();
     }
     _liveDataModels[surfaceId] = liveModel;

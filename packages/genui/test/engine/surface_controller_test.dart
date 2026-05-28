@@ -207,6 +207,18 @@ void main() {
       expect(model.getValue<String>(DataPath('/name')), 'Alice');
     });
 
+    test('pre-create root-null write is preserved across createSurface', () {
+      const surfaceId = 'null_root';
+      controller.contextFor(surfaceId).dataModel.update(DataPath.root, null);
+
+      controller.handleMessage(
+        const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+      );
+
+      final DataModel model = controller.contextFor(surfaceId).dataModel;
+      expect(model.getValue<Object?>(DataPath.root), isNull);
+    });
+
     test('dispose() closes the updates stream', () async {
       var isClosed = false;
       controller.surfaceUpdates.listen(
