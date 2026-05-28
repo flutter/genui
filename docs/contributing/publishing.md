@@ -117,5 +117,5 @@ This requires uploader/admin rights on the package.
 
 1. Go to https://pub.dev/packages/<YOUR_PACKAGE_NAME>/admin
 2. Under "Automated publishing", enable "Publishing from GitHub Actions" for both `push` and `workflow_dispatch` events.
-3. Set Repository to `flutter/genui`.
+3. Set Repository to `<YOUR_ORG>/<YOUR_REPO>`.
 4. Set Tag pattern to `<YOUR_PACKAGE_NAME>-v<version>`.
