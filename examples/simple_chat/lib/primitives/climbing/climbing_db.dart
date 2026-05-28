@@ -104,7 +104,7 @@ class ClimbingLocationInfo {
 List<ClimbingLocationInfo> climbingLocations = [
   const ClimbingLocationInfo(
     identifier: 'calico_hills_i',
-    image: '10x2500x1667.jpg',
+    image: 'mountain_01.jpeg',
     name: 'Calico Hills I',
     address: 'Red Rock Canyon, NV',
     climbingTypes: [ClimbingType.lead, ClimbingType.topRope],
@@ -113,7 +113,7 @@ List<ClimbingLocationInfo> climbingLocations = [
   ),
   const ClimbingLocationInfo(
     identifier: 'kraft_boulders',
-    image: '121x1600x1067.jpg',
+    image: 'mountain_02.jpeg',
     name: 'Kraft Boulders',
     address: 'Calico Basin, NV',
     climbingTypes: [ClimbingType.bouldering],
@@ -126,7 +126,7 @@ List<ClimbingLocationInfo> climbingLocations = [
   ),
   const ClimbingLocationInfo(
     identifier: 'sandstone_quarry',
-    image: '128x3823x2549.jpg',
+    image: 'mountain_03.jpeg',
     name: 'Sandstone Quarry',
     address: 'Red Rock Canyon, NV',
     climbingTypes: [ClimbingType.lead, ClimbingType.crack],
@@ -135,7 +135,7 @@ List<ClimbingLocationInfo> climbingLocations = [
   ),
   const ClimbingLocationInfo(
     identifier: 'black_velvet_canyon',
-    image: '134x4928x3264.jpg',
+    image: 'mountain_04.jpeg',
     name: 'Black Velvet Canyon',
     address: 'Red Rock Canyon, NV',
     climbingTypes: [ClimbingType.lead, ClimbingType.crack],
@@ -148,7 +148,7 @@ List<ClimbingLocationInfo> climbingLocations = [
   ),
   const ClimbingLocationInfo(
     identifier: 'willow_springs',
-    image: '136x4032x2272.jpg',
+    image: 'mountain_05.jpeg',
     name: 'Willow Springs',
     address: 'Red Rock Canyon, NV',
     climbingTypes: [ClimbingType.lead, ClimbingType.bouldering],
@@ -157,7 +157,7 @@ List<ClimbingLocationInfo> climbingLocations = [
   ),
   const ClimbingLocationInfo(
     identifier: 'icebox_canyon',
-    image: '15x2500x1667.jpg',
+    image: 'mountain_06.jpeg',
     name: 'Icebox Canyon',
     address: 'Red Rock Canyon, NV',
     climbingTypes: [ClimbingType.crack, ClimbingType.lead],
@@ -166,7 +166,7 @@ List<ClimbingLocationInfo> climbingLocations = [
   ),
   const ClimbingLocationInfo(
     identifier: 'pine_creek_canyon',
-    image: '166x1280x720.jpg',
+    image: 'mountain_07.jpeg',
     name: 'Pine Creek Canyon',
     address: 'Red Rock Canyon, NV',
     climbingTypes: [ClimbingType.lead, ClimbingType.crack],
@@ -175,7 +175,7 @@ List<ClimbingLocationInfo> climbingLocations = [
   ),
   const ClimbingLocationInfo(
     identifier: 'the_gallery',
-    image: '177x2515x1830.jpg',
+    image: 'mountain_08.jpeg',
     name: 'The Gallery',
     address: 'Calico Hills, Red Rock Canyon, NV',
     climbingTypes: [ClimbingType.lead],
@@ -184,7 +184,7 @@ List<ClimbingLocationInfo> climbingLocations = [
   ),
   const ClimbingLocationInfo(
     identifier: 'magic_bus',
-    image: '184x4288x2848.jpg',
+    image: 'mountain_09.jpeg',
     name: 'Magic Bus',
     address: 'Calico Hills, Red Rock Canyon, NV',
     climbingTypes: [ClimbingType.lead, ClimbingType.topRope],
@@ -193,7 +193,7 @@ List<ClimbingLocationInfo> climbingLocations = [
   ),
   const ClimbingLocationInfo(
     identifier: 'the_hamlet',
-    image: '191x2560x1707.jpg',
+    image: 'mountain_10.jpeg',
     name: 'The Hamlet',
     address: 'Calico Hills, Red Rock Canyon, NV',
     climbingTypes: [ClimbingType.lead],
