@@ -52,8 +52,10 @@ on GenUI types.
 The exception is integrators reaching for the live surface model. A few APIs
 that exist for GenUI-internal use cross the boundary and expose
 `a2ui_core.SurfaceModel`: `SurfaceAdded.surface`, `ComponentsUpdated.surface`,
-and `SurfaceRegistry`. These are marked `@internal`; use the `definition`
-snapshot fields instead unless you specifically need live core access.
+`SurfaceRegistry.watchLiveSurface`, and `SurfaceRegistry.getLiveSurface`.
+These are marked `@internal`; use `SurfaceUpdate.definition` or
+`SurfaceRegistry.getSurface` / `watchSurface` (which still return
+`SurfaceDefinition`) unless you specifically need live core access.
 
 ## What changed internally
 

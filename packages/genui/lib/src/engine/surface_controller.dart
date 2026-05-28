@@ -53,7 +53,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
       surface_reg.SurfaceRegistry();
   late final DataModelStore _store = DataModelStore(
     lookup: (String surfaceId) {
-      final core.SurfaceModel? surface = _registry.getSurface(surfaceId);
+      final core.SurfaceModel? surface = _registry.getLiveSurface(surfaceId);
       if (surface == null) return null;
       return InMemoryDataModel.wrap(surface.dataModel);
     },
@@ -306,9 +306,8 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   }
 
   Catalog? _findCatalogForSurface(String surfaceId) {
-    final core.SurfaceModel<core.ComponentApi>? surface = _registry.getSurface(
-      surfaceId,
-    );
+    final core.SurfaceModel<core.ComponentApi>? surface = _registry
+        .getLiveSurface(surfaceId);
     if (surface == null) return null;
     return catalogs.firstWhereOrNull((c) => c.catalogId == surface.catalog.id);
   }
@@ -356,7 +355,7 @@ class _ControllerContext implements LiveSurfaceContext {
 
   @override
   ValueListenable<core.SurfaceModel?> get surface =>
-      _controller.registry.watchSurface(surfaceId);
+      _controller.registry.watchLiveSurface(surfaceId);
 
   @override
   ValueListenable<SurfaceDefinition?> get definition =>
