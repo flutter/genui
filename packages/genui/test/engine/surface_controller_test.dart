@@ -154,6 +154,28 @@ void main() {
       expect(notifier1.value, isNull);
     });
 
+    test(
+      'registry watchSurface/getSurface expose SurfaceDefinition snapshots',
+      () {
+        const surfaceId = 's1';
+        final ValueListenable<SurfaceDefinition?> notifier = controller.registry
+            .watchSurface(surfaceId);
+        expect(notifier.value, isNull);
+        expect(controller.registry.getSurface(surfaceId), isNull);
+
+        controller.handleMessage(
+          const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+        );
+
+        final SurfaceDefinition? def = controller.registry.getSurface(
+          surfaceId,
+        );
+        expect(def, isNotNull);
+        expect(def!.catalogId, 'test_catalog');
+        expect(notifier.value, same(def));
+      },
+    );
+
     test('store exposes the live surface data model facade', () {
       const surfaceId = 's1';
       controller.handleMessage(
