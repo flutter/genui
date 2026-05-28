@@ -83,3 +83,37 @@ TODO: Consume solution for [dependabot issue][dependabot/dependabot-core#15057] 
 [Dependabot]: ../../.github/dependabot.yaml
 [About Dependabot version updates]: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/about-dependabot-version-updates
 [dependabot/dependabot-core#15057]: https://github.com/dependabot/dependabot-core/issues/15057
+
+## How to configure repo for publishing?
+
+This repository is already configured for publishing. 
+
+This section is needed in case of repo transfer or forking.
+
+### Setup org permissions to use ecosystem actions
+
+1. Open https://github.com/organizations/<YOUR_ORG>/settings/actions
+2. Find section "Allow or block specified actions and reusable workflows"
+3. Add these values (if they are already here, they will be auto-dedupped):
+
+   peter-evans/create-or-update-comment@*,
+   peter-evans/create-pull-request@*,
+   peter-evans/repository-dispatch@*,
+   dart-lang/ecosystem/.github/workflows/publish.yaml@*,
+   dart-lang/ecosystem/.github/workflows/post_summaries.yaml@*,
+
+
+### Configure pub.dev for each package 
+
+This requires uploader/admin rights on the package.
+
+1. Go to https://pub.dev/packages/<YOUR_PACKAGE_NAME>/admin
+2. Under "Automated publishing", enable "Publishing from GitHub Actions".
+3. Set Repository to `flutter/genui`.
+4. Set Tag pattern to `{{package}}-v{{version}}`.
+5. Leave environment blank unless you also set `environment:` in the workflow.
+
+### ?
+
+
+
