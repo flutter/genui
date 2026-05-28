@@ -67,8 +67,8 @@ These are substrate behavior changes, not rename requirements:
    API. Internally, those listenables bridge to `preact_signals` from
    `a2ui_core`.
 5. **Protocol validation is stricter.** The core parser rejects malformed
-   envelopes more consistently, including missing/incorrect versions and
-   envelopes with more than one action key.
+   messages more consistently, including missing/incorrect versions and
+   messages with more than one top-level action key.
 6. **Duplicate `createSurface` for an active surface id is an error** instead
    of silently reusing the existing surface.
 7. **JSON Pointer `~0`/`~1` escapes are not interpreted.** Paths split on `/`,

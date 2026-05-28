@@ -29,16 +29,12 @@ typedef CatalogWidgetBuilder = Widget Function(CatalogItemContext itemContext);
 
 /// Context provided to a [CatalogItem]'s widget builder.
 ///
-/// Internally backed by the substrate's [core.ComponentContext], plus
-/// Flutter-specific extras (build context, dispatch callbacks, error
-/// reporting). The public GenUI authoring API remains the shim getters and
-/// callbacks on this class: [id], [type], [data], [surfaceId],
-/// [getComponent], [dataContext], [buildChild], and related callbacks.
+/// Backed by a substrate [core.ComponentContext] plus Flutter-specific
+/// extras: [buildContext], [buildChild], [dispatchEvent], [dataContext],
+/// [reportError].
 final class CatalogItemContext {
-  /// Creates a [CatalogItemContext] from the legacy public GenUI fields.
-  ///
-  /// Internally this builds a small core [core.ComponentContext] so widget
-  /// authoring stays source-compatible while the renderer substrate is core.
+  /// Creates a [CatalogItemContext] from raw fields. Synthesizes a
+  /// stand-alone substrate context internally.
   CatalogItemContext({
     required String id,
     required String type,
@@ -60,10 +56,7 @@ final class CatalogItemContext {
        _getComponentOverride = getComponent;
 
   /// Creates a [CatalogItemContext] from a substrate [core.ComponentContext].
-  ///
-  /// This constructor is for GenUI renderer internals only. Catalog authors
-  /// should receive instances from the renderer; tests that need to construct
-  /// one manually can use the public constructor or
+  /// Renderer-internal; tests should use the public constructor or
   /// [CatalogItemContext.forTesting].
   @internal
   CatalogItemContext.fromCore({
@@ -77,9 +70,8 @@ final class CatalogItemContext {
   }) : _componentContext = componentContext,
        _getComponentOverride = null;
 
-  /// Test-only convenience constructor that builds a stand-alone
-  /// [core.SurfaceModel] + [core.ComponentContext] from raw fields, avoiding
-  /// the need for tests to wire up a full surface.
+  /// Test-only convenience: builds a stand-alone substrate context so tests
+  /// don't need to wire up a full surface.
   @visibleForTesting
   factory CatalogItemContext.forTesting({
     required String id,
@@ -108,8 +100,6 @@ final class CatalogItemContext {
     );
   }
 
-  /// The wrapped substrate context. Source of truth for component identity,
-  /// raw properties, and access to other components on the surface.
   final core.ComponentContext _componentContext;
 
   final GetComponentCallback? _getComponentOverride;
@@ -123,8 +113,8 @@ final class CatalogItemContext {
   /// The Flutter [BuildContext] for this widget.
   final BuildContext buildContext;
 
-  /// The Flutter-side [DataContext] for accessing the data model, dispatching
-  /// catalog functions, and subscribing to dynamic-value streams.
+  /// The [DataContext] for accessing the data model, dispatching catalog
+  /// functions, and subscribing to dynamic-value streams.
   final DataContext dataContext;
 
   /// Callback to retrieve a catalog item definition by its type name.
@@ -145,8 +135,8 @@ final class CatalogItemContext {
   }) : _componentContext = componentContext,
        _getComponentOverride = getComponentOverride;
 
-  /// Returns a copy of this context with selected Flutter-side callbacks
-  /// replaced while preserving the same private substrate context.
+  /// Returns a copy of this context with selected callbacks replaced. The
+  /// substrate context is preserved.
   @internal
   CatalogItemContext withOverrides({
     ChildBuilderCallback? buildChild,

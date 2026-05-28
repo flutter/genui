@@ -26,20 +26,16 @@ import 'surface_registry.dart' as surface_reg;
 
 /// The runtime controller for the GenUI system.
 ///
-/// Thin Flutter-side wrapper around [core.MessageProcessor]: the substrate
-/// owns the canonical A2UI state-mutation rules (create/update/delete
-/// surfaces and their components/data models) and this class adds the
-/// Flutter-specific concerns on top: pre-create message buffering, schema
-/// validation against the genui catalog, and a [SurfaceUpdate] stream the
-/// Flutter facade subscribes to.
+/// Wraps [core.MessageProcessor] and adds Flutter-side concerns: pre-create
+/// message buffering, catalog-schema validation, and a [SurfaceUpdate]
+/// stream the Flutter facade subscribes to.
 interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   SurfaceController({
     required this.catalogs,
     this.pendingUpdateTimeout = const Duration(minutes: 1),
   }) {
     _processor = core.MessageProcessor<core.ComponentApi>(
-      // Growable: handleMessage may inject stub catalogs for unknown
-      // catalogIds (see comment near _processor.catalogs.add below).
+      // Growable: handleMessage injects stub catalogs for unknown catalogIds.
       catalogs: catalogs.map((c) => c.coreCatalog).toList(),
     );
     _processor.groupModel.onSurfaceCreated.addListener(_onCoreSurfaceCreated);
@@ -97,16 +93,10 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   /// The registry of surfaces managed by this controller.
   surface_reg.SurfaceRegistry get registry => _registry;
 
-  /// The source-compatible store of data models managed by this controller.
+  /// The store of data models managed by this controller.
   DataModelStore get store => _store;
 
   /// Processes a message from the AI service.
-  ///
-  /// Delegates the canonical state mutation to [core.MessageProcessor] and
-  /// adds Flutter-specific concerns around it (pre-create buffering of
-  /// updates, schema validation of the resulting component set, and
-  /// surface-level `ComponentsUpdated` emission for the [surfaceUpdates]
-  /// stream).
   @override
   void handleMessage(A2uiMessage message) {
     genUiLogger.info(
@@ -115,11 +105,8 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
     _handleCoreMessage(message.toCoreMessage());
   }
 
-  /// Internal entry point used by buffered/flushed messages where we already
-  /// hold the substrate representation. Public callers go through
-  /// [handleMessage] with the GenUI facade type.
   void _handleCoreMessage(core.A2uiMessage coreMessage) {
-    // Empty surfaceId — reject before delegating so the substrate doesn't
+    // Reject empty surfaceId before delegating; the substrate would otherwise
     // create a surface with id "".
     if (coreMessage is core.CreateSurfaceMessage &&
         coreMessage.surfaceId.isEmpty) {
@@ -134,18 +121,14 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
       return;
     }
 
-    // Buffer updates that arrive before their surface is created.
     final String? bufferSurfaceId = _bufferSurfaceIdIfNoSurface(coreMessage);
     if (bufferSurfaceId != null) {
       _bufferMessage(bufferSurfaceId, coreMessage);
       return;
     }
 
-    // If a createSurface refers to a catalogId we do not have, register an
-    // empty stub so the substrate's "catalog not found" check passes. This
-    // mirrors the previous lenient behavior where unknown catalogIds were
-    // accepted with an empty component set — useful for tests/demos that
-    // do not pre-register every catalog the server may send.
+    // Register an empty stub for unknown catalogIds. Mirrors the lenient
+    // pre-migration behavior tests and demos relied on.
     if (coreMessage is core.CreateSurfaceMessage) {
       final core.CreateSurfaceMessage createMessage = coreMessage;
       if (!_processor.catalogs.any((c) => c.id == createMessage.catalogId)) {
@@ -196,21 +179,14 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
       return;
     }
 
-    // Genui-side post-mutation handling. The substrate has already applied
-    // the mutation by this point — these are additive Flutter/genui
-    // concerns the substrate does not own.
     if (coreMessage is core.UpdateComponentsMessage) {
       final core.SurfaceModel<core.ComponentApi>? surface = _processor
           .groupModel
           .getSurface(coreMessage.surfaceId);
       if (surface != null) {
-        // Emit a surface-level "components updated" so subscribers to
-        // `surfaceUpdates` can react without listening to every
-        // ComponentModel individually.
         _registry.notifyUpdated(surface);
-        // Validate the resulting component set against the genui catalog
-        // schema. Mutation is not rolled back on validation failure — we
-        // surface the error and let the caller decide.
+        // Validation does not roll back the mutation; we surface the error
+        // and let the caller decide.
         try {
           final Catalog? genuiCatalog = catalogs.firstWhereOrNull(
             (c) => c.catalogId == surface.catalog.id,
@@ -228,9 +204,8 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
     }
   }
 
-  /// Returns the surfaceId of [message] if it is an update for a surface
-  /// that does not yet exist (and therefore needs to be buffered), or null
-  /// if no buffering is needed.
+  /// If [message] targets a surface that does not yet exist, returns that
+  /// surfaceId so the caller can buffer the message. Otherwise returns null.
   String? _bufferSurfaceIdIfNoSurface(core.A2uiMessage message) {
     final String? targetId = switch (message) {
       core.UpdateComponentsMessage(:final surfaceId) => surfaceId,
@@ -252,7 +227,6 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
 
   void _onCoreSurfaceCreated(core.SurfaceModel<core.ComponentApi> surface) {
     _registry.addSurface(surface);
-    // Flush any updates that arrived for this surfaceId before createSurface.
     final List<core.A2uiMessage>? pending = _pendingUpdates.remove(surface.id);
     _pendingUpdateTimers.remove(surface.id)?.cancel();
     if (pending != null) {
@@ -310,8 +284,8 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
     }
   }
 
-  /// Handles a UI event from a surface — converts a [UserActionEvent] into
-  /// a [ChatMessage] sent on [onSubmit].
+  /// Sends a [UserActionEvent] to [onSubmit] as a [ChatMessage]. No-op for
+  /// non-action [UiEvent]s.
   void handleUiEvent(UiEvent event) {
     if (event is! UserActionEvent) return;
     _onSubmit.add(

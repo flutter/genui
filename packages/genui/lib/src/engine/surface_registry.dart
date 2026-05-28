@@ -62,8 +62,8 @@ class SurfaceRegistry {
     );
   }
 
-  /// Returns a [ValueListenable] that tracks the source-compatible snapshot
-  /// definition for the given [surfaceId].
+  /// Returns a [ValueListenable] tracking the
+  /// [genui_model.SurfaceDefinition] snapshot for [surfaceId].
   ValueListenable<genui_model.SurfaceDefinition?> watchDefinition(
     String surfaceId,
   ) {
@@ -111,15 +111,10 @@ class SurfaceRegistry {
 
   /// Removes a surface from the registry, emitting a [SurfaceRemoved] event.
   ///
-  /// The per-id [ValueNotifier] is kept (not removed from the map, not
-  /// disposed) so that any widget already listening to it stays connected.
-  /// If a surface with the same id is later created, the existing notifier's
-  /// value is updated and the widget gets notified — without this, the
-  /// widget would be stranded on a dead notifier.
-  ///
-  /// The [SurfaceModel] itself is owned by the substrate's
-  /// `core.SurfaceGroupModel` and disposed there; this registry only nulls
-  /// out the notifier value.
+  /// The per-id [ValueNotifier] is intentionally retained so widgets already
+  /// listening stay connected; a later re-create of the same id updates the
+  /// existing notifier. The [SurfaceModel] is owned and disposed by the
+  /// substrate's `core.SurfaceGroupModel`.
   void removeSurface(String surfaceId) {
     final ValueNotifier<SurfaceModel<ComponentApi>?>? notifier =
         _surfaces[surfaceId];

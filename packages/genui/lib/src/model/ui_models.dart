@@ -43,7 +43,7 @@ extension type UiEvent.fromMap(JsonMap _json) {
   JsonMap toMap() => _json;
 }
 
-/// A UI event that represents a user action — triggers a submission to the AI.
+/// A UI event that represents a user action; triggers a submission to the AI.
 extension type UserActionEvent.fromMap(JsonMap _json) implements UiEvent {
   /// Creates a [UserActionEvent] from a set of properties.
   UserActionEvent({
@@ -78,9 +78,8 @@ final class _Json {
 
 /// A data object that represents the entire UI definition.
 ///
-/// This is a legacy GenUI snapshot facade. Live mutation is owned by
-/// `a2ui_core.SurfaceModel`; snapshots are materialized for public API
-/// compatibility.
+/// Snapshot facade kept for public-API compatibility; mutation is owned by
+/// `a2ui_core.SurfaceModel`.
 class SurfaceDefinition {
   /// Creates a [SurfaceDefinition].
   SurfaceDefinition({
@@ -277,8 +276,8 @@ final class SurfaceAdded extends SurfaceUpdate {
   /// The live core surface model.
   final core.SurfaceModel surface;
 
-  /// Snapshot facade for source-compatible public API. Materialized lazily
-  /// on first read; lifecycle-only listeners don't pay the snapshot cost.
+  /// Snapshot facade. Materialized lazily so lifecycle-only listeners don't
+  /// pay the snapshot cost.
   late final SurfaceDefinition definition = SurfaceDefinition.fromCore(surface);
 }
 
@@ -289,8 +288,8 @@ final class ComponentsUpdated extends SurfaceUpdate {
   /// The live core surface model.
   final core.SurfaceModel surface;
 
-  /// Snapshot facade for source-compatible public API. Materialized lazily
-  /// on first read; lifecycle-only listeners don't pay the snapshot cost.
+  /// Snapshot facade. Materialized lazily so lifecycle-only listeners don't
+  /// pay the snapshot cost.
   late final SurfaceDefinition definition = SurfaceDefinition.fromCore(surface);
 }
 

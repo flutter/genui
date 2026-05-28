@@ -11,14 +11,8 @@ import 'ui_models.dart' show A2uiValidationException;
 
 /// Validates a set of A2UI components against a catalog [schema].
 ///
-/// Shared between [SurfaceDefinition.validate] (legacy snapshot path) and
-/// `SurfaceController`'s post-mutation validation (live model path). Each
-/// caller adapts its component representation into the [components] iterable
-/// and passes the same catalog schema; the schema-walking and matching logic
-/// lives here in one place.
-///
-/// Throws [A2uiValidationException] on the first component that fails. Does
-/// not roll back any state — that's the caller's concern.
+/// Throws [A2uiValidationException] on the first component that fails. State
+/// is not rolled back.
 void validateComponents({
   required String surfaceId,
   required Iterable<({String id, String type, JsonMap json})> components,

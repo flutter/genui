@@ -19,7 +19,6 @@ import 'ui_models.dart';
 abstract class A2uiMessage {
   const A2uiMessage({this.version = 'v0.9'});
 
-  /// Creates an [A2uiMessage] from a JSON envelope.
   factory A2uiMessage.fromJson(JsonMap json) {
     try {
       return A2uiMessage.fromCore(
@@ -63,7 +62,6 @@ abstract class A2uiMessage {
   /// Converts this facade message to the core substrate message.
   core.A2uiMessage toCoreMessage();
 
-  /// Converts this message to a JSON envelope.
   Map<String, dynamic> toJson() => toCoreMessage().toJson();
 }
 
@@ -115,7 +113,6 @@ Schema _buildA2uiMessageSchema(Catalog catalog) {
 
 /// An A2UI message that signals the client to create and show a new surface.
 final class CreateSurface extends A2uiMessage {
-  /// Creates a [CreateSurface] message.
   const CreateSurface({
     super.version,
     required this.surfaceId,
@@ -134,7 +131,6 @@ final class CreateSurface extends A2uiMessage {
     );
   }
 
-  /// Creates a facade from a core message.
   factory CreateSurface.fromCore(core.CreateSurfaceMessage message) {
     return CreateSurface(
       version: message.version,
@@ -171,7 +167,6 @@ final class CreateSurface extends A2uiMessage {
 
 /// An A2UI message that updates a surface with new components.
 final class UpdateComponents extends A2uiMessage {
-  /// Creates an [UpdateComponents] message.
   const UpdateComponents({
     super.version,
     required this.surfaceId,
@@ -188,7 +183,6 @@ final class UpdateComponents extends A2uiMessage {
     );
   }
 
-  /// Creates a facade from a core message.
   factory UpdateComponents.fromCore(core.UpdateComponentsMessage message) {
     return UpdateComponents(
       version: message.version,
@@ -249,7 +243,6 @@ final class UpdateDataModel extends A2uiMessage {
     );
   }
 
-  /// Creates a facade from a core message.
   factory UpdateDataModel.fromCore(core.UpdateDataModelMessage message) {
     final path = DataPath(message.path ?? '/');
     if (message.hasValue) {
@@ -276,7 +269,7 @@ final class UpdateDataModel extends A2uiMessage {
   /// The new value to write to the data model.
   final Object? value;
 
-  /// Whether the wire envelope carries an explicit `value` key.
+  /// Whether the wire JSON carries an explicit `value` key.
   final bool hasValue;
 
   @override
@@ -299,7 +292,6 @@ final class UpdateDataModel extends A2uiMessage {
 
 /// An A2UI message that deletes a surface.
 final class DeleteSurface extends A2uiMessage {
-  /// Creates a [DeleteSurface] message.
   const DeleteSurface({super.version, required this.surfaceId});
 
   /// Creates a [DeleteSurface] message from a JSON map body.
@@ -307,7 +299,6 @@ final class DeleteSurface extends A2uiMessage {
     return DeleteSurface(surfaceId: json[surfaceIdKey] as String);
   }
 
-  /// Creates a facade from a core message.
   factory DeleteSurface.fromCore(core.DeleteSurfaceMessage message) {
     return DeleteSurface(
       version: message.version,
