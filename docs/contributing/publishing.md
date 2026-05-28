@@ -66,7 +66,8 @@ major number for breaking changes.
    1. Click the link in the column 'Publish tag' in the above table.
    2. Click the 'Publish release' button.
 
-3.  **Auto**: 
+3. **Auto**: 
+
    1. A tag [like this](https://github.com/flutter/genui/releases/tag/json_schema_builder-v0.1.4) will be created. 
    2. The job [publish / publish](https://github.com/flutter/genui/actions/runs/26526524277) will start.
 
@@ -78,7 +79,7 @@ For packages with `resolution: workspace` in their pubspec.yaml, pub resolves ev
 
 If a local bump escapes that constraint (e.g. `^0.9.0` → `0.10.0`), you must update the consumer's `pubspec.yaml` in the same PR. While `dart pub` natively silently falls back to the published version on pub.dev, **our `test_and_fix` CI suite contains a verification step that will explicitly throw an error** and fail your PR if internal workspace version constraints are not met.
 
-### For runs by external packages
+### In pubspec.yaml of sibling packages
 
 After a new version of a dependency (including sibling package in this repo) is published, this is how upgrade will happen:
 
@@ -104,12 +105,13 @@ This section describes how it was configured so that it can be reproduced in cas
 2. Find the section "Allow or block specified actions and reusable workflows"
 3. Add these values (if they are already here, they will be de-dupped automatically):
 
+   ```
    peter-evans/create-or-update-comment@*,
    peter-evans/create-pull-request@*,
    peter-evans/repository-dispatch@*,
    dart-lang/ecosystem/.github/workflows/publish.yaml@*,
    dart-lang/ecosystem/.github/workflows/post_summaries.yaml@*,
-
+   ```
 
 ### Configure pub.dev for each package 
 
@@ -118,4 +120,4 @@ This requires uploader/admin rights on the package.
 1. Go to https://pub.dev/packages/<YOUR_PACKAGE_NAME>/admin
 2. Under "Automated publishing", enable "Publishing from GitHub Actions" for both `push` and `workflow_dispatch` events.
 3. Set Repository to `<YOUR_ORG>/<YOUR_REPO>`.
-4. Set Tag pattern to `<YOUR_PACKAGE_NAME>-v<version>`.
+4. Set Tag pattern to `<YOUR_PACKAGE_NAME>-v{{version}}`.
