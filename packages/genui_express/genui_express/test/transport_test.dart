@@ -202,5 +202,58 @@ void main() {
       await messageSub.cancel();
       transport.dispose();
     });
+
+    test(
+      'merges system prompt directly into the first user request message',
+      () async {
+        final genkit.ModelRef<Object?> model = genkit.modelRef<Object?>(
+          'local/mock-merger-model',
+        );
+
+        List<genkit.Message>? capturedMessages;
+
+        ai.defineModel(
+          name: 'local/mock-merger-model',
+          fn: (request, context) async {
+            capturedMessages = request.messages;
+
+            return genkit.ModelResponse(
+              finishReason: genkit.FinishReason.stop,
+              message: genkit.Message(
+                role: genkit.Role.model,
+                content: [genkit.TextPart(text: 'Success')],
+              ),
+            );
+          },
+        );
+
+        final transport = ExpressLocalTransport(
+          ai: ai,
+          model: model,
+          catalog: catalog,
+        );
+
+        // 1. Add system message
+        transport.addSystemMessage('SYSTEM INSTRUCTIONS CONTENT');
+
+        // 2. Send user request
+        await transport.sendRequest(ChatMessage.user('USER CLIMBING REQUEST'));
+
+        expect(capturedMessages, isNotNull);
+        // Should bypass system role constraints completely by merging!
+        expect(capturedMessages, hasLength(1));
+        expect(capturedMessages![0].role, genkit.Role.user);
+
+        final String textContent = capturedMessages![0].content
+            .map((e) => e.text)
+            .join(' ');
+        expect(textContent, contains('SYSTEM INSTRUCTIONS:'));
+        expect(textContent, contains('SYSTEM INSTRUCTIONS CONTENT'));
+        expect(textContent, contains('USER REQUEST:'));
+        expect(textContent, contains('USER CLIMBING REQUEST'));
+
+        transport.dispose();
+      },
+    );
   });
 }
