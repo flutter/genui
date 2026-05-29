@@ -5,7 +5,7 @@
 import Cocoa
 import FlutterMacOS
 import Foundation
-import NaturalLanguage
+import LanguageModeling
 
 public class GenuiExpressPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
   private var eventSink: FlutterEventSink?
@@ -92,7 +92,7 @@ public class GenuiExpressPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
     events(
       FlutterError(
         code: "UNSUPPORTED_OS",
-        message: "FoundationModels requires macOS 15.0 or newer and the NaturalLanguage framework",
+        message: "FoundationModels requires macOS 15.0 or newer and the LanguageModeling framework",
         details: nil
       )
     )

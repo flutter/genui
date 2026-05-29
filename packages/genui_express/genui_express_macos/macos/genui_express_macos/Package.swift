@@ -33,6 +33,14 @@ let package = Package(
                 // If you have other resources that need to be bundled with your plugin, refer to
                 // the following instructions to add them:
                 // https://developer.apple.com/documentation/xcode/bundling-resources-with-a-swift-package
+            ],
+            swiftSettings: [
+                .unsafeFlags(["-F", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks"]),
+                .unsafeFlags(["-F", "/System/Library/PrivateFrameworks"])
+            ],
+            linkerSettings: [
+                .unsafeFlags(["-F", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks"]),
+                .unsafeFlags(["-F", "/System/Library/PrivateFrameworks"])
             ]
         )
     ]
