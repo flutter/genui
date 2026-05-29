@@ -100,6 +100,21 @@ class ExpressLocalTransport implements Transport {
         .map(_mapToGenkitMessage)
         .toList();
 
+    // ignore: avoid_print
+    print(
+      '[ExpressLocalTransport] sendRequest history message count: '
+      '${genkitHistory.length}',
+    );
+    for (var i = 0; i < genkitHistory.length; i++) {
+      final genkit.Message msg = genkitHistory[i];
+      final String content = msg.content.map((p) => p.text).join(' ');
+      // ignore: avoid_print
+      print(
+        '[ExpressLocalTransport] Message ${i + 1} [role=${msg.role}]: '
+        '"$content"',
+      );
+    }
+
     // Invoke Genkit generation stream using the complete history messages list
     final Stream<genkit.GenerateResponseChunk<Object?>> stream = ai
         .generateStream<Object?, Object?>(
