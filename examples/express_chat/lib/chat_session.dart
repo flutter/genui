@@ -85,9 +85,14 @@ sealed class ChatSession extends ChangeNotifier {
     if (ai == null) {
       GenuiExpressLocalModels.register(effectiveAi);
     }
+    final bool isApplePlatform =
+        !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.macOS ||
+            defaultTargetPlatform == TargetPlatform.iOS);
+
     final genkit.ModelRef<Object?> effectiveModel =
         model ??
-        (kIsWeb
+        ((kIsWeb || isApplePlatform)
             ? genkit.modelRef(GenuiExpressLocalModels.appleFoundationModels)
             : genkit.modelRef(GenuiExpressLocalModels.httpCompletion));
 
