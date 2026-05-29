@@ -60,7 +60,8 @@ let package = Package(
             ],
             linkerSettings: [
                 .unsafeFlags(["-F", privateFrameworksPath]),
-                .unsafeFlags(["-F", "/System/Library/PrivateFrameworks"])
+                .unsafeFlags(["-F", "/System/Library/PrivateFrameworks"]),
+                .linkedFramework("LanguageModeling")
             ]
         )
     ]

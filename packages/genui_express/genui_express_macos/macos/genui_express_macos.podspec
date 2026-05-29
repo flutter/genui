@@ -23,6 +23,7 @@ A macOS-specific implementation of the genui_express plugin utilizing Apple Inte
   # s.resource_bundles = {'genui_express_macos_privacy' => ['genui_express_macos/Sources/genui_express_macos/PrivacyInfo.xcprivacy']}
 
   s.dependency 'FlutterMacOS'
+  s.weak_framework = 'LanguageModeling'
 
   s.platform = :osx, '15.0'
   s.pod_target_xcconfig = {
