@@ -19,6 +19,24 @@ class ExpressPromptGenerator {
   /// Generates compact positional signatures for all components in the
   /// catalog.
   String generateComponentSignatures() {
+    const coreComponents = {
+      'Button',
+      'Card',
+      'CheckBox',
+      'ChoicePicker',
+      'Column',
+      'DateTimeInput',
+      'Divider',
+      'Icon',
+      'List',
+      'Modal',
+      'Row',
+      'Slider',
+      'Tabs',
+      'Text',
+      'TextField',
+    };
+
     final List<String> signatures = [];
     final List<String> sortedNames = helper.componentProperties.keys.toList()
       ..sort();
@@ -28,10 +46,13 @@ class ExpressPromptGenerator {
       final List<String> orderedArgs = [];
       final List<String> paramDescs = [];
 
-      final String compDesc = helper.getComponentDescription(name);
-      final Map<String, String> propDescs = helper.getPropertyDescriptions(
-        name,
-      );
+      final bool isCore = coreComponents.contains(name);
+      final String compDesc = isCore
+          ? ''
+          : helper.getComponentDescription(name);
+      final Map<String, String> propDescs = isCore
+          ? const {}
+          : helper.getPropertyDescriptions(name);
 
       for (final p in props) {
         final bool isReq = reqs.contains(p);
@@ -59,6 +80,23 @@ class ExpressPromptGenerator {
   /// Generates compact signatures for all client logic functions in the
   /// catalog.
   String generateFunctionSignatures() {
+    const coreFunctions = {
+      'and',
+      'email',
+      'formatCurrency',
+      'formatDate',
+      'formatNumber',
+      'formatString',
+      'length',
+      'not',
+      'numeric',
+      'openUrl',
+      'or',
+      'pluralize',
+      'regex',
+      'required',
+    };
+
     final List<String> signatures = [];
     final List<String> sortedNames = helper.functionProperties.keys.toList()
       ..sort();
@@ -68,9 +106,11 @@ class ExpressPromptGenerator {
       final List<String> orderedArgs = [];
       final List<String> paramDescs = [];
 
-      final String funcDesc = helper.getFunctionDescription(name);
-      final Map<String, String> argDescs = helper
-          .getFunctionArgumentDescriptions(name);
+      final bool isCore = coreFunctions.contains(name);
+      final String funcDesc = isCore ? '' : helper.getFunctionDescription(name);
+      final Map<String, String> argDescs = isCore
+          ? const {}
+          : helper.getFunctionArgumentDescriptions(name);
 
       for (final p in props) {
         final bool isReq = reqs.contains(p);
