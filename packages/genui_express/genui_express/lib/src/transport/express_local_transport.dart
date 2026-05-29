@@ -115,12 +115,22 @@ class ExpressLocalTransport implements Transport {
               'You MUST surround the entire A2UI Express DSL block with the '
               'sentinel tags `<a2ui>` and `</a2ui>` '
               'to separate it from your conversational explanation.\n\n'
-              'CRITICAL: In your generated A2UI Express DSL code, you MUST '
-              'ONLY pass positional arguments inside all component '
-              'constructors (e.g. Component(arg1, arg2)). '
-              'Do NOT use named arguments, property keys, or key-value '
-              'assignments inside any component constructor (e.g. never '
-              'write Component(key = value) or Component(key: value)!).',
+              'CRITICAL (Grammar Rules):\n'
+              '- In your generated A2UI Express DSL code, you MUST ONLY pass '
+              'positional arguments inside all component constructors (e.g. '
+              'Component(arg1, arg2)). Do NOT use named arguments, property '
+              'keys, or key-value assignments inside any component '
+              'constructor (e.g. never write Component(key = value) or '
+              'Component(key: value)!).\n'
+              '- Do NOT generate any HTML/XML tags (such as <h1>, <ul>, <li>, '
+              '<p>, <div>, <span>) inside the `<a2ui>` block! Every element '
+              'MUST be instantiated using standard positional component '
+              'signatures (e.g. use Column or Row instead of HTML lists).\n\n'
+              'CRITICAL (Conversational Tone):\n'
+              '- Do NOT mention technical jargon like "A2UI", "DSL", '
+              '"sentinel tags", or "<a2ui>" in your conversational '
+              'explanation to the user. Keep your explanation natural and '
+              'conversational, as if you are a friendly, helpful human guide.',
             ),
           ],
         );
