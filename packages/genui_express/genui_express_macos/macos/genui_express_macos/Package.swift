@@ -4,7 +4,27 @@
 // found in the LICENSE file.
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
+import Foundation
 import PackageDescription
+
+let sdkPath: String = {
+    let process = Process()
+    process.launchPath = "/usr/bin/xcrun"
+    process.arguments = ["--sdk", "macosx", "--show-sdk-path"]
+    let pipe = Pipe()
+    process.standardOutput = pipe
+    do {
+        try process.run()
+        process.waitUntilExit()
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        if let output = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines), !output.isEmpty {
+            return output
+        }
+    } catch {}
+    return "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+}()
+
+let privateFrameworksPath = "\(sdkPath)/System/Library/PrivateFrameworks"
 
 let package = Package(
     name: "genui_express_macos",
@@ -12,7 +32,7 @@ let package = Package(
         .macOS("15.0")
     ],
     products: [
-        .library(name: "genui-express-macos", targets: ["genui_express_macos"])
+        .library(name: "genui-express-macos", targets: ["genui-express-macos"])
     ],
     dependencies: [
         .package(name: "FlutterFramework", path: "../FlutterFramework")
@@ -35,11 +55,11 @@ let package = Package(
                 // https://developer.apple.com/documentation/xcode/bundling-resources-with-a-swift-package
             ],
             swiftSettings: [
-                .unsafeFlags(["-F", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks"]),
+                .unsafeFlags(["-F", privateFrameworksPath]),
                 .unsafeFlags(["-F", "/System/Library/PrivateFrameworks"])
             ],
             linkerSettings: [
-                .unsafeFlags(["-F", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks"]),
+                .unsafeFlags(["-F", privateFrameworksPath]),
                 .unsafeFlags(["-F", "/System/Library/PrivateFrameworks"])
             ]
         )
