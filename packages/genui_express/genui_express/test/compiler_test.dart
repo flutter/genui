@@ -232,4 +232,84 @@ root = Text("Status")
       });
     });
   });
+
+  group('ExpressDecompiler', () {
+    late Catalog catalog;
+    late ExpressDecompiler decompiler;
+    late ExpressCompiler compiler;
+
+    setUp(() {
+      catalog = BasicCatalogItems.asNoAssetCatalog();
+      decompiler = ExpressDecompiler(catalog);
+      compiler = ExpressCompiler(catalog);
+    });
+
+    test('decompile basic component hierarchy', () {
+      final Map<String, Object?> originalEnvelope = {
+        'version': 'v0.9',
+        'createSurface': {
+          'surfaceId': 'surf_1',
+          'components': [
+            {
+              'id': 'root',
+              'component': 'Column',
+              'children': ['repField', 'valueField'],
+            },
+            {
+              'id': 'repField',
+              'component': 'TextField',
+              'value': {'path': '/form/rep'},
+              'label': 'Representative',
+            },
+            {
+              'id': 'valueField',
+              'component': 'TextField',
+              'value': {'path': '/form/value'},
+              'label': 'Deal Value',
+              'variant': 'number',
+              'checks': [
+                {
+                  'condition': {
+                    'call': 'required',
+                    'args': {
+                      'value': {'path': '/form/value'},
+                    },
+                  },
+                  'message': 'Required check failed',
+                },
+              ],
+            },
+          ],
+          'dataModel': {
+            'form': {'rep': 'John Doe', 'value': 1500.0},
+          },
+        },
+      };
+
+      final String dsl = decompiler.decompile(originalEnvelope);
+      expect(dsl, contains('root = Column([repField, valueField])'));
+      expect(
+        dsl,
+        contains('repField = TextField(\$/form/rep, "Representative")'),
+      );
+      expect(
+        dsl,
+        contains(
+          'valueField = TextField(\$/form/value, "Deal Value", "number", ?required)',
+        ),
+      );
+      expect(dsl, contains('\$/form/rep = "John Doe"'));
+      expect(dsl, contains('\$/form/value = 1500.0'));
+
+      // Verify round-trip compilation works
+      final Map<String, Object?> recompiled = compiler.compile(
+        dsl,
+        surfaceId: 'surf_1',
+      );
+      expect(recompiled['version'], 'v0.9');
+      final createSurface = recompiled['createSurface'] as Map<String, Object?>;
+      final recompiledData = createSurface['dataModel'] as Map<String, Object?>;
+      expect(recompiledData['form'], {'rep': 'John Doe', 'value': 1500.0});
+    });
+  });
 }

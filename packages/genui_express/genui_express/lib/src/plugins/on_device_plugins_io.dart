@@ -7,11 +7,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/services.dart';
 import 'package:genkit/genkit.dart';
-
-const _channel = MethodChannel('genui_express/local_ai');
-const _eventChannel = EventChannel('genui_express/local_ai_stream');
+import 'package:genui_express_platform_interface/genui_express_platform_interface.dart';
 
 /// Registers custom local on-device models with a [Genkit] instance.
 class GenuiExpressLocalModels {
@@ -63,8 +60,8 @@ class GenuiExpressLocalModels {
           request,
         );
 
-        final bool isAvailable =
-            await _channel.invokeMethod<bool>('checkAvailability') ?? false;
+        final bool isAvailable = await GenuiExpressPlatform.instance
+            .checkAvailability();
         if (!isAvailable) {
           throw StateError(
             'FoundationModels framework is not available or configured on '
@@ -72,12 +69,8 @@ class GenuiExpressLocalModels {
           );
         }
 
-        final Stream<String> nativeStream = _eventChannel
-            .receiveBroadcastStream({
-              'prompt': prompt,
-              'systemPrompt': systemInstruction,
-            })
-            .cast<String>();
+        final Stream<String> nativeStream = GenuiExpressPlatform.instance
+            .generateStream(prompt, systemInstruction);
 
         final buffer = StringBuffer();
         await for (final chunk in nativeStream) {
@@ -105,8 +98,8 @@ class GenuiExpressLocalModels {
           request,
         );
 
-        final bool isAvailable =
-            await _channel.invokeMethod<bool>('checkAvailability') ?? false;
+        final bool isAvailable = await GenuiExpressPlatform.instance
+            .checkAvailability();
         if (!isAvailable) {
           throw StateError(
             'Google AI Edge SDK is not available or configured on this '
@@ -114,12 +107,8 @@ class GenuiExpressLocalModels {
           );
         }
 
-        final Stream<String> nativeStream = _eventChannel
-            .receiveBroadcastStream({
-              'prompt': prompt,
-              'systemPrompt': systemInstruction,
-            })
-            .cast<String>();
+        final Stream<String> nativeStream = GenuiExpressPlatform.instance
+            .generateStream(prompt, systemInstruction);
 
         final buffer = StringBuffer();
         await for (final chunk in nativeStream) {

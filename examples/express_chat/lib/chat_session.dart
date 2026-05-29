@@ -10,9 +10,6 @@ import 'package:genui/genui.dart';
 import 'package:genui_express/genui_express.dart';
 import 'package:logging/logging.dart';
 
-import 'chrome_plugin_stub.dart'
-    if (dart.library.js_interop) 'chrome_plugin_web.dart';
-
 import 'primitives/app_mode.dart';
 import 'primitives/climbing/a2ui_components/climbing.dart';
 import 'primitives/message.dart';
@@ -84,15 +81,14 @@ sealed class ChatSession extends ChangeNotifier {
     genkit.ModelRef<dynamic>? model,
     required AppMode mode,
   }) {
-    final genkit.Genkit effectiveAi =
-        ai ?? genkit.Genkit(isDevEnv: false, plugins: getPlatformPlugins());
+    final genkit.Genkit effectiveAi = ai ?? genkit.Genkit(isDevEnv: false);
     if (ai == null) {
       GenuiExpressLocalModels.register(effectiveAi);
     }
     final genkit.ModelRef<Object?> effectiveModel =
         model ??
         (kIsWeb
-            ? genkit.modelRef('chrome/gemini-nano')
+            ? genkit.modelRef(GenuiExpressLocalModels.appleFoundationModels)
             : genkit.modelRef(GenuiExpressLocalModels.httpCompletion));
 
     return switch (mode) {
@@ -144,7 +140,7 @@ sealed class ChatSession extends ChangeNotifier {
   }
 
   void _reportError(Object error, {required bool showInChat}) {
-    _logger.severe('Error in conversation', error);
+    _logger.severe('Error in conversation: $error', error);
     if (showInChat) {
       _messages.add(Message(isUser: false, text: 'Error: $error'));
       notifyListeners();
@@ -157,7 +153,11 @@ sealed class ChatSession extends ChangeNotifier {
     try {
       await body();
     } catch (exception, stackTrace) {
-      _logger.severe('Error sending request', exception, stackTrace);
+      _logger.severe(
+        'Error sending request: $exception',
+        exception,
+        stackTrace,
+      );
       _reportError(exception, showInChat: true);
     } finally {
       _isProcessing = false;
@@ -306,7 +306,30 @@ class A2uiChatSession extends ChatSession {
 
     _addUserMessage(text);
 
-    await _runRequest(() => _transport.sendRequest(ChatMessage.user(text)));
+    // Doctor the prompt for local Gemini Nano to strongly adhere
+    // to layout generation.
+    final doctoredText =
+        '$text\n\n'
+        'IMPORTANT: You MUST output the user interface using the compact '
+        'A2UI Express DSL notation. '
+        'You MUST surround the entire A2UI Express DSL block with the '
+        'sentinel tags `<a2ui>` and `</a2ui>` '
+        'to separate it from your conversational explanation.\n\n'
+        'CRITICAL: For "ClimbingLocation", you MUST ONLY pass the '
+        'identifier string (e.g. "kraft_boulders") as a single positional '
+        'argument. Do NOT define any other properties like name, description, '
+        'difficulty, type, distance_from_lv, or coordinates inside the '
+        'ClimbingLocation constructor!\n\n'
+        'Correct Example:\n'
+        '<a2ui>\n'
+        'root = Column([loc1, loc2])\n'
+        'loc1 = ClimbingLocation("kraft_boulders")\n'
+        'loc2 = ClimbingLocation("lone_mountain")\n'
+        '</a2ui>';
+
+    await _runRequest(
+      () => _transport.sendRequest(ChatMessage.user(doctoredText)),
+    );
   }
 
   @override

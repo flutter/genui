@@ -129,6 +129,9 @@ class ExpressLocalTransport implements Transport {
           final String line = lines[i];
           final String trimmed = line.trim();
 
+          // ignore: avoid_print
+          print('[ExpressLocalTransport] Streamed line: "$line"');
+
           if (trimmed.contains('<a2ui>')) {
             _insideA2ui = true;
             continue;
@@ -164,6 +167,9 @@ class ExpressLocalTransport implements Transport {
     _lineBuffer.clear();
     final String trimmedRemaining = remaining.trim();
     if (remaining.isNotEmpty) {
+      // ignore: avoid_print
+      print('[ExpressLocalTransport] Remaining line: "$remaining"');
+
       if (trimmedRemaining.contains('<a2ui>')) {
         _insideA2ui = true;
       } else if (trimmedRemaining.contains('</a2ui>')) {

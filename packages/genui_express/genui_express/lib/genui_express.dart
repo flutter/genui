@@ -6,6 +6,7 @@
 library;
 
 export 'src/compiler/express_compiler.dart' show ExpressCompiler;
+export 'src/compiler/express_decompiler.dart' show ExpressDecompiler;
 export 'src/plugins/on_device_plugins.dart' show GenuiExpressLocalModels;
 export 'src/prompt/express_prompt_builder.dart' show ExpressPromptBuilder;
 export 'src/transport/express_local_transport.dart' show ExpressLocalTransport;

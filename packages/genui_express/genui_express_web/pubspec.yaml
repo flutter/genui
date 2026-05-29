@@ -1,0 +1,35 @@
+# Copyright 2025 The Flutter Authors.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+name: genui_express_web
+description: Web-specific implementation of the genui_express plugin utilizing Chrome Built-in AI.
+version: 0.1.0
+publish_to: none
+
+resolution: workspace
+
+environment:
+  sdk: ^3.12.0
+  flutter: ">=3.3.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+  genkit: ^0.13.2
+  genkit_chrome: ^0.0.8
+  genui_express_platform_interface:
+    path: ../genui_express_platform_interface
+  plugin_platform_interface: ^2.0.2
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+
+flutter:
+  plugin:
+    platforms:
+      web:
+        pluginClass: GenuiExpressWeb
+        fileName: genui_express_web.dart

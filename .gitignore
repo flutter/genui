@@ -1,5 +1,6 @@
 # Local-only scratch files.
 .local/
+.chrome_profile/
 
 # Diagrams, produced by https://pub.dev/packages/layerlens.
 DEPS.md
