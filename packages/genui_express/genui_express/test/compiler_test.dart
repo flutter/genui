@@ -312,4 +312,43 @@ root = Text("Status")
       expect(recompiledData['form'], {'rep': 'John Doe', 'value': 1500.0});
     });
   });
+
+  group('ExpressPromptBuilder', () {
+    late Catalog catalog;
+    late ExpressPromptBuilder promptBuilder;
+
+    setUp(() {
+      catalog = BasicCatalogItems.asNoAssetCatalog();
+      promptBuilder = ExpressPromptBuilder.chat(catalog: catalog);
+    });
+
+    test(
+      'builds unified prompt containing dynamic examples and strict guidelines',
+      () {
+        final String prompt = promptBuilder.systemPromptJoined();
+
+        // 1. Verify strict guidelines and positional rules are present
+        expect(prompt, contains('CRITICAL (Grammar Rules):'));
+        expect(prompt, contains('Do NOT generate any HTML/XML-like tags'));
+        expect(
+          prompt,
+          contains('Keep your conversational answers extremely brief'),
+        );
+
+        // 2. Verify dynamic catalog example was successfully synthesized using
+        //    the active catalog widgets.
+        // (BasicCatalog contains Button, CheckBox, ChoicePicker, Column, etc.)
+        expect(prompt, contains('Example:'));
+        expect(prompt, contains('<a2ui>'));
+        expect(prompt, contains('root = Column('));
+        expect(prompt, contains('Button('));
+
+        // 3. Verify legacy JSON rules and examples were completely stripped out
+        expect(prompt, isNot(contains('Create a surface:')));
+        expect(prompt, isNot(contains('"createSurface"')));
+        expect(prompt, isNot(contains('"updateComponents"')));
+        expect(prompt, isNot(contains('```json')));
+      },
+    );
+  });
 }

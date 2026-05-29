@@ -77,7 +77,10 @@ class ExpressPromptBuilder implements PromptBuilder {
         'MUST be instantiated using standard positional component A2UI '
         'DSL signatures.\n'
         '- Do NOT mention technical jargon like "A2UI", "DSL", or '
-        '"sentinel tags" in your conversation with the user.\n\n'
+        '"sentinel tags" in your conversation with the user.\n'
+        '- Keep your conversational answers extremely brief, minimal, and '
+        'concise (1-2 sentences maximum) before outputting your A2UI DSL block.\n'
+        'This is critical to avoid output token limitations.\n\n'
         'Example:\n'
         '$customExample';
 
