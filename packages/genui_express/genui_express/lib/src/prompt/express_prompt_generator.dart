@@ -19,23 +19,9 @@ class ExpressPromptGenerator {
   /// Generates compact positional signatures for all components in the
   /// catalog.
   String generateComponentSignatures() {
-    const coreComponents = {
-      'Button',
-      'Card',
-      'CheckBox',
-      'ChoicePicker',
-      'Column',
-      'DateTimeInput',
-      'Divider',
-      'Icon',
-      'List',
-      'Modal',
-      'Row',
-      'Slider',
-      'Tabs',
-      'Text',
-      'TextField',
-    };
+    final Set<String> coreComponents = BasicCatalogItems.asCatalog().items
+        .map((e) => e.name)
+        .toSet();
 
     final List<String> signatures = [];
     final List<String> sortedNames = helper.componentProperties.keys.toList()
@@ -80,22 +66,9 @@ class ExpressPromptGenerator {
   /// Generates compact signatures for all client logic functions in the
   /// catalog.
   String generateFunctionSignatures() {
-    const coreFunctions = {
-      'and',
-      'email',
-      'formatCurrency',
-      'formatDate',
-      'formatNumber',
-      'formatString',
-      'length',
-      'not',
-      'numeric',
-      'openUrl',
-      'or',
-      'pluralize',
-      'regex',
-      'required',
-    };
+    final Set<String> coreFunctions = BasicCatalogItems.asCatalog().functions
+        .map((e) => e.name)
+        .toSet();
 
     final List<String> signatures = [];
     final List<String> sortedNames = helper.functionProperties.keys.toList()
