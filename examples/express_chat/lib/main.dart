@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:genkit/genkit.dart' as genkit;
 import 'package:genui_express_platform_interface/genui_express_platform_interface.dart';
@@ -59,6 +61,7 @@ class _ChatScreenState extends State<ChatScreen> {
   late ChatSession _chatSession;
   AppMode _appMode = AppMode.customCatalog;
   bool? _isPlatformAvailable;
+  Timer? _availabilityTimer;
 
   @override
   void initState() {
@@ -75,14 +78,28 @@ class _ChatScreenState extends State<ChatScreen> {
         setState(() {
           _isPlatformAvailable = available;
         });
+        if (available) {
+          _availabilityTimer?.cancel();
+          _availabilityTimer = null;
+        } else {
+          _startAvailabilityTimer();
+        }
       }
     } catch (_) {
       if (mounted) {
         setState(() {
           _isPlatformAvailable = false;
         });
+        _startAvailabilityTimer();
       }
     }
+  }
+
+  void _startAvailabilityTimer() {
+    if (_availabilityTimer != null) return;
+    _availabilityTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      _checkPlatformAvailability();
+    });
   }
 
   void _reCreateChatSession({bool dispose = true}) {
@@ -258,6 +275,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
+    _availabilityTimer?.cancel();
     _chatSession.dispose();
     _textController.dispose();
     _scrollController.dispose();
