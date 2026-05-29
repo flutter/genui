@@ -61,27 +61,24 @@ class ExpressPromptBuilder implements PromptBuilder {
     );
 
     final strictGuidelines =
-        '# A2UI Express On-Device Critical Output Guidelines\n\n'
-        'IMPORTANT: You MUST output the user interface using the compact '
-        'A2UI Express DSL notation. '
-        'You MUST surround the entire A2UI Express DSL block with the '
+        '# A2UI DSL Output Guidelines\n\n'
+        'IMPORTANT: You MUST output user interfaces using the '
+        'A2UI DSL notation.\n'
+        'You MUST surround the entire A2UI DSL block with the '
         'sentinel tags `<a2ui>` and `</a2ui>` '
         'to separate it from your conversational explanation.\n\n'
         'CRITICAL (Grammar Rules):\n'
-        '- In your generated A2UI Express DSL code, you MUST ONLY pass '
+        '- In your generated A2UI DSL code, you MUST ONLY pass '
         'positional arguments inside all component constructors (e.g. '
         'Component(arg1, arg2)). Do NOT use named arguments, property '
         'keys, or key-value assignments inside constructors!\n'
         '- Do NOT generate any HTML/XML-like tags (such as <h1>, <ul>, <li>, '
         '<p>, <div>, <span>) inside the `<a2ui>` block! Every element '
         'MUST be instantiated using standard positional component A2UI '
-        'DSL signatures.\n\n'
-        'CRITICAL (Conversational Tone):\n'
+        'DSL signatures.\n'
         '- Do NOT mention technical jargon like "A2UI", "DSL", or '
-        '"sentinel tags" in your conversational '
-        'explanation to the user. Keep your explanation natural and '
-        'conversational.\n\n'
-        'Correct Output Example:\n'
+        '"sentinel tags" in your conversation with the user.\n\n'
+        'Example:\n'
         '$customExample';
 
     final Iterable<String> translatedCatalogFragments =

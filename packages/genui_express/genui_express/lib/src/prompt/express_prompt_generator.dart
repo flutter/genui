@@ -26,12 +26,31 @@ class ExpressPromptGenerator {
       final List<String> props = helper.getComponentProperties(name);
       final List<String> reqs = helper.getComponentRequired(name);
       final List<String> orderedArgs = [];
+      final List<String> paramDescs = [];
+
+      final String compDesc = helper.getComponentDescription(name);
+      final Map<String, String> propDescs = helper.getPropertyDescriptions(
+        name,
+      );
+
       for (final p in props) {
         final bool isReq = reqs.contains(p);
         final optSuffix = isReq ? '' : '?';
         orderedArgs.add('$p$optSuffix');
+
+        final String? pDesc = propDescs[p];
+        if (pDesc != null && pDesc.isNotEmpty) {
+          paramDescs.add('$p: $pDesc');
+        }
       }
-      final sig = "• $name(${orderedArgs.join(', ')})";
+
+      var sig = '• $name(${orderedArgs.join(', ')})';
+      if (compDesc.isNotEmpty) {
+        sig += ' - $compDesc';
+      }
+      if (paramDescs.isNotEmpty) {
+        sig += ' (${paramDescs.join('; ')})';
+      }
       signatures.add(sig);
     }
     return signatures.join('\n');
@@ -47,12 +66,30 @@ class ExpressPromptGenerator {
       final List<String> props = helper.getFunctionProperties(name);
       final List<String> reqs = helper.getFunctionRequired(name);
       final List<String> orderedArgs = [];
+      final List<String> paramDescs = [];
+
+      final String funcDesc = helper.getFunctionDescription(name);
+      final Map<String, String> argDescs = helper
+          .getFunctionArgumentDescriptions(name);
+
       for (final p in props) {
         final bool isReq = reqs.contains(p);
         final optSuffix = isReq ? '' : '?';
         orderedArgs.add('$p$optSuffix');
+
+        final String? aDesc = argDescs[p];
+        if (aDesc != null && aDesc.isNotEmpty) {
+          paramDescs.add('$p: $aDesc');
+        }
       }
-      final sig = "• $name(${orderedArgs.join(', ')})";
+
+      var sig = '• $name(${orderedArgs.join(', ')})';
+      if (funcDesc.isNotEmpty) {
+        sig += ' - $funcDesc';
+      }
+      if (paramDescs.isNotEmpty) {
+        sig += ' (${paramDescs.join('; ')})';
+      }
       signatures.add(sig);
     }
     return signatures.join('\n');
@@ -64,10 +101,10 @@ class ExpressPromptGenerator {
     final String funcSigs = generateFunctionSignatures();
 
     return '''
-# A2UI Express Output Contract
+# A2UI DSL Output Contract
 
-You must output the user interface using the compact A2UI Express DSL notation.
-You MUST surround the entire A2UI Express DSL block with the sentinel tags
+You must output the user interface using the compact A2UI DSL notation.
+You MUST surround the entire A2UI DSL block with the sentinel tags
 `<a2ui>` and `</a2ui>`.
 
 ## Grammar Rules
@@ -120,9 +157,7 @@ $funcSigs
 <a2ui>
 root = Column([repField, valueField])
 repField = TextField("Representative", \$/form/rep, "Enter name")
-valueField = TextField(
-  "Deal Value", \$/form/value, "0.00", "number", [?required]
-)
+valueField = TextField("Deal Value", \$/form/value, "0.00", "number", [?required])
 \$/form/rep = "John Doe"
 \$/form/value = 1500.00
 </a2ui>
