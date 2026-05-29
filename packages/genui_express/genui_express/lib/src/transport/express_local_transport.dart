@@ -95,10 +95,41 @@ class ExpressLocalTransport implements Transport {
     _history.add(message);
 
     // Construct Genkit history messages list representing the entire
-    // conversation
-    final List<genkit.Message> genkitHistory = _history
-        .map(_mapToGenkitMessage)
-        .toList();
+    // conversation. We dynamically merge system role instructions directly
+    // into the first user prompt before mapping to Genkit's request history.
+    // This bypasses Chrome's LanguageModel API history constraints (which
+    // silently discards system messages), keeping user-visible message logs
+    // pristine while guaranteeing that Gemini Nano receives and adheres
+    // to the complete positional signatures, dynamic examples, and rules.
+    final List<genkit.Message> genkitHistory = [];
+    String? systemPromptText;
+
+    for (final ChatMessage msg in _history) {
+      if (msg.role == ChatMessageRole.system) {
+        final String content = msg.parts
+            .whereType<TextPart>()
+            .map((e) => e.text)
+            .join('\n');
+        if (content.isNotEmpty) {
+          systemPromptText = content;
+        }
+      } else if (msg.role == ChatMessageRole.user &&
+          genkitHistory.isEmpty &&
+          systemPromptText != null) {
+        final doctoredUserMsg = ChatMessage(
+          role: ChatMessageRole.user,
+          parts: [
+            TextPart(
+              'SYSTEM INSTRUCTIONS:\n$systemPromptText\n\nUSER REQUEST:\n',
+            ),
+            ...msg.parts,
+          ],
+        );
+        genkitHistory.add(_mapToGenkitMessage(doctoredUserMsg));
+      } else {
+        genkitHistory.add(_mapToGenkitMessage(msg));
+      }
+    }
 
     // ignore: avoid_print
     print(
@@ -110,8 +141,8 @@ class ExpressLocalTransport implements Transport {
       final String content = msg.content.map((p) => p.text).join(' ');
       // ignore: avoid_print
       print(
-        '[ExpressLocalTransport] Message ${i + 1} [role=${msg.role}]: '
-        '"$content"',
+        '[ExpressLocalTransport] Message ${i + 1} '
+        '[role=${msg.role}]: "$content"',
       );
     }
 
