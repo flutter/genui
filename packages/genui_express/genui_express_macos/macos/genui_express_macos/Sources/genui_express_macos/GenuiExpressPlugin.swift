@@ -33,11 +33,15 @@ public class GenuiExpressPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
     switch call.method {
     case "checkAvailability":
       #if canImport(LanguageModeling)
+      NSLog("[GenuiExpressPlugin] LanguageModeling framework is available during compilation.")
       if #available(macOS 15.0, iOS 18.0, *) {
         let available = LanguageModelSession.hasCapability(.textGeneration)
+        NSLog("[GenuiExpressPlugin] LanguageModelSession.hasCapability(.textGeneration) returned: \(available)")
         result(available)
         return
       }
+      #else
+      NSLog("[GenuiExpressPlugin] LanguageModeling framework was NOT imported during compilation.")
       #endif
       result(false)
     default:
