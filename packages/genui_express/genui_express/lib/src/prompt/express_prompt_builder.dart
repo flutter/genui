@@ -6,6 +6,7 @@ import 'dart:convert';
 
 import 'package:genui/genui.dart';
 
+import '../compiler/catalog_schema_helper.dart';
 import '../compiler/express_decompiler.dart';
 import 'express_prompt_generator.dart';
 
@@ -54,6 +55,35 @@ class ExpressPromptBuilder implements PromptBuilder {
     final promptGenerator = ExpressPromptGenerator(catalog);
     final String expressContract = promptGenerator.generatePrompt();
 
+    final decompiler = ExpressDecompiler(catalog);
+    final String customExample = _generateDynamicCatalogExample(
+      decompiler.helper,
+    );
+
+    final strictGuidelines =
+        '# A2UI Express On-Device Critical Output Guidelines\n\n'
+        'IMPORTANT: You MUST output the user interface using the compact '
+        'A2UI Express DSL notation. '
+        'You MUST surround the entire A2UI Express DSL block with the '
+        'sentinel tags `<a2ui>` and `</a2ui>` '
+        'to separate it from your conversational explanation.\n\n'
+        'CRITICAL (Grammar Rules):\n'
+        '- In your generated A2UI Express DSL code, you MUST ONLY pass '
+        'positional arguments inside all component constructors (e.g. '
+        'Component(arg1, arg2)). Do NOT use named arguments, property '
+        'keys, or key-value assignments inside constructors!\n'
+        '- Do NOT generate any HTML/XML-like tags (such as <h1>, <ul>, <li>, '
+        '<p>, <div>, <span>) inside the `<a2ui>` block! Every element '
+        'MUST be instantiated using standard positional component A2UI '
+        'DSL signatures.\n\n'
+        'CRITICAL (Conversational Tone):\n'
+        '- Do NOT mention technical jargon like "A2UI", "DSL", or '
+        '"sentinel tags" in your conversational '
+        'explanation to the user. Keep your explanation natural and '
+        'conversational.\n\n'
+        'Correct Output Example:\n'
+        '$customExample';
+
     final Iterable<String> translatedCatalogFragments =
         _translateSystemPromptFragments(catalog.systemPromptFragments);
 
@@ -62,10 +92,60 @@ class ExpressPromptBuilder implements PromptBuilder {
       ...translatedCatalogFragments,
       'Use A2UI Express syntax to generate rich UI elements.',
       expressContract,
+      strictGuidelines,
       if (clientDataModel != null) _encodedDataModel(clientDataModel),
     ];
 
     return fragments.map((e) => e.trim());
+  }
+
+  String _generateDynamicCatalogExample(CatalogSchemaHelper schemaHelper) {
+    // Find components from the catalog (ignoring layout Column/Row)
+    final List<CatalogItem> components = catalog.items.where((item) {
+      final String name = item.name;
+      return name != 'Column' && name != 'Row';
+    }).toList();
+
+    if (components.isEmpty) {
+      return '<a2ui>\n'
+          'root = Text("No components registered")\n'
+          '</a2ui>';
+    }
+
+    final lines = <String>[];
+    final childrenNames = <String>[];
+
+    // Select up to 2 components for clean, natural layout demonstration
+    final int maxExamples = components.length > 2 ? 2 : components.length;
+    for (var i = 0; i < maxExamples; i++) {
+      final CatalogItem item = components[i];
+      final String name = item.name;
+      final List<String> props = schemaHelper.getComponentProperties(name);
+
+      final args = <String>[];
+      for (final p in props) {
+        if (p == 'checks') {
+          args.add('?required');
+        } else {
+          args.add('"example_${name.toLowerCase()}_val"');
+        }
+      }
+
+      // Strip trailing optional nulls
+      while (args.isNotEmpty && args.last == 'null') {
+        args.removeLast();
+      }
+
+      final varName =
+          '${name.substring(0, 1).toLowerCase()}${name.substring(1)}$i';
+      childrenNames.add(varName);
+      lines.add('$varName = $name(${args.join(', ')})');
+    }
+
+    return '<a2ui>\n'
+        'root = Column([${childrenNames.join(', ')}])\n'
+        '${lines.join('\n')}\n'
+        '</a2ui>';
   }
 
   Iterable<String> _translateSystemPromptFragments(Iterable<String> fragments) {
