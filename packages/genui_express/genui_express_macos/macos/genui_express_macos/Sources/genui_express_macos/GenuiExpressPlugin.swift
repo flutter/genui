@@ -34,9 +34,16 @@ public class GenuiExpressPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
     case "checkAvailability":
       #if canImport(LanguageModeling)
       if #available(macOS 15.0, iOS 18.0, *) {
-        let available = LanguageModelSession.hasCapability(.textGeneration)
-        NSLog("[GenuiExpressPlugin] LanguageModelSession.hasCapability(.textGeneration) returned: \(available)")
-        result(available)
+        Task {
+          do {
+            _ = try await LanguageModelSession.create()
+            NSLog("[GenuiExpressPlugin] Successfully created LanguageModelSession! Core on-device models are active.")
+            result(true)
+          } catch {
+            NSLog("[GenuiExpressPlugin] Failed to create LanguageModelSession: \(error.localizedDescription)")
+            result(false)
+          }
+        }
         return
       }
       #endif
