@@ -6,7 +6,7 @@ import FlutterMacOS
 import Foundation
 
 import audioplayers_darwin
-import genui_express
+import genui_express_macos
 import url_launcher_macos
 import video_player_avfoundation
 

@@ -24,6 +24,7 @@ workspace:
   - packages/genui_express/genui_express
   - packages/genui_express/genui_express_platform_interface
   - packages/genui_express/genui_express_web
+  - packages/genui_express/genui_express_macos
   - packages/json_schema_builder
 
   - tool/e2e

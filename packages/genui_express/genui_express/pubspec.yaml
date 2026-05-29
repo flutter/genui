@@ -24,6 +24,8 @@ dependencies:
     sdk: flutter
   genkit: ^0.13.2
   genui: ^0.9.1
+  genui_express_macos:
+    path: ../genui_express_macos
   genui_express_platform_interface:
     path: ../genui_express_platform_interface
   genui_express_web:
@@ -44,6 +46,6 @@ flutter:
       ios:
         pluginClass: GenuiExpressPlugin
       macos:
-        pluginClass: GenuiExpressPlugin
+        default_package: genui_express_macos
       web:
         default_package: genui_express_web

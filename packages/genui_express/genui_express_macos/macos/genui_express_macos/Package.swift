@@ -8,19 +8,19 @@
 import PackageDescription
 
 let package = Package(
-    name: "genui_express",
+    name: "genui_express_macos",
     platforms: [
         .macOS("15.0")
     ],
     products: [
-        .library(name: "genui-express", targets: ["genui_express"])
+        .library(name: "genui-express-macos", targets: ["genui_express_macos"])
     ],
     dependencies: [
         .package(name: "FlutterFramework", path: "../FlutterFramework")
     ],
     targets: [
         .target(
-            name: "genui_express",
+            name: "genui_express_macos",
             dependencies: [
                 .product(name: "FlutterFramework", package: "FlutterFramework")
             ],
