@@ -32,7 +32,7 @@ let package = Package(
         .macOS("15.0")
     ],
     products: [
-        .library(name: "genui-express-macos", targets: ["genui-express-macos"])
+        .library(name: "genui-express-macos", targets: ["genui_express_macos"])
     ],
     dependencies: [
         .package(name: "FlutterFramework", path: "../FlutterFramework")
