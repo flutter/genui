@@ -5,7 +5,10 @@
 import Cocoa
 import FlutterMacOS
 import Foundation
+
+#if canImport(LanguageModeling)
 import LanguageModeling
+#endif
 
 public class GenuiExpressPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
   private var eventSink: FlutterEventSink?
@@ -29,12 +32,14 @@ public class GenuiExpressPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
     case "checkAvailability":
+      #if canImport(LanguageModeling)
       if #available(macOS 15.0, iOS 18.0, *) {
         let available = LanguageModelSession.hasCapability(.textGeneration)
         NSLog("[GenuiExpressPlugin] LanguageModelSession.hasCapability(.textGeneration) returned: \(available)")
         result(available)
         return
       }
+      #endif
       result(false)
     default:
       result(FlutterMethodNotImplemented)
@@ -59,6 +64,7 @@ public class GenuiExpressPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
 
     let systemPrompt = args["systemPrompt"] as? String
 
+    #if canImport(LanguageModeling)
     if #available(macOS 15.0, iOS 18.0, *) {
       activeTask = Task {
         do {
@@ -88,6 +94,7 @@ public class GenuiExpressPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
       }
       return nil
     }
+    #endif
 
     events(
       FlutterError(
