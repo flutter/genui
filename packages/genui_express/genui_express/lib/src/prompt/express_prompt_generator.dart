@@ -56,7 +56,7 @@ class ExpressPromptGenerator {
         sig += ' - $compDesc';
       }
       if (paramDescs.isNotEmpty) {
-        sig += ' (${paramDescs.join('; ')})';
+        sig += '\n  - ${paramDescs.join('\n  - ')}';
       }
       signatures.add(sig);
     }
@@ -101,7 +101,7 @@ class ExpressPromptGenerator {
         sig += ' - $funcDesc';
       }
       if (paramDescs.isNotEmpty) {
-        sig += ' (${paramDescs.join('; ')})';
+        sig += '\n  - ${paramDescs.join('\n  - ')}';
       }
       signatures.add(sig);
     }
