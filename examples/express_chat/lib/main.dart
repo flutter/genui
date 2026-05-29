@@ -85,7 +85,10 @@ class _ChatScreenState extends State<ChatScreen> {
           _startAvailabilityTimer();
         }
       }
-    } catch (_) {
+    } catch (e, stack) {
+      debugPrint(
+        '[ChatScreen] Error checking platform availability: $e\n$stack',
+      );
       if (mounted) {
         setState(() {
           _isPlatformAvailable = false;
