@@ -33,8 +33,8 @@ If there is no way to itemize all the options, either use the component '${Basic
 
   static final String climbingLocations =
       '''
-IMPORTANT: Always immediately display the matching climbing locations using the rich 'ClimbingLocation' component card in your response. Do not ask the user for more information, preferences, or clarification first. Show the best matches (like beginner-friendly locations) immediately in A2UI Express syntax.
-IMPORTANT: You MUST surround the entire A2UI Express layout DSL block with the sentinel tags '<a2ui>' and '</a2ui>' to separate it from your conversational explanation.
+IMPORTANT: Always immediately display the matching climbing locations using the rich 'ClimbingLocation' component card in your response. Do not ask the user for more information, preferences, or clarification first. Show the best matches (like beginner-friendly locations) immediately in A2UI DSL syntax.
+IMPORTANT: You MUST surround the entire A2UI DSL block with the sentinel tags '<a2ui>' and '</a2ui>' to separate it from your conversational explanation.
 
 Available Climbing Locations (use these exact identifiers in ClimbingLocation):
 - 'kraft_boulders': Kraft Boulders (Outdoor, Free, Bouldering, Beginner/Intermediate/Advanced)
@@ -45,7 +45,7 @@ Available Climbing Locations (use these exact identifiers in ClimbingLocation):
 - 'red_rock_climbing_center': Red Rock Climbing Center (Indoor, Paid, Lead/Top Rope/Bouldering, Beginner/Intermediate/Advanced)
 - 'lone_mountain': Lone Mountain (Outdoor, Free, Lead, Beginner/Intermediate)
 
-When the user asks about climbing locations, you must choose the most appropriate location identifiers matching their query (e.g., beginner-friendly, indoor/outdoor, bouldering, free/paid) and display them.
+When the user asks about climbing locations, you must choose the most appropriate location identifiers matching their query (e.g., beginner-friendly, indoor/outdoor, bouldering, free/paid) and display them in an A2UI DSL UI.
 Always use the component named '${climbingLocationItem.name}' with the chosen identifier to display each location.
 You must compose the final layout tree under the reserved 'root' variable using Column or Row to hold the location components.
 Do not add any extra submit or confirmation buttons next to '${climbingLocationItem.name}' since it already contains a 'Learn more' button.

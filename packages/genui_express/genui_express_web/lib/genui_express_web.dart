@@ -53,8 +53,25 @@ class GenuiExpressWeb extends GenuiExpressPlatform {
   Stream<String> generateStream(String prompt, String? systemPrompt) async* {
     JSObject? session;
 
-    // ignore: avoid_print
-    print('[GenuiExpressWeb] Creating session. SystemPrompt: "$systemPrompt"');
+    if (systemPrompt != null) {
+      // ignore: avoid_print
+      print('[GenuiExpressWeb] Creating session with System Prompt sections:');
+      final List<String> sections = systemPrompt.split(
+        '-------------------------------------',
+      );
+      for (var i = 0; i < sections.length; i++) {
+        final String cleanSection = sections[i].trim();
+        if (cleanSection.isNotEmpty) {
+          // ignore: avoid_print
+          print(
+            '[GenuiExpressWeb] System Prompt Section ${i + 1}:\n$cleanSection',
+          );
+        }
+      }
+    } else {
+      // ignore: avoid_print
+      print('[GenuiExpressWeb] Creating session without System Prompt');
+    }
 
     if (_window.has('LanguageModel')) {
       final languageModel = _window['LanguageModel'] as JSObject;
