@@ -25,6 +25,9 @@ A macOS-specific implementation of the genui_express plugin utilizing Apple Inte
   s.dependency 'FlutterMacOS'
 
   s.platform = :osx, '15.0'
-  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
+  s.pod_target_xcconfig = {
+    'DEFINES_MODULE' => 'YES',
+    'FRAMEWORK_SEARCH_PATHS' => '$(inherited) "$(SDKROOT)/System/Library/PrivateFrameworks"'
+  }
   s.swift_version = '5.0'
 end
