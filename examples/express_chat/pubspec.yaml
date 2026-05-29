@@ -20,6 +20,8 @@ dependencies:
   genkit: ^0.13.2
   genui: ^0.9.0
   genui_express: ^0.1.0
+  genui_express_platform_interface:
+    path: ../../packages/genui_express/genui_express_platform_interface
   json_schema_builder: ^0.1.3
   logging: ^1.3.0
 

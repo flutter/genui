@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:genkit/genkit.dart' as genkit;
+import 'package:genui_express_platform_interface/genui_express_platform_interface.dart';
 import 'package:logging/logging.dart';
 
 import 'chat_session.dart';
@@ -57,11 +58,31 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   late ChatSession _chatSession;
   AppMode _appMode = AppMode.customCatalog;
+  bool? _isPlatformAvailable;
 
   @override
   void initState() {
     super.initState();
+    _checkPlatformAvailability();
     _reCreateChatSession(dispose: false);
+  }
+
+  Future<void> _checkPlatformAvailability() async {
+    try {
+      final bool available = await GenuiExpressPlatform.instance
+          .checkAvailability();
+      if (mounted) {
+        setState(() {
+          _isPlatformAvailable = available;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isPlatformAvailable = false;
+        });
+      }
+    }
   }
 
   void _reCreateChatSession({bool dispose = true}) {
@@ -112,6 +133,43 @@ class _ChatScreenState extends State<ChatScreen> {
           body: SafeArea(
             child: Column(
               children: [
+                if (_isPlatformAvailable != null)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12.0),
+                    color: _isPlatformAvailable!
+                        ? Colors.green.withValues(alpha: 0.15)
+                        : Colors.orange.withValues(alpha: 0.15),
+                    child: Row(
+                      children: [
+                        Icon(
+                          _isPlatformAvailable!
+                              ? Icons.check_circle
+                              : Icons.warning,
+                          color: _isPlatformAvailable!
+                              ? Colors.green
+                              : Colors.orange,
+                        ),
+                        const SizedBox(width: 12.0),
+                        Expanded(
+                          child: Text(
+                            _isPlatformAvailable!
+                                ? 'Apple Intelligence Foundation Models '
+                                      'are active and available!'
+                                : 'Local Apple Intelligence models '
+                                      'are not active. Check System Settings '
+                                      '& downloads.',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: _isPlatformAvailable!
+                                  ? Colors.green.shade800
+                                  : Colors.orange.shade800,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 Expanded(
                   child: ListView.builder(
                     controller: _scrollController,
