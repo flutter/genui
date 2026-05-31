@@ -28,7 +28,7 @@ Avoid adding binary files to the repository. If a binary file is needed, minimiz
 and accompany it with a markdown file that 
 describes the binary file and how it was created.
 
-For large binaries, use links instead of embedding them in the repository. 
+For large binaries, use links instead of embedding them in the repository.
 
 To host binaries, upload them to your personal account in:
 
