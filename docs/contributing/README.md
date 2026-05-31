@@ -30,11 +30,11 @@ describes the binary file and how it was created.
 
 For large binaries, use links instead of embedding them in the repository.
 
-To host binaries, upload them to your personal account in:
+To host binaries, upload them to your personal account on a public service:
 
 - [Google Drive](https://drive.google.com/)
 - [YouTube](https://www.youtube.com/)
-- Comment on a GitHub issue or PR ([drag and drop](https://github.com/user-attachments/assets/862e4f6a-ed11-4fa9-b014-c92b19d8aca2) the image or video into a comment box to generate a link)
+- Comment on a GitHub issue or PR ([drag and drop](https://github.com/user-attachments/assets/862e4f6a-ed11-4fa9-b014-c92b19d8aca2) the image or the video into a comment box to generate a link)
 - [Flickr.com](https://www.flickr.com/)
 - Any other service that provides direct download links
 
