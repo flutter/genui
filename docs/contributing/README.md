@@ -34,7 +34,7 @@ To host binaries, upload them to your personal account in:
 
 - [Google Drive](https://drive.google.com/)
 - [YouTube](https://www.youtube.com/)
-- [Comment on a GitHub issue or PR](https://github.com/user-attachments/assets/f7789c4f-a8e6-41e1-b37d-f2d439a2ea89)
+- Comment on a GitHub issue or PR ([drag and drop](https://github.com/user-attachments/assets/f7789c4f-a8e6-41e1-b37d-f2d439a2ea89) the image or video into a comment box to generate a link)
 - [Flickr.com](https://www.flickr.com/)
 - Any other service that provides direct download links
 
