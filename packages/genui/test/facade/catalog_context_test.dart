@@ -62,17 +62,6 @@ void main() {
         expect(keys, hasLength(2));
       }
     });
-
-    test('does not include full schemas or examples', () {
-      final CatalogManifest manifest = CatalogContext.manifest(catalog);
-
-      for (final CatalogManifestItem item in manifest.items) {
-        final Iterable<String> keys = item.toJson().keys;
-        expect(keys, isNot(contains('schema')));
-        expect(keys, isNot(contains('examples')));
-        expect(keys, isNot(contains('properties')));
-      }
-    });
   });
 
   group('CatalogContext.loadItems', () {

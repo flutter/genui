@@ -432,9 +432,6 @@ final class _BasicPromptBuilder extends PromptBuilder {
         PromptFragments.incrementalCatalogToolPolicy(prefix: importancePrefix),
       ],
       catalogSection: _incrementalCatalogPrompt(),
-      // The catalog presentation is a manifest, not the full schema, so the
-      // model must call loadCatalogItems; suppress the blanket "no tools for
-      // UI generation" lines that would otherwise contradict the carve-out.
       restrictUiTools: false,
     );
   }
@@ -448,10 +445,9 @@ final class _BasicPromptBuilder extends PromptBuilder {
   /// in one place avoids the two modes silently drifting apart.
   ///
   /// Note: [Catalog.systemPromptFragments] and
-  /// [SurfaceOperations.systemPromptFragments] are intentionally inlined in
-  /// both modes. They carry operation and usage guidance, not full per-item
-  /// schemas, so they do not contradict the manifest's "use the loaded
-  /// schemas" instruction.
+  /// [SurfaceOperations.systemPromptFragments] are inlined in both modes: they
+  /// carry guidance, not per-item schemas, so they do not contradict the
+  /// manifest's "use the loaded schemas" instruction.
   Iterable<String> _assembleSystemPrompt({
     required Iterable<String> afterTechnical,
     required String catalogSection,
