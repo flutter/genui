@@ -1,5 +1,9 @@
 # `genui` Changelog
 
+## 0.9.2
+
+- **No-op**: Bumped version to test release automation.
+
 ## 0.9.1
 
 - **Feature**: Updated example/README.md.
