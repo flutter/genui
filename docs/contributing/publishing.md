@@ -43,7 +43,7 @@ The packages code should be always release ready. That means:
 
    1.2. The package's changes touch only non-publishable code or docs (like tests, tools, or not-publishable docs).
 
-   You can publish `-wip<number>` versions (where `<number>` is a three-digit, zero padded integer like `-wip003`), if you need it for development. 
+   You can publish `-wip<number>` versions (where `<number>` is a three-digit, zero padded integer like `-wip003`), if you need it for development.
 
 2. If your feature is partially implemented, hide the feature's code behind a false-by-default flag, and use **release-ready** version. (There is no detailed guidance how to define this flag yet. It should be outlined when it is needed. Please create an issue if you need it soon.)
 
