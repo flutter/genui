@@ -2,10 +2,6 @@
 
 ## 0.9.2
 
-- **No-op**: Bumped version in order to test the release automation.
-
-## 0.9.1
-
 - **Feature**: Updated example/README.md.
 
 ## 0.9.0
