@@ -438,9 +438,9 @@ abstract final class A2uiSchemas {
       surfaceIdKey: S.string(description: 'The unique ID for the surface.'),
       'catalogId': S.string(
         description:
-            'A string that uniquely identifies this catalog. This is typically '
-            'a URI, but the URI is never accessed, only used as a unique '
-            'identifier.',
+            'A string that uniquely identifies this catalog. It is recommended '
+            'to prefix this with an internet domain that you own, to avoid '
+            "conflicts e.g. 'mycompany.com:somecatalog'.",
       ),
       'theme': S.object(
         description: 'Theme parameters for the surface.',
