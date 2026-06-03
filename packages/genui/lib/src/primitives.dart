@@ -5,7 +5,8 @@
 /// Low-level utilities used by the GenUI framework.
 library;
 
-export 'primitives/cancellation.dart';
-export 'primitives/constants.dart';
-export 'primitives/logging.dart';
-export 'primitives/simple_items.dart';
+export 'primitives/cancellation.dart'
+    show CancellationException, CancellationSignal;
+export 'primitives/constants.dart' show basicCatalogId;
+export 'primitives/logging.dart' show configureLogging, genUiLogger;
+export 'primitives/simple_items.dart' show JsonMap, generateId;
