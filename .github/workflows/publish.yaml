@@ -21,9 +21,12 @@ jobs:
     with:
       # See https://github.com/dart-lang/ecosystem/tree/main/pkgs/firehose#options
       sdk: beta # version of dart sdk to use for publishing
-      use-flutter: true
       write-comments: false
       checkout_submodules: false
+      # Temporary exclude flutter to test if 
+      # See https://github.com/dart-lang/ecosystem/issues/418
+      # use-flutter: true
+      ignore-packages: "packages/genui"
     permissions:
       id-token: write
       pull-requests: write
