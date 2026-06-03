@@ -118,6 +118,144 @@ void main() {
 
       surfaceDefinition.validate(schema); // Should not throw
     });
+
+    test('validate enforces primitive types '
+        '(this will fail due to the bug)', () {
+      final component = const Component(
+        id: 'test',
+        type: 'Text',
+        // BAD DATA: text is an int, but schema expects a string
+        properties: {'text': 42},
+      );
+      final surfaceDefinition = SurfaceDefinition(
+        surfaceId: 's1',
+        components: {'test': component},
+      );
+
+      final schema = S.object(
+        properties: {
+          'components': S.list(
+            items: S.object(
+              properties: {
+                'component': S.string(constValue: 'Text'),
+                'text': S.string(), // Validator should enforce this type!
+              },
+            ),
+          ),
+        },
+      );
+
+      // The schema validator should throw an exception because 'text'
+      // is an int.
+      // Since it silently ignores the 'type' keyword, this expect will FAIL,
+      // proving the bug exists.
+      expect(
+        () => surfaceDefinition.validate(schema),
+        throwsA(isA<A2uiValidationException>()),
+      );
+    });
+
+    test('validate enforces primitive types: boolean', () {
+      final component = const Component(
+        id: 'test',
+        type: 'Checkbox',
+        properties: {'checked': 'true'}, // BAD: string instead of bool
+      );
+      final surfaceDefinition = SurfaceDefinition(
+        surfaceId: 's1',
+        components: {'test': component},
+      );
+
+      final schema = S.object(
+        properties: {
+          'components': S.list(
+            items: S.object(
+              properties: {
+                'component': S.string(constValue: 'Checkbox'),
+                'checked': S.boolean(),
+              },
+            ),
+          ),
+        },
+      );
+
+      expect(
+        () => surfaceDefinition.validate(schema),
+        throwsA(isA<A2uiValidationException>()),
+      );
+    });
+
+    test('validate enforces primitive types: '
+        'number vs integer', () {
+      final componentInt = const Component(
+        id: 'test1',
+        type: 'Slider',
+        properties: {'value': 42}, // Valid integer
+      );
+      final componentDouble = const Component(
+        id: 'test2',
+        type: 'Slider',
+        properties: {'value': 42.5}, // Valid number, invalid integer
+      );
+
+      final schema = S.object(
+        properties: {
+          'components': S.list(
+            items: S.object(
+              properties: {
+                'component': S.string(constValue: 'Slider'),
+                'value': S.integer(), // Explicitly requires integer
+              },
+            ),
+          ),
+        },
+      );
+
+      // Integer should pass
+      SurfaceDefinition(
+        surfaceId: 's1',
+        components: {'test1': componentInt},
+      ).validate(schema);
+
+      // Double should fail because schema requires integer
+      expect(
+        () => SurfaceDefinition(
+          surfaceId: 's2',
+          components: {'test2': componentDouble},
+        ).validate(schema),
+        throwsA(isA<A2uiValidationException>()),
+      );
+    });
+
+    test('validate enforces primitive types: array and object', () {
+      final component = const Component(
+        id: 'test',
+        type: 'List',
+        properties: {'items': 42}, // BAD: int instead of array
+      );
+      final surfaceDefinition = SurfaceDefinition(
+        surfaceId: 's1',
+        components: {'test': component},
+      );
+
+      final schema = S.object(
+        properties: {
+          'components': S.list(
+            items: S.object(
+              properties: {
+                'component': S.string(constValue: 'List'),
+                'items': S.list(items: S.string()),
+              },
+            ),
+          ),
+        },
+      );
+
+      expect(
+        () => surfaceDefinition.validate(schema),
+        throwsA(isA<A2uiValidationException>()),
+      );
+    });
   });
 
   group('SurfaceDefinition extended', () {

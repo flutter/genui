@@ -241,6 +241,33 @@ class SurfaceDefinition {
       return;
     }
 
+    if (schema case {'type': Object expectedType}) {
+      final List<String> types = expectedType is List
+          ? expectedType.cast<String>()
+          : [expectedType as String];
+
+      final bool isValid = types.any(
+        (t) => switch (t) {
+          'string' => instance is String,
+          'number' => instance is num,
+          'integer' => instance is int,
+          'boolean' => instance is bool,
+          'object' => instance is Map,
+          'array' => instance is List,
+          'null' => false, // instance is guaranteed non-null here
+          _ => true, // Pass unknown constraints
+        },
+      );
+
+      if (!isValid) {
+        throw A2uiValidationException(
+          'Type mismatch. Expected $types, got ${instance.runtimeType}',
+          surfaceId: surfaceId,
+          path: path,
+        );
+      }
+    }
+
     if (schema case {'const': Object? constVal} when instance != constVal) {
       throw A2uiValidationException(
         'Value mismatch. Expected $constVal, got $instance',

@@ -3,6 +3,7 @@
 ## 0.9.2
 
 - **Feature**: Updated example/README.md.
+- **Fix**: `SurfaceDefinition.validate` now strictly enforces primitive data types, correctly identifying and rejecting malformed components (like numbers passed for strings) before they can cause fatal rendering crashes.
 
 ## 0.9.0
 
