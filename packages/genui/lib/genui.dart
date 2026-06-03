@@ -18,7 +18,15 @@ export 'src/facade.dart';
 export 'src/functions.dart';
 export 'src/interfaces.dart';
 export 'src/model.dart';
-export 'src/primitives.dart';
+export 'src/primitives.dart'
+    show
+        CancellationException,
+        CancellationSignal,
+        JsonMap,
+        basicCatalogId,
+        configureLogging,
+        genUiLogger,
+        generateId;
 export 'src/transport.dart';
 export 'src/utils.dart';
 export 'src/widgets.dart';
