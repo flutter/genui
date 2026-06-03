@@ -243,8 +243,8 @@ class SurfaceDefinition {
 
     if (schema case {'type': Object expectedType}) {
       final List<String> types = expectedType is List
-          ? expectedType.cast<String>()
-          : [expectedType as String];
+          ? expectedType.map((e) => e.toString()).toList()
+          : [expectedType.toString()];
 
       final bool isValid = types.any(
         (t) => switch (t) {
