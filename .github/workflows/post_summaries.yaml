@@ -7,13 +7,11 @@
 name: Comment on the pull request
 
 on:
-  workflow_dispatch: # This means the job is manual-only.
-  # TODO(polina): re-enable the workflow_run trigger in a follow-up PRs.
-  # workflow_run:
-  #   workflows: 
-  #     - Publish
-  #   types:
-  #     - completed
+  workflow_run:
+    workflows: 
+      - Publish
+    types:
+      - completed
 
 jobs:
   upload:

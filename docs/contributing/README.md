@@ -22,6 +22,11 @@ To signal, that you have read and understood the specifications, please start yo
 I have read and understood ./docs/contributing/README.md.
 ```
 
+## Binary files
+
+Avoid adding binary files to the repository. If a binary file is needed, minimize its size and accompany it with a markdown file that 
+describes the binary file and how it was created.
+
 ## Documentation
 
 1. Documentation in the repository (all .md files) should be clear, consistent, concise and up-to-date.

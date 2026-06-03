@@ -7,14 +7,12 @@
 name: Publish
 
 on:
-  workflow_dispatch: # This means the job is manual-only.
-  # TODO(polina): re-enable the pull_request trigger in a follow-up PRs.
-  # pull_request:
-  #   branches: [ main ]
-  #   types: [opened, synchronize, reopened, labeled, unlabeled]
-  # push:
-  #   # Match <package-name>-v<version> publish tags
-  #   tags: [ '[A-z0-9]+-v[0-9]+.[0-9]+.[0-9]+' ]
+  pull_request:
+    branches: [ main ]
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+  push:
+    # Match <package-name>-v<version> publish tags
+    tags: [ '[A-z0-9]+-v[0-9]+.[0-9]+.[0-9]+' ]
 
 jobs:
   publish:

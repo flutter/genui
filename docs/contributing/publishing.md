@@ -20,7 +20,7 @@ To make sure your PR passes this validation, follow [firehose rules](https://git
 Packages in this repo fall into the following categories:
 
 1. **Not published**: `pubspec.yaml` contains `publish_to: none`. Workspace tools and example apps that are never pushed to pub.dev.
-2. **Not yet published**: the package's `version:` ends with a `-dev<N>` suffix (see "`-dev` vs non-`-dev`" below). Published to pub.dev to reserve the name or to test the package; not ready for general use yet.
+2. **Not yet published**: the package's `version:` ends with a `-wip<N>` suffix (see "`-wip` vs non-`-wip`" below). Published to pub.dev to reserve the name or to test the package; not ready for general use yet.
 3. **Published**: any other package. Each has its own version cadence on pub.dev.
 
 ## About `resolution: workspace`
@@ -33,17 +33,17 @@ Packages in this repo fall into the following categories:
 
 Note that a package can opt out (by omitting `resolution: workspace`) to have separate dependency resolution.
 
-## `-dev` vs non-`-dev` (production ready) versions
+## `-wip` vs non-`-wip` (production ready) versions
 
 The packages code should be always release ready. That means:
 
-1. Use `-dev` version (format `0.1.0-dev002`) if **at least one** of the following statements is true:
+1. Use `-wip` version (format `0.1.0-wip002`) if **at least one** of the following statements is true:
 
-   1.1. The package is planned to be released in the future. In this case it is published with `-dev` suffix in order to reserve the package name.
+   1.1. The package is planned to be released in the future. In this case it is published with `-wip` suffix in order to reserve the package name.
 
    1.2. The package's changes touch only non-publishable code or docs (like tests, tools, or not-publishable docs).
 
-   You can publish `-dev<number>` versions (where `<number>` is a three-digit, zero padded integer like `-dev003`), if you need it for development. 
+   You can publish `-wip<number>` versions (where `<number>` is a three-digit, zero padded integer like `-wip003`), if you need it for development.
 
 2. If your feature is partially implemented, hide the feature's code behind a false-by-default flag, and use **release-ready** version. (There is no detailed guidance how to define this flag yet. It should be outlined when it is needed. Please create an issue if you need it soon.)
 
