@@ -7,7 +7,6 @@ description: >-
   A sample of a Flutter client interacting with a Python-based A2A
   (Agent-to-Agent) server for landscape design.
 publish_to: none
-version: 0.1.0
 
 environment:
   sdk: ">=3.10.0 <4.0.0"

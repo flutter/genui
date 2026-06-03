@@ -1,6 +1,6 @@
 # `genui` Changelog
 
-## (WIP)
+## 0.9.2
 
 - **Feature**: Updated example/README.md.
 

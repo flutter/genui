@@ -16,6 +16,7 @@ import 'package:process_runner/process_runner.dart';
 import 'package:yaml/yaml.dart';
 
 import 'src/verifiers/coverage_verifier.dart';
+import 'src/verifiers/workspace_verifier.dart';
 
 class TestAndFix {
   TestAndFix({
@@ -40,6 +41,16 @@ class TestAndFix {
   }) async {
     root ??= fs.currentDirectory;
     final List<Directory> projects = await findProjects(root, all: all);
+
+    final workspaceVerifier = WorkspaceVerifier(fs: fs, logger: _log);
+    final bool workspaceValid = await workspaceVerifier.verify(
+      repoRoot: root,
+      projects: projects,
+    );
+    if (!workspaceValid) {
+      return false;
+    }
+
     final testedProjects = <Directory>[];
     final jobs = <WorkerJob>[];
     final bool skipNonTestJobs = coverage || updateBaseline;

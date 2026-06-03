@@ -12,7 +12,8 @@ updates:
     labels:
       - "autosubmit"
   - package-ecosystem: "pub"
-    directory: "/"
+    directories:
+      - "/**"
     schedule:
       interval: "daily"
     labels:
