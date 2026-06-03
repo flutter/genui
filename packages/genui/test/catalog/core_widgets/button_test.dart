@@ -9,8 +9,24 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
 import 'package:json_schema_builder/json_schema_builder.dart';
+import 'package:logging/logging.dart';
 
 void main() {
+  setUpAll(() {
+    Logger.root.level = Level.ALL;
+    Logger.root.onRecord.listen((record) {
+      debugPrint(
+        '[${record.level.name}] ${record.loggerName}: ${record.message}',
+      );
+      if (record.error != null) {
+        debugPrint('Error: ${record.error}');
+      }
+      if (record.stackTrace != null) {
+        debugPrint('StackTrace:\n${record.stackTrace}');
+      }
+    });
+  });
+
   testWidgets('Button widget renders and handles taps', (
     WidgetTester tester,
   ) async {
@@ -76,7 +92,9 @@ void main() {
   ) async {
     final mockFunction = MockFunction(
       name: 'throwError',
-      onExecute: (args, context) => Stream.error(Exception('Stream error')),
+      onExecute: (args, context) {
+        return Stream.error(Exception('Stream error'));
+      },
     );
 
     final surfaceController = SurfaceController(
@@ -88,6 +106,8 @@ void main() {
         ),
       ],
     );
+
+    final Future<ChatMessage> onSubmitFuture = surfaceController.onSubmit.first;
 
     const surfaceId = 'testSurface';
     final components = [
@@ -132,7 +152,18 @@ void main() {
     // Pump to process the tap and invoke the function which throws error
     await tester.pump();
 
-    // The test passes if no unhandled exception crashes the test.
+    // Advance fake time to process stream error propagation and
+    // error reporting.
+    await tester.pump(const Duration(seconds: 1));
+
+    // Verify the error was caught and reported
+    final ChatMessage message = await onSubmitFuture;
+    expect(message, isNotNull);
+    expect(
+      message.parts.first.asUiInteractionPart!.interaction,
+      contains('throwError'),
+    );
+
     surfaceController.dispose();
   });
 

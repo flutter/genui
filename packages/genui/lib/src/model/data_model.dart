@@ -6,7 +6,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:stream_transform/stream_transform.dart';
 
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';

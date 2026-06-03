@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/src/model/a2ui_message.dart';
@@ -12,6 +11,7 @@ import 'package:genui/src/model/catalog.dart';
 import 'package:genui/src/model/catalog_item.dart';
 import 'package:genui/src/model/ui_models.dart';
 import 'package:genui/src/primitives/simple_items.dart';
+import 'package:genui/test/validation.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 // ignore: implementation_imports
 import 'package:json_schema_builder/src/schema_registry.dart';
@@ -56,23 +56,7 @@ void validateCatalogExamples(
             components: components,
           );
 
-          var file = File(
-            'submodules/a2ui/specification/v0_9/json/common_types.json',
-          );
-          if (!file.existsSync()) {
-            file = File(
-              '../../submodules/a2ui/specification/v0_9/json/common_types.json',
-            );
-          }
-          final String commonTypesContent = file.readAsStringSync();
-          final commonTypesSchema = Schema.fromMap(
-            jsonDecode(commonTypesContent) as Map<String, Object?>,
-          );
-          final registry = SchemaRegistry();
-          registry.addSchema(
-            Uri.parse('https://a2ui.org/specification/v0_9/common_types.json'),
-            commonTypesSchema,
-          );
+          final SchemaRegistry registry = createSchemaRegistryWithCommonTypes();
 
           final List<ValidationError> validationErrors = await schema.validate(
             surfaceUpdate.toJson(),

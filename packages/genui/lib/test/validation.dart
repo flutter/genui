@@ -14,6 +14,7 @@ import '../src/model/a2ui_schemas.dart';
 import '../src/model/catalog.dart';
 import '../src/model/catalog_item.dart' show CatalogItem;
 import '../src/model/ui_models.dart';
+import '../src/primitives/constants.dart';
 import '../src/primitives/simple_items.dart';
 
 /// A class to represent a validation error in a catalog item example.
@@ -84,23 +85,7 @@ Future<List<ExampleValidationError>> validateCatalogItemExamples(
       components: components,
     );
 
-    var file = File(
-      'submodules/a2ui/specification/v0_9/json/common_types.json',
-    );
-    if (!file.existsSync()) {
-      file = File(
-        '../../submodules/a2ui/specification/v0_9/json/common_types.json',
-      );
-    }
-    final String commonTypesContent = file.readAsStringSync();
-    final commonTypesSchema = Schema.fromMap(
-      jsonDecode(commonTypesContent) as Map<String, Object?>,
-    );
-    final registry = SchemaRegistry();
-    registry.addSchema(
-      Uri.parse('https://a2ui.org/specification/v0_9/common_types.json'),
-      commonTypesSchema,
-    );
+    final SchemaRegistry registry = createSchemaRegistryWithCommonTypes();
 
     final List<ValidationError> validationErrors = await schema.validate(
       surfaceUpdate.toJson(),
@@ -117,4 +102,19 @@ Future<List<ExampleValidationError>> validateCatalogItemExamples(
     }
   }
   return errors;
+}
+
+/// Creates a [SchemaRegistry] pre-populated with the common types schema.
+SchemaRegistry createSchemaRegistryWithCommonTypes() {
+  var file = File(commonTypesLocalPath);
+  if (!file.existsSync()) {
+    file = File('../../$commonTypesLocalPath');
+  }
+  final String commonTypesContent = file.readAsStringSync();
+  final commonTypesSchema = Schema.fromMap(
+    jsonDecode(commonTypesContent) as Map<String, Object?>,
+  );
+  final registry = SchemaRegistry();
+  registry.addSchema(Uri.parse(commonTypesSchemaId), commonTypesSchema);
+  return registry;
 }

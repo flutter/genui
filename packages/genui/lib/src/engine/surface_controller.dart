@@ -121,6 +121,21 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
 
   /// Reports an error to the AI service.
   void reportError(Object error, StackTrace? stack) {
+    final Map<String, Object> errorMsg = {
+      'version': 'v0.9',
+      'error': _errorToMap(error),
+    };
+    if (!_onSubmit.isClosed) {
+      _onSubmit.add(
+        ChatMessage.user(
+          '',
+          parts: [UiInteractionPart.create(jsonEncode(errorMsg))],
+        ),
+      );
+    }
+  }
+
+  Map<String, Object> _errorToMap(Object error) {
     var errorCode = 'INTERNAL_ERROR';
     var message = 'An unexpected system error occurred.';
     String? surfaceId;
@@ -138,24 +153,13 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
       functionName = error.functionName;
     }
 
-    final Map<String, Object> errorMsg = {
-      'version': 'v0.9',
-      'error': {
-        'code': errorCode,
-        'surfaceId': ?surfaceId,
-        'path': ?path,
-        'functionName': ?functionName,
-        'message': message,
-      },
+    return {
+      'code': errorCode,
+      'surfaceId': ?surfaceId,
+      'path': ?path,
+      'functionName': ?functionName,
+      'message': message,
     };
-    if (!_onSubmit.isClosed) {
-      _onSubmit.add(
-        ChatMessage.user(
-          '',
-          parts: [UiInteractionPart.create(jsonEncode(errorMsg))],
-        ),
-      );
-    }
   }
 
   void _handleMessageInternal(A2uiMessage message) {

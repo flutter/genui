@@ -85,7 +85,8 @@ abstract class PromptBuilder {
     String importancePrefix = defaultImportancePrefix,
     JsonMap? clientDataModel,
   }) async {
-    final (String commonTypes, String serverToClient) = await _loadSchemas();
+    final ({String commonTypes, String serverToClient}) schemas =
+        await _loadSchemas();
     return _BasicPromptBuilder(
       catalog: catalog,
       systemPromptFragments: systemPromptFragments,
@@ -93,8 +94,8 @@ abstract class PromptBuilder {
       importancePrefix: importancePrefix,
       clientDataModel: clientDataModel,
       technicalPossibilities: const TechnicalPossibilities(),
-      commonTypesSchema: commonTypes,
-      serverToClientSchema: serverToClient,
+      commonTypesSchema: schemas.commonTypes,
+      serverToClientSchema: schemas.serverToClient,
     );
   }
 
@@ -107,7 +108,8 @@ abstract class PromptBuilder {
         const TechnicalPossibilities(),
     JsonMap? clientDataModel,
   }) async {
-    final (String commonTypes, String serverToClient) = await _loadSchemas();
+    final ({String commonTypes, String serverToClient}) schemas =
+        await _loadSchemas();
     return _BasicPromptBuilder(
       catalog: catalog,
       systemPromptFragments: systemPromptFragments,
@@ -115,17 +117,18 @@ abstract class PromptBuilder {
       importancePrefix: importancePrefix,
       clientDataModel: clientDataModel,
       technicalPossibilities: technicalPossibilities,
-      commonTypesSchema: commonTypes,
-      serverToClientSchema: serverToClient,
+      commonTypesSchema: schemas.commonTypes,
+      serverToClientSchema: schemas.serverToClient,
     );
   }
 
-  static Future<(String, String)> _loadSchemas() async {
+  static Future<({String commonTypes, String serverToClient})>
+  _loadSchemas() async {
     final String commonTypes = await rootBundle.loadString(commonTypesAssetKey);
     final String serverToClient = await rootBundle.loadString(
       serverToClientAssetKey,
     );
-    return (commonTypes, serverToClient);
+    return (commonTypes: commonTypes, serverToClient: serverToClient);
   }
 
   Iterable<String> systemPrompt();

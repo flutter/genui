@@ -2,52 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../test_infra/golden_texts.dart';
+import '../test_infra/mock_assets.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUpAll(() {
-    // Mock asset loading because PromptBuilder loads schemas from assets,
-    // and Flutter tests do not load package assets automatically.
-    // This handler intercepts requests for assets and loads them directly
-    // from the local file system.
-    // It handles different CWDs (running from package root or example
-    // directory).
-    final String cwd = Directory.current.path;
-    String packageRoot;
-    if (cwd.endsWith('packages/genui')) {
-      packageRoot = cwd;
-    } else if (cwd.contains('examples/')) {
-      packageRoot =
-          '${cwd.substring(0, cwd.indexOf('examples/'))}packages/genui';
-    } else {
-      packageRoot = '$cwd/packages/genui';
-    }
-
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMessageHandler('flutter/assets', (ByteData? message) async {
-          final String key = utf8.decode(message!.buffer.asUint8List());
-          var relativePath = key;
-          if (key.startsWith('packages/genui/')) {
-            relativePath = key.substring('packages/genui/'.length);
-          }
-          final file = File('$packageRoot/$relativePath');
-          if (file.existsSync()) {
-            return ByteData.view(utf8.encode(file.readAsStringSync()).buffer);
-          }
-          return null;
-        });
-  });
+  setUpAll(setUpMockPackageAssets);
 
   final testCatalog = Catalog(
     [BasicCatalogItems.text],

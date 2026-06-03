@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
@@ -232,7 +234,12 @@ Future<void> _handlePress(
       funcMap,
     );
     try {
-      await resultStream.first;
+      await resultStream.first.timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => throw TimeoutException(
+          'Function execution for $callName timed out',
+        ),
+      );
     } catch (exception, stackTrace) {
       genUiLogger.severe(
         'Error executing function call "$callName" on button press',
@@ -242,10 +249,10 @@ Future<void> _handlePress(
 
       if (exception is A2uiFunctionException) {
         itemContext.reportError(exception, stackTrace);
-      } else if (exception is ArgumentError) {
+      } else if (exception is TimeoutException) {
         itemContext.reportError(
           A2uiFunctionException(
-            exception.message.toString(),
+            'Function execution timed out.',
             functionName: callName,
             cause: exception,
           ),

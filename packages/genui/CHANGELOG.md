@@ -1,5 +1,14 @@
 # `genui` Changelog
 
+## 0.10.0
+
+- **BREAKING**: Changed `PromptBuilder.chat` and `PromptBuilder.custom` from synchronous factory constructors to asynchronous static methods (`createChat` and `createCustom`) to support asynchronous asset loading.
+- **BREAKING**: Changed `_loadSchemas` return type to a named record structure.
+- **Refactor**: Extracted exception mapping logic to a private helper `_errorToMap` in `SurfaceController`.
+- **Refactor**: Centralized and shared common schema registry initialization helper.
+- **Refactor**: Extracted mock binary messenger asset setup to a shared helper for test reuse.
+- **Fix**: Sanitized raw error messages exposed from `ArgumentError` in `Button` press handlers.
+
 ## 0.9.2
 
 - **Feature**: Updated example/README.md.
