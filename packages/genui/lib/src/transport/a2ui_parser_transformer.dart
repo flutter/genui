@@ -7,7 +7,7 @@ import 'dart:convert';
 
 import '../model/a2ui_message.dart';
 import '../model/generation_events.dart';
-import '../model/ui_models.dart';
+import '../primitives/a2ui_validation_exception.dart';
 
 /// Transforms a stream of text chunks into a stream of logical
 /// [GenerationEvent]s.

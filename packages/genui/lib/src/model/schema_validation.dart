@@ -6,8 +6,8 @@ import 'dart:convert';
 
 import 'package:json_schema_builder/json_schema_builder.dart';
 
+import '../primitives/a2ui_validation_exception.dart';
 import '../primitives/simple_items.dart';
-import 'ui_models.dart' show A2uiValidationException;
 
 /// Validates a set of A2UI components against a catalog [schema].
 ///

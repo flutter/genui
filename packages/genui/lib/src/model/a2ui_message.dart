@@ -5,6 +5,7 @@
 import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:json_schema_builder/json_schema_builder.dart';
 
+import '../primitives/a2ui_validation_exception.dart';
 import '../primitives/simple_items.dart';
 import 'a2ui_schemas.dart';
 import 'catalog.dart';

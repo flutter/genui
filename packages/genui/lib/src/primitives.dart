@@ -5,6 +5,7 @@
 /// Low-level utilities used by the GenUI framework.
 library;
 
+export 'primitives/a2ui_validation_exception.dart';
 export 'primitives/cancellation.dart';
 export 'primitives/constants.dart';
 export 'primitives/logging.dart';

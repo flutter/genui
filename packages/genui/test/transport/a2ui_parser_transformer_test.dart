@@ -7,7 +7,7 @@ import 'dart:async';
 import 'package:async/async.dart';
 import 'package:genui/src/model/a2ui_message.dart';
 import 'package:genui/src/model/generation_events.dart';
-import 'package:genui/src/model/ui_models.dart';
+import 'package:genui/src/primitives/a2ui_validation_exception.dart';
 import 'package:genui/src/transport/a2ui_parser_transformer.dart';
 import 'package:test/test.dart';
 
