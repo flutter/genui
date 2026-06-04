@@ -19,12 +19,8 @@
   removed. Read a surface's data model via
   `SurfaceController.contextFor(id).dataModel` (writable before the surface is
   created) or `SurfaceController.registry.getSurface(id)?.dataModel`.
-- **BREAKING**: `SurfaceRegistry.updateSurface(...)` is removed. Surface
-  lifecycle now flows through `SurfaceController.handleMessage`; the
-  definition-only push path could not be preserved without diverging from
-  the live `a2ui_core` surface model. `SurfaceRegistry.addSurface` /
-  `notifyUpdated` exist as internal lifecycle hooks and are marked
-  `@internal`.
+- **BREAKING**: `SurfaceRegistry.updateSurface(...)` is removed; surface
+  lifecycle now flows through `SurfaceController.handleMessage`.
 - **Behavior**: `DataModel` writes are stricter (core data errors on
   type-mismatched intermediate paths and excessively large list indices)
   and sparse list writes now fill skipped entries with `null` instead of
@@ -34,10 +30,6 @@
 - **Behavior**: JSON Pointer `~0`/`~1` escapes are not interpreted on
   `DataPath`; paths split on `/`, matching the web reference implementation
   (see A2UI#1499 tracking spec clarification).
-- **Internal**: The renderer rebuilds each surface from its `SurfaceDefinition`
-  snapshot. The live `core.SurfaceModel` fields on `SurfaceAdded` /
-  `ComponentsUpdated` are marked `@internal`; consumers read
-  `SurfaceUpdate.definition`.
 - The catalog-widget authoring API is unchanged. `SurfaceDefinition` and
   `Component` remain GenUI snapshot types, to be unified with the `a2ui_core`
   models in a follow-up (#801).

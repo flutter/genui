@@ -1,34 +1,17 @@
 # Migration Guide: GenUI on `a2ui_core`
 
-`package:genui`'s runtime substrate now runs on the shared `package:a2ui_core`
-implementation: shared protocol parsing, message processing, and
-surface/data-model state (#811).
+`package:genui` now runs on the shared `package:a2ui_core` runtime (#811). This
+changes how you feed A2UI messages to genui. Catalog widgets and data-binding
+code are unaffected.
 
-This migration unifies the **message layer** with `a2ui_core` directly. The
-catalog-widget authoring API is intentionally left unchanged, pending the
-typed-props authoring API (flutter/genui#801) and the upstream Node Layer
-(A2UI#1282). So the surface/component snapshot types and the data-model API are
-retained for now as GenUI types.
-
-## Breaking changes
+## What you have to change
 
 ### A2UI messages are now `a2ui_core` types
 
-The GenUI message classes (`A2uiMessage`, `CreateSurface`, `UpdateComponents`,
-`UpdateDataModel`, `DeleteSurface`) are removed. Use the `a2ui_core` types
-directly:
-
-- Add `a2ui_core` as a dependency of any package that builds or inspects A2UI
-  messages.
-- `SurfaceController.handleMessage`, `Transport.incomingMessages`, and
-  `A2uiMessageEvent.message` now use `core.A2uiMessage`.
-- Construct messages with `core.CreateSurfaceMessage(...)`,
-  `core.UpdateComponentsMessage(...)`, `core.UpdateDataModelMessage(...)` /
-  `.removeKey(...)`, and `core.DeleteSurfaceMessage(...)`.
-- `core.UpdateComponentsMessage.components` is a `List<Map<String, dynamic>>` of
-  raw component wire JSON (`{'id': ..., 'component': ..., ...props}`), not
-  `Component` objects.
-- Parse from JSON with `core.A2uiMessage.fromJson(json)`.
+The genui message classes (`A2uiMessage`, `CreateSurface`, `UpdateComponents`,
+`UpdateDataModel`, `DeleteSurface`) are removed. If you construct or handle
+messages directly, switch to the `a2ui_core` types and add `a2ui_core` to your
+dependencies.
 
 ```dart
 // Before
@@ -52,83 +35,36 @@ controller.handleMessage(
 );
 ```
 
-### `SurfaceController.store` / `DataModelStore` removed
+- `handleMessage`, `Transport.incomingMessages`, and `A2uiMessageEvent.message`
+  now use `core.A2uiMessage`.
+- `core.UpdateComponentsMessage` takes raw component JSON maps
+  (`{'id': ..., 'component': ..., ...props}`), not `Component` objects.
+- Parse from JSON with `core.A2uiMessage.fromJson(json)`.
 
-Read a surface's data model directly:
+### `SurfaceController.store` is removed
 
-- `SurfaceController.contextFor(id).dataModel` is writable, and usable before the
-  surface is created (the data is migrated into the live model on creation).
-- `SurfaceController.registry.getSurface(id)?.dataModel` once the surface exists.
+Read a surface's data model via `SurfaceController.contextFor(id).dataModel`
+(writable, and usable before the surface is created).
 
-### `SurfaceRegistry.updateSurface(...)` removed
+## Behavior you may notice
 
-Surface lifecycle updates flow through `SurfaceController.handleMessage`; the
-definition-only push path is no longer supported. `addSurface` and
-`notifyUpdated` remain on `SurfaceRegistry` but are marked `@internal`.
+- **`DataModel` writes are stricter.** Writes that previously did nothing can now
+  throw, e.g. type-mismatched intermediate paths and out-of-range list indices;
+  sparse list writes fill the gaps with `null`.
+- **Malformed messages are rejected more consistently** (missing or wrong
+  version, or more than one action key in a single message).
+- **A duplicate `createSurface` for an active surface id is now an error** rather
+  than silently reusing the existing surface.
+- **JSON Pointer `~0`/`~1` escapes are no longer interpreted** in data paths;
+  paths split on `/`.
+- **`updateDataModel` with `value: null` removes the key**, the same as omitting
+  the value. Distinguishing the two is pending flutter/genui#938.
 
-## What stays the same (for now)
+## What does not change
 
-These are unchanged by this migration and remain GenUI types, pending #801:
+Your catalog widgets and data-binding code are untouched: `CatalogItemContext`,
+`dataContext`, the `DataModel` / `DataPath` API, the `Bound*` widgets, and the
+`SurfaceDefinition` / `Component` snapshots all keep their current shape.
 
-- **Catalog widget authoring.** `CatalogItemContext.id`, `type`, `data`,
-  `surfaceId`, `getComponent` (returns a `Component?` snapshot), `dataContext`,
-  `buildChild`, `dispatchEvent`, and `reportError`. Catalog widget bodies do not
-  change.
-- **Data model API.** `DataPath`, `DataModel`, `InMemoryDataModel`,
-  `DataContext.update` / `getValue` / `subscribe` / `bindExternalState`, and the
-  `Bound*` widgets.
-- **Surface snapshots.** `Component`, `SurfaceDefinition`,
-  `SurfaceContext.definition`, `SurfaceUpdate.definition`,
-  `ActionDelegate.handleEvent`'s `SurfaceDefinition` callback, and
-  `UiPart.create(definition: SurfaceDefinition(...))`.
-
-Internally these wrap or snapshot from `a2ui_core`: `InMemoryDataModel` wraps
-`a2ui_core.DataModel`; `CatalogItemContext` is backed by
-`a2ui_core.ComponentContext`; `SurfaceDefinition` is a snapshot of the live
-`a2ui_core.SurfaceModel`.
-
-Surface state is read through the `SurfaceDefinition` snapshot:
-`SurfaceUpdate.definition`, and `SurfaceRegistry.getSurface` / `watchSurface`.
-
-## Behavior changes to watch for
-
-These come from the `a2ui_core` substrate, independent of any rename:
-
-1. **`DataModel` is stricter.** Writes that previously no-op'd now throw core
-   data errors, especially type-mismatched intermediate paths and very large
-   list indices. Sparse list writes fill skipped entries with `null`.
-2. **Stored containers are mutable copies.** Incoming map/list values are copied
-   before storage so nested updates work even when callers pass const literals.
-3. **Data reactivity is signal-backed internally.** `subscribe(...)` still
-   returns a `ValueListenable` and the `Bound*` widgets keep their API;
-   internally those listenables bridge to `preact_signals`.
-4. **Protocol validation is stricter.** The core parser rejects malformed
-   messages more consistently, including missing/incorrect versions and messages
-   with more than one top-level action key.
-5. **Duplicate `createSurface` for an active surface id is an error** instead of
-   silently reusing the existing surface.
-6. **JSON Pointer `~0`/`~1` escapes are not interpreted.** Paths split on `/`,
-   matching the web core behavior (A2UI#1499 tracks the spec clarification).
-7. **The renderer rebuilds from the `SurfaceDefinition` snapshot.** The built-in
-   `Surface` rebuilds when a surface's snapshot changes; data-bound values update
-   through the `Bound*` widgets.
-8. **`core.UpdateDataModelMessage.hasValue`** distinguishes `value: null` from an
-   omitted `value` on the wire, but runtime mutation currently treats both as
-   "remove the key" (flutter/genui#938, A2UI#1504).
-
-## Still deferred
-
-- The catalog widget authoring API stays on `CatalogItemContext`; a typed-props
-  API (#801) is on hold until A2UI#1282 settles.
-- Action dispatch and `sendDataModel` synchronization still flow through the
-  existing GenUI path rather than `core.SurfaceGroupModel.onAction` or
-  `MessageProcessor.getClientDataModel()`.
-- `GenericBinder` is not exposed as a Flutter-side public API.
-
-## What's next
-
-A follow-up (#801), gated on the upstream Node Layer (A2UI#1282), will unify the
-retained GenUI types (`Component`, `SurfaceDefinition`, the `DataModel` API,
-`SurfaceContext.definition`) with the `a2ui_core` models so the catalog authoring
-API can move onto core types too. Until then, the types under "What stays the
-same" are the current public API.
+A follow-up (#801) will unify these with the `a2ui_core` models once the upstream
+Node Layer (A2UI#1282) lands.
