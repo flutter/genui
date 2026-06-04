@@ -3,8 +3,28 @@
 ## 0.10.0 (in progress)
 
 - **Refactor**: Migrate the runtime substrate onto `package:a2ui_core`.
-  Public GenUI types are preserved as compatibility facades; see
-  [docs/usage/migration/migration_genui_onto_a2ui_core.md](../../docs/usage/migration/migration_genui_onto_a2ui_core.md).
+  `SurfaceController` delegates to `a2ui_core.MessageProcessor`, and surface,
+  component, and data-model state are backed by the live `a2ui_core` models.
+  See
+  [the migration guide](../../docs/usage/migration/migration_genui_onto_a2ui_core.md).
+- **BREAKING**: A2UI message types are now `package:a2ui_core` types directly.
+  The GenUI message classes (`A2uiMessage`, `CreateSurface`, `UpdateComponents`,
+  `UpdateDataModel`, `DeleteSurface`) are removed. `SurfaceController.handleMessage`,
+  `Transport.incomingMessages`, and `A2uiMessageEvent.message` now use
+  `core.A2uiMessage`. Construct messages with `core.CreateSurfaceMessage(...)`
+  etc.; `core.UpdateComponentsMessage` carries raw component JSON maps rather
+  than `Component` objects. Message-handling consumers should depend on
+  `a2ui_core` directly.
+- **BREAKING**: `SurfaceController.store` and the `DataModelStore` class are
+  removed. Read a surface's data model via
+  `SurfaceController.contextFor(id).dataModel` (writable before the surface is
+  created) or `SurfaceController.registry.getSurface(id)?.dataModel`.
+- **BREAKING**: `SurfaceRegistry.updateSurface(...)` is removed. Surface
+  lifecycle now flows through `SurfaceController.handleMessage`; the
+  definition-only push path could not be preserved without diverging from
+  the live `a2ui_core` surface model. `SurfaceRegistry.addSurface` /
+  `notifyUpdated` exist as internal lifecycle hooks and are marked
+  `@internal`.
 - **Behavior**: `DataModel` writes are stricter (core data errors on
   type-mismatched intermediate paths and excessively large list indices)
   and sparse list writes now fill skipped entries with `null` instead of
@@ -14,15 +34,13 @@
 - **Behavior**: JSON Pointer `~0`/`~1` escapes are not interpreted on
   `DataPath`; paths split on `/`, matching the web reference implementation
   (see A2UI#1499 tracking spec clarification).
-- **BREAKING**: `SurfaceRegistry.updateSurface(...)` is removed. Surface
-  lifecycle now flows through `SurfaceController.handleMessage`; the
-  definition-only push path could not be preserved without diverging from
-  the live `a2ui_core` surface model. `SurfaceRegistry.addSurface` /
-  `notifyUpdated` exist as internal lifecycle hooks and are marked
-  `@internal`.
-- **Internal**: The live `core.SurfaceModel` fields on `SurfaceAdded` /
-  `ComponentsUpdated` are marked `@internal`. Most consumers should read
-  `SurfaceUpdate.definition` instead.
+- **Internal**: The renderer rebuilds each surface from its `SurfaceDefinition`
+  snapshot. The live `core.SurfaceModel` fields on `SurfaceAdded` /
+  `ComponentsUpdated` are marked `@internal`; consumers read
+  `SurfaceUpdate.definition`.
+- The catalog-widget authoring API is unchanged. `SurfaceDefinition` and
+  `Component` remain GenUI snapshot types, to be unified with the `a2ui_core`
+  models in a follow-up (#801).
 
 ## 0.9.1
 
