@@ -177,7 +177,7 @@ void main() {
       },
     );
 
-    test('store exposes the live surface data model facade', () {
+    test('contextFor exposes the live surface data model', () {
       const surfaceId = 's1';
       controller.handleMessage(
         createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
@@ -190,9 +190,9 @@ void main() {
         ),
       );
 
-      final DataModel model = controller.store.getDataModel(surfaceId);
+      final DataModel model = controller.contextFor(surfaceId).dataModel;
       expect(model.getValue<String>(DataPath('/name')), 'Alice');
-      expect(controller.store.dataModels[surfaceId], same(model));
+      expect(controller.contextFor(surfaceId).dataModel, same(model));
 
       controller.handleMessage(
         updateDataModel(

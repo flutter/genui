@@ -21,7 +21,6 @@ import '../model/ui_models.dart';
 import '../primitives/a2ui_validation_exception.dart';
 import '../primitives/logging.dart';
 
-import 'data_model_store.dart';
 import 'surface_registry.dart' as surface_reg;
 
 /// The runtime controller for the GenUI system.
@@ -51,13 +50,10 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   late final core.MessageProcessor<core.ComponentApi> _processor;
   late final surface_reg.SurfaceRegistry _registry =
       surface_reg.SurfaceRegistry();
-  late final DataModelStore _store = DataModelStore(
-    lookup: (String surfaceId) {
-      final core.SurfaceModel? surface = _registry.getLiveSurface(surfaceId);
-      if (surface == null) return null;
-      return InMemoryDataModel.wrap(surface.dataModel);
-    },
-  );
+  // Writable data models handed out by `contextFor(id).dataModel` before the
+  // surface exists; migrated into the live core model on surface creation.
+  final Map<String, DataModel> _preCreateDataModels = {};
+  final Map<String, DataModel> _liveDataModels = {};
 
   final _onSubmit = StreamController<ChatMessage>.broadcast();
   final _pendingUpdates = <String, List<core.A2uiMessage>>{};
@@ -95,8 +91,17 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   /// The registry of surfaces managed by this controller.
   surface_reg.SurfaceRegistry get registry => _registry;
 
-  /// The store of data models managed by this controller.
-  DataModelStore get store => _store;
+  DataModel _dataModelFor(String surfaceId) {
+    final DataModel? live = _liveDataModels[surfaceId];
+    if (live != null) return live;
+    final core.SurfaceModel? surface = _registry.getLiveSurface(surfaceId);
+    if (surface != null) {
+      final DataModel wrapped = InMemoryDataModel.wrap(surface.dataModel);
+      _liveDataModels[surfaceId] = wrapped;
+      return wrapped;
+    }
+    return _preCreateDataModels.putIfAbsent(surfaceId, InMemoryDataModel.new);
+  }
 
   /// Processes a message from the AI service.
   @override
@@ -233,7 +238,13 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
     // registry listeners; otherwise a synchronous listener could call
     // contextFor(...).dataModel and cache an empty live wrapper before the
     // fallback's data is copied in.
-    _store.attachLive(surface.id, InMemoryDataModel.wrap(surface.dataModel));
+    final DataModel live = InMemoryDataModel.wrap(surface.dataModel);
+    final DataModel? fallback = _preCreateDataModels.remove(surface.id);
+    if (fallback != null) {
+      live.update(DataPath.root, fallback.getValue<Object?>(DataPath.root));
+      fallback.dispose();
+    }
+    _liveDataModels[surface.id] = live;
     _registry.addSurface(surface);
     final List<core.A2uiMessage>? pending = _pendingUpdates.remove(surface.id);
     _pendingUpdateTimers.remove(surface.id)?.cancel();
@@ -247,7 +258,8 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   void _onCoreSurfaceDeleted(String surfaceId) {
     _pendingUpdates.remove(surfaceId);
     _pendingUpdateTimers.remove(surfaceId)?.cancel();
-    _store.removeDataModel(surfaceId);
+    _preCreateDataModels.remove(surfaceId)?.dispose();
+    _liveDataModels.remove(surfaceId)?.dispose();
     _registry.removeSurface(surfaceId);
   }
 
@@ -340,7 +352,12 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
       _onCoreSurfaceDeleted,
     );
     _processor.groupModel.dispose();
-    _store.dispose();
+    for (final DataModel model in _preCreateDataModels.values) {
+      model.dispose();
+    }
+    for (final DataModel model in _liveDataModels.values) {
+      model.dispose();
+    }
     _registry.dispose();
     _onSubmit.close();
     for (final Timer timer in _pendingUpdateTimers.values) {
@@ -365,7 +382,7 @@ class _ControllerContext implements LiveSurfaceContext {
       _controller.registry.watchDefinition(surfaceId);
 
   @override
-  DataModel get dataModel => _controller.store.getDataModel(surfaceId);
+  DataModel get dataModel => _controller._dataModelFor(surfaceId);
 
   @override
   Catalog? get catalog => _controller._findCatalogForSurface(surfaceId);
