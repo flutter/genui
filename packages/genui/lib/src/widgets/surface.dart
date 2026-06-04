@@ -350,7 +350,7 @@ class _SurfaceState extends State<Surface> {
       ...event.toMap(),
       surfaceIdKey: widget.surfaceContext.surfaceId,
     };
-    final UiEvent newEvent = event is UserActionEvent
+    final UiEvent newEvent = event.isUserAction
         ? UserActionEvent.fromMap(eventMap)
         : UiEvent.fromMap(eventMap);
     widget.surfaceContext.handleUiEvent(newEvent);

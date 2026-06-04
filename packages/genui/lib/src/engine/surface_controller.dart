@@ -109,10 +109,11 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   }
 
   void _handleCoreMessage(core.A2uiMessage coreMessage) {
-    // Reject empty surfaceId before delegating; the substrate would otherwise
-    // create a surface with id "".
-    if (coreMessage is core.CreateSurfaceMessage &&
-        coreMessage.surfaceId.isEmpty) {
+    // Reject an empty surfaceId on any message that carries one. CreateSurface
+    // would otherwise create a surface with id ""; updates and deletes would
+    // buffer under "" until they time out, since a surface "" can never exist.
+    final String? surfaceId = _surfaceIdOf(coreMessage);
+    if (surfaceId != null && surfaceId.isEmpty) {
       reportError(
         A2uiValidationException(
           'Surface ID cannot be empty',
@@ -295,7 +296,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   /// Sends a [UserActionEvent] to [onSubmit] as a [ChatMessage]. No-op for
   /// non-action [UiEvent]s.
   void handleUiEvent(UiEvent event) {
-    if (event is! UserActionEvent) return;
+    if (!event.isUserAction) return;
     _onSubmit.add(
       ChatMessage.user(
         '',
