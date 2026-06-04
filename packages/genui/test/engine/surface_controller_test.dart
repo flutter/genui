@@ -11,6 +11,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
+import '../test_infra/message_builders.dart';
+
 void main() {
   group('$SurfaceController', () {
     late SurfaceController controller;
@@ -35,16 +37,12 @@ void main() {
     test('handleMessage adds a new surface and fires SurfaceAdded with '
         'definition', () async {
       const surfaceId = 's1';
-      final components = [
-        const Component(
-          id: 'root',
-          type: 'Text',
-          properties: {'text': 'Hello'},
-        ),
+      final List<JsonMap> components = [
+        component(id: 'root', type: 'Text', properties: {'text': 'Hello'}),
       ];
 
       controller.handleMessage(
-        UpdateComponents(surfaceId: surfaceId, components: components),
+        updateComponents(surfaceId: surfaceId, components: components),
       );
 
       final Future<List<SurfaceUpdate>> futureUpdates = controller
@@ -52,7 +50,7 @@ void main() {
           .take(2)
           .toList();
       controller.handleMessage(
-        const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+        createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
       );
       final List<SurfaceUpdate> updates = await futureUpdates;
 
@@ -81,19 +79,11 @@ void main() {
       'handleMessage updates an existing surface and fires ComponentsUpdated',
       () async {
         const surfaceId = 's1';
-        final oldComponents = [
-          const Component(
-            id: 'root',
-            type: 'Text',
-            properties: {'text': 'Old'},
-          ),
+        final List<JsonMap> oldComponents = [
+          component(id: 'root', type: 'Text', properties: {'text': 'Old'}),
         ];
-        final newComponents = [
-          const Component(
-            id: 'root',
-            type: 'Text',
-            properties: {'text': 'New'},
-          ),
+        final List<JsonMap> newComponents = [
+          component(id: 'root', type: 'Text', properties: {'text': 'New'}),
         ];
 
         final Future<void> expectation = expectLater(
@@ -106,13 +96,13 @@ void main() {
         );
 
         controller.handleMessage(
-          const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+          createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
         );
         controller.handleMessage(
-          UpdateComponents(surfaceId: surfaceId, components: oldComponents),
+          updateComponents(surfaceId: surfaceId, components: oldComponents),
         );
         controller.handleMessage(
-          UpdateComponents(surfaceId: surfaceId, components: newComponents),
+          updateComponents(surfaceId: surfaceId, components: newComponents),
         );
 
         await expectation;
@@ -121,24 +111,20 @@ void main() {
 
     test('handleMessage removes a surface and fires SurfaceRemoved', () async {
       const surfaceId = 's1';
-      final components = [
-        const Component(
-          id: 'root',
-          type: 'Text',
-          properties: {'text': 'Hello'},
-        ),
+      final List<JsonMap> components = [
+        component(id: 'root', type: 'Text', properties: {'text': 'Hello'}),
       ];
       controller.handleMessage(
-        const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+        createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
       );
       controller.handleMessage(
-        UpdateComponents(surfaceId: surfaceId, components: components),
+        updateComponents(surfaceId: surfaceId, components: components),
       );
 
       final Future<SurfaceUpdate> futureUpdate =
           controller.surfaceUpdates.first;
 
-      controller.handleMessage(const DeleteSurface(surfaceId: surfaceId));
+      controller.handleMessage(deleteSurface(surfaceId: surfaceId));
       final SurfaceUpdate update = await futureUpdate;
 
       expect(update, isA<SurfaceRemoved>());
@@ -179,7 +165,7 @@ void main() {
         expect(controller.registry.getSurface(surfaceId), isNull);
 
         controller.handleMessage(
-          const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+          createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
         );
 
         final SurfaceDefinition? def = controller.registry.getSurface(
@@ -194,10 +180,10 @@ void main() {
     test('store exposes the live surface data model facade', () {
       const surfaceId = 's1';
       controller.handleMessage(
-        const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+        createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
       );
       controller.handleMessage(
-        const UpdateDataModel(
+        updateDataModel(
           surfaceId: surfaceId,
           path: DataPath.root,
           value: {'name': 'Alice'},
@@ -209,7 +195,7 @@ void main() {
       expect(controller.store.dataModels[surfaceId], same(model));
 
       controller.handleMessage(
-        UpdateDataModel(
+        updateDataModel(
           surfaceId: surfaceId,
           path: DataPath('/name'),
           value: 'Bob',
@@ -235,7 +221,7 @@ void main() {
           .update(DataPath('/name'), 'Alice');
 
       controller.handleMessage(
-        const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+        createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
       );
 
       // Post-create, contextFor.dataModel routes through the live core
@@ -249,7 +235,7 @@ void main() {
       controller.contextFor(surfaceId).dataModel.update(DataPath.root, null);
 
       controller.handleMessage(
-        const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+        createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
       );
 
       final DataModel model = controller.contextFor(surfaceId).dataModel;
@@ -327,7 +313,7 @@ void main() {
         // Trigger validation error by using an empty surface ID.
         final Future<ChatMessage> messageFuture = controller.onSubmit.first;
         controller.handleMessage(
-          const CreateSurface(surfaceId: '', catalogId: 'test_catalog'),
+          createSurface(surfaceId: '', catalogId: 'test_catalog'),
         );
 
         final ChatMessage message = await messageFuture;
@@ -347,7 +333,7 @@ void main() {
 
     test('rejects empty surfaceId on non-create messages', () async {
       final Future<ChatMessage> messageFuture = controller.onSubmit.first;
-      controller.handleMessage(const UpdateDataModel(surfaceId: '', value: 1));
+      controller.handleMessage(updateDataModel(surfaceId: '', value: 1));
 
       final ChatMessage message = await messageFuture;
       final UiInteractionPart part = message.parts.uiInteractionParts.first;
@@ -362,11 +348,11 @@ void main() {
       'duplicate createSurface for an active surface reports an error',
       () async {
         controller.handleMessage(
-          const CreateSurface(surfaceId: 's1', catalogId: 'test_catalog'),
+          createSurface(surfaceId: 's1', catalogId: 'test_catalog'),
         );
         final Future<ChatMessage> messageFuture = controller.onSubmit.first;
         controller.handleMessage(
-          const CreateSurface(surfaceId: 's1', catalogId: 'test_catalog'),
+          createSurface(surfaceId: 's1', catalogId: 'test_catalog'),
         );
 
         final ChatMessage message = await messageFuture;
@@ -386,8 +372,8 @@ void main() {
       addTearDown(shortTimeoutController.dispose);
 
       const surfaceId = 'timedOutSurface';
-      final components = [
-        const Component(
+      final List<JsonMap> components = [
+        component(
           id: 'root',
           type: 'Text',
           properties: {'text': 'Should not be seen'},
@@ -396,7 +382,7 @@ void main() {
 
       // 1. Send update for non-existent surface (buffered)
       shortTimeoutController.handleMessage(
-        UpdateComponents(surfaceId: surfaceId, components: components),
+        updateComponents(surfaceId: surfaceId, components: components),
       );
 
       // 2. Wait for timeout
@@ -408,7 +394,7 @@ void main() {
           .take(1)
           .toList();
       shortTimeoutController.handleMessage(
-        const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+        createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
       );
 
       // 4. Verify surface created but NO update applied
@@ -453,20 +439,17 @@ void main() {
 
         const surfaceId = 'strictSurface';
         strictController.handleMessage(
-          const CreateSurface(
-            surfaceId: surfaceId,
-            catalogId: 'strict_catalog',
-          ),
+          createSurface(surfaceId: surfaceId, catalogId: 'strict_catalog'),
         );
 
         final Future<ChatMessage> future = strictController.onSubmit.first;
 
         // Send invalid component (missing requiredProp)
         strictController.handleMessage(
-          const UpdateComponents(
+          updateComponents(
             surfaceId: surfaceId,
             components: [
-              Component(id: 'bad', type: 'StrictWidget', properties: {}),
+              component(id: 'bad', type: 'StrictWidget', properties: {}),
             ],
           ),
         );

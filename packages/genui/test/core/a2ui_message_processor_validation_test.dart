@@ -7,6 +7,8 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
+import '../test_infra/message_builders.dart';
+
 void main() {
   group('SurfaceController Validation', () {
     test('CreateSurface fails validation with empty surfaceId', () async {
@@ -28,7 +30,7 @@ void main() {
       );
 
       controller.handleMessage(
-        const CreateSurface(surfaceId: '', catalogId: 'default'),
+        createSurface(surfaceId: '', catalogId: 'default'),
       );
 
       await future;
@@ -56,14 +58,14 @@ void main() {
         );
 
         controller.handleMessage(
-          const CreateSurface(surfaceId: 'surf1', catalogId: basicCatalogId),
+          createSurface(surfaceId: 'surf1', catalogId: basicCatalogId),
         );
 
         controller.handleMessage(
-          const UpdateComponents(
+          updateComponents(
             surfaceId: 'surf1',
             components: [
-              Component(
+              component(
                 id: 'badText',
                 type: 'Text',
                 properties: {},

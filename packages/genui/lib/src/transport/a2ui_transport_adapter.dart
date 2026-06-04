@@ -7,7 +7,6 @@ import 'dart:async';
 import 'package:a2ui_core/a2ui_core.dart' as core;
 
 import '../interfaces/transport.dart';
-import '../model/a2ui_message.dart';
 import '../model/chat_message.dart';
 import '../model/generation_events.dart';
 import 'a2ui_parser_transformer.dart';
@@ -39,7 +38,7 @@ class A2uiTransportAdapter implements Transport {
   final ManualSendCallback? onSend;
 
   final StreamController<String> _inputStream = StreamController();
-  final StreamController<A2uiMessage> _messageStream =
+  final StreamController<core.A2uiMessage> _messageStream =
       StreamController.broadcast();
   late final Stream<GenerationEvent> _pipeline;
   StreamSubscription<GenerationEvent>? _pipelineSubscription;
@@ -57,18 +56,8 @@ class A2uiTransportAdapter implements Transport {
   }
 
   /// Feeds a raw A2UI message (e.g. from a tool output or separate channel).
-  void addMessage(Object message) {
-    if (message is A2uiMessage) {
-      _messageStream.add(message);
-      return;
-    }
-    if (message is core.A2uiMessage) {
-      _messageStream.add(A2uiMessage.fromCore(message));
-      return;
-    }
-    throw ArgumentError(
-      'Unsupported A2UI message type: ${message.runtimeType}',
-    );
+  void addMessage(core.A2uiMessage message) {
+    _messageStream.add(message);
   }
 
   /// A stream of sanitizer text for the chat UI.
@@ -81,7 +70,7 @@ class A2uiTransportAdapter implements Transport {
 
   /// A stream of A2UI messages parsed from the input.
   @override
-  Stream<A2uiMessage> get incomingMessages => _messageStream.stream;
+  Stream<core.A2uiMessage> get incomingMessages => _messageStream.stream;
 
   @override
   Future<void> sendRequest(ChatMessage message) async {

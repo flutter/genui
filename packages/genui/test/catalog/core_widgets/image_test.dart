@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
+import '../../test_infra/message_builders.dart';
+
 class _FakeHttpClient extends Fake implements HttpClient {
   @override
   bool autoUncompress = true;
@@ -32,18 +34,18 @@ void main() {
           ],
         );
         const surfaceId = 'testSurface';
-        final components = [
-          const Component(
+        final List<JsonMap> components = [
+          component(
             id: 'root',
             type: 'Image',
             properties: {'url': 'https://example.com/nonexistent.png'},
           ),
         ];
         surfaceController.handleMessage(
-          UpdateComponents(surfaceId: surfaceId, components: components),
+          updateComponents(surfaceId: surfaceId, components: components),
         );
         surfaceController.handleMessage(
-          const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+          createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
         );
 
         await tester.pumpWidget(
@@ -82,18 +84,18 @@ void main() {
           ],
         );
         const surfaceId = 'testSurface';
-        final components = [
-          const Component(
+        final List<JsonMap> components = [
+          component(
             id: 'root',
             type: 'Image',
             properties: {'url': 'https://example.com/image.png'},
           ),
         ];
         surfaceController.handleMessage(
-          UpdateComponents(surfaceId: surfaceId, components: components),
+          updateComponents(surfaceId: surfaceId, components: components),
         );
         surfaceController.handleMessage(
-          const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+          createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
         );
 
         await tester.pumpWidget(

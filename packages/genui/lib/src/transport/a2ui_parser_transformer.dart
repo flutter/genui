@@ -5,7 +5,8 @@
 import 'dart:async';
 import 'dart:convert';
 
-import '../model/a2ui_message.dart';
+import 'package:a2ui_core/a2ui_core.dart' as core;
+
 import '../model/generation_events.dart';
 import '../primitives/a2ui_validation_exception.dart';
 
@@ -210,22 +211,35 @@ class _A2uiParserStream {
 
   void _tryEmitOne(Map<String, Object?> json) {
     try {
-      _controller.add(A2uiMessageEvent(A2uiMessage.fromJson(json)));
+      _controller.add(A2uiMessageEvent(_parseMessage(json)));
       _wasLastEventA2ui = true;
     } catch (e) {
       if (_looksLikeA2uiMessage(json)) {
         _controller.addError(
-          A2uiValidationException(
-            'Failed to parse A2UI message',
-            json: json,
-            cause: e,
-          ),
+          e is A2uiValidationException
+              ? e
+              : A2uiValidationException(
+                  'Failed to parse A2UI message',
+                  json: json,
+                  cause: e,
+                ),
         );
       } else {
         // Not an A2UI message; emit as plain text.
         _controller.add(TextEvent(jsonEncode(json)));
       }
       _wasLastEventA2ui = false;
+    }
+  }
+
+  core.A2uiMessage _parseMessage(Map<String, Object?> json) {
+    try {
+      return core.A2uiMessage.fromJson(json);
+    } on core.A2uiValidationError catch (e) {
+      final String message = e.message.contains("'version'")
+          ? 'A2UI message must have version "v0.9"'
+          : e.message;
+      throw A2uiValidationException(message, json: json, cause: e);
     }
   }
 

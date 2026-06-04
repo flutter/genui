@@ -13,7 +13,6 @@ import '../interfaces/a2ui_message_sink.dart';
 import '../interfaces/surface_context.dart';
 import '../interfaces/surface_host.dart';
 import '../model/a2ui_client_capabilities.dart';
-import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
 import '../model/chat_message.dart';
 import '../model/data_model.dart';
@@ -101,11 +100,11 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
 
   /// Processes a message from the AI service.
   @override
-  void handleMessage(A2uiMessage message) {
+  void handleMessage(core.A2uiMessage message) {
     genUiLogger.info(
       'SurfaceController.handleMessage received: ${message.runtimeType}',
     );
-    _handleCoreMessage(message.toCoreMessage());
+    _handleCoreMessage(message);
   }
 
   void _handleCoreMessage(core.A2uiMessage coreMessage) {
