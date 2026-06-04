@@ -94,7 +94,9 @@ TODO: Consume solution for [dependabot issue][dependabot/dependabot-core#15057] 
 
 ## How to configure GitHub and pub.dev for auto-publishing?
 
-GitHub and pub.dev are already configured for auto-publishing. This section is here in case this needs to be reproduced for new repo or new package. You need to have administrative permissions to update configuration.
+GitHub and pub.dev are already configured for auto-publishing. This section is here in case this needs to be reproduced for new repo or new package. 
+
+Note that you need to have administrative permissions to update configuration.
 
 ### Setup org permissions
 
