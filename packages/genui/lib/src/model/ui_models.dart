@@ -237,10 +237,6 @@ class SurfaceDefinition {
     Map<String, dynamic> schema,
     String path,
   ) {
-    if (instance == null) {
-      return;
-    }
-
     if (schema case {'type': Object expectedType}) {
       final List<String> types = expectedType is List
           ? expectedType.map((e) => e.toString()).toList()
@@ -256,18 +252,23 @@ class SurfaceDefinition {
           'boolean' => instance is bool,
           'object' => instance is Map,
           'array' => instance is List,
-          'null' => false,
+          'null' => instance == null,
           _ => false,
         },
       );
 
       if (!isValid) {
+        final Object actualType = instance?.runtimeType ?? 'null';
         throw A2uiValidationException(
-          'Type mismatch. Expected $types, got ${instance.runtimeType}',
+          'Type mismatch. Expected $types, got $actualType',
           surfaceId: surfaceId,
           path: path,
         );
       }
+    }
+
+    if (instance == null) {
+      return;
     }
 
     if (schema case {'const': Object? constVal} when instance != constVal) {

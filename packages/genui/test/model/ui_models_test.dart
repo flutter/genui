@@ -265,6 +265,36 @@ void main() {
       }
     });
 
+    test('validate rejects explicit null for a non-nullable type', () {
+      final component = const Component(
+        id: 'test',
+        type: 'Text',
+        properties: {'text': null}, // null where a string is required.
+      );
+      final surfaceDefinition = SurfaceDefinition(
+        surfaceId: 's1',
+        components: {'test': component},
+      );
+
+      final schema = S.object(
+        properties: {
+          'components': S.list(
+            items: S.object(
+              properties: {
+                'component': S.string(constValue: 'Text'),
+                'text': S.string(),
+              },
+            ),
+          ),
+        },
+      );
+
+      expect(
+        () => surfaceDefinition.validate(schema),
+        throwsA(isA<A2uiValidationException>()),
+      );
+    });
+
     test('validate enforces primitive types: array and object', () {
       final component = const Component(
         id: 'test',
