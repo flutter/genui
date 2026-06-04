@@ -66,7 +66,9 @@ major number for breaking changes.
    - check if the PR follows [firehose rules](https://github.com/dart-lang/ecosystem/tree/main/pkgs/firehose).
    - add a table [like this](https://github.com/flutter/genui/pull/941#issuecomment-4556675732) to each PR.
 
-2. **Manual**: After reviewing and merging the PR, for each 'ready to publish' version the author of the PR should run `flutter pub publish` or `dart pub publish` ()
+2. **Manual**: After reviewing and merging the PR, for each 'ready to publish' version the author of the PR should run `flutter pub publish` or `dart pub publish`.
+
+TODO(polinach): update this section after fix of https://github.com/dart-lang/ecosystem/issues/418.
 
 ## How upgrade of dependencies happens?
 
