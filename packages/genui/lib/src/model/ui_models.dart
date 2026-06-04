@@ -250,12 +250,14 @@ class SurfaceDefinition {
         (t) => switch (t) {
           'string' => instance is String,
           'number' => instance is num,
-          'integer' => instance is int,
+          // A whole-valued double such as 42.0 is a valid integer.
+          'integer' =>
+            instance is num && (instance is int || instance.remainder(1) == 0),
           'boolean' => instance is bool,
           'object' => instance is Map,
           'array' => instance is List,
-          'null' => false, // instance is guaranteed non-null here
-          _ => true, // Pass unknown constraints
+          'null' => false,
+          _ => false,
         },
       );
 

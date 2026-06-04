@@ -118,7 +118,7 @@ void main() {
       surfaceDefinition.validate(schema); // Should not throw.
     });
 
-    test('validate enforces primitive types ', () {
+    test('validate enforces primitive types: string', () {
       final component = const Component(
         id: 'test',
         type: 'Text',
@@ -145,7 +145,13 @@ void main() {
 
       expect(
         () => surfaceDefinition.validate(schema),
-        throwsA(isA<A2uiValidationException>()),
+        throwsA(
+          isA<A2uiValidationException>().having(
+            (e) => e.message,
+            'message',
+            contains('Type mismatch'),
+          ),
+        ),
       );
     });
 
@@ -191,6 +197,13 @@ void main() {
         type: 'Slider',
         properties: {'value': 42.5}, // Valid number, invalid integer.
       );
+      // JSON decodes whole numbers like 42.0 to a Dart double; per JSON
+      // Schema a double with a zero fractional part is still an integer.
+      final componentWholeDouble = const Component(
+        id: 'test3',
+        type: 'Slider',
+        properties: {'value': 42.0},
+      );
 
       final schema = S.object(
         properties: {
@@ -210,6 +223,11 @@ void main() {
         components: {'test1': componentInt},
       ).validate(schema);
 
+      SurfaceDefinition(
+        surfaceId: 's3',
+        components: {'test3': componentWholeDouble},
+      ).validate(schema);
+
       expect(
         () => SurfaceDefinition(
           surfaceId: 's2',
@@ -217,6 +235,34 @@ void main() {
         ).validate(schema),
         throwsA(isA<A2uiValidationException>()),
       );
+    });
+
+    test('validate accepts both int and double for number type', () {
+      final schema = S.object(
+        properties: {
+          'components': S.list(
+            items: S.object(
+              properties: {
+                'component': S.string(constValue: 'Slider'),
+                'value': S.number(),
+              },
+            ),
+          ),
+        },
+      );
+
+      for (final value in const <Object>[42, 42.5]) {
+        SurfaceDefinition(
+          surfaceId: 's1',
+          components: {
+            'test': Component(
+              id: 'test',
+              type: 'Slider',
+              properties: {'value': value},
+            ),
+          },
+        ).validate(schema);
+      }
     });
 
     test('validate enforces primitive types: array and object', () {
