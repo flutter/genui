@@ -147,12 +147,10 @@ void main() {
       final added = SurfaceAdded('s1', def);
       expect(added.surfaceId, 's1');
       expect(added.definition, same(def));
-      expect(added.surface, isNull);
 
       final updated = ComponentsUpdated('s1', def);
       expect(updated.surfaceId, 's1');
       expect(updated.definition, same(def));
-      expect(updated.surface, isNull);
     });
 
     test(

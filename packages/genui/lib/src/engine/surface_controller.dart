@@ -366,16 +366,12 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   }
 }
 
-class _ControllerContext implements LiveSurfaceContext {
+class _ControllerContext implements SurfaceContext {
   _ControllerContext(this._controller, this.surfaceId);
   final SurfaceController _controller;
 
   @override
   final String surfaceId;
-
-  @override
-  ValueListenable<core.SurfaceModel?> get surface =>
-      _controller.registry.watchLiveSurface(surfaceId);
 
   @override
   ValueListenable<SurfaceDefinition?> get definition =>

@@ -75,7 +75,7 @@ class SurfaceUpdated extends RegistryEvent {
 /// Tracks live [SurfaceModel]s by surface ID and exposes Flutter-friendly
 /// [ValueListenable]s for them, plus a registry-event stream.
 class SurfaceRegistry {
-  final Map<String, ValueNotifier<SurfaceModel?>> _surfaces = {};
+  final Map<String, SurfaceModel> _surfaces = {};
   final Map<String, ValueNotifier<genui_model.SurfaceDefinition?>>
   _definitions = {};
   final List<String> _surfaceOrder = [];
@@ -107,27 +107,12 @@ class SurfaceRegistry {
     );
   }
 
-  /// Returns a [ValueListenable] tracking the live core surface model for
-  /// [surfaceId]. Intended for GenUI internals.
-  @internal
-  ValueListenable<SurfaceModel?> watchLiveSurface(String surfaceId) {
-    if (!_surfaces.containsKey(surfaceId)) {
-      genUiLogger.fine('Adding new surface watcher for $surfaceId');
-    }
-    return _surfaces.putIfAbsent(
-      surfaceId,
-      () => ValueNotifier<SurfaceModel?>(null),
-    );
-  }
-
   /// Registers a new surface, emitting a [SurfaceAdded] event. Intended
   /// for GenUI internals; external callers should drive surface lifecycle
   /// through `SurfaceController.handleMessage`.
   @internal
   void addSurface(SurfaceModel surface) {
-    final ValueNotifier<SurfaceModel<ComponentApi>?> notifier = _surfaces
-        .putIfAbsent(surface.id, () => ValueNotifier<SurfaceModel?>(null));
-    notifier.value = surface;
+    _surfaces[surface.id] = surface;
     _definitions
         .putIfAbsent(
           surface.id,
@@ -163,24 +148,20 @@ class SurfaceRegistry {
 
   /// Removes a surface from the registry, emitting a [SurfaceRemoved] event.
   ///
-  /// The per-id [ValueNotifier] is intentionally retained so widgets already
-  /// listening stay connected; a later re-create of the same id updates the
-  /// existing notifier. The [SurfaceModel] is owned and disposed by the
-  /// substrate's `core.SurfaceGroupModel`.
+  /// The per-id definition [ValueNotifier] is intentionally retained (reset to
+  /// `null`) so widgets already listening stay connected; a later re-create of
+  /// the same id updates the existing notifier. The [SurfaceModel] is owned and
+  /// disposed by the substrate's `core.SurfaceGroupModel`.
   void removeSurface(String surfaceId) {
-    final ValueNotifier<SurfaceModel<ComponentApi>?>? notifier =
-        _surfaces[surfaceId];
-    if (notifier == null || notifier.value == null) return;
+    if (_surfaces.remove(surfaceId) == null) return;
     genUiLogger.info('Deleting surface $surfaceId');
-    notifier.value = null;
     _definitions[surfaceId]?.value = null;
     _surfaceOrder.remove(surfaceId);
     _eventController.add(SurfaceRemoved(surfaceId));
   }
 
-  /// Returns true if the registry has a watcher (or live surface) for
-  /// [surfaceId].
-  bool hasSurface(String surfaceId) => _surfaces[surfaceId]?.value != null;
+  /// Returns true if the registry has a live surface for [surfaceId].
+  bool hasSurface(String surfaceId) => _surfaces.containsKey(surfaceId);
 
   /// Returns the current [genui_model.SurfaceDefinition] snapshot for the
   /// given [surfaceId], or `null` if the surface does not exist.
@@ -190,17 +171,13 @@ class SurfaceRegistry {
   /// Returns the live core surface model for [surfaceId], or `null` if the
   /// surface does not exist. Intended for GenUI internals.
   @internal
-  SurfaceModel? getLiveSurface(String surfaceId) => _surfaces[surfaceId]?.value;
+  SurfaceModel? getLiveSurface(String surfaceId) => _surfaces[surfaceId];
 
   /// Disposes of the registry and all per-surface notifiers. The underlying
   /// [SurfaceModel]s are owned and disposed by the substrate's
   /// `core.SurfaceGroupModel`, not by this registry.
   void dispose() {
     _eventController.close();
-    for (final ValueNotifier<SurfaceModel<ComponentApi>?> notifier
-        in _surfaces.values) {
-      notifier.dispose();
-    }
     for (final ValueNotifier<genui_model.SurfaceDefinition?> notifier
         in _definitions.values) {
       notifier.dispose();

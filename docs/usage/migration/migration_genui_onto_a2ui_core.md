@@ -87,11 +87,8 @@ Internally these wrap or snapshot from `a2ui_core`: `InMemoryDataModel` wraps
 `a2ui_core.ComponentContext`; `SurfaceDefinition` is a snapshot of the live
 `a2ui_core.SurfaceModel`.
 
-The live core model is reachable through a few `@internal` APIs
-(`SurfaceAdded.surface`, `ComponentsUpdated.surface`,
-`SurfaceRegistry.watchLiveSurface` / `getLiveSurface`). Prefer
-`SurfaceUpdate.definition` or `SurfaceRegistry.getSurface` / `watchSurface`
-(which return `SurfaceDefinition`) unless you specifically need live core access.
+Surface state is read through the `SurfaceDefinition` snapshot:
+`SurfaceUpdate.definition`, and `SurfaceRegistry.getSurface` / `watchSurface`.
 
 ## Behavior changes to watch for
 
