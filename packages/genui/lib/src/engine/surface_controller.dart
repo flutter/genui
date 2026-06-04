@@ -19,6 +19,7 @@ import '../model/chat_message.dart';
 import '../model/data_model.dart';
 import '../model/schema_validation.dart' as schema_validation;
 import '../model/ui_models.dart';
+import '../primitives/a2ui_validation_exception.dart';
 import '../primitives/logging.dart';
 
 import 'data_model_store.dart';

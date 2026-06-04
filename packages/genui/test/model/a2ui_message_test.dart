@@ -8,7 +8,7 @@ import 'package:genui/src/catalog/basic_catalog.dart';
 import 'package:genui/src/model/a2ui_message.dart';
 import 'package:genui/src/model/catalog.dart';
 import 'package:genui/src/model/data_model.dart';
-import 'package:genui/src/model/ui_models.dart';
+import 'package:genui/src/primitives/a2ui_validation_exception.dart';
 import 'package:genui/src/primitives/simple_items.dart';
 import 'package:json_schema_builder/src/schema/schema.dart';
 
