@@ -8,24 +8,23 @@ license: BSD-3-Clause
 
 environment:
   sdk: ">=3.10.0 <4.0.0"
+  flutter: ">=3.35.7 <4.0.0"
 
 workspace:
-  # TODO(polinach): Re-enable Flutter packages.
-  # See https://github.com/dart-lang/ecosystem/issues/418 
-  # - dev_tools/catalog_gallery
-  # - dev_tools/composer
+  - dev_tools/catalog_gallery
+  - dev_tools/composer
 
-  # - examples/simple_chat
-  # - examples/verdure/client
+  - examples/simple_chat
+  - examples/verdure/client
 
   - packages/a2ui_core
-  # - packages/genui
-  # - packages/genui_a2a
+  - packages/genui
+  - packages/genui_a2a
   - packages/json_schema_builder
 
-  # - tool/e2e
+  - tool/e2e
   - tool/fix_copyright
   - tool/test_and_fix
 
-# flutter:
-#   uses-material-design: true
+flutter:
+  uses-material-design: true
