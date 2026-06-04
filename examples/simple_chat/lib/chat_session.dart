@@ -44,8 +44,14 @@ When user asks about climbing locations, never use other components.
 ''';
 }
 
-final Catalog _basicCatalog = BasicCatalogItems.asNoAssetCatalog(
+final Catalog _basicCatalog = BasicCatalogItems.asCatalog(
   systemPromptFragments: [Prompts.choicePicker, Prompts.textFieldFallback],
+).copyWithout(
+  itemsToRemove: [
+    BasicCatalogItems.audioPlayer,
+    BasicCatalogItems.image,
+    BasicCatalogItems.video,
+  ],
 );
 
 final Catalog _customCatalog = _basicCatalog.copyWith(
