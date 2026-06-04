@@ -93,11 +93,9 @@ TODO: Consume solution for [dependabot issue][dependabot/dependabot-core#15057] 
 [About Dependabot version updates]: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/about-dependabot-version-updates
 [dependabot/dependabot-core#15057]: https://github.com/dependabot/dependabot-core/issues/15057
 
-## How to configure repo for publishing?
+## How to configure GitHub and pub.dev for auto-publishing?
 
-This repository is already configured for publishing. 
-
-This section describes how it was configured so that it can be reproduced in case of repo transfer or forking.
+GitHub and pub.dev are already configured for auto-publishing. This section is here in case this needs to be reproduced for new repo or new package.
 
 ### Setup org permissions
 
@@ -115,18 +113,6 @@ In https://github.com/organizations/flutter/settings/actions:
    dart-lang/ecosystem/.github/workflows/publish.yaml@*,
    dart-lang/ecosystem/.github/workflows/post_summaries.yaml@*,
    ```
-
-**Make sure workflows can publish packages:**
-
-1. Find the section "Workflow permissions".
-2. Select "Read and write permissions".
-
-### Setup workflow permissions for the repo
-
-1. Open https://github.com/flutter/genui/settings/actions
-2. Find the section "Workflow permissions"
-3. Select "Read and write permissions"
-4. Click "Save"
 
 ### Configure pub.dev for each package 
 
