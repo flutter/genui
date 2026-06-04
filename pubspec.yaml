@@ -10,7 +10,7 @@ environment:
   sdk: ">=3.10.0 <4.0.0"
 
 workspace:
-  # TODO(polinach): Re-enable these packages.
+  # TODO(polinach): Re-enable Flutter packages.
   # See https://github.com/dart-lang/ecosystem/issues/418 
   # - dev_tools/catalog_gallery
   # - dev_tools/composer
