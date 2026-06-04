@@ -358,6 +358,25 @@ void main() {
       expect(errorMap['path'], 'surfaceId');
     });
 
+    test(
+      'duplicate createSurface for an active surface reports an error',
+      () async {
+        controller.handleMessage(
+          const CreateSurface(surfaceId: 's1', catalogId: 'test_catalog'),
+        );
+        final Future<ChatMessage> messageFuture = controller.onSubmit.first;
+        controller.handleMessage(
+          const CreateSurface(surfaceId: 's1', catalogId: 'test_catalog'),
+        );
+
+        final ChatMessage message = await messageFuture;
+        final UiInteractionPart part = message.parts.uiInteractionParts.first;
+        final errorJson = jsonDecode(part.interaction) as Map<String, dynamic>;
+        final errorMap = errorJson['error']! as Map<String, dynamic>;
+        expect(errorMap['surfaceId'], 's1');
+      },
+    );
+
     test('drops pending updates after timeout', () async {
       // Create controller with short timeout
       final shortTimeoutController = SurfaceController(

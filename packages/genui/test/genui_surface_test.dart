@@ -139,4 +139,42 @@ void main() {
       );
     },
   );
+
+  testWidgets('rebuilds when components change after creation', (
+    WidgetTester tester,
+  ) async {
+    const surfaceId = 'testSurface';
+    controller.handleMessage(
+      const UpdateComponents(
+        surfaceId: surfaceId,
+        components: [
+          Component(id: 'root', type: 'Text', properties: {'text': 'first'}),
+        ],
+      ),
+    );
+    controller.handleMessage(
+      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Surface(surfaceContext: controller.contextFor(surfaceId)),
+      ),
+    );
+    expect(find.text('first'), findsOneWidget);
+
+    // Updating the live surface should rebuild it in place.
+    controller.handleMessage(
+      const UpdateComponents(
+        surfaceId: surfaceId,
+        components: [
+          Component(id: 'root', type: 'Text', properties: {'text': 'second'}),
+        ],
+      ),
+    );
+    await tester.pump();
+
+    expect(find.text('second'), findsOneWidget);
+    expect(find.text('first'), findsNothing);
+  });
 }
