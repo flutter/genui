@@ -1,6 +1,10 @@
 # `json_schema_builder` Change Log
 
-## 0.1.4 (in progress)
+## 0.1.5
+
+- **Internal**: publishing workflow automation.
+
+## 0.1.4
 
 - **Fix**: Remove `package:intl` dependency (#682, #686).
 - **Internal**: Enable stricter dynamic-related analysis (#652).
