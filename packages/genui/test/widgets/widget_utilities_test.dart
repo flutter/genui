@@ -18,7 +18,7 @@ void main() {
         Directionality(
           textDirection: TextDirection.ltr,
           child: BoundObject(
-            dataContext: DataContext(dataModel, '/'),
+            dataContext: DataContext(dataModel, DataPath.root),
             value: const <String, Object?>{'path': '/map'},
             builder: (context, value) {
               if (value is Map) {
@@ -52,7 +52,7 @@ void main() {
         Directionality(
           textDirection: TextDirection.ltr,
           child: BoundList(
-            dataContext: DataContext(dataModel, '/'),
+            dataContext: DataContext(dataModel, DataPath.root),
             value: const <String, Object?>{'path': '/items'},
             builder: (context, value) {
               if (value == null) return const Text('null');

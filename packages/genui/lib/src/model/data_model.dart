@@ -16,10 +16,6 @@ import 'data_path.dart';
 
 export 'data_path.dart';
 
-/// Converts either a legacy [DataPath] or a string path into [DataPath].
-DataPath _toDataPath(Object path) =>
-    path is DataPath ? path : DataPath('$path');
-
 /// Exception thrown when a value in the [DataModel] is not of the expected
 /// type.
 class DataModelTypeException implements Exception {
@@ -151,10 +147,9 @@ class DataContext implements cf.ExecutionContext {
   /// Creates a [DataContext] for the given [path].
   DataContext(
     this._dataModel,
-    Object path, {
+    this.path, {
     Iterable<cf.ClientFunction>? functions,
-  }) : path = _toDataPath(path),
-       _functions = {
+  }) : _functions = {
          if (functions != null)
            for (final f in functions) f.name: f,
        };
@@ -178,14 +173,14 @@ class DataContext implements cf.ExecutionContext {
 
   /// Subscribes to a path, resolving it against the current context.
   @override
-  ValueListenable<T?> subscribe<T>(Object path) {
+  ValueListenable<T?> subscribe<T>(DataPath path) {
     final DataPath absolutePath = resolvePath(path);
     return _dataModel.subscribe<T>(absolutePath);
   }
 
   /// Subscribes to a path and returns a [Stream].
   @override
-  Stream<T?> subscribeStream<T>(Object path) {
+  Stream<T?> subscribeStream<T>(DataPath path) {
     late StreamController<T?> controller;
     ValueListenable<T?>? notifier;
 
@@ -216,24 +211,22 @@ class DataContext implements cf.ExecutionContext {
 
   /// Gets a value, resolving the path against the current context.
   @override
-  T? getValue<T>(Object path) => _dataModel.getValue<T>(resolvePath(path));
+  T? getValue<T>(DataPath path) => _dataModel.getValue<T>(resolvePath(path));
 
   /// Updates the data model, resolving the path against the current context.
   @override
-  void update(Object path, Object? contents) =>
+  void update(DataPath path, Object? contents) =>
       _dataModel.update(resolvePath(path), contents);
 
   /// Creates a new, nested DataContext for a child widget.
   @override
-  DataContext nested(Object relativePath) =>
+  DataContext nested(DataPath relativePath) =>
       DataContext._(_dataModel, resolvePath(relativePath), _functions);
 
   /// Resolves a path against the current context's path.
   @override
-  DataPath resolvePath(Object pathToResolve) {
-    final DataPath path = _toDataPath(pathToResolve);
-    return path.isAbsolute ? path : this.path.join(path);
-  }
+  DataPath resolvePath(DataPath pathToResolve) =>
+      pathToResolve.isAbsolute ? pathToResolve : path.join(pathToResolve);
 
   /// Resolves any dynamic values (bindings or function calls) in the given
   /// value.

@@ -20,22 +20,22 @@ abstract interface class ExecutionContext {
   ClientFunction? getFunction(String name);
 
   /// Subscribes to a path, resolving it against the current context.
-  ValueListenable<T?> subscribe<T>(Object path);
+  ValueListenable<T?> subscribe<T>(DataPath path);
 
   /// Subscribes to a path and returns a [Stream].
-  Stream<T?> subscribeStream<T>(Object path);
+  Stream<T?> subscribeStream<T>(DataPath path);
 
   /// Gets a value, resolving the path against the current context.
-  T? getValue<T>(Object path);
+  T? getValue<T>(DataPath path);
 
   /// Updates the data model, resolving the path against the current context.
-  void update(Object path, Object? contents);
+  void update(DataPath path, Object? contents);
 
   /// Creates a new, nested ExecutionContext for a child widget.
-  ExecutionContext nested(Object relativePath);
+  ExecutionContext nested(DataPath relativePath);
 
   /// Resolves a path against the current context's path.
-  DataPath resolvePath(Object pathToResolve);
+  DataPath resolvePath(DataPath pathToResolve);
 
   /// Resolves any dynamic values (bindings or function calls) in the given
   /// value.
