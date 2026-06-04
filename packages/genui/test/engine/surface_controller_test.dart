@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -303,6 +304,23 @@ void main() {
       expect(part.interaction, expectedJson);
     });
 
+    test('handleUiEvent ignores non-action UiEvents', () async {
+      var submitted = false;
+      final StreamSubscription<ChatMessage> sub = controller.onSubmit.listen(
+        (_) => submitted = true,
+      );
+      final event = UiEvent.fromMap({
+        'widgetId': 'testWidget',
+        'eventType': 'onChanged',
+        'value': 'hello',
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+      controller.handleUiEvent(event);
+      await Future<void>.delayed(Duration.zero);
+      expect(submitted, isFalse);
+      await sub.cancel();
+    });
+
     test(
       'handleMessage reports validation error with correct structure',
       () async {
@@ -326,6 +344,19 @@ void main() {
         expect(errorMap['path'], 'surfaceId');
       },
     );
+
+    test('rejects empty surfaceId on non-create messages', () async {
+      final Future<ChatMessage> messageFuture = controller.onSubmit.first;
+      controller.handleMessage(const UpdateDataModel(surfaceId: '', value: 1));
+
+      final ChatMessage message = await messageFuture;
+      final UiInteractionPart part = message.parts.uiInteractionParts.first;
+      final errorJson = jsonDecode(part.interaction) as Map<String, dynamic>;
+      final errorMap = errorJson['error']! as Map<String, dynamic>;
+      expect(errorMap['code'], 'VALIDATION_FAILED');
+      expect(errorMap['surfaceId'], '');
+      expect(errorMap['path'], 'surfaceId');
+    });
 
     test('drops pending updates after timeout', () async {
       // Create controller with short timeout

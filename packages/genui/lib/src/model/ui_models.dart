@@ -40,6 +40,11 @@ extension type UiEvent.fromMap(JsonMap _json) {
   /// The timestamp of when the event occurred.
   DateTime get timestamp => DateTime.parse(_json['timestamp'] as String);
 
+  /// Whether this is a [UserActionEvent]. Extension types are erased to their
+  /// representation at runtime, so `event is UserActionEvent` is always true
+  /// for any [UiEvent]; the action's `name` key is the real discriminator.
+  bool get isUserAction => _json.containsKey('name');
+
   /// Converts this event to a map, suitable for JSON serialization.
   JsonMap toMap() => _json;
 }
