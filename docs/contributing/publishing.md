@@ -19,8 +19,8 @@ To make sure your PR passes this validation, follow [firehose rules](https://git
 
 Packages in this repo fall into the following categories:
 
-1. **Not published**: `pubspec.yaml` contains `publish_to: none`. Workspace tools and example apps that are never pushed to pub.dev.
-2. **Not yet published**: the package's `version:` ends with a `-wip<N>` suffix (see "`-wip` vs non-`-wip`" below). Published to pub.dev to reserve the name or to test the package; not ready for general use yet.
+1. **Not planned to be published**: `pubspec.yaml` contains `publish_to: none`. Workspace tools and example apps that are never pushed to pub.dev.
+2. **Not yet published**: the package's `version:` ends with a `-wip<N>` suffix (see "Versioning" below). Not-ready-for-production versions are pushed to pub.dev to reserve the name and maybe to try the package in dev purposes.
 3. **Published**: any other package. Each has its own version cadence on pub.dev.
 
 ## About `resolution: workspace`
@@ -33,21 +33,7 @@ Packages in this repo fall into the following categories:
 
 Note that a package can opt out (by omitting `resolution: workspace`) to have separate dependency resolution.
 
-## `-wip` vs non-`-wip` (production ready) versions
 
-The packages code should be always release ready. That means:
-
-1. Use `-wip` version (format `0.1.0-wip002`) if **at least one** of the following statements is true:
-
-   1.1. The package is planned to be released in the future. In this case it is published with `-wip` suffix in order to reserve the package name.
-
-   1.2. The package's last changes touch only non-publishable code or docs (like tests, tools, or not-publishable docs).
-
-   You can publish `-wip<number>` versions (where `<number>` is a three-digit, zero padded integer like `-wip003`), if you need it for development.
-
-2. Remove `-wip` suffix from a version in `pubspec.yaml`, if your change in this package is publishable.
-
-3. If your feature is partially implemented, hide the feature's code behind a false-by-default flag, and use **release-ready** version. (There is no detailed guidance how to define this flag yet. It should be outlined when it is needed. Please create an issue if you need it soon.)
 
 ## Versioning
 
@@ -59,6 +45,24 @@ major number for breaking changes.
 <!-- references -->
 
 [Semver]: https://semver.org/ 
+
+The versions may have postfixes:
+
+- **`-wip<three digit number>`**: not ready for production
+- **`-noop`**: used in CHANGELOG.md and pubspec.yaml to indicate that the code does not contain publishable changes comparing to the previously published version and thus should not be published to pub.dev.
+- **no postfix**: release ready version, that should be pushed to pub.dev right after merging the PR that introduced the changes.
+
+The packages code should be always release ready. That means:
+
+1. Use `-wip` version (format `0.1.0-wip002`) if **at least one** the package is planned to be released in the future. 
+
+2. Use `-noop` version if your PR touches only non-publishable code or docs (like tests, tools, or not-publishable docs).
+
+3. You can publish `-wip<number>` versions (where `<number>` is a three-digit, zero padded integer like `-wip003`), if you need it for development, but do not merge `wip` versions for prod-ready published packages.
+
+4. Remove `-noop` suffix from a version in `pubspec.yaml`, if your change  is publishable.
+
+5. If your feature is partially implemented, hide the feature's code behind a false-by-default flag, and use **release-ready** version. (There is no detailed guidance how to define this flag yet. It should be outlined when it is needed. Please create an issue if you need it soon.)
 
 ## How publishing happens?
 
