@@ -33,8 +33,6 @@ Packages in this repo fall into the following categories:
 
 Note that a package can opt out (by omitting `resolution: workspace`) to have separate dependency resolution.
 
-
-
 ## Versioning
 
 We use [Semver] for package versioning, although before 1.0.0, we will be
@@ -54,11 +52,11 @@ The versions may have postfixes:
 
 The packages code should be always release ready. That means:
 
-1. Use `-wip` version (format `0.1.0-wip002`) if **at least one** the package is planned to be released in the future. 
+1. Use `-wip` version (format `0.1.0-wip002`) if ready versions for this packages were never published yet, and are planned to be published in the future. 
 
 2. Use `-noop` version if your PR touches only non-publishable code or docs (like tests, tools, or not-publishable docs).
 
-3. You can publish `-wip<number>` versions (where `<number>` is a three-digit, zero padded integer like `-wip003`), if you need it for development, but do not merge `wip` versions for prod-ready published packages.
+3. You can publish `-wip<number>` versions, if you need it for development, but do not merge `wip` versions for prod-ready published packages.
 
 4. Remove `-noop` suffix from a version in `pubspec.yaml`, if your change  is publishable.
 
