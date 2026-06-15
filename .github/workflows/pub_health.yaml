@@ -7,7 +7,7 @@
 name: Health
 on:
   pull_request:
-    branches: [ main, master ]
+    branches: [ main ]
     types: [opened, synchronize, reopened, labeled, unlabeled]
 jobs:
   health:
