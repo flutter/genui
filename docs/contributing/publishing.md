@@ -70,7 +70,7 @@ The packages code should be always release ready. That means:
 
 2. **Manual**: After reviewing and merging the PR, for each 'ready to publish' version the author of the PR should run `flutter pub publish` or `dart pub publish`.
 
-TODO(polina-c): add validation that all PRs include CHANGELOG.md entries after updating the repo's settings.
+TODO(polina-c): add validation that all PRs include CHANGELOG.md entries: https://github.com/flutter/genui/issues/967.
 
 TODO(polina-c): update this section after fix of https://github.com/dart-lang/ecosystem/issues/418.
 
