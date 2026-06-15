@@ -1,0 +1,17 @@
+name: Health
+on:
+  pull_request:
+    branches: [ main ]
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+jobs:
+  health:
+    uses: dart-lang/ecosystem/.github/workflows/health.yaml@main
+    with:
+      # TODO: Add breaking check once we have a real version published to
+      # compare against.
+      checks: "version,changelog,do-not-submit"
+      flutter_packages: "pkgs/dart_mcp_server/test_fixtures/counter_app"
+      sdk: dev
+    permissions:
+      pull-requests: write
