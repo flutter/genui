@@ -4,6 +4,9 @@
 
 # Checks changelog has been modified for changed packages.
 
+# TODO(polina-c): add `dart-lang/ecosystem/.github/workflows/post_summaries.yaml@*,`
+# to the org termissions, to enable this workflow
+
 name: Health
 on:
   pull_request:

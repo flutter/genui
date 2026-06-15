@@ -135,8 +135,9 @@ In https://github.com/organizations/flutter/settings/actions:
    peter-evans/create-or-update-comment@*,
    peter-evans/create-pull-request@*,
    peter-evans/repository-dispatch@*,
-   dart-lang/ecosystem/.github/workflows/publish.yaml@*,
+   dart-lang/ecosystem/.github/workflows/health.yaml@*,
    dart-lang/ecosystem/.github/workflows/post_summaries.yaml@*,
+   dart-lang/ecosystem/.github/workflows/publish.yaml@*,
    ```
 
 ### Configure pub.dev for each package 
