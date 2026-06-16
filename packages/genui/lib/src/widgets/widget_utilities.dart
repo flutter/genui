@@ -4,7 +4,6 @@
 
 import 'dart:async';
 
-import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -70,18 +69,18 @@ abstract class BoundValue<T> extends StatefulWidget {
   State<BoundValue<T>> createState();
 }
 
-/// Backing state for [BoundValue]. Manages a preact_signals signal that
-/// mirrors the resolved value. Function-call values (`{call: ...}`) are
-/// driven by a [StreamSubscription] that pushes into the signal.
+/// Backing state for [BoundValue]. Resolves the value definition to a
+/// [ValueListenable] — a data-model subscription for `{path: ...}`, a stream
+/// adapter for `{call: ...}`, or a constant otherwise — and rebuilds via
+/// [ValueListenableBuilder], applying [convert] to each value.
 abstract class BoundValueState<T, W extends BoundValue<T>> extends State<W> {
-  late core.ReadonlySignal<T?> _signal;
+  ValueListenable<Object?>? _listenable;
   StreamSubscription<Object?>? _streamSub;
-  void Function()? _disposeBridge;
 
   @override
   void initState() {
     super.initState();
-    _setupSignal();
+    _setup();
   }
 
   @override
@@ -89,65 +88,47 @@ abstract class BoundValueState<T, W extends BoundValue<T>> extends State<W> {
     super.didUpdateWidget(oldWidget);
     if (widget.value != oldWidget.value ||
         widget.dataContext != oldWidget.dataContext) {
-      _disposeSignal();
-      _setupSignal();
+      _teardown();
+      _setup();
     }
   }
 
   @override
   void dispose() {
-    _disposeSignal();
+    _teardown();
     super.dispose();
   }
 
-  void _setupSignal() {
+  void _setup() {
     final Object? raw = widget.value;
-
     if (raw is Map && raw.containsKey('path')) {
-      final path = DataPath(raw['path'] as String);
-      final ValueListenable<Object?> source = widget.dataContext
-          .subscribe<Object?>(path);
-      // Bridge the legacy ValueListenable facade to a signal so the
-      // signal-backed BoundValue implementation can stay granular.
-      final core.Signal<T?> bridge = core.signal<T?>(convert(source.value));
-
-      void listener() {
-        bridge.set(convert(source.value), force: true);
-      }
-
-      source.addListener(listener);
-      _disposeBridge = () {
-        source.removeListener(listener);
-        final currentSource = source;
-        if (currentSource is ChangeNotifier) {
-          (currentSource as ChangeNotifier).dispose();
-        }
-      };
-      _signal = bridge;
+      _listenable = widget.dataContext.subscribe<Object?>(
+        DataPath(raw['path'] as String),
+      );
     } else if (raw is Map && raw.containsKey('call')) {
-      // Function-call resolution stays Stream-based for now; bridge to signal.
-      final core.Signal<T?> s = core.signal<T?>(null);
+      final notifier = ValueNotifier<Object?>(null);
       _streamSub = widget.dataContext
           .resolve(raw)
           .listen(
-            (Object? v) => s.value = convert(v),
+            (Object? value) => notifier.value = value,
             onError: (Object error) {
               genUiLogger.warning('Error in Bound stream', error);
             },
           );
-      _signal = s;
+      _listenable = notifier;
     } else {
-      _signal = core.signal<T?>(convert(raw));
+      _listenable = ValueNotifier<Object?>(raw);
     }
   }
 
-  void _disposeSignal() {
+  void _teardown() {
     _streamSub?.cancel();
     _streamSub = null;
-    _disposeBridge?.call();
-    _disposeBridge = null;
-    // preact_signals don't require explicit disposal; subscriptions are torn
-    // down when the consuming Effect (in _SignalBuilder) is disposed.
+    final ValueListenable<Object?>? listenable = _listenable;
+    if (listenable is ChangeNotifier) {
+      (listenable as ChangeNotifier).dispose();
+    }
+    _listenable = null;
   }
 
   /// Converts a raw resolved value into the typed [T?].
@@ -155,71 +136,11 @@ abstract class BoundValueState<T, W extends BoundValue<T>> extends State<W> {
 
   @override
   Widget build(BuildContext context) {
-    return _SignalBuilder<T?>(
-      signal: _signal,
-      builder: (ctx, value) => widget.builder(ctx, value),
+    return ValueListenableBuilder<Object?>(
+      valueListenable: _listenable!,
+      builder: (context, raw, _) => widget.builder(context, convert(raw)),
     );
   }
-}
-
-/// Subscribes to a preact_signals [core.ReadonlySignal] and rebuilds when it
-/// changes. Stand-in for `Watch` from a signals-Flutter package, since
-/// `signals_flutter` is built on a different (incompatible) signals library.
-class _SignalBuilder<T> extends StatefulWidget {
-  const _SignalBuilder({required this.signal, required this.builder});
-
-  final core.ReadonlySignal<T> signal;
-  final Widget Function(BuildContext context, T value) builder;
-
-  @override
-  State<_SignalBuilder<T>> createState() => _SignalBuilderState<T>();
-}
-
-class _SignalBuilderState<T> extends State<_SignalBuilder<T>> {
-  late T _value;
-  void Function()? _disposeEffect;
-  bool _initialRun = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _value = widget.signal.peek();
-    _subscribe();
-  }
-
-  @override
-  void didUpdateWidget(_SignalBuilder<T> oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.signal != oldWidget.signal) {
-      _disposeEffect?.call();
-      _initialRun = true;
-      _value = widget.signal.peek();
-      _subscribe();
-    }
-  }
-
-  void _subscribe() {
-    _disposeEffect = core.effect(() {
-      final T newValue = widget.signal.value;
-      // First run is the dependency-tracking pass; value already set from peek.
-      if (_initialRun) {
-        _initialRun = false;
-        return;
-      }
-      if (mounted) {
-        setState(() => _value = newValue);
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _disposeEffect?.call();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => widget.builder(context, _value);
 }
 
 /// Binds to a [String] value.
