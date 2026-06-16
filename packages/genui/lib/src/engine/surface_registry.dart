@@ -15,29 +15,9 @@ sealed class RegistryEvent {}
 
 /// An event indicating that a new surface has been added.
 class SurfaceAdded extends RegistryEvent {
-  /// Constructs from a [genui_model.SurfaceDefinition]. The live [surface]
-  /// is `null` when constructed via this path (intended for tests/mocks);
-  /// the [SurfaceRegistry] uses [SurfaceAdded.fromCore] internally so
-  /// real-world events have both fields populated.
-  SurfaceAdded(this.surfaceId, this.definition) : surface = null;
-
-  /// Internal: constructs from a live core surface, populating both
-  /// [surface] and [definition].
-  @internal
-  SurfaceAdded.fromCore(this.surfaceId, SurfaceModel coreSurface)
-    : definition = genui_model.SurfaceDefinition.fromCore(coreSurface),
-      surface = coreSurface;
-
+  SurfaceAdded(this.surfaceId, this.surface);
   final String surfaceId;
-
-  /// Snapshot definition for this surface.
-  final genui_model.SurfaceDefinition definition;
-
-  /// Live `a2ui_core` surface model. Null when constructed via the public
-  /// constructor; populated when emitted by [SurfaceRegistry]. Intended for
-  /// GenUI internals.
-  @internal
-  final SurfaceModel? surface;
+  final SurfaceModel surface;
 }
 
 /// An event indicating that a surface has been removed.
@@ -48,28 +28,9 @@ class SurfaceRemoved extends RegistryEvent {
 
 /// An event indicating that a surface's components were updated.
 class SurfaceUpdated extends RegistryEvent {
-  /// Constructs from a [genui_model.SurfaceDefinition]. See [SurfaceAdded]
-  /// for the relationship between this constructor and
-  /// [SurfaceUpdated.fromCore].
-  SurfaceUpdated(this.surfaceId, this.definition) : surface = null;
-
-  /// Internal: constructs from a live core surface, populating both
-  /// [surface] and [definition].
-  @internal
-  SurfaceUpdated.fromCore(this.surfaceId, SurfaceModel coreSurface)
-    : definition = genui_model.SurfaceDefinition.fromCore(coreSurface),
-      surface = coreSurface;
-
+  SurfaceUpdated(this.surfaceId, this.surface);
   final String surfaceId;
-
-  /// Snapshot definition for this surface.
-  final genui_model.SurfaceDefinition definition;
-
-  /// Live `a2ui_core` surface model. Null when constructed via the public
-  /// constructor; populated when emitted by [SurfaceRegistry]. Intended for
-  /// GenUI internals.
-  @internal
-  final SurfaceModel? surface;
+  final SurfaceModel surface;
 }
 
 /// Tracks live [SurfaceModel]s by surface ID and exposes Flutter-friendly
@@ -125,7 +86,7 @@ class SurfaceRegistry {
       ..remove(surface.id)
       ..add(surface.id);
     genUiLogger.info('Created new surface ${surface.id}');
-    _eventController.add(SurfaceAdded.fromCore(surface.id, surface));
+    _eventController.add(SurfaceAdded(surface.id, surface));
   }
 
   /// Signals that the components of a surface have changed. Intended for
@@ -143,7 +104,7 @@ class SurfaceRegistry {
         .value = genui_model.SurfaceDefinition.fromCore(
       surface,
     );
-    _eventController.add(SurfaceUpdated.fromCore(surface.id, surface));
+    _eventController.add(SurfaceUpdated(surface.id, surface));
   }
 
   /// Removes a surface from the registry, emitting a [SurfaceRemoved] event.
