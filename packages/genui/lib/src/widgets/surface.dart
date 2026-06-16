@@ -45,32 +45,11 @@ class Surface extends StatefulWidget {
 
 class _SurfaceState extends State<Surface> {
   @override
-  void initState() {
-    super.initState();
-    widget.surfaceContext.definition.addListener(_onDefinitionChanged);
-  }
-
-  @override
-  void didUpdateWidget(Surface oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.surfaceContext == widget.surfaceContext) return;
-    oldWidget.surfaceContext.definition.removeListener(_onDefinitionChanged);
-    widget.surfaceContext.definition.addListener(_onDefinitionChanged);
-  }
-
-  @override
-  void dispose() {
-    widget.surfaceContext.definition.removeListener(_onDefinitionChanged);
-    super.dispose();
-  }
-
-  void _onDefinitionChanged() {
-    if (mounted) setState(() {});
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return _buildDefinitionSurface(widget.surfaceContext.definition.value);
+    return ValueListenableBuilder<SurfaceDefinition?>(
+      valueListenable: widget.surfaceContext.definition,
+      builder: (context, definition, _) => _buildDefinitionSurface(definition),
+    );
   }
 
   Widget _buildDefinitionSurface(SurfaceDefinition? definition) {
