@@ -102,15 +102,12 @@ class SurfaceRegistry {
   }
 
   /// Removes a surface from the registry, emitting a [SurfaceRemoved] event.
-  ///
-  /// The per-id definition [ValueNotifier] is intentionally retained (reset to
-  /// `null`) so widgets already listening stay connected; a later re-create of
-  /// the same id updates the existing notifier. The [SurfaceModel] is owned and
-  /// disposed by the substrate's `core.SurfaceGroupModel`.
+  /// The [SurfaceModel] itself is owned and disposed by the substrate's
+  /// `core.SurfaceGroupModel`.
   void removeSurface(String surfaceId) {
     if (_surfaces.remove(surfaceId) == null) return;
     genUiLogger.info('Deleting surface $surfaceId');
-    _definitions[surfaceId]?.value = null;
+    _definitions.remove(surfaceId)?.dispose();
     _surfaceOrder.remove(surfaceId);
     _eventController.add(SurfaceRemoved(surfaceId));
   }
