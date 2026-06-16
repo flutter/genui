@@ -16,131 +16,6 @@ import 'data_path.dart';
 
 export 'data_path.dart';
 
-/// Exception thrown when a value in the [DataModel] is not of the expected
-/// type.
-class DataModelTypeException implements Exception {
-  /// Creates a [DataModelTypeException].
-  DataModelTypeException({
-    required this.path,
-    required this.expectedType,
-    required this.actualType,
-  });
-
-  /// The path where the type mismatch occurred.
-  final DataPath path;
-
-  /// The expected type.
-  final Type expectedType;
-
-  /// The actual type found.
-  final Type actualType;
-
-  @override
-  String toString() {
-    return 'DataModelTypeException: Expected $expectedType at $path, '
-        'but found $actualType';
-  }
-}
-
-/// Manages the application's data model and provides a subscription-based
-/// mechanism for reactive UI updates.
-abstract interface class DataModel {
-  /// Updates the data model at a specific absolute path and notifies all
-  /// relevant subscribers.
-  void update(DataPath absolutePath, Object? contents);
-
-  /// Subscribes to a specific absolute path in the data model.
-  ValueNotifier<T?> subscribe<T>(DataPath absolutePath);
-
-  /// Binds an external state [source] to a [path] in the DataModel.
-  void Function() bindExternalState<T>({
-    required DataPath path,
-    required ValueListenable<T> source,
-    bool twoWay = false,
-  });
-
-  /// Disposes resources and bindings.
-  void dispose();
-
-  /// Retrieves a static, one-time value from the data model at the
-  /// specified absolute path without creating a subscription.
-  T? getValue<T>(DataPath absolutePath);
-}
-
-/// Standard in-memory implementation of [DataModel]. Facade over
-/// `a2ui_core.DataModel`.
-class InMemoryDataModel implements DataModel {
-  /// Creates an empty in-memory data model.
-  InMemoryDataModel() : _core = core.DataModel(), _ownsCore = true;
-
-  /// Wraps an existing core data model.
-  @internal
-  InMemoryDataModel.wrap(core.DataModel coreDataModel)
-    : _core = coreDataModel,
-      _ownsCore = false;
-
-  final core.DataModel _core;
-  final bool _ownsCore;
-  final List<VoidCallback> _externalSubscriptions = [];
-
-  /// The wrapped core data model. Intended for GenUI internals only.
-  @internal
-  core.DataModel get coreDataModel => _core;
-
-  @override
-  void update(DataPath absolutePath, Object? contents) {
-    _core.set(absolutePath.toString(), contents);
-  }
-
-  @override
-  ValueNotifier<T?> subscribe<T>(DataPath absolutePath) {
-    return _SignalNotifier<T>(_core.watch<Object?>(absolutePath.toString()));
-  }
-
-  @override
-  void Function() bindExternalState<T>({
-    required DataPath path,
-    required ValueListenable<T> source,
-    bool twoWay = false,
-  }) {
-    final VoidCallback cleanup = _bindExternalState(
-      dataModel: this,
-      path: path,
-      source: source,
-      twoWay: twoWay,
-    );
-    _externalSubscriptions.add(cleanup);
-    return () {
-      cleanup();
-      _externalSubscriptions.remove(cleanup);
-    };
-  }
-
-  @override
-  void dispose() {
-    for (final callback in List<VoidCallback>.of(_externalSubscriptions)) {
-      callback();
-    }
-    _externalSubscriptions.clear();
-    if (_ownsCore) {
-      _core.dispose();
-    }
-  }
-
-  @override
-  T? getValue<T>(DataPath absolutePath) {
-    final Object? value = _core.get(absolutePath.toString());
-    if (value != null && value is! T) {
-      throw DataModelTypeException(
-        path: absolutePath,
-        expectedType: T,
-        actualType: value.runtimeType,
-      );
-    }
-    return value as T?;
-  }
-}
-
 /// A contextual view of the main DataModel, used by widgets to resolve
 /// relative and absolute paths.
 class DataContext implements cf.ExecutionContext {
@@ -317,56 +192,168 @@ Future<JsonMap> resolveContext(
   return resolved;
 }
 
-VoidCallback _bindExternalState<T>({
-  required DataModel dataModel,
-  required DataPath path,
-  required ValueListenable<T> source,
-  bool twoWay = false,
-}) {
-  dataModel.update(path, source.value);
+/// Exception thrown when a value in the [DataModel] is not of the expected
+/// type.
+class DataModelTypeException implements Exception {
+  /// Creates a [DataModelTypeException].
+  DataModelTypeException({
+    required this.path,
+    required this.expectedType,
+    required this.actualType,
+  });
 
-  void onSourceChanged() {
-    final T newValue = source.value;
-    final T? currentValue = dataModel.getValue<T>(path);
-    if (currentValue != newValue) {
-      dataModel.update(path, newValue);
-    }
+  /// The path where the type mismatch occurred.
+  final DataPath path;
+
+  /// The expected type.
+  final Type expectedType;
+
+  /// The actual type found.
+  final Type actualType;
+
+  @override
+  String toString() {
+    return 'DataModelTypeException: Expected $expectedType at $path, '
+        'but found $actualType';
+  }
+}
+
+/// Manages the application's data model and provides a subscription-based
+/// mechanism for reactive UI updates.
+abstract interface class DataModel {
+  /// Updates the data model at a specific absolute path and notifies all
+  /// relevant subscribers.
+  void update(DataPath absolutePath, Object? contents);
+
+  /// Subscribes to a specific absolute path in the data model.
+  ValueNotifier<T?> subscribe<T>(DataPath absolutePath);
+
+  /// Binds an external state [source] to a [path] in the DataModel.
+  void Function() bindExternalState<T>({
+    required DataPath path,
+    required ValueListenable<T> source,
+    bool twoWay = false,
+  });
+
+  /// Disposes resources and bindings.
+  void dispose();
+
+  /// Retrieves a static, one-time value from the data model at the
+  /// specified absolute path without creating a subscription.
+  T? getValue<T>(DataPath absolutePath);
+}
+
+/// Standard in-memory implementation of [DataModel]. Facade over
+/// `a2ui_core.DataModel`.
+class InMemoryDataModel implements DataModel {
+  /// Creates an empty in-memory data model.
+  InMemoryDataModel() : _core = core.DataModel(), _ownsCore = true;
+
+  /// Wraps an existing core data model.
+  @internal
+  InMemoryDataModel.wrap(core.DataModel coreDataModel)
+    : _core = coreDataModel,
+      _ownsCore = false;
+
+  final core.DataModel _core;
+  final bool _ownsCore;
+  final List<VoidCallback> _externalSubscriptions = [];
+
+  /// The wrapped core data model. Intended for GenUI internals only.
+  @internal
+  core.DataModel get coreDataModel => _core;
+
+  @override
+  void update(DataPath absolutePath, Object? contents) {
+    _core.set(absolutePath.toString(), contents);
   }
 
-  source.addListener(onSourceChanged);
+  @override
+  ValueNotifier<T?> subscribe<T>(DataPath absolutePath) {
+    return _SignalNotifier<T>(_core.watch<Object?>(absolutePath.toString()));
+  }
 
-  VoidCallback? removeModelListener;
-  if (twoWay) {
-    if (source is! ValueNotifier<T>) {
-      genUiLogger.warning(
-        'bindExternalState: twoWay is true but source is not a ValueNotifier.',
-      );
-    } else {
-      final ValueNotifier<T> notifier = source;
-      final ValueListenable<T?> subscription = dataModel.subscribe<T>(path);
+  @override
+  void Function() bindExternalState<T>({
+    required DataPath path,
+    required ValueListenable<T> source,
+    bool twoWay = false,
+  }) {
+    update(path, source.value);
 
-      void onModelChanged() {
-        final T? modelValue = subscription.value;
-        if (modelValue != null && modelValue != notifier.value) {
-          notifier.value = modelValue;
-        }
+    void onSourceChanged() {
+      final T newValue = source.value;
+      final T? currentValue = getValue<T>(path);
+      if (currentValue != newValue) {
+        update(path, newValue);
       }
+    }
 
-      subscription.addListener(onModelChanged);
-      removeModelListener = () {
-        subscription.removeListener(onModelChanged);
-        final currentSubscription = subscription;
-        if (currentSubscription is ChangeNotifier) {
-          (currentSubscription as ChangeNotifier).dispose();
+    source.addListener(onSourceChanged);
+    void removeSourceListener() => source.removeListener(onSourceChanged);
+    _externalSubscriptions.add(removeSourceListener);
+
+    VoidCallback? removeModelListener;
+    if (twoWay) {
+      if (source is! ValueNotifier<T>) {
+        genUiLogger.warning(
+          'bindExternalState: twoWay is true but source is not a '
+          'ValueNotifier.',
+        );
+      } else {
+        final ValueNotifier<T> notifier = source;
+        final ValueNotifier<T?> subscription = subscribe<T>(path);
+
+        void onModelChanged() {
+          final T? modelValue = subscription.value;
+          if (modelValue != null && modelValue != notifier.value) {
+            notifier.value = modelValue;
+          }
         }
-      };
+
+        subscription.addListener(onModelChanged);
+        removeModelListener = () {
+          subscription.removeListener(onModelChanged);
+          subscription.dispose();
+        };
+        _externalSubscriptions.add(removeModelListener);
+      }
+    }
+
+    return () {
+      removeSourceListener();
+      _externalSubscriptions.remove(removeSourceListener);
+
+      if (removeModelListener != null) {
+        removeModelListener();
+        _externalSubscriptions.remove(removeModelListener);
+      }
+    };
+  }
+
+  @override
+  void dispose() {
+    for (final callback in List<VoidCallback>.of(_externalSubscriptions)) {
+      callback();
+    }
+    _externalSubscriptions.clear();
+    if (_ownsCore) {
+      _core.dispose();
     }
   }
 
-  return () {
-    source.removeListener(onSourceChanged);
-    removeModelListener?.call();
-  };
+  @override
+  T? getValue<T>(DataPath absolutePath) {
+    final Object? value = _core.get(absolutePath.toString());
+    if (value != null && value is! T) {
+      throw DataModelTypeException(
+        path: absolutePath,
+        expectedType: T,
+        actualType: value.runtimeType,
+      );
+    }
+    return value as T?;
+  }
 }
 
 /// Bridges a preact_signals [core.ReadonlySignal] to a Flutter
