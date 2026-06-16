@@ -4,11 +4,7 @@
 
 import 'package:collection/collection.dart';
 
-/// A class for handling JSON Pointer-style paths.
-///
-/// Splits paths on `/` only; does not implement RFC 6901 `~0`/`~1`
-/// escaping for `~`/`/` within segments. This matches the web_core
-/// reference implementation, despite the v0.9 spec citing RFC 6901.
+/// A class for handling JSON Pointer (RFC 6901) paths.
 class DataPath {
   final List<String> segments;
 
@@ -33,7 +29,9 @@ class DataPath {
       return DataPath([]);
     }
 
-    final List<String> segments = normalized.split('/');
+    final List<String> segments = normalized.split('/').map((s) {
+      return s.replaceAll('~1', '/').replaceAll('~0', '~');
+    }).toList();
 
     return DataPath(segments);
   }
@@ -70,7 +68,7 @@ class DataPath {
   @override
   String toString() {
     if (segments.isEmpty) return '/';
-    return '/${segments.join('/')}';
+    return '/${segments.map((s) => s.replaceAll('~', '~0').replaceAll('/', '~1')).join('/')}';
   }
 
   @override

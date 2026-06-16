@@ -18,8 +18,6 @@
   nothing now throw, and sparse list writes fill skipped entries with `null`.
 - **Behavior**: A duplicate `createSurface` for an already-active surface id is now
   an error.
-- **Behavior**: `~0`/`~1` escapes are no longer interpreted in `DataPath`; paths
-  split on `/`.
 - The catalog-widget authoring API is unchanged; `SurfaceDefinition` and
   `Component` remain genui types.
 

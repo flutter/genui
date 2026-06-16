@@ -59,8 +59,6 @@ Read a surface's data model via `SurfaceController.contextFor(id).dataModel`
   version, or more than one action key in a single message).
 - **A duplicate `createSurface` for an active surface id is now an error** rather
   than silently reusing the existing surface.
-- **JSON Pointer `~0`/`~1` escapes are no longer interpreted** in data paths;
-  paths split on `/`.
 - **`updateDataModel` with `value: null` removes the key**, the same as omitting
   the value. Distinguishing the two is pending flutter/genui#938.
 

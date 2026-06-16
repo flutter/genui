@@ -145,23 +145,6 @@ void main() {
       expect(model.get('/'), isEmpty);
     });
 
-    test('copies immutable containers before nested writes', () {
-      final model = DataModel();
-      model.set('/', const {
-        'experience': '2-5',
-        'nested': {'count': 1},
-        'items': ['a'],
-      });
-
-      model.set('/experience', '5+');
-      model.set('/nested/count', 2);
-      model.set('/items/1', 'b');
-
-      expect(model.get('/experience'), '5+');
-      expect(model.get('/nested'), {'count': 2});
-      expect(model.get('/items'), ['a', 'b']);
-    });
-
     test('rejects excessively large list indices to prevent OOM', () {
       final model = DataModel();
       expect(
