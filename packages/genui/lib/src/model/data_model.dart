@@ -270,7 +270,10 @@ class InMemoryDataModel implements DataModel {
 
   @override
   ValueNotifier<T?> subscribe<T>(DataPath absolutePath) {
-    return _SignalNotifier<T>(_core.watch<Object?>(absolutePath.toString()));
+    return _SignalNotifier<T>(
+      _core.watch<Object?>(absolutePath.toString()),
+      absolutePath,
+    );
   }
 
   @override
@@ -359,9 +362,10 @@ class InMemoryDataModel implements DataModel {
 /// Bridges a preact_signals [core.ReadonlySignal] to a Flutter
 /// [ValueNotifier].
 class _SignalNotifier<T> extends ValueNotifier<T?> {
-  _SignalNotifier(this._signal) : super(_cast<T>(_signal.peek())) {
+  _SignalNotifier(this._signal, this._path)
+    : super(_cast<T>(_signal.peek(), _path)) {
     _disposeEffect = core.effect(() {
-      final T? newValue = _cast<T>(_signal.value);
+      final T? newValue = _cast<T>(_signal.value, _path);
       if (newValue == value) {
         notifyListeners();
       } else {
@@ -371,13 +375,14 @@ class _SignalNotifier<T> extends ValueNotifier<T?> {
   }
 
   final core.ReadonlySignal<Object?> _signal;
+  final DataPath _path;
   late final void Function() _disposeEffect;
   bool _isDisposed = false;
 
-  static T? _cast<T>(Object? v) {
+  static T? _cast<T>(Object? v, DataPath path) {
     if (v != null && v is! T) {
       throw DataModelTypeException(
-        path: DataPath.root,
+        path: path,
         expectedType: T,
         actualType: v.runtimeType,
       );
