@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 import 'package:stream_transform/stream_transform.dart';
 
 import '../model/client_function.dart';
-import '../model/data_path.dart';
+import '../model/data_model.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 import '../utils/stream_extensions.dart';
@@ -92,7 +92,7 @@ class ExpressionParser {
   /// any data path dependencies within the arguments will be added to the set.
   Stream<Object?> evaluateFunctionCall(
     JsonMap callDefinition, {
-    Set<String>? dependencies,
+    Set<DataPath>? dependencies,
     int depth = 0,
   }) {
     if (depth > _maxRecursionDepth) {
@@ -184,7 +184,7 @@ class ExpressionParser {
 
   Stream<Object?> _parseStringWithInterpolations(
     String input,
-    Set<String>? dependencies, {
+    Set<DataPath>? dependencies, {
     int depth = 0,
   }) {
     if (depth > _maxRecursionDepth) {
@@ -284,7 +284,7 @@ class ExpressionParser {
   Object? _evaluateExpression(
     String content,
     int depth,
-    Set<String>? dependencies,
+    Set<DataPath>? dependencies,
   ) {
     if (depth > _maxRecursionDepth) {
       throw RecursionExpectedException(
@@ -320,7 +320,7 @@ class ExpressionParser {
   Map<String, Object?> _parseNamedArgs(
     String argsStr,
     int depth,
-    Set<String>? dependencies,
+    Set<DataPath>? dependencies,
   ) {
     final args = <String, Object?>{};
     var i = 0;
@@ -379,7 +379,7 @@ class ExpressionParser {
     String input,
     int start,
     int depth,
-    Set<String>? dependencies,
+    Set<DataPath>? dependencies,
   ) {
     if (start >= input.length) return (null, start);
 
@@ -440,10 +440,10 @@ class ExpressionParser {
     return (_resolvePath(token, dependencies), i);
   }
 
-  Stream<Object?> _resolvePath(String pathStr, Set<String>? dependencies) {
+  Stream<Object?> _resolvePath(String pathStr, Set<DataPath>? dependencies) {
     pathStr = pathStr.trim();
     if (dependencies != null) {
-      dependencies.add(context.resolvePath(DataPath(pathStr)).toString());
+      dependencies.add(context.resolvePath(DataPath(pathStr)));
       return Stream.value(null);
     }
     return context.subscribeStream<Object?>(DataPath(pathStr));
