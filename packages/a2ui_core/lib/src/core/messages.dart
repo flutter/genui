@@ -142,9 +142,6 @@ class UpdateComponentsMessage extends A2uiMessage {
 }
 
 /// Updates the data model for an existing surface.
-///
-/// A `null` [value] removes the key at [path]; distinguishing that from
-/// explicitly setting a key to `null` is pending flutter/genui#938.
 class UpdateDataModelMessage extends A2uiMessage {
   final String surfaceId;
   final String? path;

@@ -133,8 +133,8 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
       return;
     }
 
-    // Register an empty stub for unknown catalogIds. Mirrors the lenient
-    // pre-migration behavior tests and demos relied on.
+    // Tolerate unknown catalogIds by registering an empty stub rather than
+    // rejecting the surface.
     if (coreMessage is core.CreateSurfaceMessage) {
       final core.CreateSurfaceMessage createMessage = coreMessage;
       if (!_processor.catalogs.any((c) => c.id == createMessage.catalogId)) {
