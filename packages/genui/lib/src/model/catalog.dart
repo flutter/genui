@@ -275,10 +275,10 @@ class _CatalogItemComponentApi implements core.ComponentApi {
   Schema get schema => _item.dataSchema;
 }
 
-/// Substrate-facing [core.Catalog] view of a genui [Catalog].
+/// Adapts a genui [Catalog] to the `a2ui_core` [core.Catalog] type.
 extension CatalogCoreView on Catalog {
   /// Returns a [core.Catalog] populated from this catalog's items, used when
-  /// constructing a [core.SurfaceModel] so substrate-side lookups see real
+  /// constructing a [core.SurfaceModel] so `a2ui_core` lookups see real
   /// component metadata instead of an empty stub.
   core.Catalog<core.ComponentApi> get coreCatalog =>
       core.Catalog<core.ComponentApi>(

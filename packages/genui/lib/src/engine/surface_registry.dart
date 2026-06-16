@@ -102,7 +102,7 @@ class SurfaceRegistry {
   }
 
   /// Removes a surface from the registry, emitting a [SurfaceRemoved] event.
-  /// The [SurfaceModel] itself is owned and disposed by the substrate's
+  /// The [SurfaceModel] itself is owned and disposed by
   /// `core.SurfaceGroupModel`.
   void removeSurface(String surfaceId) {
     if (_surfaces.remove(surfaceId) == null) return;
@@ -126,8 +126,8 @@ class SurfaceRegistry {
   SurfaceModel? getLiveSurface(String surfaceId) => _surfaces[surfaceId];
 
   /// Disposes of the registry and all per-surface notifiers. The underlying
-  /// [SurfaceModel]s are owned and disposed by the substrate's
-  /// `core.SurfaceGroupModel`, not by this registry.
+  /// [SurfaceModel]s are owned and disposed by `core.SurfaceGroupModel`,
+  /// not by this registry.
   void dispose() {
     _eventController.close();
     for (final ValueNotifier<genui_model.SurfaceDefinition?> notifier
