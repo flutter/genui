@@ -1,17 +1,19 @@
 # Migration Guide: GenUI on `a2ui_core`
 
-`package:genui` now runs on the shared `package:a2ui_core` runtime (#811). This
-changes how you feed A2UI messages to genui. Catalog widgets and data-binding
-code are unaffected.
+`package:genui` now runs on the shared `package:a2ui_core` runtime (#811). The
+only customer-facing change is for code that **implements a custom `Transport` or
+constructs/parses A2UI messages directly** — those message types moved to
+`a2ui_core`. The default AI/transport flow, catalog widgets, and data-binding code
+are unaffected.
 
 ## What you have to change
 
 ### A2UI messages are now `a2ui_core` types
 
 The genui message classes (`A2uiMessage`, `CreateSurface`, `UpdateComponents`,
-`UpdateDataModel`, `DeleteSurface`) are removed. If you construct or handle
-messages directly, switch to the `a2ui_core` types and add `a2ui_core` to your
-dependencies.
+`UpdateDataModel`, `DeleteSurface`) are removed. Add `a2ui_core` to your
+dependencies and use its message types. They don't collide with anything genui
+exports, so import them unprefixed with a `show` list:
 
 ```dart
 // Before
@@ -23,23 +25,25 @@ controller.handleMessage(
 controller.handleMessage(CreateSurface(surfaceId: 's', catalogId: 'demo'));
 
 // After
-import 'package:a2ui_core/a2ui_core.dart' as core;
+import 'package:a2ui_core/a2ui_core.dart'
+    show CreateSurfaceMessage, UpdateComponentsMessage;
 
 controller.handleMessage(
-  core.UpdateComponentsMessage(surfaceId: 's', components: [
+  UpdateComponentsMessage(surfaceId: 's', components: [
     {'id': 'root', 'component': 'Text', 'text': 'Hi'},
   ]),
 );
 controller.handleMessage(
-  core.CreateSurfaceMessage(surfaceId: 's', catalogId: 'demo'),
+  CreateSurfaceMessage(surfaceId: 's', catalogId: 'demo'),
 );
 ```
 
-- `handleMessage`, `Transport.incomingMessages`, and `A2uiMessageEvent.message`
-  now use `core.A2uiMessage`.
-- `core.UpdateComponentsMessage` takes raw component JSON maps
+- **Custom transport:** `Transport.incomingMessages` and
+  `SurfaceController.handleMessage` now use `a2ui_core`'s `A2uiMessage`. Update
+  those signatures if you implement `Transport` or drive the controller directly.
+- **Building messages:** `UpdateComponentsMessage` takes raw component JSON maps
   (`{'id': ..., 'component': ..., ...props}`), not `Component` objects.
-- Parse from JSON with `core.A2uiMessage.fromJson(json)`.
+- **Parsing raw JSON:** use `A2uiMessage.fromJson(json)`.
 
 ### `SurfaceController.store` is removed
 
@@ -48,9 +52,9 @@ Read a surface's data model via `SurfaceController.contextFor(id).dataModel`
 
 ## Behavior you may notice
 
-- **`DataModel` writes are stricter.** Writes that previously did nothing can now
-  throw, e.g. type-mismatched intermediate paths and out-of-range list indices;
-  sparse list writes fill the gaps with `null`.
+- **`DataModel` writes are stricter.** Some writes that used to silently do
+  nothing now throw, e.g. writing through a path whose intermediate value isn't a
+  map or list.
 - **Malformed messages are rejected more consistently** (missing or wrong
   version, or more than one action key in a single message).
 - **A duplicate `createSurface` for an active surface id is now an error** rather
