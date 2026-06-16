@@ -51,7 +51,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   late final surface_reg.SurfaceRegistry _registry =
       surface_reg.SurfaceRegistry();
   // Writable data models handed out by `contextFor(id).dataModel` before the
-  // surface exists; migrated into the live core model on surface creation.
+  // surface exists; copied into the live core model on surface creation.
   final Map<String, DataModel> _preCreateDataModels = {};
   final Map<String, DataModel> _liveDataModels = {};
 
@@ -232,7 +232,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   };
 
   void _onCoreSurfaceCreated(core.SurfaceModel<core.ComponentApi> surface) {
-    // Migrate pre-create fallback data into the live model BEFORE notifying
+    // Copy pre-create fallback data into the live model BEFORE notifying
     // registry listeners; otherwise a synchronous listener could call
     // contextFor(...).dataModel and cache an empty live wrapper before the
     // fallback's data is copied in.
