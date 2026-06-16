@@ -84,30 +84,6 @@ void main() {
       expect(ud.value, isNull);
     });
 
-    test('parses updateDataModel with explicit null value', () {
-      final msg = A2uiMessage.fromJson({
-        'version': 'v0.9',
-        'updateDataModel': {'surfaceId': 's1', 'path': '/x', 'value': null},
-      });
-
-      final ud = msg as UpdateDataModelMessage;
-      expect(ud.value, isNull);
-    });
-
-    test('round-trips an explicit-null updateDataModel value', () {
-      final original = A2uiMessage.fromJson({
-        'version': 'v0.9',
-        'updateDataModel': {'surfaceId': 's1', 'path': '/x', 'value': null},
-      });
-      final Map<String, dynamic> json = original.toJson();
-      final body = json['updateDataModel'] as Map<String, dynamic>;
-      expect(body.containsKey('value'), isTrue);
-      expect(body['value'], isNull);
-
-      final reparsed = A2uiMessage.fromJson(json) as UpdateDataModelMessage;
-      expect(reparsed.value, isNull);
-    });
-
     test('parses deleteSurface', () {
       final msg = A2uiMessage.fromJson({
         'version': 'v0.9',

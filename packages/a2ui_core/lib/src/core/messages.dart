@@ -9,12 +9,7 @@ abstract class A2uiMessage {
   final String version;
   A2uiMessage({this.version = 'v0.9'});
 
-  /// Deserializes a JSON message into a typed [A2uiMessage].
-  ///
-  /// Throws [A2uiValidationError] if the `version` field is missing or is
-  /// not exactly `'v0.9'`, or if the message does not contain exactly one
-  /// of `createSurface`, `updateComponents`, `updateDataModel`,
-  /// `deleteSurface`.
+  /// Deserializes a JSON envelope into a typed [A2uiMessage].
   factory A2uiMessage.fromJson(Map<String, dynamic> json) {
     final Object? rawVersion = json['version'];
     if (rawVersion is! String) {
@@ -160,7 +155,7 @@ class UpdateDataModelMessage extends A2uiMessage {
     'updateDataModel': {
       'surfaceId': surfaceId,
       if (path != null) 'path': path,
-      'value': value,
+      if (value != null) 'value': value,
     },
   };
 }
