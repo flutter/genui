@@ -134,9 +134,9 @@ void main() {
 
     test('surface() creates a new ValueNotifier if one does not exist', () {
       final ValueListenable<SurfaceDefinition?> notifier1 = controller.registry
-          .watchDefinition('s1');
+          .watchSurface('s1');
       final ValueListenable<SurfaceDefinition?> notifier2 = controller.registry
-          .watchDefinition('s1');
+          .watchSurface('s1');
       expect(notifier1, same(notifier2));
       expect(notifier1.value, isNull);
     });
@@ -409,7 +409,7 @@ void main() {
       await Future<void>.delayed(Duration.zero);
 
       final SurfaceDefinition? surface = shortTimeoutController.registry
-          .watchDefinition(surfaceId)
+          .watchSurface(surfaceId)
           .value;
       expect(surface, isNotNull);
       // Updates NOT applied, so components should be empty (or default)

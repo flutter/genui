@@ -373,7 +373,7 @@ class _ControllerContext implements SurfaceContext {
 
   @override
   ValueListenable<SurfaceDefinition?> get definition =>
-      _controller.registry.watchDefinition(surfaceId);
+      _controller.registry.watchSurface(surfaceId);
 
   @override
   DataModel get dataModel => _controller._dataModelFor(surfaceId);

@@ -55,12 +55,6 @@ class SurfaceRegistry {
   /// it is removed.
   ValueListenable<genui_model.SurfaceDefinition?> watchSurface(
     String surfaceId,
-  ) => watchDefinition(surfaceId);
-
-  /// Returns a [ValueListenable] tracking the
-  /// [genui_model.SurfaceDefinition] snapshot for [surfaceId].
-  ValueListenable<genui_model.SurfaceDefinition?> watchDefinition(
-    String surfaceId,
   ) {
     return _definitions.putIfAbsent(
       surfaceId,
