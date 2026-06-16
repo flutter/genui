@@ -226,9 +226,6 @@ final class Component {
     return {'id': id, 'component': type, ...properties};
   }
 
-  /// Converts this snapshot to the core component wire JSON shape.
-  Map<String, dynamic> toCoreJson() => Map<String, dynamic>.from(toJson());
-
   @override
   bool operator ==(Object other) =>
       other is Component &&
