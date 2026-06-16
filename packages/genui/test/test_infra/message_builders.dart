@@ -54,16 +54,6 @@ core.UpdateDataModelMessage updateDataModel({
   value: value,
 );
 
-core.UpdateDataModelMessage updateDataModelRemoveKey({
-  String version = 'v0.9',
-  required String surfaceId,
-  DataPath path = DataPath.root,
-}) => core.UpdateDataModelMessage.removeKey(
-  version: version,
-  surfaceId: surfaceId,
-  path: path.toString(),
-);
-
 core.DeleteSurfaceMessage deleteSurface({
   String version = 'v0.9',
   required String surfaceId,

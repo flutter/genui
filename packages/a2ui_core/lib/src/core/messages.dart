@@ -70,18 +70,11 @@ abstract class A2uiMessage {
 
     if (json.containsKey('updateDataModel')) {
       final body = json['updateDataModel'] as Map<String, dynamic>;
-      if (body.containsKey('value')) {
-        return UpdateDataModelMessage(
-          version: version,
-          surfaceId: body['surfaceId'] as String,
-          path: body['path'] as String?,
-          value: body['value'],
-        );
-      }
-      return UpdateDataModelMessage.removeKey(
+      return UpdateDataModelMessage(
         version: version,
         surfaceId: body['surfaceId'] as String,
         path: body['path'] as String?,
+        value: body['value'],
       );
     }
 
@@ -150,35 +143,19 @@ class UpdateComponentsMessage extends A2uiMessage {
 
 /// Updates the data model for an existing surface.
 ///
-/// The wire protocol distinguishes two intents:
-///
-/// - `"value": <x>` (present, possibly `null`): set [path] to that value.
-/// - omitted `value` key: remove the key at [path] (sparse-clear for lists).
-///
-/// The default constructor builds the first; [UpdateDataModelMessage.removeKey]
-/// builds the second. [hasValue] preserves the distinction across parse and
-/// serialize.
+/// A `null` [value] removes the key at [path]; distinguishing that from
+/// explicitly setting a key to `null` is pending flutter/genui#938.
 class UpdateDataModelMessage extends A2uiMessage {
   final String surfaceId;
   final String? path;
   final Object? value;
-
-  /// True if the message carries an explicit `value` on the wire.
-  final bool hasValue;
 
   UpdateDataModelMessage({
     super.version,
     required this.surfaceId,
     this.path,
     this.value,
-  }) : hasValue = true;
-
-  UpdateDataModelMessage.removeKey({
-    super.version,
-    required this.surfaceId,
-    this.path,
-  }) : value = null,
-       hasValue = false;
+  });
 
   @override
   Map<String, dynamic> toJson() => {
@@ -186,7 +163,7 @@ class UpdateDataModelMessage extends A2uiMessage {
     'updateDataModel': {
       'surfaceId': surfaceId,
       if (path != null) 'path': path,
-      if (hasValue) 'value': value,
+      'value': value,
     },
   };
 }
