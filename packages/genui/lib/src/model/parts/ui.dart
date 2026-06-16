@@ -66,11 +66,12 @@ extension UiPartListExtension on Iterable<StandardPart> {
 @immutable
 final class UiPart {
   /// Creates a [DataPart] compatible with GenUI.
-  static DataPart create({required Object definition, String? surfaceId}) {
+  static DataPart create({
+    required SurfaceDefinition definition,
+    String? surfaceId,
+  }) {
     final Map<String, Object?> json = {
-      _Json.definition: definition is SurfaceDefinition
-          ? definition.toJson()
-          : definition as JsonMap,
+      _Json.definition: definition.toJson(),
       _Json.surfaceId: surfaceId ?? generateId(),
     };
     return DataPart(
