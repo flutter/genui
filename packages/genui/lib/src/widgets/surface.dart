@@ -79,7 +79,7 @@ class _SurfaceState extends State<Surface> {
       return FallbackWidget(error: error);
     }
 
-    return _buildWidgetFromDefinition(
+    return _buildWidget(
       definition,
       catalog,
       rootId,
@@ -91,7 +91,7 @@ class _SurfaceState extends State<Surface> {
     );
   }
 
-  Widget _buildWidgetFromDefinition(
+  Widget _buildWidget(
     SurfaceDefinition definition,
     Catalog catalog,
     String widgetId,
@@ -116,7 +116,7 @@ class _SurfaceState extends State<Surface> {
             data: widgetData,
             type: data.type,
             buildChild: (String childId, [DataContext? childDataContext]) =>
-                _buildWidgetFromDefinition(
+                _buildWidget(
                   definition,
                   catalog,
                   childId,
@@ -150,7 +150,7 @@ class _SurfaceState extends State<Surface> {
       context,
       event,
       widget.surfaceContext,
-      _buildWidgetFromDefinition,
+      _buildWidget,
     )) {
       return;
     }
