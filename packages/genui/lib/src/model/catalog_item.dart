@@ -2,10 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
-import 'package:meta/meta.dart' show internal;
 
 import 'data_model.dart';
 import 'ui_models.dart';
@@ -28,81 +26,33 @@ typedef ExampleBuilderCallback = String Function();
 typedef CatalogWidgetBuilder = Widget Function(CatalogItemContext itemContext);
 
 /// Context provided to a [CatalogItem]'s widget builder.
-///
-/// Backed by a substrate [core.ComponentContext] plus Flutter-specific
-/// extras: [buildContext], [buildChild], [dispatchEvent], [dataContext],
-/// [reportError].
 final class CatalogItemContext {
-  /// Creates a [CatalogItemContext] from raw fields. Synthesizes a
-  /// stand-alone substrate context internally.
+  /// Creates a [CatalogItemContext] with the required parameters.
+  ///
+  /// All parameters are required to ensure the widget builder has complete
+  /// context for rendering and interaction.
   CatalogItemContext({
-    required String id,
-    required String type,
-    required Map<String, Object?> data,
+    required this.data,
+    required this.id,
+    required this.type,
     required this.buildChild,
     required this.dispatchEvent,
     required this.buildContext,
     required this.dataContext,
-    required GetComponentCallback getComponent,
+    required this.getComponent,
     required this.getCatalogItem,
-    required String surfaceId,
+    required this.surfaceId,
     required this.reportError,
-  }) : _componentContext = _standaloneContext(
-         id: id,
-         type: type,
-         data: data,
-         surfaceId: surfaceId,
-       ),
-       _getComponentOverride = getComponent;
+  });
 
-  /// Creates a [CatalogItemContext] from a substrate [core.ComponentContext].
-  /// Renderer-internal; tests should use the public constructor or
-  /// [CatalogItemContext.forTesting].
-  @internal
-  CatalogItemContext.fromCore({
-    required core.ComponentContext componentContext,
-    required this.buildChild,
-    required this.dispatchEvent,
-    required this.buildContext,
-    required this.dataContext,
-    required this.getCatalogItem,
-    required this.reportError,
-  }) : _componentContext = componentContext,
-       _getComponentOverride = null;
+  /// The parsed data for this component from the AI-generated definition.
+  final Object data;
 
-  /// Test-only convenience: builds a stand-alone substrate context so tests
-  /// don't need to wire up a full surface.
-  @visibleForTesting
-  factory CatalogItemContext.forTesting({
-    required String id,
-    required String type,
-    required Map<String, Object?> data,
-    required ChildBuilderCallback buildChild,
-    required DispatchEventCallback dispatchEvent,
-    required BuildContext buildContext,
-    required DataContext dataContext,
-    required CatalogItem? Function(String type) getCatalogItem,
-    required String surfaceId,
-    required void Function(Object error, StackTrace? stack) reportError,
-  }) {
-    return CatalogItemContext(
-      id: id,
-      type: type,
-      data: data,
-      buildChild: buildChild,
-      dispatchEvent: dispatchEvent,
-      buildContext: buildContext,
-      dataContext: dataContext,
-      getComponent: (_) => null,
-      getCatalogItem: getCatalogItem,
-      surfaceId: surfaceId,
-      reportError: reportError,
-    );
-  }
+  /// The unique identifier for this component instance.
+  final String id;
 
-  final core.ComponentContext _componentContext;
-
-  final GetComponentCallback? _getComponentOverride;
+  /// The type of this component.
+  final String type;
 
   /// Callback to build a child widget by its component ID.
   final ChildBuilderCallback buildChild;
@@ -113,91 +63,20 @@ final class CatalogItemContext {
   /// The Flutter [BuildContext] for this widget.
   final BuildContext buildContext;
 
-  /// The [DataContext] for accessing the data model, dispatching catalog
-  /// functions, and subscribing to dynamic-value streams.
+  /// The [DataContext] for accessing and modifying the data model.
   final DataContext dataContext;
+
+  /// Callback to retrieve a component definition by its ID.
+  final GetComponentCallback getComponent;
 
   /// Callback to retrieve a catalog item definition by its type name.
   final CatalogItem? Function(String type) getCatalogItem;
 
+  /// The ID of the surface this component belongs to.
+  final String surfaceId;
+
   /// Callback to report an error that occurred within this component.
   final void Function(Object error, StackTrace? stack) reportError;
-
-  CatalogItemContext._copy({
-    required core.ComponentContext componentContext,
-    required GetComponentCallback? getComponentOverride,
-    required this.buildChild,
-    required this.dispatchEvent,
-    required this.buildContext,
-    required this.dataContext,
-    required this.getCatalogItem,
-    required this.reportError,
-  }) : _componentContext = componentContext,
-       _getComponentOverride = getComponentOverride;
-
-  /// Returns a copy of this context with selected callbacks replaced. The
-  /// substrate context is preserved.
-  @internal
-  CatalogItemContext withOverrides({
-    ChildBuilderCallback? buildChild,
-    DispatchEventCallback? dispatchEvent,
-    BuildContext? buildContext,
-    DataContext? dataContext,
-    CatalogItem? Function(String type)? getCatalogItem,
-    void Function(Object error, StackTrace? stack)? reportError,
-  }) {
-    return CatalogItemContext._copy(
-      componentContext: _componentContext,
-      getComponentOverride: _getComponentOverride,
-      buildChild: buildChild ?? this.buildChild,
-      dispatchEvent: dispatchEvent ?? this.dispatchEvent,
-      buildContext: buildContext ?? this.buildContext,
-      dataContext: dataContext ?? this.dataContext,
-      getCatalogItem: getCatalogItem ?? this.getCatalogItem,
-      reportError: reportError ?? this.reportError,
-    );
-  }
-
-  /// The parsed data for this component from the AI-generated definition.
-  Object get data => _componentContext.componentModel.properties;
-
-  /// The unique identifier for this component instance.
-  String get id => _componentContext.componentModel.id;
-
-  /// The type of this component.
-  String get type => _componentContext.componentModel.type;
-
-  /// The ID of the surface this component belongs to.
-  String get surfaceId => _componentContext.surface.id;
-
-  /// Retrieves a component on the surface by its ID, or `null` if absent.
-  Component? getComponent(String componentId) {
-    final Component? override = _getComponentOverride?.call(componentId);
-    if (override != null) return override;
-    final core.ComponentModel? component = _componentContext
-        .surface
-        .componentsModel
-        .get(componentId);
-    return component == null ? null : Component.fromCore(component);
-  }
-
-  static core.ComponentContext _standaloneContext({
-    required String id,
-    required String type,
-    required Map<String, Object?> data,
-    required String surfaceId,
-  }) {
-    final surface = core.SurfaceModel<core.ComponentApi>(
-      surfaceId,
-      catalog: core.Catalog<core.ComponentApi>(
-        id: 'catalog',
-        components: const [],
-      ),
-    );
-    final component = core.ComponentModel(id, type, data);
-    surface.componentsModel.addComponent(component);
-    return core.ComponentContext(surface, component);
-  }
 }
 
 /// Defines a UI layout type, its schema, and how to build its widget.
