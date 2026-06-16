@@ -2,12 +2,11 @@
 
 ## 0.0.1-wip002
 
-- **Feature**: Re-export preact_signals `effect` and `Effect`.
-- **Fix**: `DataModel.set` deep-copies map/list payloads so later nested
-  writes work even when callers pass const literals.
-- **Behavior**: `DataPath` no longer interprets RFC 6901 `~0`/`~1`
-  escapes; paths split on `/` only, matching the TypeScript reference
-  implementation (see A2UI#1499 tracking spec clarification).
+- **Feature**: Export `effect` and `Effect`.
+- **Fix**: `DataModel.set` copies map and list values so later writes into
+  nested paths succeed.
+- **Behavior**: `DataPath` no longer interprets `~0`/`~1` escapes; paths
+  split on `/` only.
 
 ## 0.0.1-dev002
 

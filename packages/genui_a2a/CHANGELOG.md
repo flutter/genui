@@ -3,8 +3,7 @@
 ## 0.10.0 (in progress)
 
 - **BREAKING**: `A2uiAgentConnector.stream` now emits `package:a2ui_core`
-  message types (`core.A2uiMessage`) rather than the removed GenUI message
-  facades. Depend on `a2ui_core` directly to consume them.
+  message types. Depend on `a2ui_core` directly to consume them.
 
 ## 0.9.0
 
