@@ -1,4 +1,4 @@
-# Migration Guide: GenUI on `a2ui_core`
+# Migration Guide: 0.9.1 to 0.10.0
 
 `package:genui` now runs on the shared `package:a2ui_core` runtime (#811). The
 only customer-facing change is for code that **implements a custom `Transport` or
