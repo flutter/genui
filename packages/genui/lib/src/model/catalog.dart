@@ -136,24 +136,27 @@ interface class Catalog {
     }
 
     genUiLogger.info('Building widget ${item.name} with id ${itemContext.id}');
-    return item.widgetBuilder(
-      CatalogItemContext(
-        data: itemContext.data,
-        id: itemContext.id,
-        type: itemContext.type,
-        buildChild: (String childId, [DataContext? childDataContext]) =>
-            itemContext.buildChild(
-              childId,
-              childDataContext ?? itemContext.dataContext,
-            ),
-        dispatchEvent: itemContext.dispatchEvent,
-        buildContext: itemContext.buildContext,
-        dataContext: itemContext.dataContext,
-        getComponent: itemContext.getComponent,
-        getCatalogItem: (String type) =>
-            items.firstWhereOrNull((item) => item.name == type),
-        surfaceId: itemContext.surfaceId,
-        reportError: itemContext.reportError,
+    return KeyedSubtree(
+      key: ValueKey(itemContext.id),
+      child: item.widgetBuilder(
+        CatalogItemContext(
+          data: itemContext.data,
+          id: itemContext.id,
+          type: itemContext.type,
+          buildChild: (String childId, [DataContext? childDataContext]) =>
+              itemContext.buildChild(
+                childId,
+                childDataContext ?? itemContext.dataContext,
+              ),
+          dispatchEvent: itemContext.dispatchEvent,
+          buildContext: itemContext.buildContext,
+          dataContext: itemContext.dataContext,
+          getComponent: itemContext.getComponent,
+          getCatalogItem: (String type) =>
+              items.firstWhereOrNull((item) => item.name == type),
+          surfaceId: itemContext.surfaceId,
+          reportError: itemContext.reportError,
+        ),
       ),
     );
   }

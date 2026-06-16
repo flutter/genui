@@ -108,30 +108,27 @@ class _SurfaceState extends State<Surface> {
 
       final JsonMap widgetData = data.properties;
       genUiLogger.finest('Building widget $widgetId');
-      return KeyedSubtree(
-        key: ValueKey<String>(widgetId),
-        child: catalog.buildWidget(
-          CatalogItemContext(
-            id: widgetId,
-            data: widgetData,
-            type: data.type,
-            buildChild: (String childId, [DataContext? childDataContext]) =>
-                _buildWidget(
-                  definition,
-                  catalog,
-                  childId,
-                  childDataContext ?? dataContext,
-                ),
-            dispatchEvent: _dispatchEvent,
-            buildContext: context,
-            dataContext: dataContext,
-            getComponent: (String componentId) =>
-                definition.components[componentId],
-            getCatalogItem: (String type) =>
-                catalog.items.firstWhereOrNull((item) => item.name == type),
-            surfaceId: widget.surfaceContext.surfaceId,
-            reportError: widget.surfaceContext.reportError,
-          ),
+      return catalog.buildWidget(
+        CatalogItemContext(
+          id: widgetId,
+          data: widgetData,
+          type: data.type,
+          buildChild: (String childId, [DataContext? childDataContext]) =>
+              _buildWidget(
+                definition,
+                catalog,
+                childId,
+                childDataContext ?? dataContext,
+              ),
+          dispatchEvent: _dispatchEvent,
+          buildContext: context,
+          dataContext: dataContext,
+          getComponent: (String componentId) =>
+              definition.components[componentId],
+          getCatalogItem: (String type) =>
+              catalog.items.firstWhereOrNull((item) => item.name == type),
+          surfaceId: widget.surfaceContext.surfaceId,
+          reportError: widget.surfaceContext.reportError,
         ),
       );
     } catch (exception, stackTrace) {
