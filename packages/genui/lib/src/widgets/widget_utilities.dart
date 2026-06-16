@@ -101,7 +101,7 @@ abstract class BoundValueState<T, W extends BoundValue<T>> extends State<W> {
 
   void _setup() {
     final Object? raw = widget.value;
-    if (raw is Map && raw.containsKey('path')) {
+    if (raw is Map && raw['path'] is String) {
       _listenable = widget.dataContext.subscribe<Object?>(
         DataPath(raw['path'] as String),
       );
