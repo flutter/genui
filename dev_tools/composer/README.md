@@ -8,8 +8,16 @@ surfaces using the `genui` library.
 - **Create** - Describe a UI in plain text and have Gemini generate an A2UI
   surface from your description.
 - **Gallery** - Browse and preview pre-built sample surfaces.
-- **Components** - View all available built-incatalog components.
+- **Components** - View all available built-in catalog components.
 - **Surface Editor** - Edit A2UI JSONL and data models with a live preview.
+
+## Prerequisites
+
+- The [Flutter SDK](https://docs.flutter.dev/get-started/install) with desktop
+  support enabled.
+- This is a desktop-only app, so run it on a desktop target (macOS, Linux, or
+  Windows) using `-d <device>`. Run `flutter devices` to see the available
+  targets.
 
 ## Setup & run
 
@@ -24,11 +32,11 @@ Provide the key in one of two ways:
 
    ```sh
    export GEMINI_API_KEY="your-key-here"
-   flutter run
+   flutter run -d macos
    ```
 
 2. **Dart define:**
 
    ```sh
-   flutter run --dart-define=GEMINI_API_KEY=your-key-here
+   flutter run -d macos --dart-define=GEMINI_API_KEY=your-key-here
    ```
