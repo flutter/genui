@@ -4,7 +4,6 @@
 
 import 'dart:convert';
 
-import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../src/model/a2ui_schemas.dart';
@@ -76,17 +75,10 @@ Future<List<ExampleValidationError>> validateCatalogItemExamples(
       );
     }
 
-    final surfaceUpdate = core.UpdateComponentsMessage(
-      surfaceId: 'test-surface',
-      components: components,
-    );
-
-    // `a2ui_core.UpdateComponentsMessage.toJson()` produces
-    // `{'version': ..., 'updateComponents': {...}}`; the schema here
-    // validates the body shape only.
-    final List<ValidationError> validationErrors = await schema.validate(
-      surfaceUpdate.toJson()['updateComponents'],
-    );
+    final List<ValidationError> validationErrors = await schema.validate({
+      surfaceIdKey: 'test-surface',
+      'components': components,
+    });
     if (validationErrors.isNotEmpty) {
       errors.add(
         ExampleValidationError(
