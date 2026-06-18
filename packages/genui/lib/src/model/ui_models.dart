@@ -237,6 +237,36 @@ class SurfaceDefinition {
     Map<String, dynamic> schema,
     String path,
   ) {
+    if (schema case {'type': Object expectedType}) {
+      final List<String> types = expectedType is List
+          ? expectedType.map((e) => e.toString()).toList()
+          : [expectedType.toString()];
+
+      final bool isValid = types.any(
+        (t) => switch (t) {
+          'string' => instance is String,
+          'number' => instance is num,
+          // A whole-valued double such as 42.0 is a valid integer.
+          'integer' =>
+            instance is num && (instance is int || instance.remainder(1) == 0),
+          'boolean' => instance is bool,
+          'object' => instance is Map,
+          'array' => instance is List,
+          'null' => instance == null,
+          _ => false,
+        },
+      );
+
+      if (!isValid) {
+        final Object actualType = instance?.runtimeType ?? 'null';
+        throw A2uiValidationException(
+          'Type mismatch. Expected $types, got $actualType',
+          surfaceId: surfaceId,
+          path: path,
+        );
+      }
+    }
+
     if (instance == null) {
       return;
     }

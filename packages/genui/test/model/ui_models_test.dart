@@ -75,7 +75,6 @@ void main() {
         components: {'test': component},
       );
 
-      // Schema invalidating the component (e.g., expecting type "Button")
       final schema = S.object(
         properties: {
           'components': S.list(
@@ -116,7 +115,214 @@ void main() {
         },
       );
 
-      surfaceDefinition.validate(schema); // Should not throw
+      surfaceDefinition.validate(schema); // Should not throw.
+    });
+
+    test('validate enforces primitive types: string', () {
+      final component = const Component(
+        id: 'test',
+        type: 'Text',
+        // int instead of string.
+        properties: {'text': 42},
+      );
+      final surfaceDefinition = SurfaceDefinition(
+        surfaceId: 's1',
+        components: {'test': component},
+      );
+
+      final schema = S.object(
+        properties: {
+          'components': S.list(
+            items: S.object(
+              properties: {
+                'component': S.string(constValue: 'Text'),
+                'text': S.string(),
+              },
+            ),
+          ),
+        },
+      );
+
+      expect(
+        () => surfaceDefinition.validate(schema),
+        throwsA(
+          isA<A2uiValidationException>().having(
+            (e) => e.message,
+            'message',
+            contains('Type mismatch'),
+          ),
+        ),
+      );
+    });
+
+    test('validate enforces primitive types: boolean', () {
+      final component = const Component(
+        id: 'test',
+        type: 'Checkbox',
+        properties: {'checked': 'true'}, // string instead of bool.
+      );
+      final surfaceDefinition = SurfaceDefinition(
+        surfaceId: 's1',
+        components: {'test': component},
+      );
+
+      final schema = S.object(
+        properties: {
+          'components': S.list(
+            items: S.object(
+              properties: {
+                'component': S.string(constValue: 'Checkbox'),
+                'checked': S.boolean(),
+              },
+            ),
+          ),
+        },
+      );
+
+      expect(
+        () => surfaceDefinition.validate(schema),
+        throwsA(isA<A2uiValidationException>()),
+      );
+    });
+
+    test('validate enforces primitive types: '
+        'number vs integer', () {
+      final componentInt = const Component(
+        id: 'test1',
+        type: 'Slider',
+        properties: {'value': 42}, // Valid integer.
+      );
+      final componentDouble = const Component(
+        id: 'test2',
+        type: 'Slider',
+        properties: {'value': 42.5}, // Valid number, invalid integer.
+      );
+      // JSON decodes whole numbers like 42.0 to a Dart double; per JSON
+      // Schema a double with a zero fractional part is still an integer.
+      final componentWholeDouble = const Component(
+        id: 'test3',
+        type: 'Slider',
+        properties: {'value': 42.0},
+      );
+
+      final schema = S.object(
+        properties: {
+          'components': S.list(
+            items: S.object(
+              properties: {
+                'component': S.string(constValue: 'Slider'),
+                'value': S.integer(),
+              },
+            ),
+          ),
+        },
+      );
+
+      SurfaceDefinition(
+        surfaceId: 's1',
+        components: {'test1': componentInt},
+      ).validate(schema);
+
+      SurfaceDefinition(
+        surfaceId: 's3',
+        components: {'test3': componentWholeDouble},
+      ).validate(schema);
+
+      expect(
+        () => SurfaceDefinition(
+          surfaceId: 's2',
+          components: {'test2': componentDouble},
+        ).validate(schema),
+        throwsA(isA<A2uiValidationException>()),
+      );
+    });
+
+    test('validate accepts both int and double for number type', () {
+      final schema = S.object(
+        properties: {
+          'components': S.list(
+            items: S.object(
+              properties: {
+                'component': S.string(constValue: 'Slider'),
+                'value': S.number(),
+              },
+            ),
+          ),
+        },
+      );
+
+      for (final value in const <Object>[42, 42.5]) {
+        SurfaceDefinition(
+          surfaceId: 's1',
+          components: {
+            'test': Component(
+              id: 'test',
+              type: 'Slider',
+              properties: {'value': value},
+            ),
+          },
+        ).validate(schema);
+      }
+    });
+
+    test('validate rejects explicit null for a non-nullable type', () {
+      final component = const Component(
+        id: 'test',
+        type: 'Text',
+        properties: {'text': null}, // null where a string is required.
+      );
+      final surfaceDefinition = SurfaceDefinition(
+        surfaceId: 's1',
+        components: {'test': component},
+      );
+
+      final schema = S.object(
+        properties: {
+          'components': S.list(
+            items: S.object(
+              properties: {
+                'component': S.string(constValue: 'Text'),
+                'text': S.string(),
+              },
+            ),
+          ),
+        },
+      );
+
+      expect(
+        () => surfaceDefinition.validate(schema),
+        throwsA(isA<A2uiValidationException>()),
+      );
+    });
+
+    test('validate enforces primitive types: array and object', () {
+      final component = const Component(
+        id: 'test',
+        type: 'List',
+        properties: {'items': 42}, // int instead of array.
+      );
+      final surfaceDefinition = SurfaceDefinition(
+        surfaceId: 's1',
+        components: {'test': component},
+      );
+
+      final schema = S.object(
+        properties: {
+          'components': S.list(
+            items: S.object(
+              properties: {
+                'component': S.string(constValue: 'List'),
+                'items': S.list(items: S.string()),
+              },
+            ),
+          ),
+        },
+      );
+
+      expect(
+        () => surfaceDefinition.validate(schema),
+        throwsA(isA<A2uiValidationException>()),
+      );
     });
   });
 
