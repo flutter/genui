@@ -256,6 +256,9 @@ class InMemoryDataModel implements DataModel {
       _ownsCore = false;
 
   final core.DataModel _core;
+  // True when this owns `_core` (created by the default constructor) and must
+  // dispose it; false when wrapping a borrowed `core.DataModel` owned by
+  // a2ui_core's `SurfaceModel`.
   final bool _ownsCore;
   final List<VoidCallback> _externalSubscriptions = [];
 
