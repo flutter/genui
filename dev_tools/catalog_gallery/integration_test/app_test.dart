@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:catalog_gallery/main.dart';
+import 'package:catalog_gallery/sample_source.dart';
 import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:flutter/material.dart';
@@ -52,10 +53,14 @@ void main() {
 
   files.sort((a, b) => a.path.compareTo(b.path));
 
+  final SampleSource sampleSource = DirectorySampleSource(samplesDir);
+
   testWidgets('catalog_gallery smoke test - verify initial state', (
     tester,
   ) async {
-    await tester.pumpWidget(CatalogGalleryApp(samplesDir: samplesDir, fs: fs));
+    await tester.pumpWidget(
+      CatalogGalleryApp(sampleSource: sampleSource),
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('Catalog Gallery'), findsOneWidget);
@@ -70,7 +75,7 @@ void main() {
 
         // Start the app with specific samples directory
         await tester.pumpWidget(
-          CatalogGalleryApp(key: UniqueKey(), samplesDir: samplesDir, fs: fs),
+          CatalogGalleryApp(key: UniqueKey(), sampleSource: sampleSource),
         );
         await tester.pumpAndSettle();
 

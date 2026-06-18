@@ -5,6 +5,7 @@
 import 'dart:io';
 
 import 'package:catalog_gallery/main.dart';
+import 'package:catalog_gallery/sample_source.dart';
 import 'package:file/memory.dart';
 import 'package:file/src/interface/directory.dart';
 import 'package:file/src/interface/file.dart';
@@ -15,15 +16,14 @@ import 'src/test_http_client.dart';
 
 void main() {
   testWidgets('Smoke test', (WidgetTester tester) async {
-    final fs = MemoryFileSystem();
     // Build the app and trigger a frame.
     await tester.pumpWidget(
-      CatalogGalleryApp(fs: fs, splashFactory: NoSplash.splashFactory),
+      const CatalogGalleryApp(splashFactory: NoSplash.splashFactory),
     );
     expect(find.text('Catalog Gallery'), findsOneWidget);
   });
 
-  testWidgets('Loads samples from MemoryFileSystem', (
+  testWidgets('Loads samples from a DirectorySampleSource', (
     WidgetTester tester,
   ) async {
     HttpOverrides.global = TestHttpOverrides();
@@ -40,15 +40,13 @@ description: A test description
 
     await tester.pumpWidget(
       CatalogGalleryApp(
-        samplesDir: samplesDir,
-        fs: fs,
+        sampleSource: DirectorySampleSource(samplesDir),
         splashFactory: NoSplash.splashFactory,
       ),
     );
     await tester.pumpAndSettle();
 
-    // Verify that the "Samples" tab is present (since we provided a valid
-    // samplesDir).
+    // Verify that the "Samples" tab is present.
     expect(find.text('Samples'), findsOneWidget);
 
     // Tap on the Samples tab.
