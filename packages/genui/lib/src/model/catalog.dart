@@ -6,6 +6,7 @@ import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
+import 'package:meta/meta.dart' show internal;
 
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
@@ -275,16 +276,14 @@ class _CatalogItemComponentApi implements core.ComponentApi {
   Schema get schema => _item.dataSchema;
 }
 
-/// Adapts a genui [Catalog] to the `a2ui_core` [core.Catalog] type.
-extension CatalogCoreView on Catalog {
-  /// Returns a [core.Catalog] populated from this catalog's items, used when
-  /// constructing a [core.SurfaceModel] so `a2ui_core` lookups see real
-  /// component metadata instead of an empty stub.
-  core.Catalog<core.ComponentApi> get coreCatalog =>
-      core.Catalog<core.ComponentApi>(
-        id: catalogId ?? 'genui_inline_$hashCode',
-        components: items
-            .map<core.ComponentApi>(_CatalogItemComponentApi.new)
-            .toList(growable: false),
-      );
-}
+/// Builds the `a2ui_core` [core.Catalog] for [catalog], used when constructing
+/// a [core.SurfaceModel] so `a2ui_core` lookups see real component metadata
+/// instead of an empty stub.
+@internal
+core.Catalog<core.ComponentApi> coreCatalogFor(Catalog catalog) =>
+    core.Catalog<core.ComponentApi>(
+      id: catalog.catalogId ?? 'genui_inline_${catalog.hashCode}',
+      components: catalog.items
+          .map<core.ComponentApi>(_CatalogItemComponentApi.new)
+          .toList(growable: false),
+    );

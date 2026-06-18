@@ -17,7 +17,7 @@ export 'src/engine.dart' hide SurfaceAdded, SurfaceRemoved;
 export 'src/facade.dart';
 export 'src/functions.dart';
 export 'src/interfaces.dart';
-export 'src/model.dart';
+export 'src/model.dart' hide coreCatalogFor;
 export 'src/primitives.dart';
 export 'src/transport.dart';
 export 'src/utils.dart';

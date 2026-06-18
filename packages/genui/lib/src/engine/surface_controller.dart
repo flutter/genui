@@ -34,7 +34,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
     this.pendingUpdateTimeout = const Duration(minutes: 1),
   }) {
     _processor = core.MessageProcessor<core.ComponentApi>(
-      catalogs: catalogs.map((c) => c.coreCatalog).toList(),
+      catalogs: catalogs.map(coreCatalogFor).toList(),
     );
     _processor.groupModel.onSurfaceCreated.addListener(_onCoreSurfaceCreated);
     _processor.groupModel.onSurfaceDeleted.addListener(_onCoreSurfaceDeleted);
