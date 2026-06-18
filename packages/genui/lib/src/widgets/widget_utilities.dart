@@ -69,10 +69,12 @@ abstract class BoundValue<T> extends StatefulWidget {
   State<BoundValue<T>> createState();
 }
 
-/// Backing state for [BoundValue]. Resolves the value definition to a
-/// [ValueListenable] — a data-model subscription for `{path: ...}`, a stream
-/// adapter for `{call: ...}`, or a constant otherwise — and rebuilds via
-/// [ValueListenableBuilder], applying [convert] to each value.
+/// Backing state for [BoundValue].
+///
+/// Resolves the value to a [ValueListenable] and rebuilds with a
+/// [ValueListenableBuilder]. A `{path: ...}` value reads from the data model, a
+/// `{call: ...}` value adapts a stream, and anything else is a constant. Each
+/// value is passed through [convert].
 abstract class BoundValueState<T, W extends BoundValue<T>> extends State<W> {
   ValueListenable<Object?>? _listenable;
   StreamSubscription<Object?>? _streamSub;
