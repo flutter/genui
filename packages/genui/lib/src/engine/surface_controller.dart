@@ -34,7 +34,6 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
     this.pendingUpdateTimeout = const Duration(minutes: 1),
   }) {
     _processor = core.MessageProcessor<core.ComponentApi>(
-      // Growable: handleMessage injects stub catalogs for unknown catalogIds.
       catalogs: catalogs.map((c) => c.coreCatalog).toList(),
     );
     _processor.groupModel.onSurfaceCreated.addListener(_onCoreSurfaceCreated);
@@ -50,9 +49,6 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   late final core.MessageProcessor<core.ComponentApi> _processor;
   late final surface_reg.SurfaceRegistry _registry =
       surface_reg.SurfaceRegistry();
-  // Writable data models handed out by `contextFor(id).dataModel` before the
-  // surface exists; copied into the live core model on surface creation.
-  final Map<String, DataModel> _preCreateDataModels = {};
   final Map<String, DataModel> _liveDataModels = {};
 
   final _onSubmit = StreamController<ChatMessage>.broadcast();
@@ -93,12 +89,15 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
     final DataModel? live = _liveDataModels[surfaceId];
     if (live != null) return live;
     final core.SurfaceModel? surface = _registry.getLiveSurface(surfaceId);
-    if (surface != null) {
-      final DataModel wrapped = InMemoryDataModel.wrap(surface.dataModel);
-      _liveDataModels[surfaceId] = wrapped;
-      return wrapped;
+    if (surface == null) {
+      throw StateError(
+        "Surface '$surfaceId' does not exist; create it before accessing its "
+        'data model.',
+      );
     }
-    return _preCreateDataModels.putIfAbsent(surfaceId, InMemoryDataModel.new);
+    final DataModel wrapped = InMemoryDataModel.wrap(surface.dataModel);
+    _liveDataModels[surfaceId] = wrapped;
+    return wrapped;
   }
 
   /// Processes a message from the AI service.
@@ -232,17 +231,6 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   };
 
   void _onCoreSurfaceCreated(core.SurfaceModel<core.ComponentApi> surface) {
-    // Copy pre-create fallback data into the live model BEFORE notifying
-    // registry listeners; otherwise a synchronous listener could call
-    // contextFor(...).dataModel and cache an empty live wrapper before the
-    // fallback's data is copied in.
-    final DataModel live = InMemoryDataModel.wrap(surface.dataModel);
-    final DataModel? fallback = _preCreateDataModels.remove(surface.id);
-    if (fallback != null) {
-      live.update(DataPath.root, fallback.getValue<Object?>(DataPath.root));
-      fallback.dispose();
-    }
-    _liveDataModels[surface.id] = live;
     _registry.addSurface(surface);
     final List<core.A2uiMessage>? pending = _pendingUpdates.remove(surface.id);
     _pendingUpdateTimers.remove(surface.id)?.cancel();
@@ -256,7 +244,6 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   void _onCoreSurfaceDeleted(String surfaceId) {
     _pendingUpdates.remove(surfaceId);
     _pendingUpdateTimers.remove(surfaceId)?.cancel();
-    _preCreateDataModels.remove(surfaceId)?.dispose();
     _liveDataModels.remove(surfaceId)?.dispose();
     _registry.removeSurface(surfaceId);
   }
@@ -350,9 +337,6 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
       _onCoreSurfaceDeleted,
     );
     _processor.groupModel.dispose();
-    for (final DataModel model in _preCreateDataModels.values) {
-      model.dispose();
-    }
     for (final DataModel model in _liveDataModels.values) {
       model.dispose();
     }

@@ -47,8 +47,7 @@ controller.handleMessage(
 
 ### `SurfaceController.store` is removed
 
-Read a surface's data model via `SurfaceController.contextFor(id).dataModel`
-(writable, and usable before the surface is created).
+Read a surface's data model via `SurfaceController.contextFor(id).dataModel`.
 
 ## Behavior you may notice
 
