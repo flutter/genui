@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
 import '../primitives/simple_items.dart';
+import 'catalog_context.dart';
 
 /// Common fragments for prompts, to explain agent behavior.
 // This class should not contain technical details.
@@ -62,6 +63,37 @@ the user can indicate that they are done providing information.
       '${prefix}Do not use tools or function calls for UI generation. '
       'Use JSON text blocks.\n'
       'Ensure all JSON is valid and fenced with ```json ... ```.';
+
+  /// Carve-out from the no-tools-for-UI rule for the `loadCatalogItems`
+  /// tool used by [CatalogPromptMode.incremental].
+  ///
+  /// Auto-injected by the prompt builder in [CatalogPromptMode.incremental];
+  /// callers do not need to add it manually.
+  ///
+  /// [prefix] is a prefix to be added to the prompt.
+  /// Is useful when you want to emphasize the importance of this fragment.
+  static String incrementalCatalogToolPolicy({String prefix = ''}) =>
+      '$prefix${CatalogContext.loadCatalogItemsTool.name} is available to load '
+      'A2UI catalog item schemas and examples. Calling it is context loading, '
+      'not UI generation. You may also call any other provided tools; when a '
+      'response needs both schemas and other tools, call them together in the '
+      'same turn rather than across separate turns.';
+}
+
+/// How the catalog is presented to the model in the system prompt.
+enum CatalogPromptMode {
+  /// Inline the full A2UI schema, including every catalog item schema in the
+  /// `updateComponents` `oneOf`.
+  fullSchema,
+
+  /// Show a compact catalog manifest up front and let the model load exact
+  /// component schemas and examples on demand via the `loadCatalogItems`
+  /// tool.
+  ///
+  /// Callers MUST register that tool (wired to [CatalogContext.loadItems])
+  /// before selecting this mode, or the model will be instructed to call a
+  /// tool the host has not registered.
+  incremental,
 }
 
 /// A builder for a prompt to generate UI.
@@ -83,6 +115,7 @@ abstract class PromptBuilder {
     Iterable<String> systemPromptFragments = const [],
     String importancePrefix = defaultImportancePrefix,
     JsonMap? clientDataModel,
+    CatalogPromptMode catalogPromptMode = CatalogPromptMode.fullSchema,
   }) {
     return _BasicPromptBuilder(
       catalog: catalog,
@@ -91,6 +124,7 @@ abstract class PromptBuilder {
       importancePrefix: importancePrefix,
       clientDataModel: clientDataModel,
       technicalPossibilities: const TechnicalPossibilities(),
+      catalogPromptMode: catalogPromptMode,
     );
   }
 
@@ -102,6 +136,7 @@ abstract class PromptBuilder {
     TechnicalPossibilities technicalPossibilities =
         const TechnicalPossibilities(),
     JsonMap? clientDataModel,
+    CatalogPromptMode catalogPromptMode = CatalogPromptMode.fullSchema,
   }) {
     return _BasicPromptBuilder(
       catalog: catalog,
@@ -110,6 +145,7 @@ abstract class PromptBuilder {
       importancePrefix: importancePrefix,
       clientDataModel: clientDataModel,
       technicalPossibilities: technicalPossibilities,
+      catalogPromptMode: catalogPromptMode,
     );
   }
 
@@ -212,7 +248,13 @@ final class TechnicalPossibilities {
   ///
   /// This fragment should be added to the system prompt and should be used to
   /// instruct the model on how to use the surface operations.
-  Iterable<String> systemPromptFragment() {
+  ///
+  /// Set [includeToolRestrictions] to `false` to omit the "no tools / no
+  /// function calls for UI generation" lines. [CatalogPromptMode.incremental]
+  /// does this because it legitimately exposes the `loadCatalogItems` tool, and
+  /// the carve-out ([PromptFragments.incrementalCatalogToolPolicy]) would
+  /// otherwise have to fight these blanket prohibitions.
+  Iterable<String> systemPromptFragment({bool includeToolRestrictions = true}) {
     final result = <String>[];
 
     if (!codeExecution) {
@@ -221,13 +263,13 @@ final class TechnicalPossibilities {
         'If you need to perform calculations, do them yourself.',
       );
     }
-    if (!toolCall) {
+    if (includeToolRestrictions && !toolCall) {
       result.add(
         '${importancePrefix}You do not have the ability '
         'to use tools for UI generation.',
       );
     }
-    if (!functionCall) {
+    if (includeToolRestrictions && !functionCall) {
       result.add(
         '${importancePrefix}You do not have the ability '
         'to use function calls for UI generation.',
@@ -332,6 +374,7 @@ final class _BasicPromptBuilder extends PromptBuilder {
     required this.importancePrefix,
     required this.clientDataModel,
     required this.technicalPossibilities,
+    required this.catalogPromptMode,
   }) : super._();
 
   final Catalog catalog;
@@ -352,28 +395,108 @@ final class _BasicPromptBuilder extends PromptBuilder {
 
   final JsonMap? clientDataModel;
 
-  Iterable<String> _fragmentsToPrompt(Iterable<String> fragments) =>
-      fragments.map((e) => e.trim());
-
   final TechnicalPossibilities technicalPossibilities;
+
+  final CatalogPromptMode catalogPromptMode;
 
   @override
   Iterable<String> systemPrompt() {
+    if (catalogPromptMode == CatalogPromptMode.incremental) {
+      return _incrementalSystemPrompt();
+    }
     final String a2uiSchema = A2uiMessage.a2uiMessageSchema(
       catalog,
     ).toJson(indent: '  ');
 
+    return _assembleSystemPrompt(
+      afterTechnical: const <String>[],
+      catalogSection: _fenced(a2uiSchema, sectionName: 'A2UI JSON SCHEMA'),
+      restrictUiTools: true,
+    );
+  }
+
+  /// Builds the system prompt in incremental mode: the default fragment
+  /// chain plus the `loadCatalogItems` carve-out, with a compact catalog
+  /// manifest in place of the full A2UI schema.
+  Iterable<String> _incrementalSystemPrompt() {
+    // createSurface requires a non-null catalogId; incremental mode is
+    // out of scope for anonymous inline catalogs.
+    if (allowedOperations.create && catalog.catalogId == null) {
+      throw StateError(
+        'CatalogPromptMode.incremental requires a non-null catalogId when '
+        'createSurface is enabled.',
+      );
+    }
+    return _assembleSystemPrompt(
+      afterTechnical: <String>[
+        PromptFragments.incrementalCatalogToolPolicy(prefix: importancePrefix),
+      ],
+      catalogSection: _incrementalCatalogPrompt(),
+      restrictUiTools: false,
+    );
+  }
+
+  /// Assembles the shared system-prompt fragment chain.
+  ///
+  /// Both catalog prompt modes share this skeleton; they differ only in
+  /// [afterTechnical] (the incremental tool-policy carve-out), the
+  /// [catalogSection] (full schema vs. compact manifest), and whether the
+  /// tool-restriction lines are emitted ([restrictUiTools]). Keeping the order
+  /// in one place avoids the two modes silently drifting apart.
+  ///
+  /// Note: [Catalog.systemPromptFragments] and
+  /// [SurfaceOperations.systemPromptFragments] are inlined in both modes: they
+  /// carry guidance, not per-item schemas, so they do not contradict the
+  /// manifest's "use the loaded schemas" instruction.
+  Iterable<String> _assembleSystemPrompt({
+    required Iterable<String> afterTechnical,
+    required String catalogSection,
+    required bool restrictUiTools,
+  }) {
     final fragments = <String>[
       ...systemPromptFragments,
       'Use the provided tools to respond to user using rich UI elements.',
-      ...technicalPossibilities.systemPromptFragment(),
+      ...technicalPossibilities.systemPromptFragment(
+        includeToolRestrictions: restrictUiTools,
+      ),
+      ...afterTechnical,
       ...catalog.systemPromptFragments,
       ...allowedOperations.systemPromptFragments,
-      _fenced(a2uiSchema, sectionName: 'A2UI JSON SCHEMA'),
+      catalogSection,
       ?_encodedDataModel(clientDataModel),
     ];
 
-    return _fragmentsToPrompt(fragments);
+    return fragments.map((fragment) => fragment.trim());
+  }
+
+  /// A compact catalog manifest plus instructions to load item details on
+  /// demand through the `loadCatalogItems` tool.
+  String _incrementalCatalogPrompt() {
+    final CatalogManifest manifest = CatalogContext.manifest(catalog);
+    final String encodedManifest = const JsonEncoder.withIndent(
+      '  ',
+    ).convert(manifest.toJson());
+    final String toolName = CatalogContext.loadCatalogItemsTool.name;
+
+    return _fenced('''
+The active A2UI catalog is available as a compact manifest below. It lists the
+available components and a short description of each, but NOT their full schemas.
+
+Before emitting any A2UI, call the $toolName tool (input shape
+{"items": ["Card", "Text"]}) to load the exact schema and examples for the
+components you need.
+
+In updateComponents.components, each component is an object with:
+- id: a unique component id. Use "root" for the root component.
+- component: the catalog item name.
+- additional properties defined by the loaded catalog item schema.
+
+Do not invent component properties; build valid A2UI JSON from the loaded
+schemas and examples.
+
+Catalog manifest:
+$encodedManifest
+''', sectionName: 'A2UI CATALOG MANIFEST');
   }
 
   static String? _encodedDataModel(JsonMap? clientDataModel) {
