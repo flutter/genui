@@ -12,15 +12,15 @@ import 'ai_client.dart';
 
 typedef ChunkHandler = void Function(String chunk);
 
-class SimpleChatAgent {
-  SimpleChatAgent({AiClient? aiClient, required this.onChunkFromAgent})
+class AppAgent {
+  AppAgent({AiClient? aiClient, required this.onChunkFromAgent})
     : aiClient = aiClient ?? DartanticAiClient();
 
   final AiClient aiClient;
   final ChunkHandler onChunkFromAgent;
   final List<dartantic.ChatMessage> _history = [];
 
-  final Logger _logger = Logger('SimpleChatAgent');
+  final Logger _logger = Logger('AppAgent');
 
   void addSystemMessage(String content) {
     _history.add(dartantic.ChatMessage.system(content));

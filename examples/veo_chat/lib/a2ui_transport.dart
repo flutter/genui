@@ -9,16 +9,13 @@ import 'package:genui/genui.dart';
 import 'agent/agent.dart';
 import 'agent/ai_client.dart';
 
-/// A [Transport] that communicates with [SimpleChatAgent].
+/// A [Transport] that communicates with [AppAgent].
 class SimpleChatA2aTransport implements Transport {
   SimpleChatA2aTransport({AiClient? aiClient}) {
-    _agent = SimpleChatAgent(
-      aiClient: aiClient,
-      onChunkFromAgent: _adapter.addChunk,
-    );
+    _agent = AppAgent(aiClient: aiClient, onChunkFromAgent: _adapter.addChunk);
   }
 
-  late final SimpleChatAgent _agent;
+  late final AppAgent _agent;
   final A2uiTransportAdapter _adapter = A2uiTransportAdapter();
 
   @override

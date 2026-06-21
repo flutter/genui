@@ -150,14 +150,11 @@ sealed class ChatSession extends ChangeNotifier {
 /// A chat session that only supports text messages.
 class TextOnlyChatSession extends ChatSession {
   TextOnlyChatSession({AiClient? aiClient}) : super._() {
-    _agent = SimpleChatAgent(
-      aiClient: aiClient,
-      onChunkFromAgent: _updateAiMessage,
-    );
+    _agent = AppAgent(aiClient: aiClient, onChunkFromAgent: _updateAiMessage);
     _agent.addSystemMessage(Prompts.summary);
   }
 
-  late final SimpleChatAgent _agent;
+  late final AppAgent _agent;
 
   @override
   Future<void> sendMessage(String text) async {
