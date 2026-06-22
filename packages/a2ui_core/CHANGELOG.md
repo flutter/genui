@@ -2,8 +2,5 @@
 
 ## 0.0.1-wip002
 
-- **Feature**: Export `effect` and `Effect`.
-
-## 0.0.1-dev002
-
+- **Feature**: Export `effect`.
 - Initial version.
