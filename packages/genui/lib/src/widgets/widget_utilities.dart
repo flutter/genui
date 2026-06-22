@@ -77,7 +77,7 @@ abstract class BoundValue<T> extends StatefulWidget {
 /// value is passed through [convert].
 abstract class BoundValueState<T, W extends BoundValue<T>> extends State<W> {
   ValueListenable<Object?>? _listenable;
-  StreamSubscription<Object?>? _streamSub;
+  StreamSubscription<Object?>? _streamSubscription;
 
   @override
   void initState() {
@@ -109,7 +109,7 @@ abstract class BoundValueState<T, W extends BoundValue<T>> extends State<W> {
       );
     } else if (raw is Map && raw.containsKey('call')) {
       final notifier = ValueNotifier<Object?>(null);
-      _streamSub = widget.dataContext
+      _streamSubscription = widget.dataContext
           .resolve(raw)
           .listen(
             (Object? value) => notifier.value = value,
@@ -124,8 +124,8 @@ abstract class BoundValueState<T, W extends BoundValue<T>> extends State<W> {
   }
 
   void _teardown() {
-    _streamSub?.cancel();
-    _streamSub = null;
+    _streamSubscription?.cancel();
+    _streamSubscription = null;
     final ValueListenable<Object?>? listenable = _listenable;
     if (listenable is ChangeNotifier) {
       (listenable as ChangeNotifier).dispose();
