@@ -1,10 +1,10 @@
 # Migration Guide: 0.9.1 to 0.10.0
 
-`package:genui` now runs on the shared `package:a2ui_core` runtime (#811). The
-only customer-facing change is for code that **implements a custom `Transport` or
-constructs/parses A2UI messages directly** — those message types moved to
-`a2ui_core`. The default AI/transport flow, catalog widgets, and data-binding code
-are unaffected.
+`package:genui` now runs on the shared `package:a2ui_core` runtime (#811). Most
+apps need no changes: the default AI/transport flow, catalog widgets, and
+data-binding code are unaffected. You only need to act if you **implement a
+custom `Transport` or construct or parse A2UI messages directly**, since those
+message types moved to `a2ui_core`.
 
 ## What you have to change
 
