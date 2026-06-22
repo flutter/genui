@@ -12,8 +12,7 @@ message types moved to `a2ui_core`.
 
 The genui message classes (`A2uiMessage`, `CreateSurface`, `UpdateComponents`,
 `UpdateDataModel`, `DeleteSurface`) are removed. Add `a2ui_core` to your
-dependencies and use its message types. They don't collide with anything genui
-exports, so import them unprefixed with a `show` list:
+dependencies and use its message types:
 
 ```dart
 // Before
