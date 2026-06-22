@@ -8,7 +8,7 @@ keyframe2:
       the room.
       The kitten chases it around the room, knocking over
       furniture and causing chaos. 
-   duration: 5s
+   duration: 10s
 
 keyframe3:
    description: > 
