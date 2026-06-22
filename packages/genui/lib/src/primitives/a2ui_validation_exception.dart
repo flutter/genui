@@ -13,10 +13,19 @@ class A2uiValidationException implements Exception {
     this.cause,
   });
 
+  /// The error message.
   final String message;
+
+  /// The ID of the surface where the validation error occurred.
   final String? surfaceId;
+
+  /// The path in the data or component model where the error occurred.
   final String? path;
+
+  /// The JSON that caused the error.
   final Object? json;
+
+  /// The underlying cause of the error.
   final Object? cause;
 
   @override
