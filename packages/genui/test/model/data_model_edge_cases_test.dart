@@ -102,6 +102,18 @@ void main() {
       expect(list?.length, 3);
     });
 
+    test('writing through a primitive intermediate throws', () {
+      dataModel.update(DataPath('/scalar'), 5);
+
+      // /scalar holds a primitive, so it can't be traversed as a map on the
+      // way to a deeper key; the write is rejected rather than silently
+      // dropped.
+      expect(
+        () => dataModel.update(DataPath('/scalar/child/leaf'), 'x'),
+        throwsA(isA<Exception>()),
+      );
+    });
+
     test('Null Handling: Setting map key to null removes it', () {
       dataModel.update(DataPath('/map'), {'a': 1, 'b': 2});
       dataModel.update(DataPath('/map/a'), null);
