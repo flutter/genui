@@ -25,9 +25,10 @@ import 'surface_registry.dart' as surface_reg;
 
 /// The runtime controller for the GenUI system.
 ///
-/// Wraps [core.MessageProcessor] and adds Flutter-side concerns: pre-create
-/// message buffering, catalog-schema validation, and a [SurfaceUpdate]
-/// stream the Flutter facade subscribes to.
+/// Wraps [core.MessageProcessor] and adds Flutter-side concerns: holding
+/// updates whose target surface does not exist yet and replaying them once it
+/// is created, catalog-schema validation, and a [SurfaceUpdate] stream for the
+/// widget layer.
 interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   SurfaceController({
     required this.catalogs,
