@@ -84,7 +84,7 @@ final class _Json {
 
 /// A data object that represents the entire UI definition.
 ///
-/// Snapshot facade kept for public-API compatibility; mutation is owned by
+/// This is an immutable snapshot; the live, mutable state is owned by
 /// `a2ui_core.SurfaceModel`.
 class SurfaceDefinition {
   /// Creates a [SurfaceDefinition].

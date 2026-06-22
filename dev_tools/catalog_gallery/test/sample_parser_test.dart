@@ -31,9 +31,8 @@ description: A test description
     expect(update.components.length, 1);
     expect(update.components.first['component'], 'Text');
 
-    final begin = messages.last as core.CreateSurfaceMessage;
-    expect(begin.surfaceId, 'default');
-    // begin.root check removed as it doesn't exist in CreateSurfaceMessage
+    final createSurface = messages.last as core.CreateSurfaceMessage;
+    expect(createSurface.surfaceId, 'default');
   });
 
   test(
