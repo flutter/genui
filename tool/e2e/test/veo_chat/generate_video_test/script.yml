@@ -5,7 +5,7 @@ glossary:
    - term: shot
      description: >
         part of action, showed continuously from a single perspective
-        without any edits (perspective can move with the camera)
+        (perspective can move with the camera)
 
    - term: key frame
      description: >
