@@ -162,6 +162,11 @@ interface class Catalog {
     );
   }
 
+  /// The catalog id synthesized when [catalogId] is null. Shared by the
+  /// capabilities advertisement and the `a2ui_core` catalog registration so the
+  /// advertised id and the runtime id never diverge.
+  String get _inlineCatalogId => 'inline_catalog_$hashCode';
+
   /// Generates a JSON map suitable for inclusion in an inline catalog array
   /// within `A2UiClientCapabilities`.
   ///
@@ -171,8 +176,7 @@ interface class Catalog {
   JsonMap toCapabilitiesJson() {
     return {
       if (catalogId != null) 'catalogId': catalogId,
-      // Provide a fallback ID for inline if catalogId is null
-      if (catalogId == null) 'catalogId': 'inline_catalog_$hashCode',
+      if (catalogId == null) 'catalogId': _inlineCatalogId,
       'components': {
         for (final item in items) item.name: item.dataSchema.value,
       },
@@ -282,7 +286,7 @@ class _CatalogItemComponentApi implements core.ComponentApi {
 @internal
 core.Catalog<core.ComponentApi> coreCatalogFor(Catalog catalog) =>
     core.Catalog<core.ComponentApi>(
-      id: catalog.catalogId ?? 'genui_inline_${catalog.hashCode}',
+      id: catalog.catalogId ?? catalog._inlineCatalogId,
       components: catalog.items
           .map<core.ComponentApi>(_CatalogItemComponentApi.new)
           .toList(growable: false),
