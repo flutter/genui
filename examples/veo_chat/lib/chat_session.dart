@@ -9,9 +9,7 @@ import 'package:genui/genui.dart';
 import 'package:logging/logging.dart';
 
 import 'a2ui_transport.dart';
-import 'agent/agent.dart';
 import 'agent/ai_client.dart';
-import 'primitives/app_mode.dart';
 import 'primitives/climbing/a2ui_components/climbing.dart';
 import 'primitives/message.dart';
 
@@ -80,19 +78,8 @@ PromptBuilder _promptBuilderFor(Catalog catalog) => PromptBuilder.chat(
 sealed class ChatSession extends ChangeNotifier {
   ChatSession._();
 
-  factory ChatSession({AiClient? aiClient, required AppMode mode}) {
-    return switch (mode) {
-      AppMode.customCatalog => A2uiChatSession(
-        aiClient: aiClient,
-        catalog: _customCatalog,
-      ),
-      AppMode.basicCatalog => A2uiChatSession(
-        aiClient: aiClient,
-        catalog: _basicCatalog,
-      ),
-      AppMode.textOnly => TextOnlyChatSession(aiClient: aiClient),
-    };
-  }
+  factory ChatSession({AiClient? aiClient}) =>
+      A2uiChatSession(aiClient: aiClient, catalog: _customCatalog);
 
   final List<Message> _messages = [];
   List<Message> get messages => List.unmodifiable(_messages);
@@ -100,9 +87,8 @@ sealed class ChatSession extends ChangeNotifier {
   bool _isProcessing = false;
   bool get isProcessing => _isProcessing;
 
-  /// The surface host for rendering generative UI surfaces, or `null` if this
-  /// session does not produce surfaces (e.g. text-only chat).
-  SurfaceHost? get surfaceController => null;
+  /// The surface host for rendering generative UI surfaces.
+  SurfaceHost? get surfaceController;
 
   final Logger _logger = Logger('ChatSession');
 
@@ -144,28 +130,6 @@ sealed class ChatSession extends ChangeNotifier {
       _isProcessing = false;
       notifyListeners();
     }
-  }
-}
-
-/// A chat session that only supports text messages.
-class TextOnlyChatSession extends ChatSession {
-  TextOnlyChatSession({AiClient? aiClient}) : super._() {
-    _agent = AppAgent(aiClient: aiClient, onChunkFromAgent: _updateAiMessage);
-    _agent.addSystemMessage(Prompts.summary);
-  }
-
-  late final AppAgent _agent;
-
-  @override
-  Future<void> sendMessage(String text) async {
-    if (text.isEmpty) return;
-
-    _currentAiMessage = null;
-    _addUserMessage(text);
-
-    await _runRequest(
-      () => _agent.handleRequestFromRenderer(ChatMessage.user(text)),
-    );
   }
 }
 

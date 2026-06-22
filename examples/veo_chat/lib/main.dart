@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
 import 'chat_session.dart';
-import 'primitives/app_mode.dart';
 import 'primitives/message.dart';
 
 void main() async {
@@ -54,23 +53,13 @@ class _ChatScreenState extends State<ChatScreen> {
   );
   final ScrollController _scrollController = ScrollController();
   late ChatSession _chatSession;
-  AppMode _appMode = AppMode.customCatalog;
 
   @override
   void initState() {
     super.initState();
-    _reCreateChatSession(dispose: false);
-  }
-
-  void _reCreateChatSession({bool dispose = true}) {
-    if (dispose) {
-      _chatSession.removeListener(_scrollToBottom);
-      _chatSession.dispose();
-    }
-    _chatSession = ChatSession(aiClient: widget.aiClient, mode: _appMode);
-    // Add a listener to scroll to bottom when messages change.
+    _chatSession = ChatSession(aiClient: widget.aiClient);
+    // Scroll to bottom when messages change.
     _chatSession.addListener(_scrollToBottom);
-    _textController.text = _defaultUserMessage;
   }
 
   @override
@@ -81,26 +70,6 @@ class _ChatScreenState extends State<ChatScreen> {
         return Scaffold(
           appBar: AppBar(
             title: const Text('Chat (Controller + Dartantic)'),
-            actions: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: DropdownButton<AppMode>(
-                  value: _appMode,
-                  underline: const SizedBox.shrink(),
-                  onChanged: (mode) {
-                    if (mode == null) return;
-                    _changeMode(mode);
-                  },
-                  items: [
-                    for (final mode in AppMode.values)
-                      DropdownMenuItem(
-                        value: mode,
-                        child: Text(mode.displayName),
-                      ),
-                  ],
-                ),
-              ),
-            ],
           ),
 
           body: SafeArea(
@@ -161,14 +130,6 @@ class _ChatScreenState extends State<ChatScreen> {
         );
       },
     );
-  }
-
-  void _changeMode(AppMode mode) {
-    if (mode == _appMode) return;
-    setState(() {
-      _appMode = mode;
-      _reCreateChatSession();
-    });
   }
 
   Future<void> _sendMessage() async {
