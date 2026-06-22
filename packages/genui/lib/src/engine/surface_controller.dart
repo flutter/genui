@@ -171,6 +171,17 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
         StackTrace.current,
       );
       return;
+    } on core.A2uiDataError catch (e) {
+      genUiLogger.warning('Data error from MessageProcessor: ${e.message}');
+      reportError(
+        A2uiValidationException(
+          e.message,
+          surfaceId: _surfaceIdOf(coreMessage),
+          path: e.path,
+        ),
+        StackTrace.current,
+      );
+      return;
     } on A2uiValidationException catch (e) {
       genUiLogger.warning('Validation failed for surface ${e.surfaceId}: $e');
       reportError(e, StackTrace.current);
@@ -236,8 +247,8 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
     final List<core.A2uiMessage>? pending = _pendingUpdates.remove(surface.id);
     _pendingUpdateTimers.remove(surface.id)?.cancel();
     if (pending != null) {
-      for (final core.A2uiMessage msg in pending) {
-        _handleCoreMessage(msg);
+      for (final core.A2uiMessage message in pending) {
+        _handleCoreMessage(message);
       }
     }
   }
