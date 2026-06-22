@@ -16,9 +16,25 @@ void main() {
     final client = GeminiDartanticAiClient();
     addTearDown(client.dispose);
 
+    // Read the story to visualize from script.txt in this test's data folder.
+    final Directory outputDir = currentTestDataDir();
+    final scriptFile = File('${outputDir.path}/script.txt');
+    expect(
+      scriptFile.existsSync(),
+      isTrue,
+      reason: 'script.txt with the story to visualize should exist at '
+          '${scriptFile.path}.',
+    );
+    final String prompt = scriptFile.readAsStringSync().trim();
+    expect(
+      prompt,
+      isNotEmpty,
+      reason: 'script.txt should contain a story to visualize.',
+    );
+    print('Generating video from script:\n$prompt');
+
     final GeneratedVideo video = await client.generateVideo(
-      'A cinematic close-up of a golden retriever puppy running through a '
-      'field of sunflowers at sunset, shallow depth of field.',
+      prompt,
       aspectRatio: '16:9',
     );
 
@@ -45,7 +61,6 @@ void main() {
 
     // Save the generated video into this test's data folder, with a
     // timestamp suffix so repeated runs do not overwrite each other.
-    final Directory outputDir = currentTestDataDir();
     final String timestamp = DateTime.now().toIso8601String().replaceAll(
       ':',
       '-',

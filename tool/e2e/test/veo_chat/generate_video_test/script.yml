@@ -1,0 +1,17 @@
+keyframe1:
+   description: A kitten decides to play with a ball of yarn. 
+   duration: 2s
+   
+keyframe2:
+   description: >
+      Suddenly, the yarn comes alive and starts running around
+      the room.
+      The kitten chases it around the room, knocking over
+      furniture and causing chaos. 
+   duration: 5s
+
+keyframe3:
+   description: > 
+      Finally, the kitten catches the yarn and settles
+      down for a nap.
+   duration: 2s
