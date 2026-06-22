@@ -18,6 +18,8 @@ dependencies:
   genui: ^0.9.0
   simple_chat:
     path: ../../examples/simple_chat
+  veo_chat:
+    path: ../../examples/veo_chat
 
 dev_dependencies:
   flutter_test:
