@@ -1,4 +1,19 @@
-story: >
+glossary:
+   - term: scene
+     description: action, continuous in time and space
+
+   - term: shot
+     description: >
+        part of action, showed continuously from a single perspective
+        without any edits (perspective can move with the camera)
+
+   - term: key frame
+     description: >
+        if the composition changes throughout the shot because characters move (blocking) or
+        camera moves (staging) or both, then key frames 
+        show key events or compositions of the shot
+
+scene: >
    A girl sits on a sofa, knitting.
    A ball of yarn rests in a basket on the floor beside her.
    She is relaxed.
@@ -10,25 +25,21 @@ story: >
    furniture and making a mess.
    The girl watches, scared and shocked. She drops her knitting and covers her face with her hands.
    Then she hears a soft 'Mew!' and opens her eyes.
-   Her frightened face melts into a big smile. She
-   finds the tangled yarn on the floor shaped like a heart.
+   Her frightened face melts into a big smile.
+   She finds the tangled yarn on the floor shaped like a heart.
    She smiles and pets the kitten.
 
+shots:
+  - description: >
+      A girl is sitting on a sofa, knitting. A ball of yarn
+      rests in a basket on the floor beside her.
+      A kitten sits nearby, watching her with curious eyes.
+    keyframes:
+      - description: A girl is sitting on a sofa, knitting.
+        duration: 1s
+      - description: A ball of yarn rests in a basket on the floor beside her. It unwinds slowly.
+        duration: 2s
+      - description: A kitten sits nearby, watching her with curious eyes.
+        duration: 1s
 
-keyframe1:
-   description: A kitten decides to play with a ball of yarn. 
-   duration: 2s
-   
-keyframe2:
-   description: >
-      Suddenly, the yarn comes alive and starts running around
-      the room.
-      The kitten chases it around the room, knocking over
-      furniture and causing chaos. 
-   duration: 10s
 
-keyframe3:
-   description: > 
-      Finally, the kitten catches the yarn and settles
-      down for a nap.
-   duration: 2s
