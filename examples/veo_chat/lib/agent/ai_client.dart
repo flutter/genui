@@ -25,8 +25,8 @@ abstract interface class AiClient {
 }
 
 /// An implementation of [AiClient] using `package:dartantic_ai`.
-class DartanticAiClient implements AiClient {
-  DartanticAiClient({String? modelName}) {
+class GeminiDartanticAiClient implements AiClient {
+  GeminiDartanticAiClient({String? modelName}) {
     final String key = apiKey();
     _provider = dartantic.GoogleProvider(apiKey: key);
     _agent = dartantic.Agent.forProvider(
