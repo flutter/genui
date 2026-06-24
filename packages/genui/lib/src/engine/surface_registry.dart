@@ -110,8 +110,8 @@ class SurfaceRegistry {
     final ValueNotifier<genui_model.SurfaceDefinition?>? notifier = _definitions
         .remove(surfaceId);
     if (notifier != null) {
-      // Notify active watchers that the surface is gone (watchSurface's
-      // documented `null`-on-removal contract) before disposing the notifier.
+      // watchSurface promises the value becomes null on removal, so notify
+      // watchers before disposing.
       notifier.value = null;
       notifier.dispose();
     }

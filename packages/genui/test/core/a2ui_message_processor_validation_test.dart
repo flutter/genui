@@ -103,9 +103,8 @@ void main() {
         controller.handleMessage(
           createSurface(surfaceId: 'surf1', catalogId: basicCatalogId),
         );
-        // Put a primitive at /scalar, then write through it. The core data
-        // model rejects traversing a primitive, and the controller surfaces
-        // the failure with the offending surfaceId and path.
+        // The core data model rejects writing through a primitive intermediate;
+        // the controller surfaces it with the offending surfaceId and path.
         controller.handleMessage(
           updateDataModel(
             surfaceId: 'surf1',
@@ -128,10 +127,9 @@ void main() {
     test(
       'validates components against an inline catalog (catalogId == null)',
       () async {
-        // An inline catalog has no explicit id; the controller registers it in
-        // a2ui_core under its synthesized effectiveCatalogId and must resolve a
-        // surface created against that id back to the catalog so validation
-        // runs.
+        // An inline catalog (no explicit id) is registered under a synthesized
+        // id; the controller must resolve a surface back to it, or validation
+        // is silently skipped.
         final inlineCatalog = Catalog(BasicCatalogItems.asCatalog().items);
         final controller = SurfaceController(catalogs: [inlineCatalog]);
 
