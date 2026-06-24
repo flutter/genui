@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:convert';
-
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../primitives/a2ui_validation_exception.dart';
@@ -19,7 +17,7 @@ void validateComponents({
   required Schema schema,
 }) {
   final List<Map<String, Object?>> allowedSchemas = _extractAllowedSchemas(
-    jsonDecode(schema.toJson()) as Map<String, Object?>,
+    schema.value,
   );
   if (allowedSchemas.isEmpty) return;
 
