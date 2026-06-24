@@ -107,7 +107,14 @@ class SurfaceRegistry {
   void removeSurface(String surfaceId) {
     if (_surfaces.remove(surfaceId) == null) return;
     genUiLogger.info('Deleting surface $surfaceId');
-    _definitions.remove(surfaceId)?.dispose();
+    final ValueNotifier<genui_model.SurfaceDefinition?>? notifier = _definitions
+        .remove(surfaceId);
+    if (notifier != null) {
+      // Notify active watchers that the surface is gone (watchSurface's
+      // documented `null`-on-removal contract) before disposing the notifier.
+      notifier.value = null;
+      notifier.dispose();
+    }
     _surfaceOrder.remove(surfaceId);
     _eventController.add(SurfaceRemoved(surfaceId));
   }
