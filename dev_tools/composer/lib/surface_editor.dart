@@ -149,6 +149,8 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
 
   void _subscribeToDataModel() {
     _dataModelNotifier?.removeListener(_onDataModelChanged);
+    _dataModelNotifier?.dispose();
+    _dataModelNotifier = null;
     if (_surfaceIds.isEmpty) return;
 
     final dataModel = _surfaceController
@@ -181,6 +183,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
 
   void _applyJson(String json) {
     _dataModelNotifier?.removeListener(_onDataModelChanged);
+    _dataModelNotifier?.dispose();
     _dataModelNotifier = null;
     _surfaceSub?.cancel();
     _surfaceController.dispose();
@@ -273,6 +276,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
     _jsonDebounce?.cancel();
     _dataDebounce?.cancel();
     _dataModelNotifier?.removeListener(_onDataModelChanged);
+    _dataModelNotifier?.dispose();
     _jsonController.removeListener(_onJsonControllerChanged);
     _dataController.removeListener(_onDataControllerChanged);
     _surfaceSub?.cancel();
