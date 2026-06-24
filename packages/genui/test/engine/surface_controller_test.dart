@@ -132,6 +132,33 @@ void main() {
       expect(controller.registry.hasSurface(surfaceId), isFalse);
     });
 
+    test('watchSurface notifies null when the surface is removed', () {
+      const surfaceId = 's1';
+      controller.handleMessage(
+        createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+      );
+      controller.handleMessage(
+        updateComponents(
+          surfaceId: surfaceId,
+          components: [
+            component(id: 'root', type: 'Text', properties: {'text': 'Hello'}),
+          ],
+        ),
+      );
+
+      final ValueListenable<SurfaceDefinition?> watched = controller.registry
+          .watchSurface(surfaceId);
+      expect(watched.value, isNotNull);
+
+      var notified = false;
+      watched.addListener(() => notified = true);
+
+      controller.handleMessage(deleteSurface(surfaceId: surfaceId));
+
+      expect(notified, isTrue);
+      expect(watched.value, isNull);
+    });
+
     test('surface() creates a new ValueNotifier if one does not exist', () {
       final ValueListenable<SurfaceDefinition?> notifier1 = controller.registry
           .watchSurface('s1');
