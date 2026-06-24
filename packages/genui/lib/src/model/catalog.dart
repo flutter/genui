@@ -162,10 +162,13 @@ interface class Catalog {
     );
   }
 
-  /// The catalog id synthesized when [catalogId] is null. Shared by the
-  /// capabilities advertisement and the `a2ui_core` catalog registration so the
-  /// advertised id and the runtime id never diverge.
-  String get _inlineCatalogId => 'inline_catalog_$hashCode';
+  /// The catalog id used to register this catalog with `a2ui_core` and to match
+  /// a live surface back to it: [catalogId] when set, otherwise a synthesized
+  /// id for an inline catalog. The advertised id ([toCapabilitiesJson]), the
+  /// registered runtime id ([coreCatalogFor]), and `SurfaceController`'s lookup
+  /// all use this, so an inline catalog's id cannot diverge between them.
+  @internal
+  String get effectiveCatalogId => catalogId ?? 'inline_catalog_$hashCode';
 
   /// Generates a JSON map suitable for inclusion in an inline catalog array
   /// within `A2UiClientCapabilities`.
@@ -175,8 +178,7 @@ interface class Catalog {
   /// to be an array of objects.
   JsonMap toCapabilitiesJson() {
     return {
-      if (catalogId != null) 'catalogId': catalogId,
-      if (catalogId == null) 'catalogId': _inlineCatalogId,
+      'catalogId': effectiveCatalogId,
       'components': {
         for (final item in items) item.name: item.dataSchema.value,
       },
@@ -286,7 +288,7 @@ class _CatalogItemComponentApi implements core.ComponentApi {
 @internal
 core.Catalog<core.ComponentApi> coreCatalogFor(Catalog catalog) =>
     core.Catalog<core.ComponentApi>(
-      id: catalog.catalogId ?? catalog._inlineCatalogId,
+      id: catalog.effectiveCatalogId,
       components: catalog.items
           .map<core.ComponentApi>(_CatalogItemComponentApi.new)
           .toList(growable: false),

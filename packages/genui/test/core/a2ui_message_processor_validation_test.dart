@@ -124,5 +124,48 @@ void main() {
         await future;
       },
     );
+
+    test(
+      'validates components against an inline catalog (catalogId == null)',
+      () async {
+        // An inline catalog has no explicit id; the controller registers it in
+        // a2ui_core under its synthesized effectiveCatalogId and must resolve a
+        // surface created against that id back to the catalog so validation
+        // runs.
+        final inlineCatalog = Catalog(BasicCatalogItems.asCatalog().items);
+        final controller = SurfaceController(catalogs: [inlineCatalog]);
+
+        final Future<void> future = expectLater(
+          controller.onSubmit,
+          emits(
+            predicate((ChatMessage message) {
+              final UiInteractionPart part =
+                  message.parts.uiInteractionParts.first;
+              final json = jsonDecode(part.interaction) as Map<String, Object?>;
+              final error = json['error'] as Map<String, Object?>;
+              return error['code'] == 'VALIDATION_FAILED' &&
+                  error['path'] == '/components/badText';
+            }),
+          ),
+        );
+
+        controller.handleMessage(
+          createSurface(
+            surfaceId: 'surf1',
+            catalogId: inlineCatalog.effectiveCatalogId,
+          ),
+        );
+        controller.handleMessage(
+          updateComponents(
+            surfaceId: 'surf1',
+            components: [
+              component(id: 'badText', type: 'Text', properties: {}),
+            ],
+          ),
+        );
+
+        await future;
+      },
+    );
   });
 }

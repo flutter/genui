@@ -206,7 +206,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
         // and let the caller decide.
         try {
           final Catalog? genuiCatalog = catalogs.firstWhereOrNull(
-            (c) => c.catalogId == surface.catalog.id,
+            (c) => c.effectiveCatalogId == surface.catalog.id,
           );
           if (genuiCatalog != null) {
             _validateComponents(coreMessage.surfaceId, surface, genuiCatalog);
@@ -321,7 +321,9 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
     final core.SurfaceModel<core.ComponentApi>? surface = _registry
         .getLiveSurface(surfaceId);
     if (surface == null) return null;
-    return catalogs.firstWhereOrNull((c) => c.catalogId == surface.catalog.id);
+    return catalogs.firstWhereOrNull(
+      (c) => c.effectiveCatalogId == surface.catalog.id,
+    );
   }
 
   /// Validates the components currently in [surface] against [catalog]'s
