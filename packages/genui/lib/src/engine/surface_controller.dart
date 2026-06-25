@@ -23,6 +23,8 @@ import '../primitives/logging.dart';
 
 import 'surface_registry.dart' as surface_reg;
 
+// TODO: Reconsider the Flutter-specific workarounds and, if preserved,
+//  move them upstream into a2ui_core as #811 is commpleted.
 /// The runtime controller for the GenUI system.
 ///
 /// Wraps [core.MessageProcessor] and adds Flutter-side concerns: holding
