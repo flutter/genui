@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
@@ -218,6 +219,14 @@ void main() {
       expect(firstFunc['description'], isNotEmpty);
       expect(firstFunc['returnType'], 'boolean');
       expect(firstFunc.containsKey('parameters'), isTrue);
+    });
+  });
+
+  group('CatalogItem', () {
+    test('is a core.ComponentApi whose schema is its dataSchema', () {
+      final CatalogItem item = BasicCatalogItems.text;
+      expect(item, isA<core.ComponentApi>());
+      expect(item.schema.value, item.dataSchema.value);
     });
   });
 }
