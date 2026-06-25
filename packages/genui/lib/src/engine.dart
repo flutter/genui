@@ -5,6 +5,5 @@
 /// The core runtime components for GenUI.
 library;
 
-export 'engine/data_model_store.dart';
 export 'engine/surface_controller.dart';
 export 'engine/surface_registry.dart';

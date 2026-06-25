@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
+import '../test_infra/message_builders.dart';
+
 void main() {
   group('Basic Widgets', () {
     final Catalog testCatalog = BasicCatalogItems.asCatalog();
@@ -16,7 +18,7 @@ void main() {
     Future<void> pumpWidgetWithDefinition(
       WidgetTester tester,
       String rootId,
-      List<Component> components,
+      List<JsonMap> components,
     ) async {
       message = null;
       controller?.dispose();
@@ -24,10 +26,10 @@ void main() {
       controller!.onSubmit.listen((event) => message = event);
       const surfaceId = 'testSurface';
       controller!.handleMessage(
-        UpdateComponents(surfaceId: surfaceId, components: components),
+        updateComponents(surfaceId: surfaceId, components: components),
       );
       controller!.handleMessage(
-        CreateSurface(surfaceId: surfaceId, catalogId: testCatalog.catalogId!),
+        createSurface(surfaceId: surfaceId, catalogId: testCatalog.catalogId!),
       );
       await tester.pumpWidget(
         MaterialApp(
@@ -39,8 +41,8 @@ void main() {
     }
 
     testWidgets('Button renders and handles taps', (WidgetTester tester) async {
-      final components = [
-        const Component(
+      final List<JsonMap> components = [
+        component(
           id: 'root',
           type: 'Button',
           properties: {
@@ -50,11 +52,7 @@ void main() {
             },
           },
         ),
-        const Component(
-          id: 'text',
-          type: 'Text',
-          properties: {'text': 'Click Me'},
-        ),
+        component(id: 'text', type: 'Text', properties: {'text': 'Click Me'}),
       ];
 
       await pumpWidgetWithDefinition(tester, 'root', components);
@@ -67,8 +65,8 @@ void main() {
     });
 
     testWidgets('Text renders from data model', (WidgetTester tester) async {
-      final components = [
-        const Component(
+      final List<JsonMap> components = [
+        component(
           id: 'root',
           type: 'Text',
           properties: {
@@ -78,8 +76,9 @@ void main() {
       ];
 
       await pumpWidgetWithDefinition(tester, 'root', components);
-      controller!.store
-          .getDataModel('testSurface')
+      controller!
+          .contextFor('testSurface')
+          .dataModel
           .update(DataPath('/myText'), 'Hello from data model');
       await tester.pumpAndSettle();
 
@@ -87,24 +86,16 @@ void main() {
     });
 
     testWidgets('Column renders children', (WidgetTester tester) async {
-      final components = [
-        const Component(
+      final List<JsonMap> components = [
+        component(
           id: 'root',
           type: 'Column',
           properties: {
             'children': ['text1', 'text2'],
           },
         ),
-        const Component(
-          id: 'text1',
-          type: 'Text',
-          properties: {'text': 'First'},
-        ),
-        const Component(
-          id: 'text2',
-          type: 'Text',
-          properties: {'text': 'Second'},
-        ),
+        component(id: 'text1', type: 'Text', properties: {'text': 'First'}),
+        component(id: 'text2', type: 'Text', properties: {'text': 'Second'}),
       ];
 
       await pumpWidgetWithDefinition(tester, 'root', components);
@@ -116,8 +107,8 @@ void main() {
     testWidgets('TextField renders and handles changes/submissions', (
       WidgetTester tester,
     ) async {
-      final components = [
-        const Component(
+      final List<JsonMap> components = [
+        component(
           id: 'root',
           type: 'TextField',
           properties: {
@@ -131,8 +122,9 @@ void main() {
       ];
 
       await pumpWidgetWithDefinition(tester, 'field', components);
-      controller!.store
-          .getDataModel('testSurface')
+      controller!
+          .contextFor('testSurface')
+          .dataModel
           .update(DataPath('/myValue'), 'initial');
       await tester.pumpAndSettle();
 
@@ -144,8 +136,9 @@ void main() {
       // Test onChanged
       await tester.enterText(textFieldFinder, 'new value');
       expect(
-        controller!.store
-            .getDataModel('testSurface')
+        controller!
+            .contextFor('testSurface')
+            .dataModel
             .getValue<String>(DataPath('/myValue')),
         'new value',
       );

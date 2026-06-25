@@ -359,9 +359,7 @@ final class _BasicPromptBuilder extends PromptBuilder {
 
   @override
   Iterable<String> systemPrompt() {
-    final String a2uiSchema = A2uiMessage.a2uiMessageSchema(
-      catalog,
-    ).toJson(indent: '  ');
+    final String a2uiSchema = a2uiMessageSchema(catalog).toJson(indent: '  ');
 
     final fragments = <String>[
       ...systemPromptFragments,

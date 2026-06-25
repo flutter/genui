@@ -6,11 +6,9 @@ import 'dart:convert';
 
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-import '../src/model/a2ui_message.dart';
 import '../src/model/a2ui_schemas.dart';
 import '../src/model/catalog.dart';
 import '../src/model/catalog_item.dart' show CatalogItem;
-import '../src/model/ui_models.dart';
 import '../src/primitives/simple_items.dart';
 
 /// A class to represent a validation error in a catalog item example.
@@ -63,11 +61,12 @@ Future<List<ExampleValidationError>> validateCatalogItemExamples(
       continue;
     }
 
-    final List<Component> components = exampleData
-        .map((e) => Component.fromJson(e as JsonMap))
+    final List<Map<String, Object?>> components = exampleData
+        .cast<JsonMap>()
+        .map(Map<String, Object?>.from)
         .toList();
 
-    if (components.every((c) => c.id != 'root')) {
+    if (components.every((c) => c['id'] != 'root')) {
       errors.add(
         ExampleValidationError(
           i,
@@ -76,14 +75,10 @@ Future<List<ExampleValidationError>> validateCatalogItemExamples(
       );
     }
 
-    final surfaceUpdate = UpdateComponents(
-      surfaceId: 'test-surface',
-      components: components,
-    );
-
-    final List<ValidationError> validationErrors = await schema.validate(
-      surfaceUpdate.toJson(),
-    );
+    final List<ValidationError> validationErrors = await schema.validate({
+      surfaceIdKey: 'test-surface',
+      'components': components,
+    });
     if (validationErrors.isNotEmpty) {
       errors.add(
         ExampleValidationError(

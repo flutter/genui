@@ -7,6 +7,8 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
+import '../test_infra/message_builders.dart';
+
 void main() {
   group('Conversation', () {
     late A2uiTransportAdapter adapter;
@@ -134,9 +136,7 @@ void main() {
       final events = <ConversationEvent>[];
       conversation.events.listen(events.add);
 
-      adapter.addMessage(
-        const CreateSurface(surfaceId: 'surf1', catalogId: 'cat'),
-      );
+      adapter.addMessage(createSurface(surfaceId: 'surf1', catalogId: 'cat'));
       await Future<void>.delayed(Duration.zero);
 
       expect(conversation.state.value.surfaces, contains('surf1'));
@@ -149,7 +149,7 @@ void main() {
 
       // update components
       adapter.addMessage(
-        const UpdateComponents(surfaceId: 'surf1', components: []),
+        updateComponents(surfaceId: 'surf1', components: const <JsonMap>[]),
       );
       await Future<void>.delayed(Duration.zero);
 
@@ -161,7 +161,7 @@ void main() {
       );
 
       // remove surface
-      adapter.addMessage(const DeleteSurface(surfaceId: 'surf1'));
+      adapter.addMessage(deleteSurface(surfaceId: 'surf1'));
       await Future<void>.delayed(Duration.zero);
 
       expect(conversation.state.value.surfaces, isNot(contains('surf1')));

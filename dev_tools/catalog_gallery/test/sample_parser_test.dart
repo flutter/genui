@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:catalog_gallery/sample_parser.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:genui/genui.dart';
 
 void main() {
   test('SampleParser parses valid sample string', () async {
@@ -21,19 +21,18 @@ description: A test description
     expect(sample.name, 'Test Sample');
     expect(sample.description, 'A test description');
 
-    final List<A2uiMessage> messages = await sample.messages.toList();
+    final List<core.A2uiMessage> messages = await sample.messages.toList();
     expect(messages.length, 2);
-    expect(messages.first, isA<UpdateComponents>());
-    expect(messages.last, isA<CreateSurface>());
+    expect(messages.first, isA<core.UpdateComponentsMessage>());
+    expect(messages.last, isA<core.CreateSurfaceMessage>());
 
-    final update = messages.first as UpdateComponents;
+    final update = messages.first as core.UpdateComponentsMessage;
     expect(update.surfaceId, 'default');
     expect(update.components.length, 1);
-    expect(update.components.first.type, 'Text');
+    expect(update.components.first['component'], 'Text');
 
-    final begin = messages.last as CreateSurface;
-    expect(begin.surfaceId, 'default');
-    // begin.root check removed as it doesn't exist in CreateSurface
+    final createSurface = messages.last as core.CreateSurfaceMessage;
+    expect(createSurface.surfaceId, 'default');
   });
 
   test(
@@ -48,7 +47,7 @@ description: A description
 ''';
       final Sample sample = SampleParser.parseString(sampleContent);
       expect(sample.name, 'Frontmatter Sample');
-      final List<A2uiMessage> messages = await sample.messages.toList();
+      final List<core.A2uiMessage> messages = await sample.messages.toList();
       expect(messages.length, 1);
     },
   );
@@ -61,7 +60,7 @@ description: A description
 ''';
     final Sample sample = SampleParser.parseString(sampleContent);
     expect(sample.name, 'Untitled Sample');
-    final List<A2uiMessage> messages = await sample.messages.toList();
+    final List<core.A2uiMessage> messages = await sample.messages.toList();
     expect(messages.length, 1);
   });
 

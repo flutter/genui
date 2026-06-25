@@ -84,18 +84,34 @@ void main() {
       expect(dataModel.getValue<List<Object?>>(DataPath('/list')), ['a', 'b']);
     });
 
-    test('List Boundaries: Out of bounds (index > length) is ignored', () {
+    test('List Boundaries: sparse writes fill skipped entries with null', () {
       dataModel.update(DataPath('/list/0'), 'a');
 
-      // Try to write to index 2 (skipping 1)
+      // Write to index 2 (skipping 1). a2ui_core auto-vivifies sparse
+      // list entries with null rather than silently ignoring the write.
       dataModel.update(DataPath('/list/2'), 'c');
 
-      expect(dataModel.getValue<List<Object?>>(DataPath('/list')), ['a']);
-      // Verify length is still 1
+      expect(dataModel.getValue<List<Object?>>(DataPath('/list')), [
+        'a',
+        null,
+        'c',
+      ]);
       final List<Object?>? list = dataModel.getValue<List<Object?>>(
         DataPath('/list'),
       );
-      expect(list?.length, 1);
+      expect(list?.length, 3);
+    });
+
+    test('writing through a primitive intermediate throws', () {
+      dataModel.update(DataPath('/scalar'), 5);
+
+      // /scalar holds a primitive, so it can't be traversed as a map on the
+      // way to a deeper key; the write is rejected rather than silently
+      // dropped.
+      expect(
+        () => dataModel.update(DataPath('/scalar/child/leaf'), 'x'),
+        throwsA(isA<Exception>()),
+      );
     });
 
     test('Null Handling: Setting map key to null removes it', () {

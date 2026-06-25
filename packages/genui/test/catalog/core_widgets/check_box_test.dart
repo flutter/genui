@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
+import '../../test_infra/message_builders.dart';
+
 void main() {
   testWidgets('CheckBox widget renders and handles changes', (
     WidgetTester tester,
@@ -16,8 +18,8 @@ void main() {
       ],
     );
     const surfaceId = 'testSurface';
-    final components = [
-      const Component(
+    final List<JsonMap> components = [
+      component(
         id: 'root',
         type: 'CheckBox',
         properties: {
@@ -27,10 +29,10 @@ void main() {
       ),
     ];
     surfaceController.handleMessage(
-      UpdateComponents(surfaceId: surfaceId, components: components),
+      updateComponents(surfaceId: surfaceId, components: components),
     );
     surfaceController.handleMessage(
-      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+      createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
     surfaceController
         .contextFor(surfaceId)
