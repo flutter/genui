@@ -3,47 +3,46 @@
 // found in the LICENSE file.
 
 import 'dart:convert';
+
 import 'package:args/args.dart';
 import 'package:file/file.dart';
 import 'package:file/local.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:genui/genui.dart';
 
+import 'sample_source.dart';
 import 'samples_view.dart';
 
 void main(List<String> args) {
-  final parser = ArgParser()
-    ..addOption('samples', abbr: 's', help: 'Path to the samples directory');
-  final ArgResults results = parser.parse(args);
+  SampleSource sampleSource = const AssetSampleSource();
 
-  const FileSystem fs = LocalFileSystem();
-  Directory? samplesDir;
-  if (results.wasParsed('samples')) {
-    samplesDir = fs.directory(results['samples'] as String);
-  } else {
-    final Directory current = fs.currentDirectory;
-    final Directory defaultSamples = fs
-        .directory(current.path)
-        .childDirectory('samples');
-    if (defaultSamples.existsSync()) {
-      samplesDir = defaultSamples;
+  // The `--samples <dir>` override loads samples from the local filesystem and
+  // is therefore desktop/mobile only. On web we never touch `dart:io` and
+  // always use the bundled assets.
+  if (!kIsWeb) {
+    final parser = ArgParser()
+      ..addOption('samples', abbr: 's', help: 'Path to the samples directory');
+    final ArgResults results = parser.parse(args);
+    if (results.wasParsed('samples')) {
+      const FileSystem fs = LocalFileSystem();
+      sampleSource = DirectorySampleSource(
+        fs.directory(results['samples'] as String),
+      );
     }
   }
 
-  runApp(CatalogGalleryApp(samplesDir: samplesDir, fs: fs));
+  runApp(CatalogGalleryApp(sampleSource: sampleSource));
 }
 
 class CatalogGalleryApp extends StatefulWidget {
-  final Directory? samplesDir;
-  final FileSystem fs;
-
   const CatalogGalleryApp({
     super.key,
-    this.samplesDir,
-    this.fs = const LocalFileSystem(),
+    this.sampleSource = const AssetSampleSource(),
     this.splashFactory,
   });
 
+  final SampleSource sampleSource;
   final InteractiveInkFeatureFactory? splashFactory;
 
   @override
@@ -55,9 +54,6 @@ class _CatalogGalleryAppState extends State<CatalogGalleryApp> {
 
   @override
   Widget build(BuildContext context) {
-    final bool showSamples =
-        widget.samplesDir != null && widget.samplesDir!.existsSync();
-
     return MaterialApp(
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
@@ -73,7 +69,7 @@ class _CatalogGalleryAppState extends State<CatalogGalleryApp> {
       home: Builder(
         builder: (context) {
           return DefaultTabController(
-            length: showSamples ? 2 : 1,
+            length: 2,
             child: Scaffold(
               appBar: AppBar(
                 backgroundColor: Theme.of(context).colorScheme.secondary,
@@ -83,18 +79,16 @@ class _CatalogGalleryAppState extends State<CatalogGalleryApp> {
                     color: Theme.of(context).colorScheme.onSecondary,
                   ),
                 ),
-                bottom: showSamples
-                    ? TabBar(
-                        labelColor: Theme.of(context).colorScheme.onSecondary,
-                        unselectedLabelColor: Theme.of(
-                          context,
-                        ).colorScheme.onSecondary.withValues(alpha: 0.5),
-                        tabs: const [
-                          Tab(text: 'Catalog'),
-                          Tab(text: 'Samples'),
-                        ],
-                      )
-                    : null,
+                bottom: TabBar(
+                  labelColor: Theme.of(context).colorScheme.onSecondary,
+                  unselectedLabelColor: Theme.of(
+                    context,
+                  ).colorScheme.onSecondary.withValues(alpha: 0.5),
+                  tabs: const [
+                    Tab(text: 'Catalog'),
+                    Tab(text: 'Samples'),
+                  ],
+                ),
               ),
               body: TabBarView(
                 children: [
@@ -111,12 +105,10 @@ class _CatalogGalleryAppState extends State<CatalogGalleryApp> {
                       );
                     },
                   ),
-                  if (showSamples)
-                    SamplesView(
-                      samplesDir: widget.samplesDir!,
-                      catalog: catalog,
-                      fs: widget.fs,
-                    ),
+                  SamplesView(
+                    sampleSource: widget.sampleSource,
+                    catalog: catalog,
+                  ),
                 ],
               ),
             ),

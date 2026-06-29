@@ -10,6 +10,8 @@ import 'package:genui/genui.dart';
 
 import 'package:json_schema_builder/json_schema_builder.dart';
 
+import '../../test_infra/message_builders.dart';
+
 void main() {
   testWidgets('Button widget renders and handles taps', (
     WidgetTester tester,
@@ -25,8 +27,8 @@ void main() {
     );
     surfaceController.onSubmit.listen((event) => message = event);
     const surfaceId = 'testSurface';
-    final components = [
-      const Component(
+    final List<JsonMap> components = [
+      component(
         id: 'root',
         type: 'Button',
         properties: {
@@ -36,17 +38,17 @@ void main() {
           },
         },
       ),
-      const Component(
+      component(
         id: 'button_text',
         type: 'Text',
         properties: {'text': 'Click Me'},
       ),
     ];
     surfaceController.handleMessage(
-      UpdateComponents(surfaceId: surfaceId, components: components),
+      updateComponents(surfaceId: surfaceId, components: components),
     );
     surfaceController.handleMessage(
-      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+      createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(
@@ -95,8 +97,8 @@ void main() {
     surfaceController.onSubmit.listen((event) => message = event);
 
     const surfaceId = 'testSurface';
-    final components = [
-      const Component(
+    final List<JsonMap> components = [
+      component(
         id: 'root',
         type: 'Button',
         properties: {
@@ -104,17 +106,17 @@ void main() {
           'action': {'call': 'throwError'},
         },
       ),
-      const Component(
+      component(
         id: 'button_text',
         type: 'Text',
         properties: {'text': 'Click Me'},
       ),
     ];
     surfaceController.handleMessage(
-      UpdateComponents(surfaceId: surfaceId, components: components),
+      updateComponents(surfaceId: surfaceId, components: components),
     );
     surfaceController.handleMessage(
-      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+      createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(
@@ -168,15 +170,15 @@ void main() {
       const surfaceId = 'validationTest';
       // Initialize with a value that fails the check
       surfaceController.handleMessage(
-        UpdateDataModel(
+        updateDataModel(
           surfaceId: surfaceId,
           path: DataPath('/count'),
           value: 0,
         ),
       );
 
-      final components = [
-        const Component(
+      final List<JsonMap> components = [
+        component(
           id: 'root',
           type: 'Button',
           properties: {
@@ -198,7 +200,7 @@ void main() {
             ],
           },
         ),
-        const Component(
+        component(
           id: 'button_text',
           type: 'Text',
           properties: {'text': 'Click Me'},
@@ -206,10 +208,10 @@ void main() {
       ];
 
       surfaceController.handleMessage(
-        UpdateComponents(surfaceId: surfaceId, components: components),
+        updateComponents(surfaceId: surfaceId, components: components),
       );
       surfaceController.handleMessage(
-        const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+        createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
       );
 
       await tester.pumpWidget(
@@ -238,7 +240,7 @@ void main() {
 
       // Update data model to pass the check
       surfaceController.handleMessage(
-        UpdateDataModel(
+        updateDataModel(
           surfaceId: surfaceId,
           path: DataPath('/count'),
           value: 1,

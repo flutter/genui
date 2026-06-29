@@ -4,38 +4,36 @@
 
 import 'dart:async';
 
-import 'package:file/file.dart';
-import 'package:file/local.dart';
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:flutter/material.dart';
 import 'package:genui/genui.dart';
 
 import 'sample_parser.dart';
+import 'sample_source.dart';
 
 class SamplesView extends StatefulWidget {
   const SamplesView({
     super.key,
-    required this.samplesDir,
+    required this.sampleSource,
     required this.catalog,
-    this.fs = const LocalFileSystem(),
   });
 
-  final Directory samplesDir;
+  final SampleSource sampleSource;
   final Catalog catalog;
-  final FileSystem fs;
 
   @override
   State<SamplesView> createState() => _SamplesViewState();
 }
 
 class _SamplesViewState extends State<SamplesView> {
-  List<File> _sampleFiles = [];
-  File? _selectedFile;
+  List<SampleRef> _samples = [];
+  SampleRef? _selectedRef;
   Sample? _selectedSample;
   late SurfaceController _surfaceController;
   final List<String> _surfaceIds = [];
   int _currentSurfaceIndex = 0;
   StreamSubscription<SurfaceUpdate>? _surfaceSubscription;
-  StreamSubscription<A2uiMessage>? _messageSubscription;
+  StreamSubscription<core.A2uiMessage>? _messageSubscription;
 
   @override
   void initState() {
@@ -88,19 +86,14 @@ class _SamplesViewState extends State<SamplesView> {
   }
 
   Future<void> _loadSamples() async {
-    if (!widget.samplesDir.existsSync()) {
-      return;
-    }
-    final List<File> files = (await widget.samplesDir.list().toList())
-        .whereType<File>()
-        .where((file) => file.path.endsWith('.sample'))
-        .toList();
+    final List<SampleRef> samples = await widget.sampleSource.listSamples();
+    if (!mounted) return;
     setState(() {
-      _sampleFiles = files;
+      _samples = samples;
     });
   }
 
-  Future<void> _selectSample(File file) async {
+  Future<void> _selectSample(SampleRef ref) async {
     await _messageSubscription?.cancel();
     // Reset surfaces
     setState(() {
@@ -114,10 +107,12 @@ class _SamplesViewState extends State<SamplesView> {
     _setupSurfaceListener();
 
     try {
-      genUiLogger.info('Displaying sample in ${file.basename}');
-      final Sample sample = await SampleParser.parseFile(file);
+      genUiLogger.info('Displaying sample ${ref.name}');
+      final String content = await ref.load();
+      final Sample sample = SampleParser.parseString(content);
+      if (!mounted) return;
       setState(() {
-        _selectedFile = file;
+        _selectedRef = ref;
         _selectedSample = sample;
       });
 
@@ -133,7 +128,7 @@ class _SamplesViewState extends State<SamplesView> {
       );
     } catch (exception, stackTrace) {
       genUiLogger.severe(
-        'Error parsing sample in file ${file.path}: $exception\n$stackTrace',
+        'Error parsing sample ${ref.name}: $exception\n$stackTrace',
       );
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -153,19 +148,17 @@ class _SamplesViewState extends State<SamplesView> {
             children: [
               Expanded(
                 child: ListView.builder(
-                  itemCount: _sampleFiles.length,
+                  itemCount: _samples.length,
                   itemBuilder: (context, index) {
-                    final File file = _sampleFiles[index];
-                    final String fileName = widget.fs.path
-                        .basenameWithoutExtension(file.path);
+                    final SampleRef ref = _samples[index];
 
                     return ListTile(
-                      title: Text(fileName),
-                      selected: _selectedFile?.path == file.path,
+                      title: Text(ref.name),
+                      selected: _selectedRef?.name == ref.name,
                       selectedTileColor: Theme.of(
                         context,
                       ).colorScheme.primary.withValues(alpha: 0.1),
-                      onTap: () => _selectSample(file),
+                      onTap: () => _selectSample(ref),
                     );
                   },
                 ),

@@ -1,6 +1,27 @@
 # `genui` Changelog
 
-## 0.9.2
+## 0.10.0 (in progress)
+
+- **Refactor**: genui now runs on `package:a2ui_core`. See
+  [the migration guide](../../docs/usage/migration/migration_0.9.1_to_0.10.0.md).
+- **BREAKING**: A2UI message types are now `package:a2ui_core` types. The GenUI
+  message classes (`A2uiMessage`, `CreateSurface`, `UpdateComponents`,
+  `UpdateDataModel`, `DeleteSurface`) are removed; `SurfaceController.handleMessage`
+  and `Transport.incomingMessages` take `a2ui_core` messages, and
+  `UpdateComponentsMessage` carries raw component JSON maps rather than `Component`
+  objects. Depend on `a2ui_core` directly.
+- **BREAKING**: `SurfaceController.store` and `DataModelStore` are removed. Read a
+  surface's data model via `SurfaceController.contextFor(id).dataModel`.
+- **BREAKING**: `SurfaceRegistry.updateSurface(...)` is removed; drive surfaces
+  through `SurfaceController.handleMessage`.
+- **Behavior**: `DataModel` writes are stricter; some writes that previously did
+  nothing now throw, and sparse list writes fill skipped entries with `null`.
+- **Behavior**: A duplicate `createSurface` for an already-active surface id is now
+  an error.
+- The catalog-widget authoring API is unchanged; `SurfaceDefinition` and
+  `Component` remain genui types.
+
+## 0.9.1
 
 - **Feature**: Updated example/README.md.
 

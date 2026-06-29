@@ -4,6 +4,7 @@
 
 import 'dart:io';
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:catalog_gallery/sample_parser.dart';
 import 'package:file/file.dart';
 import 'package:file/local.dart';
@@ -78,7 +79,7 @@ void main() {
       );
 
       try {
-        await for (final A2uiMessage message in sample.messages) {
+        await for (final core.A2uiMessage message in sample.messages) {
           controller.handleMessage(message);
           await tester.pump();
         }

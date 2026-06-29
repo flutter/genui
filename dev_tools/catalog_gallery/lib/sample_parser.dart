@@ -4,14 +4,14 @@
 
 import 'dart:convert';
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:file/file.dart';
-import 'package:genui/genui.dart';
 import 'package:yaml/yaml.dart';
 
 class Sample {
   final String name;
   final String description;
-  final Stream<A2uiMessage> messages;
+  final Stream<core.A2uiMessage> messages;
 
   Sample({
     required this.name,
@@ -52,14 +52,14 @@ class SampleParser {
     final String name = header['name'] as String? ?? 'Untitled Sample';
     final String description = header['description'] as String? ?? '';
 
-    final Stream<A2uiMessage> messages = Stream.fromIterable(
+    final Stream<core.A2uiMessage> messages = Stream.fromIterable(
       const LineSplitter()
           .convert(jsonlBody)
           .where((line) => line.trim().isNotEmpty)
           .map((line) {
             final dynamic json = jsonDecode(line);
             if (json is Map<String, dynamic>) {
-              return A2uiMessage.fromJson(json);
+              return core.A2uiMessage.fromJson(json);
             }
             throw FormatException('Invalid JSON line: $line');
           }),
