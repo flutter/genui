@@ -131,7 +131,7 @@ enum ProtocolMessages {
     explanation: 'Creates a new surface.',
     properties: '''
 Requires `surfaceId` (you must always use a unique ID for each created surface),
-`catalogId` (use the catalog ID provided in system instructions),
+`catalogId` (use the active catalog ID if provided in system instructions),
 and `sendDataModel: true`.
 ''',
     // TODO: figure out why we instruct AI to always set sendDataModel: true,
@@ -284,7 +284,7 @@ You can control the UI by outputting valid A2UI JSON messages wrapped in markdow
     if (create)
       '''
 To create a new UI:
-1. Output a ${ProtocolMessages.createSurface.tickedName} message with a unique `surfaceId` and `catalogId` (use the catalog ID provided in system instructions).
+1. Output a ${ProtocolMessages.createSurface.tickedName} message with a unique `surfaceId` and `catalogId` (use the active catalog ID if provided in system instructions).
 2. Output an ${ProtocolMessages.updateComponents.tickedName} message with the `surfaceId` and the component definitions.
 ''',
     if (!update)
@@ -361,9 +361,14 @@ final class _BasicPromptBuilder extends PromptBuilder {
   Iterable<String> systemPrompt() {
     final String a2uiSchema = a2uiMessageSchema(catalog).toJson(indent: '  ');
 
+    final String? activeCatalogId = catalog.catalogId;
+
     final fragments = <String>[
       ...systemPromptFragments,
       'Use the provided tools to respond to user using rich UI elements.',
+      if (activeCatalogId != null)
+        'The active catalog ID is: "$activeCatalogId". '
+            'You must use this catalog ID when creating surfaces.',
       ...technicalPossibilities.systemPromptFragment(),
       ...catalog.systemPromptFragments,
       ...allowedOperations.systemPromptFragments,
