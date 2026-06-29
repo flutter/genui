@@ -15,6 +15,7 @@ workspace:
   - dev_tools/composer
 
   - examples/simple_chat
+  - examples/veo_chat
   - examples/verdure/client
 
   - packages/a2ui_core
