@@ -20,6 +20,7 @@
   an error.
 - The catalog-widget authoring API is unchanged; `SurfaceDefinition` and
   `Component` remain genui types.
+- **Fix**: Fixed broken link to `run_app_with_gemini_key.md` in `simple_chat` example README (#783).
 
 ## 0.9.1
 
