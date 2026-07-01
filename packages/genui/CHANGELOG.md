@@ -1,8 +1,8 @@
 # `genui` Changelog
 
-## 0.10.0 (in progress)
+## 0.10.0
 
-- **Refactor**: genui now runs on `package:a2ui_core`. See
+- **BREAKING**: genui now runs on `package:a2ui_core`. See
   [the migration guide](../../docs/usage/migration/migration_0.9.1_to_0.10.0.md).
 - **BREAKING**: A2UI message types are now `package:a2ui_core` types. The GenUI
   message classes (`A2uiMessage`, `CreateSurface`, `UpdateComponents`,
@@ -14,13 +14,21 @@
   surface's data model via `SurfaceController.contextFor(id).dataModel`.
 - **BREAKING**: `SurfaceRegistry.updateSurface(...)` is removed; drive surfaces
   through `SurfaceController.handleMessage`.
+- **BREAKING**: Changed `PromptBuilder.chat` and `PromptBuilder.custom` from synchronous factory constructors to asynchronous static methods (`createChat` and `createCustom`) to support asynchronous asset loading.
+- **BREAKING**: Changed `_loadSchemas` return type to a named record structure.
+- **BREAKING**: Restricted public API surface of low-level `primitives` exports. Only `CancellationException`, `CancellationSignal`, `JsonMap`, `basicCatalogId`, `configureLogging`, `genUiLogger`, and `generateId` are now exported from `package:genui/genui.dart`.
 - **Behavior**: `DataModel` writes are stricter; some writes that previously did
   nothing now throw, and sparse list writes fill skipped entries with `null`.
 - **Behavior**: A duplicate `createSurface` for an already-active surface id is now
   an error.
 - The catalog-widget authoring API is unchanged; `SurfaceDefinition` and
   `Component` remain genui types.
+- **Refactor**: Extracted exception mapping logic to a private helper `_errorToMap` in `SurfaceController`.
+- **Refactor**: Centralized and shared common schema registry initialization helper.
+- **Refactor**: Extracted mock binary messenger asset setup to a shared helper for test reuse.
+- **Fix**: Sanitized raw error messages exposed from `ArgumentError` in `Button` press handlers.
 
+## 0.9.2
 ## 0.9.1
 
 - **Feature**: Updated example/README.md.

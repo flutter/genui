@@ -4,6 +4,7 @@
 
 - **BREAKING**: `A2uiAgentConnector.stream` now emits `package:a2ui_core`
   message types. Depend on `a2ui_core` directly to consume them.
+- Bumped dependent genui version to 0.10.0
 
 ## 0.9.0
 

@@ -11,7 +11,10 @@ import 'package:genui/src/model/catalog.dart';
 import 'package:genui/src/model/catalog_item.dart';
 import 'package:genui/src/model/ui_models.dart';
 import 'package:genui/src/primitives/simple_items.dart';
+import 'package:genui/test/validation.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
+// ignore: implementation_imports
+import 'package:json_schema_builder/src/schema_registry.dart';
 
 import 'message_builders.dart';
 
@@ -55,8 +58,11 @@ void validateCatalogExamples(
             components: components.map((c) => c.toJson()).toList(),
           );
 
+          final SchemaRegistry registry = createSchemaRegistryWithCommonTypes();
+
           final List<ValidationError> validationErrors = await schema.validate(
             surfaceUpdate.toJson(),
+            schemaRegistry: registry,
           );
           expect(validationErrors, isEmpty);
         });

@@ -6,6 +6,7 @@
 library;
 
 export 'model/a2ui_client_capabilities.dart';
+export 'model/a2ui_exceptions.dart';
 export 'model/a2ui_message.dart';
 export 'model/a2ui_schemas.dart';
 export 'model/catalog.dart';

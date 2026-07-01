@@ -13,6 +13,7 @@ import '../interfaces/a2ui_message_sink.dart';
 import '../interfaces/surface_context.dart';
 import '../interfaces/surface_host.dart';
 import '../model/a2ui_client_capabilities.dart';
+import '../model/a2ui_exceptions.dart';
 import '../model/catalog.dart';
 import '../model/chat_message.dart';
 import '../model/data_model.dart';
@@ -265,33 +266,45 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
 
   /// Reports an error to the AI service.
   void reportError(Object error, StackTrace? stack) {
-    var errorCode = 'RUNTIME_ERROR';
-    var message = error.toString();
+    final Map<String, Object> errorMsg = {
+      'version': 'v0.9',
+      'error': _errorToMap(error),
+    };
+    if (!_onSubmit.isClosed) {
+      _onSubmit.add(
+        ChatMessage.user(
+          '',
+          parts: [UiInteractionPart.create(jsonEncode(errorMsg))],
+        ),
+      );
+    }
+  }
+
+  Map<String, Object> _errorToMap(Object error) {
+    var errorCode = 'INTERNAL_ERROR';
+    var message = 'An unexpected system error occurred.';
     String? surfaceId;
     String? path;
+    String? functionName;
 
     if (error is A2uiValidationException) {
       errorCode = 'VALIDATION_FAILED';
       message = error.message;
       surfaceId = error.surfaceId;
       path = error.path;
+    } else if (error is A2uiFunctionException) {
+      errorCode = 'FUNCTION_EXECUTION_FAILED';
+      message = error.message;
+      functionName = error.functionName;
     }
 
-    final Map<String, Object> errorMsg = {
-      'version': 'v0.9',
-      'error': {
-        'code': errorCode,
-        'surfaceId': ?surfaceId,
-        'path': ?path,
-        'message': message,
-      },
+    return {
+      'code': errorCode,
+      'surfaceId': ?surfaceId,
+      'path': ?path,
+      'functionName': ?functionName,
+      'message': message,
     };
-    _onSubmit.add(
-      ChatMessage.user(
-        '',
-        parts: [UiInteractionPart.create(jsonEncode(errorMsg))],
-      ),
-    );
   }
 
   void _bufferMessage(String surfaceId, core.A2uiMessage message) {

@@ -5,9 +5,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
+import '../primitives/constants.dart';
 import '../primitives/simple_items.dart';
 
 /// Common fragments for prompts, to explain agent behavior.
@@ -78,12 +79,14 @@ abstract class PromptBuilder {
   /// The builder will generate a prompt for a chat session,
   /// that instructs to create new surfaces for each response
   /// and restrict surface deletion and updates.
-  factory PromptBuilder.chat({
+  static Future<PromptBuilder> createChat({
     required Catalog catalog,
     Iterable<String> systemPromptFragments = const [],
     String importancePrefix = defaultImportancePrefix,
     JsonMap? clientDataModel,
-  }) {
+  }) async {
+    final ({String commonTypes, String serverToClient}) schemas =
+        await _loadSchemas();
     return _BasicPromptBuilder(
       catalog: catalog,
       systemPromptFragments: systemPromptFragments,
@@ -91,10 +94,12 @@ abstract class PromptBuilder {
       importancePrefix: importancePrefix,
       clientDataModel: clientDataModel,
       technicalPossibilities: const TechnicalPossibilities(),
+      commonTypesSchema: schemas.commonTypes,
+      serverToClientSchema: schemas.serverToClient,
     );
   }
 
-  factory PromptBuilder.custom({
+  static Future<PromptBuilder> createCustom({
     required Catalog catalog,
     required SurfaceOperations allowedOperations,
     Iterable<String> systemPromptFragments = const [],
@@ -102,7 +107,9 @@ abstract class PromptBuilder {
     TechnicalPossibilities technicalPossibilities =
         const TechnicalPossibilities(),
     JsonMap? clientDataModel,
-  }) {
+  }) async {
+    final ({String commonTypes, String serverToClient}) schemas =
+        await _loadSchemas();
     return _BasicPromptBuilder(
       catalog: catalog,
       systemPromptFragments: systemPromptFragments,
@@ -110,7 +117,18 @@ abstract class PromptBuilder {
       importancePrefix: importancePrefix,
       clientDataModel: clientDataModel,
       technicalPossibilities: technicalPossibilities,
+      commonTypesSchema: schemas.commonTypes,
+      serverToClientSchema: schemas.serverToClient,
     );
+  }
+
+  static Future<({String commonTypes, String serverToClient})>
+  _loadSchemas() async {
+    final String commonTypes = await rootBundle.loadString(commonTypesAssetKey);
+    final String serverToClient = await rootBundle.loadString(
+      serverToClientAssetKey,
+    );
+    return (commonTypes: commonTypes, serverToClient: serverToClient);
   }
 
   Iterable<String> systemPrompt();
@@ -332,9 +350,13 @@ final class _BasicPromptBuilder extends PromptBuilder {
     required this.importancePrefix,
     required this.clientDataModel,
     required this.technicalPossibilities,
+    required this.commonTypesSchema,
+    required this.serverToClientSchema,
   }) : super._();
 
   final Catalog catalog;
+  final String commonTypesSchema;
+  final String serverToClientSchema;
 
   final SurfaceOperations allowedOperations;
 
@@ -352,14 +374,23 @@ final class _BasicPromptBuilder extends PromptBuilder {
 
   final JsonMap? clientDataModel;
 
+  final TechnicalPossibilities technicalPossibilities;
+
   Iterable<String> _fragmentsToPrompt(Iterable<String> fragments) =>
       fragments.map((e) => e.trim());
 
-  final TechnicalPossibilities technicalPossibilities;
-
   @override
   Iterable<String> systemPrompt() {
-    final String a2uiSchema = a2uiMessageSchema(catalog).toJson(indent: '  ');
+    final String catalogSchema = _generateCatalogSchema(catalog);
+
+    final String cleanCommonTypes = commonTypesSchema.replaceAll(
+      commonTypesSchemaId,
+      'common_types.json',
+    );
+    final String cleanServerToClient = serverToClientSchema.replaceAll(
+      commonTypesSchemaId,
+      'common_types.json',
+    );
 
     final String? activeCatalogId = catalog.catalogId;
 
@@ -372,11 +403,121 @@ final class _BasicPromptBuilder extends PromptBuilder {
       ...technicalPossibilities.systemPromptFragment(),
       ...catalog.systemPromptFragments,
       ...allowedOperations.systemPromptFragments,
-      _fenced(a2uiSchema, sectionName: 'A2UI JSON SCHEMA'),
+      _fenced(cleanCommonTypes, sectionName: 'COMMON TYPES'),
+      _fenced(catalogSchema, sectionName: 'CATALOG SCHEMA'),
+      _fenced(cleanServerToClient, sectionName: 'MESSAGE SCHEMA'),
       ?_encodedDataModel(clientDataModel),
     ];
 
     return _fragmentsToPrompt(fragments);
+  }
+
+  String _generateCatalogSchema(Catalog catalog) {
+    final Map<String, dynamic> components = {
+      for (final item in catalog.items)
+        item.name: {
+          'type': 'object',
+          'allOf': [
+            {r'$ref': r'common_types.json#/$defs/ComponentCommon'},
+            {r'$ref': r'#/$defs/CatalogComponentCommon'},
+            {
+              'type': 'object',
+              'properties': {
+                'component': {'const': item.name},
+                ...item.dataSchema.value['properties'] as Map<String, dynamic>,
+              },
+              'required': {
+                'component',
+                if (item.dataSchema.value['required'] is List)
+                  ...(item.dataSchema.value['required'] as List),
+              }.toList(),
+            },
+          ],
+          'unevaluatedProperties': false,
+        },
+    };
+
+    final Map<String, dynamic> functions = {
+      for (final func in catalog.functions)
+        func.name: {
+          'description': func.description,
+          'parameters': func.argumentSchema.value,
+          'returnType': func.returnType.value,
+        },
+    };
+
+    final Map<String, dynamic> catalogJson = {
+      r'$schema': 'https://json-schema.org/draft/2020-12/schema',
+      r'$id': 'https://a2ui.org/specification/v0_9/catalog.json',
+      'title': 'A2UI Catalog',
+      'description': 'Custom catalog of A2UI components and functions.',
+      if (catalog.catalogId != null) 'catalogId': catalog.catalogId,
+      'components': components,
+      if (functions.isNotEmpty) 'functions': functions,
+      r'$defs': {
+        'CatalogComponentCommon': {
+          'type': 'object',
+          'properties': {
+            'id': {
+              'type': 'string',
+              'description':
+                  'A unique identifier for this component instance within '
+                  'the surface. This ID is used to refer to the component '
+                  'in layout children arrays or event handlers.',
+            },
+          },
+          'required': ['id'],
+        },
+        'theme': {
+          'type': 'object',
+          'properties': {
+            'primaryColor': {
+              'type': 'string',
+              'description':
+                  'The primary brand color used for highlights (e.g., '
+                  'primary buttons, active borders). Renderers may generate '
+                  'variants of this color for different contexts. Format: '
+                  "Hexadecimal code (e.g., '#00BFFF').",
+              'pattern': r'^#[0-9a-fA-F]{6}$',
+            },
+            'iconUrl': {
+              'type': 'string',
+              'format': 'uri',
+              'description':
+                  'A URL for an image that identifies the agent or tool '
+                  'associated with the surface.',
+            },
+            'agentDisplayName': {
+              'type': 'string',
+              'description':
+                  'Text to be displayed next to the surface to identify '
+                  'the agent or tool that created it.',
+            },
+          },
+          'additionalProperties': true,
+        },
+        'anyComponent': components.isEmpty
+            ? {'not': <String, dynamic>{}}
+            : {
+                'oneOf': [
+                  for (final name in components.keys)
+                    {r'$ref': '#/components/$name'},
+                ],
+                'discriminator': {'propertyName': 'component'},
+              },
+        'anyFunction': functions.isEmpty
+            ? {'not': <String, dynamic>{}}
+            : {
+                'oneOf': [
+                  for (final name in functions.keys)
+                    {r'$ref': '#/functions/$name'},
+                ],
+              },
+      },
+    };
+
+    final String json = const JsonEncoder.withIndent('  ').convert(catalogJson);
+    return json.replaceAll(commonTypesSchemaId, 'common_types.json');
   }
 
   static String? _encodedDataModel(JsonMap? clientDataModel) {

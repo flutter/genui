@@ -3,12 +3,17 @@
 // found in the LICENSE file.
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:json_schema_builder/json_schema_builder.dart';
+// ignore: implementation_imports
+import 'package:json_schema_builder/src/schema_registry.dart';
 
 import '../src/model/a2ui_schemas.dart';
 import '../src/model/catalog.dart';
 import '../src/model/catalog_item.dart' show CatalogItem;
+
+import '../src/primitives/constants.dart';
 import '../src/primitives/simple_items.dart';
 
 /// A class to represent a validation error in a catalog item example.
@@ -75,10 +80,17 @@ Future<List<ExampleValidationError>> validateCatalogItemExamples(
       );
     }
 
-    final List<ValidationError> validationErrors = await schema.validate({
+    final Map<String, Object?> surfaceUpdate = {
       surfaceIdKey: 'test-surface',
       'components': components,
-    });
+    };
+
+    final SchemaRegistry registry = createSchemaRegistryWithCommonTypes();
+
+    final List<ValidationError> validationErrors = await schema.validate(
+      surfaceUpdate,
+      schemaRegistry: registry,
+    );
     if (validationErrors.isNotEmpty) {
       errors.add(
         ExampleValidationError(
@@ -90,4 +102,19 @@ Future<List<ExampleValidationError>> validateCatalogItemExamples(
     }
   }
   return errors;
+}
+
+/// Creates a [SchemaRegistry] pre-populated with the common types schema.
+SchemaRegistry createSchemaRegistryWithCommonTypes() {
+  var file = File(commonTypesLocalPath);
+  if (!file.existsSync()) {
+    file = File('../../$commonTypesLocalPath');
+  }
+  final String commonTypesContent = file.readAsStringSync();
+  final commonTypesSchema = Schema.fromMap(
+    jsonDecode(commonTypesContent) as Map<String, Object?>,
+  );
+  final registry = SchemaRegistry();
+  registry.addSchema(Uri.parse(commonTypesSchemaId), commonTypesSchema);
+  return registry;
 }

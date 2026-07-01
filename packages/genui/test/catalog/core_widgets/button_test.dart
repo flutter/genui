@@ -9,10 +9,26 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
 import 'package:json_schema_builder/json_schema_builder.dart';
+import 'package:logging/logging.dart';
 
 import '../../test_infra/message_builders.dart';
 
 void main() {
+  setUpAll(() {
+    Logger.root.level = Level.ALL;
+    Logger.root.onRecord.listen((record) {
+      debugPrint(
+        '[${record.level.name}] ${record.loggerName}: ${record.message}',
+      );
+      if (record.error != null) {
+        debugPrint('Error: ${record.error}');
+      }
+      if (record.stackTrace != null) {
+        debugPrint('StackTrace:\n${record.stackTrace}');
+      }
+    });
+  });
+
   testWidgets('Button widget renders and handles taps', (
     WidgetTester tester,
   ) async {
@@ -76,13 +92,11 @@ void main() {
   testWidgets('Button widget handles stream errors gracefully', (
     WidgetTester tester,
   ) async {
-    ChatMessage? message;
-    // Create a stream controller that we can use to emit errors
-    final streamController = StreamController<Object?>.broadcast();
-
     final mockFunction = MockFunction(
       name: 'throwError',
-      onExecute: (args, context) => streamController.stream,
+      onExecute: (args, context) {
+        return Stream.error(Exception('Stream error'));
+      },
     );
 
     final surfaceController = SurfaceController(
@@ -94,7 +108,8 @@ void main() {
         ),
       ],
     );
-    surfaceController.onSubmit.listen((event) => message = event);
+
+    final Future<ChatMessage> onSubmitFuture = surfaceController.onSubmit.first;
 
     const surfaceId = 'testSurface';
     final List<JsonMap> components = [
@@ -103,7 +118,9 @@ void main() {
         type: 'Button',
         properties: {
           'child': 'button_text',
-          'action': {'call': 'throwError'},
+          'action': {
+            'functionCall': {'call': 'throwError'},
+          },
         },
       ),
       component(
@@ -134,24 +151,21 @@ void main() {
     // Tap the button to trigger the function call
     await tester.tap(find.byType(ElevatedButton));
 
-    // Emit an error from the stream
-    streamController.addError(Exception('Stream error'));
-
-    // Pump to process the error
+    // Pump to process the tap and invoke the function which throws error
     await tester.pump();
 
-    // Wait for the message to be received, pumping the widget tree
-    var retries = 0;
-    while (message == null && retries < 50) {
-      await tester.pump(const Duration(milliseconds: 10));
-      retries++;
-    }
+    // Advance fake time to process stream error propagation and
+    // error reporting.
+    await tester.pump(const Duration(seconds: 1));
 
-    // Verify error was reported
+    // Verify the error was caught and reported
+    final ChatMessage message = await onSubmitFuture;
     expect(message, isNotNull);
+    expect(
+      message.parts.first.asUiInteractionPart!.interaction,
+      contains('throwError'),
+    );
 
-    // The test passes if no unhandled exception crashes the test.
-    await streamController.close();
     surfaceController.dispose();
   });
 

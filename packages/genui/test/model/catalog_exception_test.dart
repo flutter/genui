@@ -97,5 +97,47 @@ void main() {
         );
       },
     );
+
+    test('A2uiFunctionException toString formatting', () {
+      final exc1 = A2uiFunctionException(
+        'some message',
+        functionName: 'myFunc',
+      );
+      expect(
+        exc1.toString(),
+        'A2uiFunctionException inside myFunc: some message',
+      );
+
+      final exc2 = A2uiFunctionException(
+        'some message',
+        functionName: 'myFunc',
+        argumentKey: 'myArg',
+      );
+      expect(
+        exc2.toString(),
+        'A2uiFunctionException inside myFunc: some message (argument: myArg)',
+      );
+
+      final exc3 = A2uiFunctionException(
+        'some message',
+        functionName: 'myFunc',
+        cause: 'underlying error',
+      );
+      expect(
+        exc3.toString(),
+        'A2uiFunctionException inside myFunc: some message\nCause: underlying error',
+      );
+
+      final exc4 = A2uiFunctionException(
+        'some message',
+        functionName: 'myFunc',
+        argumentKey: 'myArg',
+        cause: 'underlying error',
+      );
+      expect(
+        exc4.toString(),
+        'A2uiFunctionException inside myFunc: some message (argument: myArg)\nCause: underlying error',
+      );
+    });
   });
 }
