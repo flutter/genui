@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
+import '../../test_infra/message_builders.dart';
+
 void main() {
   testWidgets('renders and handles explicit updates', (tester) async {
     final robot = DateTimeInputRobot(tester);
@@ -262,15 +264,15 @@ void main() {
   final surfaceController = SurfaceController(catalogs: [catalog]);
   const surfaceId = 'testSurface';
 
-  final components = [
-    Component(id: 'root', type: 'DateTimeInput', properties: props),
+  final List<JsonMap> components = [
+    component(id: 'root', type: 'DateTimeInput', properties: props),
   ];
 
   surfaceController.handleMessage(
-    UpdateComponents(surfaceId: surfaceId, components: components),
+    updateComponents(surfaceId: surfaceId, components: components),
   );
   surfaceController.handleMessage(
-    const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+    createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
   );
 
   return (surfaceController, surfaceId);

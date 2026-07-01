@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
+import '../../test_infra/message_builders.dart';
+
 void main() {
   testWidgets('TextField with no weight in Row defaults to weight: 1 '
       'and expands', (WidgetTester tester) async {
@@ -14,15 +16,15 @@ void main() {
     );
     addTearDown(surfaceController.dispose);
     const surfaceId = 'testSurface';
-    final components = [
-      const Component(
+    final List<JsonMap> components = [
+      component(
         id: 'root',
         type: 'Row',
         properties: {
           'children': ['text_field'],
         },
       ),
-      const Component(
+      component(
         id: 'text_field',
         type: 'TextField',
         properties: {'label': 'Input'},
@@ -31,10 +33,10 @@ void main() {
     ];
 
     surfaceController.handleMessage(
-      UpdateComponents(surfaceId: surfaceId, components: components),
+      updateComponents(surfaceId: surfaceId, components: components),
     );
     surfaceController.handleMessage(
-      const CreateSurface(surfaceId: surfaceId, catalogId: basicCatalogId),
+      createSurface(surfaceId: surfaceId, catalogId: basicCatalogId),
     );
 
     await tester.pumpWidget(
@@ -70,15 +72,15 @@ void main() {
     );
     addTearDown(surfaceController.dispose);
     const surfaceId = 'testSurface';
-    final components = [
-      const Component(
+    final List<JsonMap> components = [
+      component(
         id: 'root',
         type: 'Row',
         properties: {
           'children': ['text_field'],
         },
       ),
-      const Component(
+      component(
         id: 'text_field',
         type: 'TextField',
         properties: {'label': 'Input', 'weight': 1},
@@ -86,10 +88,10 @@ void main() {
     ];
 
     surfaceController.handleMessage(
-      UpdateComponents(surfaceId: surfaceId, components: components),
+      updateComponents(surfaceId: surfaceId, components: components),
     );
     surfaceController.handleMessage(
-      const CreateSurface(surfaceId: surfaceId, catalogId: basicCatalogId),
+      createSurface(surfaceId: surfaceId, catalogId: basicCatalogId),
     );
 
     await tester.pumpWidget(
@@ -125,15 +127,15 @@ void main() {
     const surfaceId = 'validationTest';
     // Initialize with invalid value
     surfaceController.handleMessage(
-      UpdateDataModel(
+      updateDataModel(
         surfaceId: surfaceId,
         path: DataPath('/myValue'),
         value: 'initial',
       ),
     );
 
-    final components = [
-      const Component(
+    final List<JsonMap> components = [
+      component(
         id: 'root',
         type: 'TextField',
         properties: {
@@ -156,10 +158,10 @@ void main() {
     ];
 
     surfaceController.handleMessage(
-      UpdateComponents(surfaceId: surfaceId, components: components),
+      updateComponents(surfaceId: surfaceId, components: components),
     );
     surfaceController.handleMessage(
-      const CreateSurface(surfaceId: surfaceId, catalogId: basicCatalogId),
+      createSurface(surfaceId: surfaceId, catalogId: basicCatalogId),
     );
 
     await tester.pumpWidget(
@@ -192,11 +194,11 @@ void main() {
     const surfaceId = 'validationWrapperTest';
     // Initialize with invalid value (empty string)
     surfaceController.handleMessage(
-      UpdateDataModel(surfaceId: surfaceId, path: DataPath('/name'), value: ''),
+      updateDataModel(surfaceId: surfaceId, path: DataPath('/name'), value: ''),
     );
 
-    final components = [
-      const Component(
+    final List<JsonMap> components = [
+      component(
         id: 'root',
         type: 'TextField',
         properties: {
@@ -220,10 +222,10 @@ void main() {
     ];
 
     surfaceController.handleMessage(
-      UpdateComponents(surfaceId: surfaceId, components: components),
+      updateComponents(surfaceId: surfaceId, components: components),
     );
     surfaceController.handleMessage(
-      const CreateSurface(surfaceId: surfaceId, catalogId: basicCatalogId),
+      createSurface(surfaceId: surfaceId, catalogId: basicCatalogId),
     );
 
     await tester.pumpWidget(
@@ -257,15 +259,15 @@ void main() {
     const surfaceId = 'validationTypeTest';
     // Initialize with an integer value
     surfaceController.handleMessage(
-      UpdateDataModel(
+      updateDataModel(
         surfaceId: surfaceId,
         path: DataPath('/name'),
         value: 123,
       ),
     );
 
-    final components = [
-      const Component(
+    final List<JsonMap> components = [
+      component(
         id: 'root',
         type: 'TextField',
         properties: {
@@ -276,10 +278,10 @@ void main() {
     ];
 
     surfaceController.handleMessage(
-      UpdateComponents(surfaceId: surfaceId, components: components),
+      updateComponents(surfaceId: surfaceId, components: components),
     );
     surfaceController.handleMessage(
-      const CreateSurface(surfaceId: surfaceId, catalogId: basicCatalogId),
+      createSurface(surfaceId: surfaceId, catalogId: basicCatalogId),
     );
 
     await tester.pumpWidget(

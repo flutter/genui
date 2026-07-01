@@ -5,15 +5,13 @@
 import 'dart:async' show StreamSubscription;
 import 'dart:convert';
 
-import 'package:collection/collection.dart';
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:flutter/material.dart';
 
 import '../engine/surface_controller.dart';
-import '../model/a2ui_message.dart';
 import '../model/catalog.dart';
 import '../model/catalog_item.dart';
 import '../model/chat_message.dart';
-import '../model/ui_models.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 import '../widgets/surface.dart';
@@ -73,14 +71,11 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
         try {
           final exampleData = jsonDecode(exampleJsonString) as List<Object?>;
 
-          final List<Component> components = exampleData
-              .map((e) => Component.fromJson(e as JsonMap))
+          final List<JsonMap> components = exampleData
+              .map((e) => e as JsonMap)
               .toList();
 
-          Component? rootComponent;
-          rootComponent = components.firstWhereOrNull((c) => c.id == 'root');
-
-          if (rootComponent == null) {
+          if (!components.any((c) => c['id'] == 'root')) {
             genUiLogger.info(
               'Skipping example for ${item.name} because it is missing a root '
               'component.',
@@ -89,10 +84,16 @@ class _DebugCatalogViewState extends State<DebugCatalogView> {
           }
 
           _surfaceController.handleMessage(
-            UpdateComponents(surfaceId: surfaceId, components: components),
+            core.UpdateComponentsMessage(
+              surfaceId: surfaceId,
+              components: components,
+            ),
           );
           _surfaceController.handleMessage(
-            CreateSurface(surfaceId: surfaceId, catalogId: catalog.catalogId!),
+            core.CreateSurfaceMessage(
+              surfaceId: surfaceId,
+              catalogId: catalog.catalogId!,
+            ),
           );
           surfaceIds.add(surfaceId);
         } catch (exception, stackTrace) {

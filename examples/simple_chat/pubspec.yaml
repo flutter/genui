@@ -12,6 +12,7 @@ environment:
 resolution: workspace
 
 dependencies:
+  a2ui_core: ^0.0.1-wip002
   dartantic_ai: ^3.2.0
   flutter:
     sdk: flutter

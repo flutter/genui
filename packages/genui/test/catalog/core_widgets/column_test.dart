@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
+import '../../test_infra/message_builders.dart';
+
 void main() {
   testWidgets('Column widget renders children', (WidgetTester tester) async {
     final surfaceController = SurfaceController(
@@ -17,26 +19,22 @@ void main() {
       ],
     );
     const surfaceId = 'testSurface';
-    final components = [
-      const Component(
+    final List<JsonMap> components = [
+      component(
         id: 'root',
         type: 'Column',
         properties: {
           'children': ['text1', 'text2'],
         },
       ),
-      const Component(id: 'text1', type: 'Text', properties: {'text': 'First'}),
-      const Component(
-        id: 'text2',
-        type: 'Text',
-        properties: {'text': 'Second'},
-      ),
+      component(id: 'text1', type: 'Text', properties: {'text': 'First'}),
+      component(id: 'text2', type: 'Text', properties: {'text': 'Second'}),
     ];
     surfaceController.handleMessage(
-      UpdateComponents(surfaceId: surfaceId, components: components),
+      updateComponents(surfaceId: surfaceId, components: components),
     );
     surfaceController.handleMessage(
-      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+      createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(
@@ -65,31 +63,31 @@ void main() {
       ],
     );
     const surfaceId = 'testSurface';
-    final components = [
-      const Component(
+    final List<JsonMap> components = [
+      component(
         id: 'root',
         type: 'Column',
         properties: {
           'children': ['text1', 'text2', 'text3'],
         },
       ),
-      const Component(
+      component(
         id: 'text1',
         type: 'Text',
         properties: {'text': 'First', 'weight': 1},
       ),
-      const Component(
+      component(
         id: 'text2',
         type: 'Text',
         properties: {'text': 'Second', 'weight': 2},
       ),
-      const Component(id: 'text3', type: 'Text', properties: {'text': 'Third'}),
+      component(id: 'text3', type: 'Text', properties: {'text': 'Third'}),
     ];
     surfaceController.handleMessage(
-      UpdateComponents(surfaceId: surfaceId, components: components),
+      updateComponents(surfaceId: surfaceId, components: components),
     );
     surfaceController.handleMessage(
-      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+      createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(

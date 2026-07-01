@@ -10,4 +10,12 @@
 library;
 
 export 'package:preact_signals/preact_signals.dart'
-    show Computed, Effect, ReadonlySignal, Signal, batch, computed, signal;
+    show
+        Computed,
+        Effect,
+        ReadonlySignal,
+        Signal,
+        batch,
+        computed,
+        effect,
+        signal;

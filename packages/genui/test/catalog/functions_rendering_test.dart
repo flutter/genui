@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
+import '../test_infra/message_builders.dart';
 
 void main() {
   late SurfaceController controller;
@@ -29,12 +30,12 @@ void main() {
 
     // 1. Create surface
     controller.handleMessage(
-      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+      createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     // 2. Update data model
     controller.handleMessage(
-      const UpdateDataModel(
+      updateDataModel(
         surfaceId: surfaceId,
         path: DataPath.root,
         value: {'count': 2},
@@ -69,7 +70,10 @@ void main() {
     ];
 
     controller.handleMessage(
-      UpdateComponents(surfaceId: surfaceId, components: components),
+      updateComponents(
+        surfaceId: surfaceId,
+        components: components.map((c) => c.toJson()).toList(),
+      ),
     );
 
     await tester.pumpWidget(

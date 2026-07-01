@@ -4,10 +4,10 @@
 
 import 'dart:async';
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:async/async.dart';
-import 'package:genui/src/model/a2ui_message.dart';
 import 'package:genui/src/model/generation_events.dart';
-import 'package:genui/src/model/ui_models.dart';
+import 'package:genui/src/primitives/a2ui_validation_exception.dart';
 import 'package:genui/src/transport/a2ui_parser_transformer.dart';
 import 'package:test/test.dart';
 
@@ -63,8 +63,8 @@ void main() {
       );
 
       final msgEvent = (await queue.next) as A2uiMessageEvent;
-      expect(msgEvent.message, isA<CreateSurface>());
-      expect((msgEvent.message as CreateSurface).surfaceId, 'foo');
+      expect(msgEvent.message, isA<core.CreateSurfaceMessage>());
+      expect((msgEvent.message as core.CreateSurfaceMessage).surfaceId, 'foo');
 
       // The text after might be just the newline or "End of message."
       // We accept whatever text comes next, potentially fragmented.
@@ -100,8 +100,8 @@ void main() {
       );
 
       final msgEvent = (await queue.next) as A2uiMessageEvent;
-      expect(msgEvent.message, isA<DeleteSurface>());
-      expect((msgEvent.message as DeleteSurface).surfaceId, 'bar');
+      expect(msgEvent.message, isA<core.DeleteSurfaceMessage>());
+      expect((msgEvent.message as core.DeleteSurfaceMessage).surfaceId, 'bar');
 
       expect(
         (await queue.next) as TextEvent,
@@ -125,8 +125,11 @@ void main() {
       );
 
       final msgEvent = (await queue.next) as A2uiMessageEvent;
-      expect(msgEvent.message, isA<DeleteSurface>());
-      expect((msgEvent.message as DeleteSurface).surfaceId, '[{]bar[}]');
+      expect(msgEvent.message, isA<core.DeleteSurfaceMessage>());
+      expect(
+        (msgEvent.message as core.DeleteSurfaceMessage).surfaceId,
+        '[{]bar[}]',
+      );
 
       expect(
         (await queue.next) as TextEvent,
@@ -156,7 +159,7 @@ void main() {
     test('emits error for invalid A2UI message', () async {
       final StreamQueue<GenerationEvent> queue = StreamQueue(stream);
 
-      // Malformed CreateSurface (missing required fields)
+      // Malformed core.CreateSurfaceMessage (missing required fields)
       controller.add('{"version": "v0.9", "createSurface": {}}');
 
       // Should emit error
@@ -254,12 +257,18 @@ void main() {
       );
 
       final firstEvent = (await queue.next) as A2uiMessageEvent;
-      expect(firstEvent.message, isA<CreateSurface>());
-      expect((firstEvent.message as CreateSurface).surfaceId, 'foo');
+      expect(firstEvent.message, isA<core.CreateSurfaceMessage>());
+      expect(
+        (firstEvent.message as core.CreateSurfaceMessage).surfaceId,
+        'foo',
+      );
 
       final secondEvent = (await queue.next) as A2uiMessageEvent;
-      expect(secondEvent.message, isA<CreateSurface>());
-      expect((secondEvent.message as CreateSurface).surfaceId, 'bar');
+      expect(secondEvent.message, isA<core.CreateSurfaceMessage>());
+      expect(
+        (secondEvent.message as core.CreateSurfaceMessage).surfaceId,
+        'bar',
+      );
 
       await queue.cancel();
     });

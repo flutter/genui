@@ -9,13 +9,11 @@ import '../model/data_model.dart';
 import '../model/ui_models.dart';
 
 /// An interface for a specific UI surface context.
-///
-/// This provides access to the state and definition of a single surface.
 abstract interface class SurfaceContext {
   /// The ID of the surface this context is bound to.
   String get surfaceId;
 
-  /// The current definition of the UI for this surface.
+  /// The current snapshot definition of the UI for this surface.
   ValueListenable<SurfaceDefinition?> get definition;
 
   /// The data model for this surface.

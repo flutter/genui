@@ -4,6 +4,7 @@
 
 import 'dart:async';
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:dartantic_ai/dartantic_ai.dart' as dartantic;
 import 'package:genui/genui.dart';
 import 'package:logging/logging.dart';
@@ -20,7 +21,7 @@ class AiClientTransport implements Transport {
   final Logger _logger = Logger('AiClientTransport');
 
   @override
-  Stream<A2uiMessage> get incomingMessages => _adapter.incomingMessages;
+  Stream<core.A2uiMessage> get incomingMessages => _adapter.incomingMessages;
 
   @override
   Stream<String> get incomingText => _adapter.incomingText;

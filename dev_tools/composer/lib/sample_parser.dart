@@ -4,7 +4,7 @@
 
 import 'dart:convert';
 
-import 'package:genui/genui.dart';
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:yaml/yaml.dart';
 
 /// A parsed sample containing metadata and a stream of A2UI messages.
@@ -12,7 +12,7 @@ class Sample {
   final String name;
   final String description;
   final String rawJsonl;
-  final Stream<A2uiMessage> messages;
+  final Stream<core.A2uiMessage> messages;
 
   Sample({
     required this.name,
@@ -50,14 +50,14 @@ class SampleParser {
     final String name = header['name'] as String? ?? 'Untitled Sample';
     final String description = header['description'] as String? ?? '';
 
-    final Stream<A2uiMessage> messages = Stream.fromIterable(
+    final Stream<core.A2uiMessage> messages = Stream.fromIterable(
       const LineSplitter()
           .convert(jsonlBody)
           .where((line) => line.trim().isNotEmpty)
           .map((line) {
             final Object? json = jsonDecode(line);
             if (json is Map<String, Object?>) {
-              return A2uiMessage.fromJson(json);
+              return core.A2uiMessage.fromJson(json);
             }
             throw FormatException('Invalid JSON line: $line');
           }),

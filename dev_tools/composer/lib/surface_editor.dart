@@ -5,6 +5,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:flutter/material.dart';
 import 'package:flutter_code_editor/flutter_code_editor.dart';
 import 'package:flutter_highlight/themes/vs.dart';
@@ -148,9 +149,13 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
 
   void _subscribeToDataModel() {
     _dataModelNotifier?.removeListener(_onDataModelChanged);
+    _dataModelNotifier?.dispose();
+    _dataModelNotifier = null;
     if (_surfaceIds.isEmpty) return;
 
-    final dataModel = _surfaceController.store.getDataModel(_surfaceIds.first);
+    final dataModel = _surfaceController
+        .contextFor(_surfaceIds.first)
+        .dataModel;
     _dataModelNotifier = dataModel.subscribe<Object?>(DataPath.root);
     _dataModelNotifier!.addListener(_onDataModelChanged);
   }
@@ -164,7 +169,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
     if (_surfaceIds.isEmpty) return;
 
     final surfaceId = _surfaceIds.first;
-    final dataModel = _surfaceController.store.getDataModel(surfaceId);
+    final dataModel = _surfaceController.contextFor(surfaceId).dataModel;
     final data = dataModel.getValue<Object?>(DataPath.root);
     final dataJson = const JsonEncoder.withIndent('  ').convert(data);
 
@@ -178,6 +183,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
 
   void _applyJson(String json) {
     _dataModelNotifier?.removeListener(_onDataModelChanged);
+    _dataModelNotifier?.dispose();
     _dataModelNotifier = null;
     _surfaceSub?.cancel();
     _surfaceController.dispose();
@@ -202,7 +208,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
 
         final obj = jsonDecode(trimmedChunk);
         if (obj is Map<String, Object?>) {
-          final message = A2uiMessage.fromJson(obj);
+          final message = core.A2uiMessage.fromJson(obj);
           _surfaceController.handleMessage(message);
         }
       }
@@ -227,7 +233,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
       if (parsed is Map<String, Object?>) {
         final surfaceId = _surfaceIds.first;
         _surfaceController.handleMessage(
-          A2uiMessage.fromJson({
+          core.A2uiMessage.fromJson({
             'version': kProtocolVersion,
             'updateDataModel': {
               'surfaceId': surfaceId,
@@ -270,6 +276,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
     _jsonDebounce?.cancel();
     _dataDebounce?.cancel();
     _dataModelNotifier?.removeListener(_onDataModelChanged);
+    _dataModelNotifier?.dispose();
     _jsonController.removeListener(_onJsonControllerChanged);
     _dataController.removeListener(_onDataControllerChanged);
     _surfaceSub?.cancel();

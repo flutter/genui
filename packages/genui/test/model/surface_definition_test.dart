@@ -4,7 +4,6 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
-import 'package:genui/src/primitives/simple_items.dart';
 
 void main() {
   group('SurfaceDefinition', () {

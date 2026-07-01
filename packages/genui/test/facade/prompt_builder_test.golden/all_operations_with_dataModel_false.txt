@@ -16,6 +16,10 @@ Use the provided tools to respond to user using rich UI elements.
 
 -------------------------------------
 
+The active catalog ID is: "test_catalog". You must use this catalog ID when creating surfaces.
+
+-------------------------------------
+
 IMPORTANT: You do not have the ability to execute code. If you need to perform calculations, do them yourself.
 
 -------------------------------------
@@ -100,14 +104,14 @@ Supported messages are: `createSurface`, `updateComponents`, `deleteSurface`.
 Properties:
 
 - `createSurface`: Requires `surfaceId` (you must always use a unique ID for each created surface),
-`catalogId` (use the catalog ID provided in system instructions),
+`catalogId` (use the active catalog ID if provided in system instructions),
 and `sendDataModel: true`.
 - `updateComponents`: Requires `surfaceId` and a list of `components`.
 One component MUST have `id: "root"`.
 - `deleteSurface`: Requires `surfaceId`.
 
 To create a new UI:
-1. Output a `createSurface` message with a unique `surfaceId` and `catalogId` (use the catalog ID provided in system instructions).
+1. Output a `createSurface` message with a unique `surfaceId` and `catalogId` (use the active catalog ID if provided in system instructions).
 2. Output an `updateComponents` message with the `surfaceId` and the component definitions.
 
 To update an existing UI:

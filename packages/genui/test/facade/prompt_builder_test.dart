@@ -182,4 +182,26 @@ void main() {
       expect(prompt, contains('"title"'));
     });
   });
+
+  group('Catalog ID', () {
+    test('is surfaced in system prompt when provided', () async {
+      final catalog = Catalog([
+        BasicCatalogItems.text,
+      ], catalogId: 'my_custom_catalog');
+      final PromptBuilder builder = await PromptBuilder.createChat(
+        catalog: catalog,
+      );
+      final String prompt = builder.systemPromptJoined();
+      expect(prompt, contains('The active catalog ID is: "my_custom_catalog"'));
+    });
+
+    test('is not surfaced in system prompt when not provided', () async {
+      final catalog = Catalog([BasicCatalogItems.text]);
+      final PromptBuilder builder = await PromptBuilder.createChat(
+        catalog: catalog,
+      );
+      final String prompt = builder.systemPromptJoined();
+      expect(prompt, isNot(contains('The active catalog ID is:')));
+    });
+  });
 }

@@ -14,7 +14,7 @@ jobs:
   eval-job:
     # Do not run on forked branches,
     # because the test does not have access to secrets in forks.
-    if: github.repository == 'flutter/genui'
+    if: secrets.REPO_GEMINI_API_KEY != ''
     runs-on: ubuntu-latest
     environment: eval
     steps:
@@ -39,7 +39,7 @@ jobs:
       - name: Print Flutter version
         run: flutter --version
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
       - name: Install dependencies
         working-directory: tool/e2e
         run: dart pub get

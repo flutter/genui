@@ -4,6 +4,7 @@
 
 import 'dart:async';
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:flutter/foundation.dart';
 import 'package:genui/genui.dart';
 import 'package:logging/logging.dart';
@@ -44,9 +45,16 @@ When user asks about climbing locations, never use other components.
 ''';
 }
 
-final Catalog _basicCatalog = BasicCatalogItems.asNoAssetCatalog(
-  systemPromptFragments: [Prompts.choicePicker, Prompts.textFieldFallback],
-);
+final Catalog _basicCatalog =
+    BasicCatalogItems.asCatalog(
+      systemPromptFragments: [Prompts.choicePicker, Prompts.textFieldFallback],
+    ).copyWithout(
+      itemsToRemove: [
+        BasicCatalogItems.audioPlayer,
+        BasicCatalogItems.image,
+        BasicCatalogItems.video,
+      ],
+    );
 
 final Catalog _customCatalog = _basicCatalog.copyWith(
   systemPromptFragments: [
@@ -184,7 +192,7 @@ class A2uiChatSession extends ChatSession {
   @override
   SurfaceController get surfaceController => _surfaceController;
 
-  late final StreamSubscription<A2uiMessage> _messageSub;
+  late final StreamSubscription<core.A2uiMessage> _messageSub;
   late final StreamSubscription<String> _textSub;
   late final StreamSubscription<ChatMessage> _submitSub;
   late final StreamSubscription<SurfaceUpdate> _surfaceSub;

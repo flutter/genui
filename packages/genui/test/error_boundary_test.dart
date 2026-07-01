@@ -10,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:logging/logging.dart';
+import 'test_infra/message_builders.dart';
 
 void main() {
   group('Secure Error Boundary Tests', () {
@@ -154,10 +155,13 @@ void main() {
       ];
 
       surfaceController.handleMessage(
-        UpdateComponents(surfaceId: surfaceId, components: components),
+        updateComponents(
+          surfaceId: surfaceId,
+          components: components.map((c) => c.toJson()).toList(),
+        ),
       );
       surfaceController.handleMessage(
-        const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+        createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
       );
 
       await tester.pumpWidget(
