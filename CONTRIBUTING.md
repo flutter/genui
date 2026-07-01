@@ -10,6 +10,8 @@ Please follow:
 
 File issues against [A2UI project](https://github.com/a2ui-project/a2ui/issues).
 
+See explanation of triage process in [A2UI CONTRIBUTING.md](https://github.com/a2ui-project/a2ui/blob/main/CONTRIBUTING.md).
+
 ## Internal information
 
 For Google-internal information see go/a2ui-internal.
