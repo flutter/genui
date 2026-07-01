@@ -8,7 +8,7 @@ Please follow:
 
 ## Issues
 
-File issues against [A2UI project](https://github.com/a2ui-project/a2ui/issues).
+File issues against the [A2UI project](https://github.com/a2ui-project/a2ui/issues).
 
 See explanation of triage process in [A2UI CONTRIBUTING.md](https://github.com/a2ui-project/a2ui/blob/main/CONTRIBUTING.md).
 
