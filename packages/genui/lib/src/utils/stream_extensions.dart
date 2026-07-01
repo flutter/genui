@@ -45,6 +45,7 @@ extension SwitchMapExtension<T> on Stream<T> {
               onError: (Object error, StackTrace? stackTrace) =>
                   controller.addError(error, stackTrace),
               onDone: () {
+                innerSubscription = null;
                 if (outerSubscription == null) {
                   controller.close();
                 }
@@ -54,6 +55,7 @@ extension SwitchMapExtension<T> on Stream<T> {
           onError: (Object error, StackTrace? stackTrace) =>
               controller.addError(error, stackTrace),
           onDone: () {
+            outerSubscription = null;
             if (innerSubscription == null) {
               controller.close();
             }
