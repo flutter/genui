@@ -1,0 +1,52 @@
+# Copyright 2025 The Flutter Authors.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# This automation adds/removes the 'status: needs-triage' label to pull requests
+# so that PRs needing attention are easy to find. The label is fully owned by
+# this automation and reconciled on every run.
+#
+# The flagging rules live in ./scripts/triage.mjs — see the header comment there
+# for the full specification.
+
+name: Flag/Unflag pull requests
+
+on:
+  # Periodic reconciliation: catches time-based rules (staleness) and removes the
+  # label once a PR no longer matches.
+  schedule:
+    - cron: "0 15 * * *" # daily at 15:00 UTC
+  # React promptly to the events that can change a PR's flag state.
+  pull_request_target:
+    types: [opened, edited, reopened, ready_for_review, synchronize]
+  issue_comment:
+    types: [created]
+  # Allow manual runs from the Actions tab.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+
+      - name: Reconcile triage flag labels
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const path = require('path');
+            const { pathToFileURL } = require('url');
+
+            const filePath = path.resolve('./scripts/triage.mjs');
+            const fileUrl = pathToFileURL(filePath).href;
+
+            const importedModule = await import(fileUrl);
+            await importedModule.default({ github, context });
