@@ -7,7 +7,12 @@
 # this automation and reconciled on every run.
 #
 # The flagging rules live in ./tool/triage.mjs — see the header comment there
-# for the full specification.
+# for the full specification:
+# https://github.com/flutter/genui/blob/main/tool/triage.mjs
+#
+# For the history of runs, see:
+# https://github.com/flutter/genui/actions/workflows/triage.yaml
+
 
 name: Flag/Unflag pull requests
 

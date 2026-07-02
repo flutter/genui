@@ -17,8 +17,12 @@
 // member has commented after the external author's last comment for more than a
 // day.
 //
+// Flagged PRs:
+// https://github.com/flutter/genui/pulls?q=state%3Aopen%20label%3A%22status%3A%20needs-triage%22
+//
 // The job prints to console what PRs are flagged/unflagged and why. To see the
-// history of runs see the Actions tab for the triage workflow.
+// history of runs see:
+// https://github.com/flutter/genui/actions/workflows/triage.yaml
 
 export const FLAG_LABEL = 'status: needs-triage';
 
