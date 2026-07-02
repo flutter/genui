@@ -65,8 +65,8 @@ class A2uiTransportAdapter implements Transport {
   Stream<String> get incomingText => _pipeline
       .where((e) => e is TextEvent)
       .cast<TextEvent>()
-      .map((e) => e.text.trim())
-      .where((text) => text.isNotEmpty);
+      .map((e) => e.text)
+      .where((text) => text.trim().isNotEmpty);
 
   /// A stream of A2UI messages parsed from the input.
   @override
