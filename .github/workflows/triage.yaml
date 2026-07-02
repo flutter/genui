@@ -6,7 +6,7 @@
 # so that PRs needing attention are easy to find. The label is fully owned by
 # this automation and reconciled on every run.
 #
-# The flagging rules live in ./scripts/triage.mjs — see the header comment there
+# The flagging rules live in ./tool/triage.mjs — see the header comment there
 # for the full specification.
 
 name: Flag/Unflag pull requests
@@ -45,7 +45,7 @@ jobs:
             const path = require('path');
             const { pathToFileURL } = require('url');
 
-            const filePath = path.resolve('./scripts/triage.mjs');
+            const filePath = path.resolve('./tool/triage.mjs');
             const fileUrl = pathToFileURL(filePath).href;
 
             const importedModule = await import(fileUrl);
