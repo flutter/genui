@@ -4,6 +4,7 @@
 
 import 'dart:async';
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:flutter/material.dart';
 import 'package:genui/genui.dart';
 
@@ -32,7 +33,7 @@ class _SamplesViewState extends State<SamplesView> {
   final List<String> _surfaceIds = [];
   int _currentSurfaceIndex = 0;
   StreamSubscription<SurfaceUpdate>? _surfaceSubscription;
-  StreamSubscription<A2uiMessage>? _messageSubscription;
+  StreamSubscription<core.A2uiMessage>? _messageSubscription;
 
   @override
   void initState() {

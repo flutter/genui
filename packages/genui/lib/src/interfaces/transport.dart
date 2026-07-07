@@ -4,7 +4,8 @@
 
 import 'dart:async';
 
-import '../model/a2ui_message.dart';
+import 'package:a2ui_core/a2ui_core.dart' as core;
+
 import '../model/chat_message.dart';
 
 /// An interface for transporting messages between GenUI and an AI service.
@@ -18,8 +19,8 @@ abstract interface class Transport {
   /// up over time.
   Stream<String> get incomingText;
 
-  /// A stream of parsed [A2uiMessage]s received from the AI service.
-  Stream<A2uiMessage> get incomingMessages;
+  /// A stream of parsed [core.A2uiMessage]s received from the AI service.
+  Stream<core.A2uiMessage> get incomingMessages;
 
   /// Sends a request to the AI service.
   Future<void> sendRequest(ChatMessage message);

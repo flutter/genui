@@ -2,9 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
+import 'package:meta/meta.dart' show internal;
 
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
@@ -141,7 +143,7 @@ interface class Catalog {
         CatalogItemContext(
           data: itemContext.data,
           id: itemContext.id,
-          type: widgetType,
+          type: itemContext.type,
           buildChild: (String childId, [DataContext? childDataContext]) =>
               itemContext.buildChild(
                 childId,
@@ -160,6 +162,14 @@ interface class Catalog {
     );
   }
 
+  /// The catalog id used to register this catalog with `a2ui_core` and to match
+  /// a live surface back to it: [catalogId] when set, otherwise a synthesized
+  /// id for an inline catalog. The advertised id ([toCapabilitiesJson]), the
+  /// registered runtime id ([coreCatalogFor]), and `SurfaceController`'s lookup
+  /// all use this, so an inline catalog's id cannot diverge between them.
+  @internal
+  String get effectiveCatalogId => catalogId ?? 'inline_catalog_$hashCode';
+
   /// Generates a JSON map suitable for inclusion in an inline catalog array
   /// within `A2UiClientCapabilities`.
   ///
@@ -168,9 +178,7 @@ interface class Catalog {
   /// to be an array of objects.
   JsonMap toCapabilitiesJson() {
     return {
-      if (catalogId != null) 'catalogId': catalogId,
-      // Provide a fallback ID for inline if catalogId is null
-      if (catalogId == null) 'catalogId': 'inline_catalog_$hashCode',
+      'catalogId': effectiveCatalogId,
       'components': {
         for (final item in items) item.name: item.dataSchema.value,
       },
@@ -262,3 +270,26 @@ class CatalogItemNotFoundException implements Exception {
     return buffer.toString();
   }
 }
+
+class _CatalogItemComponentApi implements core.ComponentApi {
+  _CatalogItemComponentApi(this._item);
+  final CatalogItem _item;
+
+  @override
+  String get name => _item.name;
+
+  @override
+  Schema get schema => _item.dataSchema;
+}
+
+/// Builds the `a2ui_core` [core.Catalog] for [catalog], used when constructing
+/// a [core.SurfaceModel] so `a2ui_core` lookups see real component metadata
+/// instead of an empty stub.
+@internal
+core.Catalog<core.ComponentApi> coreCatalogFor(Catalog catalog) =>
+    core.Catalog<core.ComponentApi>(
+      id: catalog.effectiveCatalogId,
+      components: catalog.items
+          .map<core.ComponentApi>(_CatalogItemComponentApi.new)
+          .toList(growable: false),
+    );

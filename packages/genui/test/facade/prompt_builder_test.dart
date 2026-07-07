@@ -123,4 +123,22 @@ void main() {
       });
     }
   });
+
+  group('Catalog ID', () {
+    test('is surfaced in system prompt when provided', () {
+      final catalog = Catalog([
+        BasicCatalogItems.text,
+      ], catalogId: 'my_custom_catalog');
+      final builder = PromptBuilder.chat(catalog: catalog);
+      final String prompt = builder.systemPromptJoined();
+      expect(prompt, contains('The active catalog ID is: "my_custom_catalog"'));
+    });
+
+    test('is not surfaced in system prompt when not provided', () {
+      final catalog = Catalog([BasicCatalogItems.text]);
+      final builder = PromptBuilder.chat(catalog: catalog);
+      final String prompt = builder.systemPromptJoined();
+      expect(prompt, isNot(contains('The active catalog ID is:')));
+    });
+  });
 }

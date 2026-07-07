@@ -7,6 +7,8 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
+import '../test_infra/message_builders.dart';
+
 void main() {
   group('SurfaceController Validation', () {
     test('CreateSurface fails validation with empty surfaceId', () async {
@@ -28,7 +30,7 @@ void main() {
       );
 
       controller.handleMessage(
-        const CreateSurface(surfaceId: '', catalogId: 'default'),
+        createSurface(surfaceId: '', catalogId: 'default'),
       );
 
       await future;
@@ -56,18 +58,106 @@ void main() {
         );
 
         controller.handleMessage(
-          const CreateSurface(surfaceId: 'surf1', catalogId: basicCatalogId),
+          createSurface(surfaceId: 'surf1', catalogId: basicCatalogId),
         );
 
         controller.handleMessage(
-          const UpdateComponents(
+          updateComponents(
             surfaceId: 'surf1',
             components: [
-              Component(
+              component(
                 id: 'badText',
                 type: 'Text',
                 properties: {},
               ), // Missing 'text' property
+            ],
+          ),
+        );
+
+        await future;
+      },
+    );
+
+    test(
+      'UpdateDataModel write failure reports its surfaceId and path',
+      () async {
+        final controller = SurfaceController(
+          catalogs: [BasicCatalogItems.asCatalog()],
+        );
+
+        final Future<void> future = expectLater(
+          controller.onSubmit,
+          emits(
+            predicate((ChatMessage message) {
+              final UiInteractionPart part =
+                  message.parts.uiInteractionParts.first;
+              final json = jsonDecode(part.interaction) as Map<String, Object?>;
+              final error = json['error'] as Map<String, Object?>;
+              return error['code'] == 'VALIDATION_FAILED' &&
+                  error['surfaceId'] == 'surf1' &&
+                  error['path'] == '/scalar/child/leaf';
+            }),
+          ),
+        );
+
+        controller.handleMessage(
+          createSurface(surfaceId: 'surf1', catalogId: basicCatalogId),
+        );
+        // The core data model rejects writing through a primitive intermediate;
+        // the controller surfaces it with the offending surfaceId and path.
+        controller.handleMessage(
+          updateDataModel(
+            surfaceId: 'surf1',
+            path: DataPath('/scalar'),
+            value: 5,
+          ),
+        );
+        controller.handleMessage(
+          updateDataModel(
+            surfaceId: 'surf1',
+            path: DataPath('/scalar/child/leaf'),
+            value: 'x',
+          ),
+        );
+
+        await future;
+      },
+    );
+
+    test(
+      'validates components against an inline catalog (catalogId == null)',
+      () async {
+        // An inline catalog (no explicit id) is registered under a synthesized
+        // id; the controller must resolve a surface back to it, or validation
+        // is silently skipped.
+        final inlineCatalog = Catalog(BasicCatalogItems.asCatalog().items);
+        final controller = SurfaceController(catalogs: [inlineCatalog]);
+
+        final Future<void> future = expectLater(
+          controller.onSubmit,
+          emits(
+            predicate((ChatMessage message) {
+              final UiInteractionPart part =
+                  message.parts.uiInteractionParts.first;
+              final json = jsonDecode(part.interaction) as Map<String, Object?>;
+              final error = json['error'] as Map<String, Object?>;
+              return error['code'] == 'VALIDATION_FAILED' &&
+                  error['path'] == '/components/badText';
+            }),
+          ),
+        );
+
+        controller.handleMessage(
+          createSurface(
+            surfaceId: 'surf1',
+            catalogId: inlineCatalog.effectiveCatalogId,
+          ),
+        );
+        controller.handleMessage(
+          updateComponents(
+            surfaceId: 'surf1',
+            components: [
+              component(id: 'badText', type: 'Text', properties: {}),
             ],
           ),
         );

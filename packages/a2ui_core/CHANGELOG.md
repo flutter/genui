@@ -2,4 +2,5 @@
 
 ## 0.0.1-wip002
 
+- **Feature**: Export `effect`.
 - Initial version.

@@ -4,6 +4,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/src/model/ui_models.dart';
+import 'package:genui/src/primitives/a2ui_validation_exception.dart';
 import 'package:genui/src/primitives/simple_items.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 

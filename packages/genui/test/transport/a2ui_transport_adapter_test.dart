@@ -4,8 +4,7 @@
 
 import 'dart:async';
 
-import 'package:genui/src/model/a2ui_message.dart';
-
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:genui/src/transport/a2ui_transport_adapter.dart';
 import 'package:test/test.dart';
 
@@ -39,7 +38,11 @@ void main() {
       final Future<dynamic> stateFuture = expectLater(
         transportAdapter.incomingMessages,
         emits(
-          isA<CreateSurface>().having((e) => e.surfaceId, 'id', 'test_chunk'),
+          isA<core.CreateSurfaceMessage>().having(
+            (e) => e.surfaceId,
+            'id',
+            'test_chunk',
+          ),
         ),
       );
 
@@ -48,7 +51,7 @@ void main() {
     });
 
     test('addMessage updates state directly', () async {
-      final msg = const CreateSurface(
+      final msg = core.CreateSurfaceMessage(
         surfaceId: 'direct_msg',
         catalogId: 'direct-cat',
       );
@@ -56,7 +59,11 @@ void main() {
       final Future<dynamic> stateFuture = expectLater(
         transportAdapter.incomingMessages,
         emits(
-          isA<CreateSurface>().having((e) => e.surfaceId, 'id', 'direct_msg'),
+          isA<core.CreateSurfaceMessage>().having(
+            (e) => e.surfaceId,
+            'id',
+            'direct_msg',
+          ),
         ),
       );
 
@@ -70,10 +77,10 @@ void main() {
       final Future<void> expectation = expectLater(
         adapter.incomingMessages,
         emits(
-          predicate<A2uiMessage>((m) {
-            return m is UpdateComponents &&
+          predicate<core.A2uiMessage>((m) {
+            return m is core.UpdateComponentsMessage &&
                 m.components.length == 1 &&
-                m.components.first.id == 'root';
+                m.components.first['id'] == 'root';
           }),
         ),
       );

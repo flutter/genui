@@ -5,6 +5,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:genui/genui.dart';
@@ -93,7 +94,7 @@ class Ai extends _$Ai {
     final surfaceUpdateController = StreamController<String>.broadcast();
 
     connector.stream.listen((message) {
-      if (message is CreateSurface) {
+      if (message is core.CreateSurfaceMessage) {
         surfaceUpdateController.add(message.surfaceId);
       }
     });

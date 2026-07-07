@@ -2,9 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
+
+import '../../test_infra/message_builders.dart';
 
 void main() {
   // Test case based on jobApplication.1.sample
@@ -17,12 +20,12 @@ void main() {
       final controller = SurfaceController(catalogs: [catalog]);
 
       // Initial message to create surface and components
-      final createSurface = const CreateSurface(
+      final core.CreateSurfaceMessage createSurfaceMessage = createSurface(
         surfaceId: 'test',
         catalogId: 'test',
       );
 
-      final updateData = const UpdateDataModel(
+      final core.UpdateDataModelMessage updateData = updateDataModel(
         surfaceId: 'test',
         value: {
           'experience': '2-5', // Single string value, not a list
@@ -30,29 +33,30 @@ void main() {
         path: DataPath.root,
       );
 
-      final updateComponents = const UpdateComponents(
-        surfaceId: 'test',
-        components: [
-          Component(
-            id: 'root',
-            type: 'ChoicePicker',
-            properties: {
-              'label': 'Years of Experience',
-              'variant': 'mutuallyExclusive',
-              'options': [
-                {'label': '0-1', 'value': '0-1'},
-                {'label': '2-5', 'value': '2-5'},
-                {'label': '5+', 'value': '5+'},
-              ],
-              'value': {'path': '/experience'},
-            },
-          ),
-        ],
-      );
+      final core.UpdateComponentsMessage updateComponentsMessage =
+          updateComponents(
+            surfaceId: 'test',
+            components: [
+              component(
+                id: 'root',
+                type: 'ChoicePicker',
+                properties: {
+                  'label': 'Years of Experience',
+                  'variant': 'mutuallyExclusive',
+                  'options': [
+                    {'label': '0-1', 'value': '0-1'},
+                    {'label': '2-5', 'value': '2-5'},
+                    {'label': '5+', 'value': '5+'},
+                  ],
+                  'value': {'path': '/experience'},
+                },
+              ),
+            ],
+          );
 
-      controller.handleMessage(createSurface);
+      controller.handleMessage(createSurfaceMessage);
       controller.handleMessage(updateData);
-      controller.handleMessage(updateComponents);
+      controller.handleMessage(updateComponentsMessage);
 
       await tester.pumpWidget(
         MaterialApp(
@@ -90,7 +94,7 @@ void main() {
 
       // Update data model to another single string
       controller.handleMessage(
-        UpdateDataModel(
+        updateDataModel(
           surfaceId: 'test',
           path: DataPath('/experience'),
           value: '5+',
@@ -112,40 +116,41 @@ void main() {
 
     final controller = SurfaceController(catalogs: [catalog]);
 
-    final createSurface = const CreateSurface(
+    final core.CreateSurfaceMessage createSurfaceMessage = createSurface(
       surfaceId: 'test2',
       catalogId: 'std',
     );
-    final updateData = const UpdateDataModel(
+    final core.UpdateDataModelMessage updateData = updateDataModel(
       surfaceId: 'test2',
       value: {
         'selections': ['A', 'B'],
       },
       path: DataPath.root,
     );
-    final updateComponents = const UpdateComponents(
-      surfaceId: 'test2',
-      components: [
-        Component(
-          id: 'root',
-          type: 'ChoicePicker',
-          properties: {
-            'label': 'Multi',
-            'variant': 'multipleSelection',
-            'options': [
-              {'label': 'A', 'value': 'A'},
-              {'label': 'B', 'value': 'B'},
-              {'label': 'C', 'value': 'C'},
-            ],
-            'value': {'path': '/selections'},
-          },
-        ),
-      ],
-    );
+    final core.UpdateComponentsMessage updateComponentsMessage =
+        updateComponents(
+          surfaceId: 'test2',
+          components: [
+            component(
+              id: 'root',
+              type: 'ChoicePicker',
+              properties: {
+                'label': 'Multi',
+                'variant': 'multipleSelection',
+                'options': [
+                  {'label': 'A', 'value': 'A'},
+                  {'label': 'B', 'value': 'B'},
+                  {'label': 'C', 'value': 'C'},
+                ],
+                'value': {'path': '/selections'},
+              },
+            ),
+          ],
+        );
 
-    controller.handleMessage(createSurface);
+    controller.handleMessage(createSurfaceMessage);
     controller.handleMessage(updateData);
-    controller.handleMessage(updateComponents);
+    controller.handleMessage(updateComponentsMessage);
 
     await tester.pumpWidget(
       MaterialApp(
@@ -175,42 +180,43 @@ void main() {
     final catalog = Catalog([choicePicker], catalogId: 'std');
     final controller = SurfaceController(catalogs: [catalog]);
 
-    final createSurface = const CreateSurface(
+    final core.CreateSurfaceMessage createSurfaceMessage = createSurface(
       surfaceId: 'chipsTest',
       catalogId: 'std',
     );
-    final updateData = const UpdateDataModel(
+    final core.UpdateDataModelMessage updateData = updateDataModel(
       surfaceId: 'chipsTest',
       value: {
         'tags': ['flutter'],
       },
       path: DataPath.root,
     );
-    final updateComponents = const UpdateComponents(
-      surfaceId: 'chipsTest',
-      components: [
-        Component(
-          id: 'root',
-          type: 'ChoicePicker',
-          properties: {
-            'label': 'Tags',
-            'variant': 'multipleSelection',
-            'displayStyle': 'chips',
-            'filterable': true,
-            'options': [
-              {'label': 'Flutter', 'value': 'flutter'},
-              {'label': 'Dart', 'value': 'dart'},
-              {'label': 'GenUI', 'value': 'genui'},
-            ],
-            'value': {'path': '/tags'},
-          },
-        ),
-      ],
-    );
+    final core.UpdateComponentsMessage updateComponentsMessage =
+        updateComponents(
+          surfaceId: 'chipsTest',
+          components: [
+            component(
+              id: 'root',
+              type: 'ChoicePicker',
+              properties: {
+                'label': 'Tags',
+                'variant': 'multipleSelection',
+                'displayStyle': 'chips',
+                'filterable': true,
+                'options': [
+                  {'label': 'Flutter', 'value': 'flutter'},
+                  {'label': 'Dart', 'value': 'dart'},
+                  {'label': 'GenUI', 'value': 'genui'},
+                ],
+                'value': {'path': '/tags'},
+              },
+            ),
+          ],
+        );
 
-    controller.handleMessage(createSurface);
+    controller.handleMessage(createSurfaceMessage);
     controller.handleMessage(updateData);
-    controller.handleMessage(updateComponents);
+    controller.handleMessage(updateComponentsMessage);
 
     await tester.pumpWidget(
       MaterialApp(
@@ -253,32 +259,33 @@ void main() {
       final catalog = Catalog([choicePicker], catalogId: 'std');
       final controller = SurfaceController(catalogs: [catalog]);
 
-      final createSurface = const CreateSurface(
+      final core.CreateSurfaceMessage createSurfaceMessage = createSurface(
         surfaceId: 'nullTest',
         catalogId: 'std',
       );
       // Note: We are NOT sending UpdateDataModel with the value initially.
-      final updateComponents = const UpdateComponents(
-        surfaceId: 'nullTest',
-        components: [
-          Component(
-            id: 'root',
-            type: 'ChoicePicker',
-            properties: {
-              'label': 'Null Check',
-              'variant': 'multipleSelection',
-              'options': [
-                {'label': 'A', 'value': 'A'},
-              ],
-              // Points to a path that doesn't exist yet
-              'value': {'path': '/missing_path'},
-            },
-          ),
-        ],
-      );
+      final core.UpdateComponentsMessage updateComponentsMessage =
+          updateComponents(
+            surfaceId: 'nullTest',
+            components: [
+              component(
+                id: 'root',
+                type: 'ChoicePicker',
+                properties: {
+                  'label': 'Null Check',
+                  'variant': 'multipleSelection',
+                  'options': [
+                    {'label': 'A', 'value': 'A'},
+                  ],
+                  // Points to a path that doesn't exist yet
+                  'value': {'path': '/missing_path'},
+                },
+              ),
+            ],
+          );
 
-      controller.handleMessage(createSurface);
-      controller.handleMessage(updateComponents);
+      controller.handleMessage(createSurfaceMessage);
+      controller.handleMessage(updateComponentsMessage);
 
       await tester.pumpWidget(
         MaterialApp(
@@ -310,15 +317,15 @@ void main() {
     // Store a non-list string (should be treated as selected option if
     // it matches).
     controller.handleMessage(
-      UpdateDataModel(
+      updateDataModel(
         surfaceId: surfaceId,
         path: DataPath('/choice'),
         value: 'option1',
       ),
     );
 
-    final components = [
-      const Component(
+    final List<JsonMap> components = [
+      component(
         id: 'root',
         type: 'ChoicePicker',
         properties: {
@@ -333,10 +340,10 @@ void main() {
     ];
 
     controller.handleMessage(
-      UpdateComponents(surfaceId: surfaceId, components: components),
+      updateComponents(surfaceId: surfaceId, components: components),
     );
     controller.handleMessage(
-      const CreateSurface(surfaceId: surfaceId, catalogId: 'std'),
+      createSurface(surfaceId: surfaceId, catalogId: 'std'),
     );
 
     await tester.pumpWidget(
@@ -360,7 +367,7 @@ void main() {
 
     // Also test number type
     controller.handleMessage(
-      UpdateDataModel(
+      updateDataModel(
         surfaceId: surfaceId,
         path: DataPath('/choice'),
         value: 123,
