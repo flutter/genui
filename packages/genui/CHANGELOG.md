@@ -20,6 +20,7 @@
   an error.
 - The catalog-widget authoring API is unchanged; `SurfaceDefinition` and
   `Component` remain genui types.
+- **Docs** Removed `google_generative_ai` from the README.md.
 
 ## 0.9.1
 
