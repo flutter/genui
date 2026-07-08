@@ -1,3 +1,7 @@
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
@@ -37,7 +41,8 @@ void main() {
         widgetBuilder: (_) => const SizedBox(),
       );
       final catalog = const Catalog([]);
-      final errors = await validateCatalogItemExamples(item, catalog);
+      final List<ExampleValidationError> errors =
+          await validateCatalogItemExamples(item, catalog);
       expect(errors, hasLength(1));
       expect(errors[0].message, 'Failed to parse as a JSON list');
       expect(errors[0].cause, isA<FormatException>());
@@ -54,7 +59,8 @@ void main() {
         widgetBuilder: (_) => const SizedBox(),
       );
       final catalog = const Catalog([]);
-      final errors = await validateCatalogItemExamples(item, catalog);
+      final List<ExampleValidationError> errors =
+          await validateCatalogItemExamples(item, catalog);
       expect(errors, hasLength(1));
       expect(errors[0].message, 'Example must have a component with id "root"');
     });
@@ -67,8 +73,9 @@ void main() {
         exampleData: [() => '[{"id": "root", "component": {"Text": {}}}]'],
         widgetBuilder: (_) => const SizedBox(),
       );
-      final catalog = BasicCatalogItems.asCatalog();
-      final errors = await validateCatalogItemExamples(item, catalog);
+      final Catalog catalog = BasicCatalogItems.asCatalog();
+      final List<ExampleValidationError> errors =
+          await validateCatalogItemExamples(item, catalog);
       expect(errors, hasLength(1));
       expect(errors[0].message, 'Schema validation failed');
       expect(errors[0].cause, isNotEmpty);

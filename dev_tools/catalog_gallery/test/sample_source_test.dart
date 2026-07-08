@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:catalog_gallery/sample_source.dart';
 import 'package:flutter/services.dart';
@@ -14,7 +13,7 @@ void main() {
 
   group('AssetSampleSource', () {
     test('listSamples loads and parses samples from asset bundle', () async {
-      final binaryMessenger =
+      final TestDefaultBinaryMessenger binaryMessenger =
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
 
       // Mock AssetManifest.bin
@@ -54,7 +53,7 @@ void main() {
       });
 
       const source = AssetSampleSource();
-      final samples = await source.listSamples();
+      final List<SampleRef> samples = await source.listSamples();
 
       expect(samples, hasLength(2));
       expect(samples[0].name, 'hello');

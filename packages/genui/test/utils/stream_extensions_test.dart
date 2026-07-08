@@ -13,14 +13,16 @@ void main() {
       final controller = StreamController<int>();
       final innerControllers = <StreamController<String>>[];
 
-      final resultStream = controller.stream.switchMap((val) {
+      final Stream<String> resultStream = controller.stream.switchMap((val) {
         final inner = StreamController<String>();
         innerControllers.add(inner);
         return inner.stream;
       });
 
       final emitted = <String>[];
-      final subscription = resultStream.listen(emitted.add);
+      final StreamSubscription<String> subscription = resultStream.listen(
+        emitted.add,
+      );
 
       controller.add(1);
       await Future.value();
@@ -41,11 +43,11 @@ void main() {
 
     test('outer stream error is forwarded', () async {
       final controller = StreamController<int>();
-      final resultStream = controller.stream.switchMap(
+      final Stream<String> resultStream = controller.stream.switchMap(
         (val) => Stream.value('a'),
       );
 
-      final errors = [];
+      final List<dynamic> errors = [];
       resultStream.listen((_) {}, onError: errors.add);
 
       controller.addError('outer error');
@@ -58,7 +60,7 @@ void main() {
       'outer stream done closes controller when no inner stream is active',
       () async {
         final controller = StreamController<int>();
-        final resultStream = controller.stream.switchMap(
+        final Stream<String> resultStream = controller.stream.switchMap(
           (val) => const Stream<String>.empty(),
         );
 
@@ -75,7 +77,7 @@ void main() {
       () async {
         final controller = StreamController<int>();
         final innerController = StreamController<String>();
-        final resultStream = controller.stream.switchMap(
+        final Stream<String> resultStream = controller.stream.switchMap(
           (val) => innerController.stream,
         );
 
