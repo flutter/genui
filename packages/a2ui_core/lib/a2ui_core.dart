@@ -23,6 +23,7 @@ export 'src/primitives/data_path.dart';
 export 'src/primitives/errors.dart';
 // Event notifications for discrete lifecycle events.
 export 'src/primitives/event_notifier.dart';
+export 'src/primitives/identifiers.dart';
 // Reactivity (re-exports preact_signals primitives).
 export 'src/primitives/reactivity.dart';
 export 'src/processing/basic_functions.dart';

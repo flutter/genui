@@ -146,7 +146,7 @@ class CapitalizeFunction extends FunctionImplementation {
 class MinimalCatalog extends Catalog<ComponentApi> {
   MinimalCatalog()
     : super(
-        id: 'https://a2ui.org/specification/v0_9/catalogs/minimal/minimal_catalog.json',
+        id: 'https://a2ui.org/specification/v1_0/catalogs/minimal/minimal_catalog.json',
         components: [
           MinimalTextApi(),
           MinimalRowApi(),
@@ -155,9 +155,18 @@ class MinimalCatalog extends Catalog<ComponentApi> {
           MinimalTextFieldApi(),
         ],
         functions: [CapitalizeFunction()],
-        themeSchema: Schema.object(
+        surfacePropertiesSchema: Schema.object(
           properties: {
-            'primaryColor': Schema.string(pattern: r'^#[0-9a-fA-F]{6}$'),
+            'iconUrl': Schema.string(
+              description:
+                  'A URL for an image that identifies the agent or tool '
+                  'associated with the surface.',
+            ),
+            'agentDisplayName': Schema.string(
+              description:
+                  'Text to be displayed next to the surface to identify the '
+                  'agent or tool that created it.',
+            ),
           },
           additionalProperties: true,
         ),

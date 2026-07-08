@@ -75,6 +75,23 @@ void main() {
       expect(children[1].id, 'child2');
     });
 
+    test('assigns template indices to template-generated children', () {
+      final comp = ComponentModel('c1', 'Row', {
+        'children': {'componentId': 'tpl', 'path': '/items'},
+      });
+      surface.componentsModel.addComponent(comp);
+      surface.dataModel.set('/items', ['a', 'b', 'c']);
+
+      final context = ComponentContext(surface, comp);
+      final binder = GenericBinder(context, MinimalRowApi().schema);
+
+      final children =
+          binder.resolvedProps.value['children'] as List<ChildNode>;
+      expect(children.length, 3);
+      expect(children.map((c) => c.templateIndex), [0, 1, 2]);
+      expect(children[1].basePath, '/items/1');
+    });
+
     test('resolves checkable validation', () async {
       final comp = ComponentModel('c1', 'TextField', {
         'label': 'Name',
