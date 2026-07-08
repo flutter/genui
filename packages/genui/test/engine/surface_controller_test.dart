@@ -268,7 +268,7 @@ void main() {
       expect(message.parts.uiInteractionParts, hasLength(1));
 
       final String expectedJson = jsonEncode({
-        'version': 'v0.9',
+        'version': 'v1.0',
         'action': {
           'surfaceId': 'testSurface',
           'name': 'testAction',
@@ -315,7 +315,7 @@ void main() {
         final UiInteractionPart part = message.parts.uiInteractionParts.first;
         final errorJson = jsonDecode(part.interaction) as Map<String, dynamic>;
 
-        expect(errorJson['version'], 'v0.9');
+        expect(errorJson['version'], 'v1.0');
         final Object? errorObj = errorJson['error'];
         expect(errorObj, isA<Map<String, dynamic>>());
         final errorMap = errorObj! as Map<String, dynamic>;

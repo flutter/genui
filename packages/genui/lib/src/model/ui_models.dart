@@ -58,12 +58,16 @@ extension type UserActionEvent.fromMap(JsonMap _json) implements UiEvent {
     required String sourceComponentId,
     DateTime? timestamp,
     JsonMap? context,
+    bool wantResponse = false,
+    String? actionId,
   }) : _json = {
          surfaceIdKey: ?surfaceId,
          'name': name,
          'sourceComponentId': sourceComponentId,
          'timestamp': (timestamp ?? DateTime.now()).toIso8601String(),
          'context': context ?? {},
+         if (wantResponse) 'wantResponse': wantResponse,
+         'actionId': ?actionId,
        };
 
   /// The name of the action.
@@ -74,12 +78,18 @@ extension type UserActionEvent.fromMap(JsonMap _json) implements UiEvent {
 
   /// Context associated with the action.
   JsonMap get context => _json['context'] as JsonMap;
+
+  /// Whether the client expects an `actionResponse` from the server.
+  bool get wantResponse => _json['wantResponse'] as bool? ?? false;
+
+  /// Unique ID for this action call, set when [wantResponse] is true.
+  String? get actionId => _json['actionId'] as String?;
 }
 
 final class _Json {
   static const String catalogId = 'catalogId';
   static const String components = 'components';
-  static const String theme = 'theme';
+  static const String surfaceProperties = 'surfaceProperties';
 }
 
 /// A data object that represents the entire UI definition.
@@ -92,7 +102,7 @@ class SurfaceDefinition {
     required this.surfaceId,
     this.catalogId = basicCatalogId,
     Map<String, Component> components = const {},
-    this.theme,
+    this.surfaceProperties,
   }) : _components = components;
 
   /// Creates a [SurfaceDefinition] from a JSON map.
@@ -105,7 +115,7 @@ class SurfaceDefinition {
             (key, value) => MapEntry(key, Component.fromJson(value as JsonMap)),
           ) ??
           const {},
-      theme: json[_Json.theme] as JsonMap?,
+      surfaceProperties: json[_Json.surfaceProperties] as JsonMap?,
     );
   }
 
@@ -118,7 +128,9 @@ class SurfaceDefinition {
         for (final core.ComponentModel component in surface.componentsModel.all)
           component.id: Component.fromCore(component),
       },
-      theme: surface.theme.isEmpty ? null : JsonMap.from(surface.theme),
+      surfaceProperties: surface.surfaceProperties.isEmpty
+          ? null
+          : JsonMap.from(surface.surfaceProperties),
     );
   }
 
@@ -132,20 +144,20 @@ class SurfaceDefinition {
   Map<String, Component> get components => UnmodifiableMapView(_components);
   final Map<String, Component> _components;
 
-  /// The theme for this surface.
-  final JsonMap? theme;
+  /// The surface properties for this surface (e.g. agentDisplayName).
+  final JsonMap? surfaceProperties;
 
   /// Creates a copy of this [SurfaceDefinition] with the given fields replaced.
   SurfaceDefinition copyWith({
     String? catalogId,
     Map<String, Component>? components,
-    JsonMap? theme,
+    JsonMap? surfaceProperties,
   }) {
     return SurfaceDefinition(
       surfaceId: surfaceId,
       catalogId: catalogId ?? this.catalogId,
       components: components ?? _components,
-      theme: theme ?? this.theme,
+      surfaceProperties: surfaceProperties ?? this.surfaceProperties,
     );
   }
 
@@ -157,7 +169,7 @@ class SurfaceDefinition {
       _Json.components: components.map(
         (key, value) => MapEntry(key, value.toJson()),
       ),
-      _Json.theme: ?theme,
+      _Json.surfaceProperties: ?surfaceProperties,
     };
   }
 

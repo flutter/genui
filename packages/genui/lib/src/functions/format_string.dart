@@ -20,6 +20,10 @@ class FormatStringFunction implements ClientFunction {
   String get name => 'formatString';
 
   @override
+  ClientFunctionCallableFrom get callableFrom =>
+      ClientFunctionCallableFrom.clientOnly;
+
+  @override
   String get description => r'''
 Performs string interpolation of data model values and other functions in the
 catalog functions list and returns the resulting string. The value string can

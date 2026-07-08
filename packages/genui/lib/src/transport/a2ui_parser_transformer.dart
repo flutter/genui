@@ -237,7 +237,8 @@ class _A2uiParserStream {
       return core.A2uiMessage.fromJson(json);
     } on core.A2uiValidationError catch (e) {
       final String message = e.message.contains("'version'")
-          ? 'A2UI message must have version "v0.9"'
+          ? 'A2UI message must have version '
+                '"${core.a2uiProtocolVersion}"'
           : e.message;
       throw A2uiValidationException(message, json: json, cause: e);
     }

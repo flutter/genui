@@ -165,6 +165,7 @@ final column = CatalogItem(
                 componentId: componentId,
                 dataContext: itemContext.dataContext.nested(
                   DataPath('$dataBinding/${keys[i]}'),
+                  templateIndex: i,
                 ),
                 buildChild: itemContext.buildChild,
                 weight: weight,

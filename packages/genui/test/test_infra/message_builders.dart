@@ -19,21 +19,25 @@ JsonMap component({
 }) => {'id': id, 'component': type, ...properties};
 
 core.CreateSurfaceMessage createSurface({
-  String version = 'v0.9',
+  String version = 'v1.0',
   required String surfaceId,
   required String catalogId,
-  JsonMap? theme,
+  JsonMap? surfaceProperties,
   bool sendDataModel = false,
+  List<JsonMap>? components,
+  JsonMap? dataModel,
 }) => core.CreateSurfaceMessage(
   version: version,
   surfaceId: surfaceId,
   catalogId: catalogId,
-  theme: theme,
+  surfaceProperties: surfaceProperties,
   sendDataModel: sendDataModel,
+  components: components,
+  dataModel: dataModel,
 );
 
 core.UpdateComponentsMessage updateComponents({
-  String version = 'v0.9',
+  String version = 'v1.0',
   required String surfaceId,
   required List<JsonMap> components,
 }) => core.UpdateComponentsMessage(
@@ -43,7 +47,7 @@ core.UpdateComponentsMessage updateComponents({
 );
 
 core.UpdateDataModelMessage updateDataModel({
-  String version = 'v0.9',
+  String version = 'v1.0',
   required String surfaceId,
   DataPath path = DataPath.root,
   Object? value,
@@ -55,6 +59,6 @@ core.UpdateDataModelMessage updateDataModel({
 );
 
 core.DeleteSurfaceMessage deleteSurface({
-  String version = 'v0.9',
+  String version = 'v1.0',
   required String surfaceId,
 }) => core.DeleteSurfaceMessage(version: version, surfaceId: surfaceId);

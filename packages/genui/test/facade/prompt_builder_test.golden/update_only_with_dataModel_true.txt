@@ -43,10 +43,10 @@ IMPORTANT: You do not have the ability to use function calls for UI generation.
 1. Create a surface:
 ```json
 {
-  "version": "v0.9",
+  "version": "v1.0",
   "createSurface": {
     "surfaceId": "main",
-    "catalogId": "https://a2ui.org/specification/v0_9/basic_catalog.json",
+    "catalogId": "https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json",
     "sendDataModel": true
   }
 }
@@ -55,7 +55,7 @@ IMPORTANT: You do not have the ability to use function calls for UI generation.
 2. Update components:
 ```json
 {
-  "version": "v0.9",
+  "version": "v1.0",
   "updateComponents": {
     "surfaceId": "main",
     "components": [
@@ -131,7 +131,7 @@ When constructing UI, you must output a VALID A2UI JSON object representing one 
       "properties": {
         "version": {
           "type": "string",
-          "const": "v0.9"
+          "const": "v1.0"
         },
         "createSurface": {
           "type": "object",
@@ -145,14 +145,25 @@ When constructing UI, you must output a VALID A2UI JSON object representing one 
               "type": "string",
               "description": "A string that uniquely identifies this catalog. It is recommended to prefix this with an internet domain that you own, to avoid conflicts e.g. 'mycompany.com:somecatalog'."
             },
-            "theme": {
+            "surfaceProperties": {
               "type": "object",
-              "description": "Theme parameters for the surface.",
+              "description": "Initial surface properties (e.g., {'agentDisplayName': 'My Agent'}). These must validate against the 'surfaceProperties' schema defined in the catalog.",
               "additionalProperties": true
             },
             "sendDataModel": {
               "type": "boolean",
               "description": "Whether to send the data model to every client request."
+            },
+            "components": {
+              "type": "array",
+              "description": "Optional initial list of UI components for the surface, allowing an entire UI to be created in a single message.",
+              "items": {},
+              "minItems": 1
+            },
+            "dataModel": {
+              "type": "object",
+              "description": "The initial root data model object for the surface.",
+              "additionalProperties": true
             }
           },
           "required": [
@@ -172,7 +183,7 @@ When constructing UI, you must output a VALID A2UI JSON object representing one 
       "properties": {
         "version": {
           "type": "string",
-          "const": "v0.9"
+          "const": "v1.0"
         },
         "updateComponents": {
           "type": "object",
@@ -278,7 +289,7 @@ When constructing UI, you must output a VALID A2UI JSON object representing one 
       "properties": {
         "version": {
           "type": "string",
-          "const": "v0.9"
+          "const": "v1.0"
         },
         "updateDataModel": {
           "type": "object",
@@ -292,7 +303,7 @@ When constructing UI, you must output a VALID A2UI JSON object representing one 
               "default": "/"
             },
             "value": {
-              "description": "The new value to write to the data model. If null/omitted, the key is removed."
+              "description": "The new value to write to the data model. An explicit null value deletes the key at the path."
             }
           },
           "required": [
@@ -311,7 +322,7 @@ When constructing UI, you must output a VALID A2UI JSON object representing one 
       "properties": {
         "version": {
           "type": "string",
-          "const": "v0.9"
+          "const": "v1.0"
         },
         "deleteSurface": {
           "type": "object",
@@ -329,6 +340,91 @@ When constructing UI, you must output a VALID A2UI JSON object representing one 
       "required": [
         "version",
         "deleteSurface"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "const": "v1.0"
+        },
+        "functionCallId": {
+          "type": "string",
+          "description": "Unique ID for the instance of this function call. It is copied verbatim into the functionResponse or error."
+        },
+        "wantResponse": {
+          "type": "boolean",
+          "description": "If true, the client returns a functionResponse with the result of the call."
+        },
+        "callFunction": {
+          "type": "object",
+          "description": "A function invoked from the server. The function must be registered in the catalog with a 'callableFrom' of 'remoteOnly' or 'clientOrRemote'.",
+          "properties": {
+            "call": {
+              "type": "string",
+              "description": "The name of the function to call."
+            },
+            "args": {
+              "type": "object",
+              "description": "Arguments passed to the function.",
+              "additionalProperties": true
+            }
+          },
+          "required": [
+            "call"
+          ]
+        }
+      },
+      "required": [
+        "version",
+        "callFunction",
+        "functionCallId"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "const": "v1.0"
+        },
+        "actionId": {
+          "type": "string",
+          "description": "The ID of the action call this response belongs to."
+        },
+        "actionResponse": {
+          "type": "object",
+          "description": "A response to a client-initiated action that requested a response (wantResponse: true). Contains exactly one of value or error.",
+          "properties": {
+            "value": {
+              "description": "The return value of the action."
+            },
+            "error": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "code",
+                "message"
+              ],
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "required": [
+        "version",
+        "actionResponse",
+        "actionId"
       ],
       "additionalProperties": false
     }

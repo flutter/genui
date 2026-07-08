@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import 'a2ui_schemas.dart';
@@ -20,7 +21,7 @@ Schema a2uiMessageSchema(Catalog catalog) {
     oneOf: [
       S.object(
         properties: {
-          'version': S.string(constValue: 'v0.9'),
+          'version': S.string(constValue: core.a2uiProtocolVersion),
           'createSurface': A2uiSchemas.createSurfaceSchema(),
         },
         required: ['version', 'createSurface'],
@@ -28,7 +29,7 @@ Schema a2uiMessageSchema(Catalog catalog) {
       ),
       S.object(
         properties: {
-          'version': S.string(constValue: 'v0.9'),
+          'version': S.string(constValue: core.a2uiProtocolVersion),
           'updateComponents': A2uiSchemas.updateComponentsSchema(catalog),
         },
         required: ['version', 'updateComponents'],
@@ -36,7 +37,7 @@ Schema a2uiMessageSchema(Catalog catalog) {
       ),
       S.object(
         properties: {
-          'version': S.string(constValue: 'v0.9'),
+          'version': S.string(constValue: core.a2uiProtocolVersion),
           'updateDataModel': A2uiSchemas.updateDataModelSchema(),
         },
         required: ['version', 'updateDataModel'],
@@ -44,10 +45,39 @@ Schema a2uiMessageSchema(Catalog catalog) {
       ),
       S.object(
         properties: {
-          'version': S.string(constValue: 'v0.9'),
+          'version': S.string(constValue: core.a2uiProtocolVersion),
           'deleteSurface': A2uiSchemas.deleteSurfaceSchema(),
         },
         required: ['version', 'deleteSurface'],
+        additionalProperties: false,
+      ),
+      S.object(
+        properties: {
+          'version': S.string(constValue: core.a2uiProtocolVersion),
+          'functionCallId': S.string(
+            description:
+                'Unique ID for the instance of this function call. It is '
+                'copied verbatim into the functionResponse or error.',
+          ),
+          'wantResponse': S.boolean(
+            description:
+                'If true, the client returns a functionResponse with the '
+                'result of the call.',
+          ),
+          'callFunction': A2uiSchemas.callFunctionSchema(),
+        },
+        required: ['version', 'callFunction', 'functionCallId'],
+        additionalProperties: false,
+      ),
+      S.object(
+        properties: {
+          'version': S.string(constValue: core.a2uiProtocolVersion),
+          'actionId': S.string(
+            description: 'The ID of the action call this response belongs to.',
+          ),
+          'actionResponse': A2uiSchemas.actionResponseSchema(),
+        },
+        required: ['version', 'actionResponse', 'actionId'],
         additionalProperties: false,
       ),
     ],

@@ -32,7 +32,7 @@ void main() {
     test('addChunk with message updates state', () async {
       // Using JSON block
       final json = '''```json
-{"version": "v0.9", "createSurface": {"surfaceId": "test_chunk", "catalogId": "test-cat"}}
+{"version": "v1.0", "createSurface": {"surfaceId": "test_chunk", "catalogId": "test-cat"}}
 ```''';
 
       final Future<dynamic> stateFuture = expectLater(
@@ -86,7 +86,7 @@ void main() {
       );
 
       adapter.addChunk('''```json
-{"version": "v0.9", "updateComponents": {"surfaceId": "test", "components": [{"id": "root", "component": "Text", "properties": {"text": "Hello"}}]}}
+{"version": "v1.0", "updateComponents": {"surfaceId": "test", "components": [{"id": "root", "component": "Text", "properties": {"text": "Hello"}}]}}
 ```''');
 
       await expectation;

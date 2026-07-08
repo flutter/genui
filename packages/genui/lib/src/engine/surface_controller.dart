@@ -39,6 +39,8 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   }) {
     _processor = core.MessageProcessor<core.ComponentApi>(
       catalogs: catalogs.map(coreCatalogFor).toList(),
+      onFunctionResponse: _onFunctionResponse,
+      onError: _onProcessorError,
     );
     _processor.groupModel.onSurfaceCreated.addListener(_onCoreSurfaceCreated);
     _processor.groupModel.onSurfaceDeleted.addListener(_onCoreSurfaceDeleted);
@@ -278,7 +280,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
     }
 
     final Map<String, Object> errorMsg = {
-      'version': 'v0.9',
+      'version': core.a2uiProtocolVersion,
       'error': {
         'code': errorCode,
         'surfaceId': ?surfaceId,
@@ -290,6 +292,41 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
       ChatMessage.user(
         '',
         parts: [UiInteractionPart.create(jsonEncode(errorMsg))],
+      ),
+    );
+  }
+
+  /// Sends the result of a server-initiated function call back to the server.
+  void _onFunctionResponse(core.A2uiFunctionResponse response) {
+    _onSubmit.add(
+      ChatMessage.user(
+        '',
+        parts: [
+          UiInteractionPart.create(
+            jsonEncode({
+              'version': core.a2uiProtocolVersion,
+              'functionResponse': response.toJson(),
+            }),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Sends a processor-level client error (e.g. an invalid `callFunction`)
+  /// to the server.
+  void _onProcessorError(core.A2uiClientError error) {
+    _onSubmit.add(
+      ChatMessage.user(
+        '',
+        parts: [
+          UiInteractionPart.create(
+            jsonEncode({
+              'version': core.a2uiProtocolVersion,
+              'error': error.toJson(),
+            }),
+          ),
+        ],
       ),
     );
   }
@@ -313,7 +350,10 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
         '',
         parts: [
           UiInteractionPart.create(
-            jsonEncode({'version': 'v0.9', 'action': event.toMap()}),
+            jsonEncode({
+              'version': core.a2uiProtocolVersion,
+              'action': event.toMap(),
+            }),
           ),
         ],
       ),

@@ -64,6 +64,25 @@ enum ClientFunctionReturnType {
   final String value;
 }
 
+/// Where a client function can be invoked from.
+///
+/// This is static catalog metadata; the client rejects `callFunction`
+/// messages for functions that are not remotely callable with an
+/// `INVALID_FUNCTION_CALL` error.
+enum ClientFunctionCallableFrom {
+  /// Only callable locally on the client (e.g. in data bindings).
+  clientOnly('clientOnly'),
+
+  /// Only callable by the server via `callFunction` messages.
+  remoteOnly('remoteOnly'),
+
+  /// Callable both locally and via `callFunction` messages.
+  clientOrRemote('clientOrRemote');
+
+  const ClientFunctionCallableFrom(this.value);
+  final String value;
+}
+
 abstract interface class ClientFunction {
   /// The name of the function as used in expressions (e.g. 'stringFormat').
   String get name;
@@ -78,6 +97,11 @@ abstract interface class ClientFunction {
   /// The type of value this function returns.
   /// Defaults to [ClientFunctionReturnType.any].
   ClientFunctionReturnType get returnType => ClientFunctionReturnType.any;
+
+  /// Where this function may be invoked from.
+  /// Defaults to [ClientFunctionCallableFrom.clientOnly].
+  ClientFunctionCallableFrom get callableFrom =>
+      ClientFunctionCallableFrom.clientOnly;
 
   /// Invokes the function with the given [args].
   ///
@@ -103,6 +127,10 @@ abstract interface class ClientFunction {
 /// Implementers should override [executeSync] to provide the synchronous logic.
 abstract class SynchronousClientFunction implements ClientFunction {
   const SynchronousClientFunction();
+
+  @override
+  ClientFunctionCallableFrom get callableFrom =>
+      ClientFunctionCallableFrom.clientOnly;
 
   @override
   Stream<Object?> execute(JsonMap args, ExecutionContext context) {
