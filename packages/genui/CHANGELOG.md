@@ -1,6 +1,6 @@
 # `genui` Changelog
 
-## 0.10.0 (in progress)
+## 0.10.0
 
 - **Refactor**: genui now runs on `package:a2ui_core`. See
   [the migration guide](../../docs/usage/migration/migration_0.9.1_to_0.10.0.md).

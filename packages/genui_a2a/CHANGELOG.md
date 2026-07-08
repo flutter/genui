@@ -1,6 +1,6 @@
 # `genui_a2a` Changelog
 
-## 0.10.0 (in progress)
+## 0.10.0
 
 - **BREAKING**: `A2uiAgentConnector.stream` now emits `package:a2ui_core`
   message types. Depend on `a2ui_core` directly to consume them.
