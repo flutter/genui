@@ -1,5 +1,14 @@
 # `genui_a2a` Changelog
 
+## Next
+
+- **BREAKING**: Migrated to A2UI protocol v1.0: the A2A extension URI is now
+  `https://a2ui.org/a2a-extension/a2ui/v1.0` and client events use
+  `version: "v1.0"` with optional `actionId`/`wantResponse`.
+- **Feature**: Incoming `callFunction` and `actionResponse` data parts are
+  routed to the message stream; added the `application/a2ui+json` MIME type
+  constant.
+
 ## 0.10.0 (in progress)
 
 - **BREAKING**: `A2uiAgentConnector.stream` now emits `package:a2ui_core`

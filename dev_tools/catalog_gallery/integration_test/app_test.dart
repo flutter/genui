@@ -58,9 +58,7 @@ void main() {
   testWidgets('catalog_gallery smoke test - verify initial state', (
     tester,
   ) async {
-    await tester.pumpWidget(
-      CatalogGalleryApp(sampleSource: sampleSource),
-    );
+    await tester.pumpWidget(CatalogGalleryApp(sampleSource: sampleSource));
     await tester.pumpAndSettle();
 
     expect(find.text('Catalog Gallery'), findsOneWidget);

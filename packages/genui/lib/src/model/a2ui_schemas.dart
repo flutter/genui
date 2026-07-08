@@ -303,10 +303,7 @@ abstract final class A2uiSchemas {
     properties: {
       'value': S.any(description: 'The return value of the action.'),
       'error': S.object(
-        properties: {
-          'code': S.string(),
-          'message': S.string(),
-        },
+        properties: {'code': S.string(), 'message': S.string()},
         required: ['code', 'message'],
         additionalProperties: false,
       ),

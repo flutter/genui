@@ -1,5 +1,26 @@
 # `genui` Changelog
 
+## Next
+
+- **BREAKING**: Migrated to A2UI protocol v1.0 (see the
+  [evolution guide](https://a2ui.org/specification/v1.0-evolution-guide/)).
+  Envelopes use `version: "v1.0"`, `SurfaceDefinition.theme` is renamed to
+  `surfaceProperties`, and `basicCatalogId` points at the v1.0 basic catalog.
+- **Feature**: Message schemas include v1.0 `callFunction` and
+  `actionResponse` messages, and `createSurface` accepts inline `components`
+  and `dataModel`.
+- **Feature**: `SurfaceController` sends `functionResponse` messages and
+  `INVALID_FUNCTION_CALL` errors for server-initiated function calls;
+  `UserActionEvent` carries `wantResponse`/`actionId`.
+- **Feature**: `ClientFunction.callableFrom` static metadata (defaults to
+  `clientOnly`); catalog capabilities serialize `functions` as a map with
+  `returnType`/`callableFrom` and embed `systemPromptFragments` as catalog
+  `instructions`.
+- **Feature**: `TextField.placeholder`, `Slider.steps`, and `Video.posterUrl`
+  properties.
+- **Feature**: `@index` system function inside `List`/`Row`/`Column`
+  template loops.
+
 ## 0.10.0 (in progress)
 
 - **Refactor**: genui now runs on `package:a2ui_core`. See

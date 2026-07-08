@@ -57,8 +57,7 @@ abstract class A2uiMessage {
         catalogId: body['catalogId'] as String,
         surfaceProperties: body['surfaceProperties'] as Map<String, dynamic>?,
         sendDataModel: body['sendDataModel'] as bool? ?? false,
-        components: (body['components'] as List?)
-            ?.cast<Map<String, dynamic>>(),
+        components: (body['components'] as List?)?.cast<Map<String, dynamic>>(),
         dataModel: body['dataModel'] as Map<String, dynamic>?,
       );
     }
