@@ -125,7 +125,8 @@ void main() {
       );
       expect(
         exc3.toString(),
-        'A2uiFunctionException inside myFunc: some message\nCause: underlying error',
+        'A2uiFunctionException inside myFunc: some message\n'
+        'Cause: underlying error',
       );
 
       final exc4 = A2uiFunctionException(
@@ -136,7 +137,8 @@ void main() {
       );
       expect(
         exc4.toString(),
-        'A2uiFunctionException inside myFunc: some message (argument: myArg)\nCause: underlying error',
+        'A2uiFunctionException inside myFunc: some message (argument: myArg)\n'
+        'Cause: underlying error',
       );
     });
   });

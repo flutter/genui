@@ -69,7 +69,8 @@ void main() {
       final item = CatalogItem(
         name: 'Text',
         dataSchema: ObjectSchema.fromMap(const {}),
-        // Text widget missing the text property (which is required by the schema)
+        // Text widget missing the text property (which is required by the
+        // schema)
         exampleData: [() => '[{"id": "root", "component": {"Text": {}}}]'],
         widgetBuilder: (_) => const SizedBox(),
       );

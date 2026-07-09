@@ -25,16 +25,16 @@ void main() {
       );
 
       controller.add(1);
-      await Future.value();
+      await Future<void>.value();
       innerControllers[0].add('a');
-      await Future.value();
+      await Future<void>.value();
       expect(emitted, ['a']);
 
       controller.add(2);
-      await Future.value();
+      await Future<void>.value();
       innerControllers[0].add('b');
       innerControllers[1].add('c');
-      await Future.value();
+      await Future<void>.value();
       expect(emitted, ['a', 'c']);
 
       await subscription.cancel();
@@ -51,7 +51,7 @@ void main() {
       resultStream.listen((_) {}, onError: errors.add);
 
       controller.addError('outer error');
-      await Future.value();
+      await Future<void>.value();
       expect(errors, ['outer error']);
       await controller.close();
     });
@@ -85,7 +85,7 @@ void main() {
         resultStream.listen((_) {}, onDone: completer.complete);
 
         controller.add(1);
-        await Future.value();
+        await Future<void>.value();
 
         await controller.close();
         expect(completer.isCompleted, isFalse);
