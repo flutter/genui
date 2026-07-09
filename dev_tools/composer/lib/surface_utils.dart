@@ -12,7 +12,7 @@ import 'sample_parser.dart';
 
 final _logger = Logger('SurfaceUtils');
 
-const kProtocolVersion = 'v0.9';
+const kProtocolVersion = 'v1.0';
 
 Map<String, Map<String, Object?>> mergeComponentsById(
   List<Object?> components, [

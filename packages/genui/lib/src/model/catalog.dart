@@ -174,23 +174,33 @@ interface class Catalog {
   /// within `A2UiClientCapabilities`.
   ///
   /// This differs from [definition] because `a2ui_client_capabilities.json`
-  /// expects `components` to be a direct map of name to schema, and `functions`
-  /// to be an array of objects.
+  /// expects `components` to be a direct map of name to schema. Functions are
+  /// a map of function name to a v1.0 FunctionDefinition, which validates the
+  /// wire-level FunctionCall and carries static `returnType` and
+  /// `callableFrom` metadata.
   JsonMap toCapabilitiesJson() {
     return {
       'catalogId': effectiveCatalogId,
+      if (systemPromptFragments.isNotEmpty)
+        'instructions': systemPromptFragments.join('\n\n'),
       'components': {
         for (final item in items) item.name: item.dataSchema.value,
       },
-      'functions': [
+      'functions': {
         for (final func in functions)
-          {
-            'name': func.name,
+          func.name: {
+            'type': 'object',
             'description': func.description,
-            'parameters': func.argumentSchema.value,
+            'properties': {
+              'call': {'const': func.name},
+              'args': func.argumentSchema.value,
+            },
+            'required': ['call'],
+            'additionalProperties': false,
             'returnType': func.returnType.value,
+            'callableFrom': func.callableFrom.value,
           },
-      ],
+      },
     };
   }
 

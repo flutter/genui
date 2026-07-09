@@ -20,6 +20,10 @@ final _schema = S.object(
     'url': A2uiSchemas.stringReference(
       description: 'The URL of the video to play.',
     ),
+    'posterUrl': A2uiSchemas.stringReference(
+      description:
+          'The URL of the poster image to display before the video plays.',
+    ),
   },
   required: ['url'],
 );
@@ -33,17 +37,26 @@ bool get _isVideoSupported =>
 /// ## Parameters:
 ///
 /// - `url`: The URL of the video to play.
+/// - `posterUrl`: The URL of a poster image shown before the video plays.
 final video = CatalogItem(
   name: 'Video',
   dataSchema: _schema,
   widgetBuilder: (itemContext) {
-    final Object? url = (itemContext.data as JsonMap)['url'];
+    final data = itemContext.data as JsonMap;
+    final Object? url = data['url'];
+    final Object? posterUrl = data['posterUrl'];
 
     return BoundString(
       dataContext: itemContext.dataContext,
       value: url,
       builder: (context, urlValue) {
-        return _VideoPlayerWidget(url: urlValue);
+        return BoundString(
+          dataContext: itemContext.dataContext,
+          value: posterUrl,
+          builder: (context, posterUrlValue) {
+            return _VideoPlayerWidget(url: urlValue, posterUrl: posterUrlValue);
+          },
+        );
       },
     );
   },
@@ -61,9 +74,10 @@ final video = CatalogItem(
 );
 
 class _VideoPlayerWidget extends StatefulWidget {
-  const _VideoPlayerWidget({required this.url});
+  const _VideoPlayerWidget({required this.url, this.posterUrl});
 
   final String? url;
+  final String? posterUrl;
 
   @override
   State<_VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
@@ -169,9 +183,17 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
     }
 
     if (controller == null || !controller.value.isInitialized) {
-      return const AspectRatio(
+      final String? posterUrl = widget.posterUrl;
+      return AspectRatio(
         aspectRatio: 16 / 9,
-        child: Center(child: CircularProgressIndicator()),
+        child: posterUrl == null || posterUrl.isEmpty
+            ? const Center(child: CircularProgressIndicator())
+            : Image.network(
+                posterUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) =>
+                    const Center(child: CircularProgressIndicator()),
+              ),
       );
     }
 

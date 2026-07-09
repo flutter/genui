@@ -182,7 +182,7 @@ class ExpressionParser {
       );
     }
 
-    return {'call': funcName, 'args': args, 'returnType': 'any'};
+    return {'call': funcName, 'args': args};
   }
 
   String _scanIdentifier(_Scanner scanner) {

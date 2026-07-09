@@ -161,10 +161,10 @@ const String _basicCatalogRules = r'''
 1. Create a surface:
 ```json
 {
-  "version": "v0.9",
+  "version": "v1.0",
   "createSurface": {
     "surfaceId": "main",
-    "catalogId": "https://a2ui.org/specification/v0_9/basic_catalog.json",
+    "catalogId": "https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json",
     "sendDataModel": true
   }
 }
@@ -173,7 +173,7 @@ const String _basicCatalogRules = r'''
 2. Update components:
 ```json
 {
-  "version": "v0.9",
+  "version": "v1.0",
   "updateComponents": {
     "surfaceId": "main",
     "components": [

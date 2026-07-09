@@ -115,7 +115,7 @@ final list = CatalogItem(
                 final nestedPath = '$dataBinding/${keys[index]}';
 
                 final DataContext itemDataContext = itemContext.dataContext
-                    .nested(DataPath(nestedPath));
+                    .nested(DataPath(nestedPath), templateIndex: index);
                 final Widget child = itemContext.buildChild(
                   componentId,
                   itemDataContext,

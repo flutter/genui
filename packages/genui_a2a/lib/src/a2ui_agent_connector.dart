@@ -17,8 +17,11 @@ import 'logging_utils.dart';
 export 'a2a/a2a.dart' show A2AClient, AgentCard;
 
 final Uri a2uiExtensionUri = Uri.parse(
-  'https://a2ui.org/a2a-extension/a2ui/v0.9',
+  'https://a2ui.org/a2a-extension/a2ui/v1.0',
 );
+
+/// The IANA-conformant MIME type for A2UI payloads.
+const String a2uiMimeType = 'application/a2ui+json';
 
 final Logger _log = genui.genUiLogger;
 
@@ -287,13 +290,15 @@ class A2uiAgentConnector {
     }
 
     final Map<String, Object?> clientEvent = {
-      'version': 'v0.9',
+      'version': core.a2uiProtocolVersion,
       'action': {
         'name': event['action'],
         'sourceComponentId': event['sourceComponentId'],
         'timestamp': DateTime.now().toIso8601String(),
         'context': event['context'],
         if (event.containsKey('surfaceId')) 'surfaceId': event['surfaceId'],
+        if (event['wantResponse'] == true) 'wantResponse': true,
+        if (event.containsKey('actionId')) 'actionId': event['actionId'],
       },
     };
 
@@ -336,7 +341,9 @@ class A2uiAgentConnector {
     if (data.containsKey('updateComponents') ||
         data.containsKey('updateDataModel') ||
         data.containsKey('createSurface') ||
-        data.containsKey('deleteSurface')) {
+        data.containsKey('deleteSurface') ||
+        data.containsKey('callFunction') ||
+        data.containsKey('actionResponse')) {
       if (!_controller.isClosed) {
         _log.finest('Adding message to stream: $prettyJson');
         _controller.add(core.A2uiMessage.fromJson(data));

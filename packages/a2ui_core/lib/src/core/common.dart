@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'catalog.dart';
-
 /// A JSON Pointer path to a value in the data model.
 class DataBinding {
   final String path;
@@ -17,32 +15,24 @@ class DataBinding {
 }
 
 /// Invokes a named function on the client.
+///
+/// Runtime execution boundaries (`callableFrom`) and return types are
+/// defined statically in catalog function definitions rather than on the
+/// wire.
 class FunctionCall {
   final String call;
   final Map<String, dynamic> args;
-  final A2uiReturnType returnType;
 
-  FunctionCall({
-    required this.call,
-    required this.args,
-    this.returnType = A2uiReturnType.boolean,
-  });
+  FunctionCall({required this.call, required this.args});
 
   factory FunctionCall.fromJson(Map<String, dynamic> json) {
     return FunctionCall(
       call: json['call'] as String,
       args: json['args'] as Map<String, dynamic>? ?? {},
-      returnType: A2uiReturnType.fromJson(
-        json['returnType'] as String? ?? 'boolean',
-      ),
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    'call': call,
-    'args': args,
-    'returnType': returnType.jsonValue,
-  };
+  Map<String, dynamic> toJson() => {'call': call, 'args': args};
 }
 
 /// Triggers a server-side event or a local client-side function.

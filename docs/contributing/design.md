@@ -578,7 +578,7 @@ Measure the "A2UI Compliance Rate" of different models when given standard promp
     *   Capture the output stream.
 3.  **Validation Metrics:**
     *   **Syntax Validity:** Is the output valid JSON?
-    *   **Protocol Compliance:** Does it adhere to the A2UI schema (correct message types, `version: "v0.9"`)?
+    *   **Protocol Compliance:** Does it adhere to the A2UI schema (correct message types, `version: "v1.0"`)?
     *   **Logic Correctness:** Does the generated UI match the intent? (e.g., does the login form actually have a password field?)
     *   **Round-Trip Validity:** Can the generated output be successfully parsed by `A2uiMessage.fromJson` without throwing?
 

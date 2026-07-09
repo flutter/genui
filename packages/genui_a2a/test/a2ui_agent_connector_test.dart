@@ -63,7 +63,7 @@ void main() {
       final a2a.Message sentMessage = fakeClient.lastMessageStreamParams!;
       expect(sentMessage.metadata, isNotNull);
       expect(sentMessage.metadata!['a2uiClientCapabilities'], {
-        'v0.9': {
+        'v1.0': {
           'supportedCatalogIds': ['cat1', 'cat2'],
         },
       });
@@ -82,7 +82,7 @@ void main() {
               parts: [
                 a2a.Part.data(
                   data: {
-                    'version': 'v0.9',
+                    'version': 'v1.0',
                     'updateComponents': {
                       'surfaceId': 's1',
                       'components': [
@@ -168,7 +168,7 @@ void main() {
       expect(sentMessage.referenceTaskIds, ['task1']);
       final dataPart = sentMessage.parts.first as a2a.DataPart;
       final Map<String, Object?> eventData = dataPart.data;
-      expect(eventData['version'], 'v0.9');
+      expect(eventData['version'], 'v1.0');
       final action = eventData['action'] as Map<String, Object?>;
       expect(action['name'], 'testAction');
       expect(action['sourceComponentId'], 'c1');

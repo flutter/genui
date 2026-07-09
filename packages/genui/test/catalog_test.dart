@@ -211,13 +211,16 @@ void main() {
       expect(textSchema.containsKey('properties'), isTrue);
 
       expect(json.containsKey('functions'), isTrue);
-      final functions = json['functions'] as List<dynamic>;
+      // v1.0: functions are a map keyed by function name.
+      final functions = json['functions'] as JsonMap;
       expect(functions.length, 1);
-      final firstFunc = functions.first as JsonMap;
-      expect(firstFunc['name'], 'regex');
-      expect(firstFunc['description'], isNotEmpty);
-      expect(firstFunc['returnType'], 'boolean');
-      expect(firstFunc.containsKey('parameters'), isTrue);
+      final regexFunc = functions['regex'] as JsonMap;
+      expect(regexFunc['description'], isNotEmpty);
+      expect(regexFunc['returnType'], 'boolean');
+      expect(regexFunc['callableFrom'], 'clientOnly');
+      final funcProps = regexFunc['properties'] as JsonMap;
+      expect(funcProps['call'], {'const': 'regex'});
+      expect(funcProps.containsKey('args'), isTrue);
     });
   });
 }

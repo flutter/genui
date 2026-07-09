@@ -42,12 +42,13 @@ abstract final class A2uiSchemas {
     required String returnType,
     required Schema args,
   }) {
+    // The returnType is static catalog metadata in A2UI v1.0 and is not
+    // present in wire-level FunctionCall payloads.
     return S.object(
-      description: description,
+      description: '$description Returns $returnType.',
       properties: {
         'call': S.string(constValue: name),
         'args': args,
-        'returnType': S.string(constValue: returnType),
       },
       required: ['call', 'args'],
     );
@@ -278,6 +279,37 @@ abstract final class A2uiSchemas {
     required: ['call'],
   );
 
+  /// Schema for the body of a server-initiated callFunction message.
+  static Schema callFunctionSchema() => S.object(
+    description:
+        'A function invoked from the server. The function must be '
+        "registered in the catalog with a 'callableFrom' of 'remoteOnly' "
+        "or 'clientOrRemote'.",
+    properties: {
+      'call': S.string(description: 'The name of the function to call.'),
+      'args': S.object(
+        description: 'Arguments passed to the function.',
+        additionalProperties: true,
+      ),
+    },
+    required: ['call'],
+  );
+
+  /// Schema for the body of an actionResponse message.
+  static Schema actionResponseSchema() => S.object(
+    description:
+        'A response to a client-initiated action that requested a response '
+        '(wantResponse: true). Contains exactly one of value or error.',
+    properties: {
+      'value': S.any(description: 'The return value of the action.'),
+      'error': S.object(
+        properties: {'code': S.string(), 'message': S.string()},
+        required: ['code', 'message'],
+        additionalProperties: false,
+      ),
+    },
+  );
+
   /// Schema for a validation check, including logic and an error message.
   static Schema validationCheck({String? description}) {
     return S.object(
@@ -395,6 +427,16 @@ abstract final class A2uiSchemas {
               description: 'Arbitrary context data to send with the action.',
               additionalProperties: true,
             ),
+            'wantResponse': S.boolean(
+              description:
+                  'If true, the client expects an actionResponse from the '
+                  'server.',
+            ),
+            'responsePath': S.string(
+              description:
+                  'Optional JSON Pointer path where the client should save '
+                  'the response value in its local data model.',
+            ),
           },
           required: ['name'],
         ),
@@ -442,12 +484,26 @@ abstract final class A2uiSchemas {
             'to prefix this with an internet domain that you own, to avoid '
             "conflicts e.g. 'mycompany.com:somecatalog'.",
       ),
-      'theme': S.object(
-        description: 'Theme parameters for the surface.',
+      'surfaceProperties': S.object(
+        description:
+            "Initial surface properties (e.g., {'agentDisplayName': "
+            "'My Agent'}). These must validate against the "
+            "'surfaceProperties' schema defined in the catalog.",
         additionalProperties: true,
       ),
       'sendDataModel': S.boolean(
         description: 'Whether to send the data model to every client request.',
+      ),
+      'components': S.list(
+        description:
+            'Optional initial list of UI components for the surface, '
+            'allowing an entire UI to be created in a single message.',
+        minItems: 1,
+        items: S.any(),
+      ),
+      'dataModel': S.object(
+        description: 'The initial root data model object for the surface.',
+        additionalProperties: true,
       ),
     },
     required: [surfaceIdKey, 'catalogId'],
@@ -475,7 +531,8 @@ abstract final class A2uiSchemas {
       'path': S.combined(type: JsonType.string, defaultValue: '/'),
       'value': S.any(
         description:
-            'The new value to write to the data model. If null/omitted, the key is removed.',
+            'The new value to write to the data model. An explicit null '
+            'value deletes the key at the path.',
       ),
     },
     required: [surfaceIdKey],

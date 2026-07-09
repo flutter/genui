@@ -37,7 +37,6 @@ void main() {
         {
           'call': 'add',
           'args': {'a': 10, 'b': 20},
-          'returnType': 'any',
         },
       ]);
     });

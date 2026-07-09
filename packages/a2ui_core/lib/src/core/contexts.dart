@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import '../primitives/errors.dart';
 import '../primitives/reactivity.dart';
 import 'catalog.dart';
 import 'common.dart';
@@ -28,7 +29,40 @@ class DataContext {
   final FunctionInvoker _invoke;
   final String path;
 
-  DataContext(this.dataModel, this._invoke, this.path);
+  /// The 0-based iteration index when this context was created for an item
+  /// of a template-generated list, or null outside of template instantiation
+  /// (Collection Scope).
+  final int? templateIndex;
+
+  DataContext(this.dataModel, this._invoke, this.path, {this.templateIndex});
+
+  /// Evaluates a reserved `@`-prefixed core system function.
+  ///
+  /// Only `@index` is defined by A2UI v1.0; it is valid solely within
+  /// template instantiation loops.
+  Object? _resolveSystemFunction(FunctionCall call) {
+    if (call.call != '@index') {
+      throw A2uiValidationError(
+        "Unknown system function '${call.call}'. The '@' prefix is reserved "
+        'for core system context evaluations.',
+      );
+    }
+    final int? index = templateIndex;
+    if (index == null) {
+      throw A2uiValidationError(
+        "'@index' can only be evaluated inside a template instantiation "
+        'loop.',
+      );
+    }
+    final Object offset = resolveSync(call.args['offset']) ?? 0;
+    if (offset is! num) {
+      throw A2uiValidationError(
+        "The 'offset' argument of '@index' must be a number "
+        '(got $offset).',
+      );
+    }
+    return index + offset.toInt();
+  }
 
   String resolvePath(String relativePath) {
     if (relativePath.startsWith('/')) return relativePath;
@@ -48,6 +82,9 @@ class DataContext {
     }
     if (value is Map && value.containsKey('call')) {
       final call = FunctionCall.fromJson(Map<String, dynamic>.from(value));
+      if (call.call.startsWith('@')) {
+        return _resolveSystemFunction(call);
+      }
       final args = <String, dynamic>{};
       for (final MapEntry<String, dynamic> entry in call.args.entries) {
         args[entry.key] = resolveSync(entry.value);
@@ -79,6 +116,9 @@ class DataContext {
     }
     if (value is Map && value.containsKey('call')) {
       final call = FunctionCall.fromJson(Map<String, dynamic>.from(value));
+      if (call.call.startsWith('@')) {
+        return signal(_resolveSystemFunction(call));
+      }
       return computed(() {
         final args = <String, dynamic>{};
         for (final MapEntry<String, dynamic> entry in call.args.entries) {
@@ -97,8 +137,13 @@ class DataContext {
     return signal(value);
   }
 
-  DataContext nested(String relativePath) {
-    return DataContext(dataModel, _invoke, resolvePath(relativePath));
+  DataContext nested(String relativePath, {int? templateIndex}) {
+    return DataContext(
+      dataModel,
+      _invoke,
+      resolvePath(relativePath),
+      templateIndex: templateIndex ?? this.templateIndex,
+    );
   }
 
   void set(String relativePath, Object? value) {
@@ -112,12 +157,17 @@ class ComponentContext {
   final ComponentModel componentModel;
   final DataContext dataContext;
 
-  ComponentContext(this.surface, this.componentModel, {String? basePath})
-    : dataContext = DataContext(
-        surface.dataModel,
-        surface.catalog.invoke,
-        basePath ?? '/',
-      );
+  ComponentContext(
+    this.surface,
+    this.componentModel, {
+    String? basePath,
+    int? templateIndex,
+  }) : dataContext = DataContext(
+         surface.dataModel,
+         surface.catalog.invoke,
+         basePath ?? '/',
+         templateIndex: templateIndex,
+       );
 
   /// Dispatches an action from the component.
   Future<void> dispatchAction(Map<String, dynamic> action) {
@@ -125,7 +175,11 @@ class ComponentContext {
   }
 
   /// Returns a context for rendering a child component.
-  ComponentContext childContext(String childId, {String? basePath}) {
+  ComponentContext childContext(
+    String childId, {
+    String? basePath,
+    int? templateIndex,
+  }) {
     final ComponentModel? childModel = surface.componentsModel.get(childId);
     if (childModel == null) {
       throw ArgumentError('Child component not found: $childId');
@@ -134,6 +188,7 @@ class ComponentContext {
       surface,
       childModel,
       basePath: basePath ?? dataContext.path,
+      templateIndex: templateIndex ?? dataContext.templateIndex,
     );
   }
 }

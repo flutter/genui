@@ -12,8 +12,8 @@ void main() {
 name: Test Sample
 description: A test description
 ---
-{"version": "v0.9", "updateComponents": {"surfaceId": "default", "components": [{"id": "text1", "component": "Text", "text": "Hello"}]}}
-{"version": "v0.9", "createSurface": {"surfaceId": "default", "catalogId": "https://a2ui.org/specification/v0_9/basic_catalog.json"}}
+{"version": "v1.0", "updateComponents": {"surfaceId": "default", "components": [{"id": "text1", "component": "Text", "text": "Hello"}]}}
+{"version": "v1.0", "createSurface": {"surfaceId": "default", "catalogId": "https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json"}}
 ''';
 
     final Sample sample = SampleParser.parseString(sampleContent);
@@ -43,7 +43,7 @@ description: A test description
 name: Frontmatter Sample
 description: A description
 ---
-{"version": "v0.9", "createSurface": {"surfaceId": "default", "catalogId": "test"}}
+{"version": "v1.0", "createSurface": {"surfaceId": "default", "catalogId": "test"}}
 ''';
       final Sample sample = SampleParser.parseString(sampleContent);
       expect(sample.name, 'Frontmatter Sample');
@@ -56,7 +56,7 @@ description: A description
     const sampleContent = '''
 ---
 ---
-{"version": "v0.9", "createSurface": {"surfaceId": "default", "catalogId": "test"}}
+{"version": "v1.0", "createSurface": {"surfaceId": "default", "catalogId": "test"}}
 ''';
     final Sample sample = SampleParser.parseString(sampleContent);
     expect(sample.name, 'Untitled Sample');

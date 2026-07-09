@@ -22,6 +22,9 @@ final _schema = S.object(
       description: 'The value of the text field.',
     ),
     'label': A2uiSchemas.stringReference(),
+    'placeholder': A2uiSchemas.stringReference(
+      description: 'The placeholder text for the input field.',
+    ),
     'variant': S.string(
       enumValues: ['shortText', 'longText', 'number', 'obscured'],
     ),
@@ -35,6 +38,7 @@ extension type _TextFieldData.fromMap(JsonMap _json) {
   factory _TextFieldData({
     Object? value,
     Object? label,
+    Object? placeholder,
     List<JsonMap>? checks,
     String? variant,
     String? validationRegexp,
@@ -42,6 +46,7 @@ extension type _TextFieldData.fromMap(JsonMap _json) {
   }) => _TextFieldData.fromMap({
     'value': value,
     'label': label,
+    'placeholder': placeholder,
     'checks': checks,
     'variant': variant,
     'validationRegexp': validationRegexp,
@@ -50,6 +55,7 @@ extension type _TextFieldData.fromMap(JsonMap _json) {
 
   Object? get value => _json['value'];
   Object? get label => _json['label'];
+  Object? get placeholder => _json['placeholder'];
   List<JsonMap>? get checks => (_json['checks'] as List?)?.cast<JsonMap>();
   String? get variant => _json['variant'] as String?;
   String? get validationRegexp => _json['validationRegexp'] as String?;
@@ -60,6 +66,7 @@ class _TextField extends StatefulWidget {
   const _TextField({
     required this.initialValue,
     this.label,
+    this.placeholder,
     this.checks,
     this.context,
     this.textFieldType,
@@ -70,6 +77,7 @@ class _TextField extends StatefulWidget {
 
   final String initialValue;
   final String? label;
+  final String? placeholder;
   final List<JsonMap>? checks;
   final DataContext? context;
   final String? textFieldType;
@@ -143,6 +151,7 @@ class _TextFieldState extends State<_TextField> {
       controller: _controller,
       decoration: InputDecoration(
         labelText: widget.label,
+        hintText: widget.placeholder,
         errorText: _errorText,
       ),
       obscureText: widget.textFieldType == 'obscured',
@@ -176,6 +185,7 @@ class _TextFieldState extends State<_TextField> {
 ///
 /// - `text`: The initial value of the text field.
 /// - `label`: The text to display as the label for the text field.
+/// - `placeholder`: The placeholder (hint) text for the input field.
 /// - `textFieldType`: The type of text field. Can be `shortText`, `longText`,
 ///   `number`, `date`, or `obscured`.
 /// - `validationRegexp`: A regular expression to validate the input.
@@ -226,58 +236,66 @@ final textField = CatalogItem(
                 currentValue?.toString() ??
                 (valueRef is String ? valueRef : null);
 
-            return _TextField(
-              initialValue: effectiveValue ?? '',
-              label: label,
-              checks: textFieldData.checks,
-              context: itemContext.dataContext,
-              textFieldType: textFieldData.variant,
-              validationRegexp: textFieldData.validationRegexp,
-              onChanged: (newValue) {
-                if (textFieldData.variant == 'number') {
-                  final num? numberValue = num.tryParse(newValue);
-                  if (numberValue != null) {
-                    itemContext.dataContext.update(DataPath(path), numberValue);
-                    return;
-                  }
-                }
-                itemContext.dataContext.update(DataPath(path), newValue);
-              },
-              onSubmitted: (newValue) async {
-                final JsonMap? actionData = textFieldData.onSubmittedAction;
-                if (actionData == null) {
-                  return;
-                }
-
-                if (actionData.containsKey('event')) {
-                  final eventMap = actionData['event'] as JsonMap;
-                  final actionName = eventMap['name'] as String;
-                  final contextDefinition = eventMap['context'] as JsonMap?;
-                  final JsonMap resolvedContext = await resolveContext(
-                    itemContext.dataContext,
-                    contextDefinition,
-                  );
-                  itemContext.dispatchEvent(
-                    UserActionEvent(
-                      name: actionName,
-                      sourceComponentId: itemContext.id,
-                      context: resolvedContext,
-                    ),
-                  );
-                } else if (actionData.containsKey('functionCall')) {
-                  final funcMap = actionData['functionCall'] as JsonMap;
-                  final callName = funcMap['call'] as String;
-                  if (callName == 'closeModal') {
-                    if (itemContext.buildContext.mounted) {
-                      Navigator.of(itemContext.buildContext).pop();
+            return BoundString(
+              dataContext: itemContext.dataContext,
+              value: textFieldData.placeholder,
+              builder: (context, placeholder) => _TextField(
+                initialValue: effectiveValue ?? '',
+                label: label,
+                placeholder: placeholder,
+                checks: textFieldData.checks,
+                context: itemContext.dataContext,
+                textFieldType: textFieldData.variant,
+                validationRegexp: textFieldData.validationRegexp,
+                onChanged: (newValue) {
+                  if (textFieldData.variant == 'number') {
+                    final num? numberValue = num.tryParse(newValue);
+                    if (numberValue != null) {
+                      itemContext.dataContext.update(
+                        DataPath(path),
+                        numberValue,
+                      );
+                      return;
                     }
+                  }
+                  itemContext.dataContext.update(DataPath(path), newValue);
+                },
+                onSubmitted: (newValue) async {
+                  final JsonMap? actionData = textFieldData.onSubmittedAction;
+                  if (actionData == null) {
                     return;
                   }
-                  final Stream<Object?> resultStream = itemContext.dataContext
-                      .resolve(funcMap);
-                  await resultStream.first;
-                }
-              },
+
+                  if (actionData.containsKey('event')) {
+                    final eventMap = actionData['event'] as JsonMap;
+                    final actionName = eventMap['name'] as String;
+                    final contextDefinition = eventMap['context'] as JsonMap?;
+                    final JsonMap resolvedContext = await resolveContext(
+                      itemContext.dataContext,
+                      contextDefinition,
+                    );
+                    itemContext.dispatchEvent(
+                      UserActionEvent(
+                        name: actionName,
+                        sourceComponentId: itemContext.id,
+                        context: resolvedContext,
+                      ),
+                    );
+                  } else if (actionData.containsKey('functionCall')) {
+                    final funcMap = actionData['functionCall'] as JsonMap;
+                    final callName = funcMap['call'] as String;
+                    if (callName == 'closeModal') {
+                      if (itemContext.buildContext.mounted) {
+                        Navigator.of(itemContext.buildContext).pop();
+                      }
+                      return;
+                    }
+                    final Stream<Object?> resultStream = itemContext.dataContext
+                        .resolve(funcMap);
+                    await resultStream.first;
+                  }
+                },
+              ),
             );
           },
         );

@@ -47,7 +47,7 @@ void main() {
       controller.add('Here is a message:\n');
       controller.add('```json\n');
       controller.add(
-        '{"version": "v0.9", "createSurface": {"surfaceId": "foo", '
+        '{"version": "v1.0", "createSurface": {"surfaceId": "foo", '
         '"catalogId": "cat"}}\n',
       );
       controller.add('```\n');
@@ -89,7 +89,7 @@ void main() {
       final StreamQueue<GenerationEvent> queue = StreamQueue(stream);
 
       controller.add('Start ');
-      controller.add('{ "version": "v0.9", "deleteSurface": ');
+      controller.add('{ "version": "v1.0", "deleteSurface": ');
       controller.add('{ "surfaceId": '); // Needs nesting for wrapper
       controller.add('"bar" } }');
       controller.add(' End');
@@ -115,7 +115,7 @@ void main() {
       final StreamQueue<GenerationEvent> queue = StreamQueue(stream);
 
       controller.add('Start ');
-      controller.add('{ "version": "v0.9", "deleteSurface": ');
+      controller.add('{ "version": "v1.0", "deleteSurface": ');
       controller.add('{ "surfaceId": "[{]bar[}]" } }');
       controller.add(' End');
 
@@ -160,7 +160,7 @@ void main() {
       final StreamQueue<GenerationEvent> queue = StreamQueue(stream);
 
       // Malformed core.CreateSurfaceMessage (missing required fields)
-      controller.add('{"version": "v0.9", "createSurface": {}}');
+      controller.add('{"version": "v1.0", "createSurface": {}}');
 
       // Should emit error
       expect(queue.next, throwsA(isA<A2uiValidationException>()));
@@ -243,7 +243,7 @@ void main() {
       final StreamQueue<GenerationEvent> queue = StreamQueue(stream);
 
       controller.add(
-        '{"version": "v0.9", "createSurface": '
+        '{"version": "v1.0", "createSurface": '
         '{"surfaceId": "foo", "catalogId": "genui"}'
         '}',
       );
@@ -251,7 +251,7 @@ void main() {
       controller.add('\n');
 
       controller.add(
-        '{"version": "v0.9", "createSurface": '
+        '{"version": "v1.0", "createSurface": '
         '{"surfaceId": "bar", "catalogId": "genui"}'
         '}',
       );

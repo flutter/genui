@@ -48,7 +48,7 @@ void main() {
         messageToProcess = core.CreateSurfaceMessage(
           surfaceId: message.surfaceId,
           catalogId: basicCatalogId,
-          theme: message.theme,
+          surfaceProperties: message.surfaceProperties,
           sendDataModel: message.sendDataModel,
         );
       }

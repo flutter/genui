@@ -18,6 +18,12 @@ final _schema = S.object(
     'value': A2uiSchemas.numberReference(),
     'min': S.number(description: 'The minimum value. Defaults to 0.0.'),
     'max': S.number(description: 'The maximum value. Defaults to 1.0.'),
+    'steps': S.integer(
+      minimum: 1,
+      description:
+          'The number of discrete divisions in the slider range. If '
+          'specified, the slider will snap to discrete values.',
+    ),
     'label': A2uiSchemas.stringReference(
       description: 'The label for the slider.',
     ),
@@ -31,17 +37,20 @@ extension type _SliderData.fromMap(JsonMap _json) {
     required JsonMap value,
     double? min,
     double? max,
+    int? steps,
     List<JsonMap>? checks,
   }) => _SliderData.fromMap({
     'value': value,
     'min': min,
     'max': max,
+    'steps': steps,
     'checks': checks,
   });
 
   Object get value => _json['value'] as Object;
   double get min => (_json['min'] as num?)?.toDouble() ?? 0.0;
   double get max => (_json['max'] as num?)?.toDouble() ?? 1.0;
+  int? get steps => (_json['steps'] as num?)?.toInt();
   List<JsonMap>? get checks => (_json['checks'] as List?)?.cast<JsonMap>();
 
   String? get label {
@@ -65,6 +74,7 @@ extension type _SliderData.fromMap(JsonMap _json) {
 /// - `value`: The current value of the slider.
 /// - `min`: The minimum value of the slider. Defaults to 0.0.
 /// - `max`: The maximum value of the slider. Defaults to 1.0.
+/// - `steps`: The number of discrete divisions in the slider range.
 /// - `label`: The label for the slider.
 final slider = CatalogItem(
   name: 'Slider',
@@ -99,7 +109,9 @@ final slider = CatalogItem(
                   value: (effectiveValue ?? sliderData.min).toDouble(),
                   min: sliderData.min,
                   max: sliderData.max,
-                  divisions: (sliderData.max - sliderData.min).toInt(),
+                  divisions:
+                      sliderData.steps ??
+                      (sliderData.max - sliderData.min).toInt(),
                   onChanged: (newValue) {
                     itemContext.dataContext.update(DataPath(path), newValue);
                   },

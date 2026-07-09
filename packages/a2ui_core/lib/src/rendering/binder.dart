@@ -24,9 +24,18 @@ class BehaviorNode {
 class ChildNode {
   final String id;
   final String basePath;
-  ChildNode(this.id, this.basePath);
 
-  Map<String, dynamic> toJson() => {'id': id, 'basePath': basePath};
+  /// The 0-based iteration index for template-generated children, or null
+  /// for children from an explicit list.
+  final int? templateIndex;
+
+  ChildNode(this.id, this.basePath, {this.templateIndex});
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'basePath': basePath,
+    if (templateIndex != null) 'templateIndex': templateIndex,
+  };
 }
 
 /// Takes a component's raw JSON properties (which may contain data
@@ -129,6 +138,7 @@ class GenericBinder {
               (i) => ChildNode(
                 tpl.componentId,
                 nestedCtx.resolvePath(i.toString()),
+                templateIndex: i,
               ),
             );
           }

@@ -30,7 +30,7 @@ void main() {
       'type',
       () {
         final json = <String, Object?>{
-          'version': 'v0.9',
+          'version': 'v1.0',
           'unknownAction': <String, Object?>{},
         };
 

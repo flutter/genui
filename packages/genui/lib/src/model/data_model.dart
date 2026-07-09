@@ -24,12 +24,18 @@ class DataContext implements cf.ExecutionContext {
     this._dataModel,
     this.path, {
     Iterable<cf.ClientFunction>? functions,
+    this.templateIndex,
   }) : _functions = {
          if (functions != null)
            for (final f in functions) f.name: f,
        };
 
-  DataContext._(this._dataModel, this.path, this._functions);
+  DataContext._(
+    this._dataModel,
+    this.path,
+    this._functions, {
+    this.templateIndex,
+  });
 
   final DataModel _dataModel;
 
@@ -38,6 +44,11 @@ class DataContext implements cf.ExecutionContext {
   final DataPath path;
 
   final Map<String, cf.ClientFunction> _functions;
+
+  /// The 0-based iteration index when this context was created for an item
+  /// of a template-generated list, or null outside of template instantiation
+  /// (Collection Scope). Used to evaluate the `@index` system function.
+  final int? templateIndex;
 
   /// The underlying data model for this context.
   DataModel get dataModel => _dataModel;
@@ -95,8 +106,13 @@ class DataContext implements cf.ExecutionContext {
 
   /// Creates a new, nested DataContext for a child widget.
   @override
-  DataContext nested(DataPath relativePath) =>
-      DataContext._(_dataModel, resolvePath(relativePath), _functions);
+  DataContext nested(DataPath relativePath, {int? templateIndex}) =>
+      DataContext._(
+        _dataModel,
+        resolvePath(relativePath),
+        _functions,
+        templateIndex: templateIndex ?? this.templateIndex,
+      );
 
   /// Resolves a path against the current context's path.
   @override
@@ -125,6 +141,11 @@ class DataContext implements cf.ExecutionContext {
     final name = callDefinition['call'] as String?;
     if (name == null) {
       return Stream.value(null);
+    }
+
+    // The '@' prefix is reserved for core system context evaluations.
+    if (name.startsWith('@')) {
+      return _evaluateSystemFunction(name, callDefinition);
     }
 
     final cf.ClientFunction? func = getFunction(name);
@@ -160,6 +181,36 @@ class DataContext implements cf.ExecutionContext {
       }
       return func.execute(combinedArgs, this);
     });
+  }
+
+  /// Evaluates a reserved `@`-prefixed core system function.
+  ///
+  /// Only `@index` is defined by A2UI v1.0; it is valid solely within
+  /// template instantiation loops (Collection Scope).
+  Stream<Object?> _evaluateSystemFunction(String name, JsonMap callDefinition) {
+    if (name != '@index') {
+      genUiLogger.warning(
+        "Unknown system function '$name'. The '@' prefix is reserved for "
+        'core system context evaluations.',
+      );
+      return Stream.value(null);
+    }
+    final int? index = templateIndex;
+    if (index == null) {
+      genUiLogger.warning(
+        "'@index' can only be evaluated inside a template instantiation "
+        'loop.',
+      );
+      return Stream.value(null);
+    }
+    final Object? argsJson = callDefinition['args'];
+    final Object? offsetArg = argsJson is Map ? argsJson['offset'] : null;
+    if (offsetArg == null) {
+      return Stream.value(index);
+    }
+    return _evaluateStream(
+      offsetArg,
+    ).map((offset) => index + ((offset as num?)?.toInt() ?? 0));
   }
 
   /// Evaluates a dynamic boolean condition and returns a [Stream<bool>].
