@@ -27,6 +27,7 @@
 - **Refactor**: Centralized and shared common schema registry initialization helper.
 - **Refactor**: Extracted mock binary messenger asset setup to a shared helper for test reuse.
 - **Fix**: Sanitized raw error messages exposed from `ArgumentError` in `Button` press handlers.
+- **Docs** Removed `google_generative_ai` from the README.md.
 
 ## 0.9.2
 ## 0.9.1
