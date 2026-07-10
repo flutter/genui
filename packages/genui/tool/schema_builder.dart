@@ -31,11 +31,12 @@ class SchemaBuilder implements Builder {
     );
 
     if (!sourceDir.existsSync()) {
-      log.warning(
-        'Source directory ${sourceDir.path} does not exist. '
-        'Make sure git submodules are checked out.',
+      throw StateError(
+        'A2UI specification submodule not found at ${sourceDir.path}.\n'
+        'Please initialize git submodules by running:\n'
+        '  git submodule update --init --recursive\n'
+        'and then rebuild.',
       );
-      return;
     }
 
     final files = {

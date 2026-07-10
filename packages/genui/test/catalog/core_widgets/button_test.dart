@@ -78,13 +78,8 @@ void main() {
   ) async {
     final mockFunction = MockFunction(
       name: 'throwError',
-      onExecute: (args, context) {
-        final controller = StreamController<Object?>(sync: true);
-        controller.addError(Exception('Stream error'));
-        // ignore: unawaited_futures
-        controller.close();
-        return controller.stream;
-      },
+      onExecute: (args, context) =>
+          Stream<Object?>.error(Exception('Stream error')),
     );
 
     final surfaceController = SurfaceController(
@@ -137,8 +132,10 @@ void main() {
     await tester.pumpAndSettle();
 
     // Tap the button to trigger the function call
-    await tester.tap(find.byType(ElevatedButton));
-    await tester.pumpAndSettle();
+    await tester.runAsync(() async {
+      await tester.tap(find.byType(ElevatedButton));
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+    });
 
     // Verify error was reported
     expect(message, isNotNull);

@@ -59,7 +59,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   final Map<String, DataModel> _liveDataModels = {};
   SchemaRegistry? _schemaRegistry;
 
-  Future<SchemaRegistry> _getSchemaRegistry() async {
+  SchemaRegistry _getSchemaRegistry() {
     if (_schemaRegistry != null) return _schemaRegistry!;
     final registry = SchemaRegistry();
     registry.addSchema(
@@ -362,7 +362,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
     core.SurfaceModel<core.ComponentApi> surface,
     Catalog catalog,
   ) async {
-    final SchemaRegistry registry = await _getSchemaRegistry();
+    final SchemaRegistry registry = _getSchemaRegistry();
     await schema_validation.validateComponents(
       surfaceId: surfaceId,
       components: surface.componentsModel.all.map(

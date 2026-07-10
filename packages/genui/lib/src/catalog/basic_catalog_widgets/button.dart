@@ -232,24 +232,14 @@ Future<void> _handlePress(
     final Stream<Object?> resultStream = itemContext.dataContext.resolve(
       funcMap,
     );
-    final completer = Completer<void>();
-    StreamSubscription<Object?>? subscription;
-    subscription = resultStream.listen(
-      (val) {
-        subscription?.cancel();
-        if (!completer.isCompleted) completer.complete();
-      },
-      onError: (Object exception, StackTrace stackTrace) {
-        subscription?.cancel();
-        itemContext.reportError(exception, stackTrace);
-        if (!completer.isCompleted) completer.complete();
-      },
-      onDone: () {
-        subscription?.cancel();
-        if (!completer.isCompleted) completer.complete();
-      },
-    );
-    await completer.future;
+    final iterator = StreamIterator<Object?>(resultStream);
+    try {
+      await iterator.moveNext();
+    } catch (exception, stackTrace) {
+      itemContext.reportError(exception, stackTrace);
+    } finally {
+      await iterator.cancel();
+    }
   } else {
     genUiLogger.warning(
       'Button action missing event or functionCall: $actionData',
