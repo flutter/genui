@@ -40,7 +40,4 @@ dev_dependencies:
   network_image_mock: ^2.1.1
   test: ^1.26.2
 
-flutter:
-  assets:
-    - assets/schemas/common_types.json
-    - assets/schemas/server_to_client.json
+

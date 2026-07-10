@@ -4,12 +4,10 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../interfaces/a2ui_message_sink.dart';
@@ -23,6 +21,7 @@ import '../model/schema_validation.dart' as schema_validation;
 import '../model/ui_models.dart';
 import '../primitives/a2ui_validation_exception.dart';
 import '../primitives/constants.dart';
+import '../primitives/embedded_schemas.dart';
 import '../primitives/logging.dart';
 
 import 'surface_registry.dart' as surface_reg;
@@ -62,32 +61,10 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
 
   Future<SchemaRegistry> _getSchemaRegistry() async {
     if (_schemaRegistry != null) return _schemaRegistry!;
-    String content;
-    final isTest = Platform.environment['FLUTTER_TEST'] == 'true';
-    if (isTest) {
-      var file = File(commonTypesLocalPath);
-      if (!file.existsSync()) {
-        file = File('../../$commonTypesLocalPath');
-      }
-      if (file.existsSync()) {
-        content = file.readAsStringSync();
-      } else {
-        throw FileSystemException(
-          'Schema file not found in test environment',
-          file.path,
-        );
-      }
-    } else {
-      try {
-        content = await rootBundle.loadString(commonTypesAssetKey);
-      } catch (e) {
-        rethrow;
-      }
-    }
     final registry = SchemaRegistry();
     registry.addSchema(
       Uri.parse(commonTypesSchemaId),
-      Schema.fromMap(jsonDecode(content) as Map<String, Object?>),
+      Schema.fromMap(jsonDecode(commonTypesSchemaJson) as Map<String, Object?>),
     );
     _schemaRegistry = registry;
     return registry;
