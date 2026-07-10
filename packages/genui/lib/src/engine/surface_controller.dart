@@ -231,6 +231,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
             surface,
             genuiCatalog,
           ).catchError((Object error, StackTrace stack) {
+            if (_onSubmit.isClosed) return;
             if (error is A2uiValidationException) {
               genUiLogger.warning(
                 'Schema validation failed for surface '
