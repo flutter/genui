@@ -132,9 +132,10 @@ void main() {
     await tester.pumpAndSettle();
 
     // Tap the button to trigger the function call
+    final Future<ChatMessage> onSubmitFuture = surfaceController.onSubmit.first;
     await tester.runAsync(() async {
       await tester.tap(find.byType(ElevatedButton));
-      await Future<void>.delayed(const Duration(milliseconds: 10));
+      await onSubmitFuture;
     });
 
     // Verify error was reported
