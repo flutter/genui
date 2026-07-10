@@ -1,6 +1,7 @@
 // Copyright 2025 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+
 // ignore_for_file: specify_nonobvious_local_variable_types
 
 import 'dart:io';
@@ -11,7 +12,7 @@ Builder schemaBuilder(BuilderOptions options) => SchemaBuilder();
 class SchemaBuilder implements Builder {
   @override
   Map<String, List<String>> get buildExtensions => const {
-    'pubspec.yaml': ['lib/src/primitives/embedded_schemas.dart'],
+    'pubspec.yaml': ['lib/src/primitives/embedded_schemas.g.dart'],
   };
 
   @override
@@ -73,7 +74,7 @@ class SchemaBuilder implements Builder {
 
     final outputId = AssetId(
       buildStep.inputId.package,
-      'lib/src/primitives/embedded_schemas.dart',
+      'lib/src/primitives/embedded_schemas.g.dart',
     );
     await buildStep.writeAsString(outputId, buffer.toString());
   }

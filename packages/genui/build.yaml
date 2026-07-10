@@ -1,3 +1,7 @@
+# Copyright 2025 The Flutter Authors.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
 targets:
   $default:
     builders:
@@ -8,6 +12,6 @@ builders:
   schema_builder:
     import: "tool/schema_builder.dart"
     builder_factories: ["schemaBuilder"]
-    build_extensions: {"pubspec.yaml": ["lib/src/primitives/embedded_schemas.dart"]}
+    build_extensions: {"pubspec.yaml": ["lib/src/primitives/embedded_schemas.g.dart"]}
     auto_apply: dependents
     build_to: source

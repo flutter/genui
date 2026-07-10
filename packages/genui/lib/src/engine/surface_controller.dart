@@ -21,7 +21,7 @@ import '../model/schema_validation.dart' as schema_validation;
 import '../model/ui_models.dart';
 import '../primitives/a2ui_validation_exception.dart';
 import '../primitives/constants.dart';
-import '../primitives/embedded_schemas.dart';
+import '../primitives/embedded_schemas.g.dart';
 import '../primitives/logging.dart';
 
 import 'surface_registry.dart' as surface_reg;
