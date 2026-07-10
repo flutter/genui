@@ -1,0 +1,13 @@
+targets:
+  $default:
+    builders:
+      genui|schema_builder:
+        enabled: true
+
+builders:
+  schema_builder:
+    import: "tool/schema_builder.dart"
+    builder_factories: ["schemaBuilder"]
+    build_extensions: {"pubspec.yaml": ["lib/src/primitives/embedded_schemas.dart"]}
+    auto_apply: dependents
+    build_to: source

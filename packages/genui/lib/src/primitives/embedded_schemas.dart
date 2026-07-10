@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 // GENERATED FILE. DO NOT EDIT MANUALLY.
-// To regenerate, run: dart run packages/genui/tool/generate_embedded_schemas.dart
+// To regenerate, run: dart run build_runner build
 
 /// Embedded schema contents of 'common_types.json'.
 const String commonTypesSchemaJson = r'''
