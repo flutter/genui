@@ -76,13 +76,15 @@ void main() {
   testWidgets('Button widget handles stream errors gracefully', (
     WidgetTester tester,
   ) async {
-    ChatMessage? message;
-    // Create a stream controller that we can use to emit errors
-    final streamController = StreamController<Object?>.broadcast();
-
     final mockFunction = MockFunction(
       name: 'throwError',
-      onExecute: (args, context) => streamController.stream,
+      onExecute: (args, context) {
+        final controller = StreamController<Object?>(sync: true);
+        controller.addError(Exception('Stream error'));
+        // ignore: unawaited_futures
+        controller.close();
+        return controller.stream;
+      },
     );
 
     final surfaceController = SurfaceController(
@@ -94,6 +96,7 @@ void main() {
         ),
       ],
     );
+    ChatMessage? message;
     surfaceController.onSubmit.listen((event) => message = event);
 
     const surfaceId = 'testSurface';
@@ -103,7 +106,9 @@ void main() {
         type: 'Button',
         properties: {
           'child': 'button_text',
-          'action': {'call': 'throwError'},
+          'action': {
+            'functionCall': {'call': 'throwError'},
+          },
         },
       ),
       component(
@@ -133,25 +138,10 @@ void main() {
 
     // Tap the button to trigger the function call
     await tester.tap(find.byType(ElevatedButton));
-
-    // Emit an error from the stream
-    streamController.addError(Exception('Stream error'));
-
-    // Pump to process the error
-    await tester.pump();
-
-    // Wait for the message to be received, pumping the widget tree
-    var retries = 0;
-    while (message == null && retries < 50) {
-      await tester.pump(const Duration(milliseconds: 10));
-      retries++;
-    }
+    await tester.pumpAndSettle();
 
     // Verify error was reported
     expect(message, isNotNull);
-
-    // The test passes if no unhandled exception crashes the test.
-    await streamController.close();
     surfaceController.dispose();
   });
 

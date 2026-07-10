@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
@@ -230,11 +232,24 @@ Future<void> _handlePress(
     final Stream<Object?> resultStream = itemContext.dataContext.resolve(
       funcMap,
     );
-    try {
-      await resultStream.first;
-    } catch (exception, stackTrace) {
-      itemContext.reportError(exception, stackTrace);
-    }
+    final completer = Completer<void>();
+    StreamSubscription<Object?>? subscription;
+    subscription = resultStream.listen(
+      (val) {
+        subscription?.cancel();
+        if (!completer.isCompleted) completer.complete();
+      },
+      onError: (Object exception, StackTrace stackTrace) {
+        subscription?.cancel();
+        itemContext.reportError(exception, stackTrace);
+        if (!completer.isCompleted) completer.complete();
+      },
+      onDone: () {
+        subscription?.cancel();
+        if (!completer.isCompleted) completer.complete();
+      },
+    );
+    await completer.future;
   } else {
     genUiLogger.warning(
       'Button action missing event or functionCall: $actionData',

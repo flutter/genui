@@ -4,10 +4,13 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../interfaces/a2ui_message_sink.dart';
 import '../interfaces/surface_context.dart';
@@ -19,6 +22,7 @@ import '../model/data_model.dart';
 import '../model/schema_validation.dart' as schema_validation;
 import '../model/ui_models.dart';
 import '../primitives/a2ui_validation_exception.dart';
+import '../primitives/constants.dart';
 import '../primitives/logging.dart';
 
 import 'surface_registry.dart' as surface_reg;
@@ -54,6 +58,40 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   late final surface_reg.SurfaceRegistry _registry =
       surface_reg.SurfaceRegistry();
   final Map<String, DataModel> _liveDataModels = {};
+  SchemaRegistry? _schemaRegistry;
+
+  Future<SchemaRegistry> _getSchemaRegistry() async {
+    if (_schemaRegistry != null) return _schemaRegistry!;
+    String content;
+    final isTest = Platform.environment['FLUTTER_TEST'] == 'true';
+    if (isTest) {
+      var file = File(commonTypesLocalPath);
+      if (!file.existsSync()) {
+        file = File('../../$commonTypesLocalPath');
+      }
+      if (file.existsSync()) {
+        content = file.readAsStringSync();
+      } else {
+        throw FileSystemException(
+          'Schema file not found in test environment',
+          file.path,
+        );
+      }
+    } else {
+      try {
+        content = await rootBundle.loadString(commonTypesAssetKey);
+      } catch (e) {
+        rethrow;
+      }
+    }
+    final registry = SchemaRegistry();
+    registry.addSchema(
+      Uri.parse(commonTypesSchemaId),
+      Schema.fromMap(jsonDecode(content) as Map<String, Object?>),
+    );
+    _schemaRegistry = registry;
+    return registry;
+  }
 
   final _onSubmit = StreamController<ChatMessage>.broadcast();
   final _pendingUpdates = <String, List<core.A2uiMessage>>{};
@@ -207,18 +245,29 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
         _registry.notifyUpdated(surface);
         // Validation does not roll back the mutation; we surface the error
         // and let the caller decide.
-        try {
-          final Catalog? genuiCatalog = catalogs.firstWhereOrNull(
-            (c) => c.effectiveCatalogId == surface.catalog.id,
-          );
-          if (genuiCatalog != null) {
-            _validateComponents(coreMessage.surfaceId, surface, genuiCatalog);
-          }
-        } on A2uiValidationException catch (e) {
-          genUiLogger.warning(
-            'Schema validation failed for surface ${e.surfaceId}: $e',
-          );
-          reportError(e, StackTrace.current);
+        final Catalog? genuiCatalog = catalogs.firstWhereOrNull(
+          (c) => c.effectiveCatalogId == surface.catalog.id,
+        );
+        if (genuiCatalog != null) {
+          _validateComponents(
+            coreMessage.surfaceId,
+            surface,
+            genuiCatalog,
+          ).catchError((Object error, StackTrace stack) {
+            if (error is A2uiValidationException) {
+              genUiLogger.warning(
+                'Schema validation failed for surface '
+                '${error.surfaceId}: $error',
+              );
+              reportError(error, stack);
+            } else {
+              genUiLogger.severe(
+                'Unexpected error during surface validation',
+                error,
+                stack,
+              );
+            }
+          });
         }
       }
     }
@@ -331,17 +380,19 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
 
   /// Validates the components currently in [surface] against [catalog]'s
   /// schema. Throws [A2uiValidationException] on the first failing component.
-  void _validateComponents(
+  Future<void> _validateComponents(
     String surfaceId,
     core.SurfaceModel<core.ComponentApi> surface,
     Catalog catalog,
-  ) {
-    schema_validation.validateComponents(
+  ) async {
+    final SchemaRegistry registry = await _getSchemaRegistry();
+    await schema_validation.validateComponents(
       surfaceId: surfaceId,
       components: surface.componentsModel.all.map(
         (c) => (id: c.id, type: c.type, json: c.toJson()),
       ),
       schema: catalog.definition,
+      registry: registry,
     );
   }
 

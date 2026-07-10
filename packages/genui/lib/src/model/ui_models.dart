@@ -168,13 +168,14 @@ class SurfaceDefinition {
   }
 
   /// Validates the UI definition against a schema.
-  void validate(Schema schema) {
-    schema_validation.validateComponents(
+  Future<void> validate(Schema schema, {SchemaRegistry? registry}) async {
+    await schema_validation.validateComponents(
       surfaceId: surfaceId,
       components: components.values.map(
         (c) => (id: c.id, type: c.type, json: c.toJson()),
       ),
       schema: schema,
+      registry: registry ?? SchemaRegistry(),
     );
   }
 }
