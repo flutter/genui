@@ -18,12 +18,21 @@ class SchemaBuilder implements Builder {
   @override
   Future<void> build(BuildStep buildStep) async {
     // Find repository root by traversing upwards until we find .gitmodules.
+    var foundGitmodules = false;
     Directory dir = Directory.current;
     while (dir.path != dir.parent.path) {
       if (File('${dir.path}/.gitmodules').existsSync()) {
+        foundGitmodules = true;
         break;
       }
       dir = dir.parent;
+    }
+    if (!foundGitmodules) {
+      throw StateError(
+        'Could not find repository root containing .gitmodules starting from '
+        '${Directory.current.path}. Please ensure you are running from within '
+        'the git repository and that submodules are initialized.',
+      );
     }
     final repoRoot = dir;
     final sourceDir = Directory(
@@ -61,8 +70,7 @@ class SchemaBuilder implements Builder {
       final sourceFile = File('${sourceDir.path}/$filename');
 
       if (!sourceFile.existsSync()) {
-        log.warning('Source file ${sourceFile.path} not found.');
-        return;
+        throw StateError('Source file ${sourceFile.path} not found.');
       }
 
       final content = sourceFile.readAsStringSync().trim();

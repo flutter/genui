@@ -13,5 +13,5 @@ builders:
     import: "tool/schema_builder.dart"
     builder_factories: ["schemaBuilder"]
     build_extensions: {"pubspec.yaml": ["lib/src/primitives/embedded_schemas.g.dart"]}
-    auto_apply: dependents
+    auto_apply: none
     build_to: source
