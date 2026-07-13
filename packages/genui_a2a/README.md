@@ -95,7 +95,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     // Initialize the controller with the catalog
-    _controller = SurfaceController(catalogs: [CoreCatalogItems.asCatalog()]);
+    _controller = SurfaceController(catalogs: [BasicCatalogItems.asCatalog()]);
 
     // Create the transport adapter
     _transport = A2uiTransportAdapter(
