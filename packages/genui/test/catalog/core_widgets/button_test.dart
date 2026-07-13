@@ -94,9 +94,8 @@ void main() {
   ) async {
     final mockFunction = MockFunction(
       name: 'throwError',
-      onExecute: (args, context) {
-        return Stream.error(Exception('Stream error'));
-      },
+      onExecute: (args, context) =>
+          Stream<Object?>.error(Exception('Stream error')),
     );
 
     final surfaceController = SurfaceController(
@@ -108,8 +107,8 @@ void main() {
         ),
       ],
     );
-
-    final Future<ChatMessage> onSubmitFuture = surfaceController.onSubmit.first;
+    ChatMessage? message;
+    surfaceController.onSubmit.listen((event) => message = event);
 
     const surfaceId = 'testSurface';
     final List<JsonMap> components = [
@@ -149,23 +148,20 @@ void main() {
     await tester.pumpAndSettle();
 
     // Tap the button to trigger the function call
-    await tester.tap(find.byType(ElevatedButton));
-
-    // Pump to process the tap and invoke the function which throws error
+    await tester.runAsync(() async {
+      final Future<ChatMessage> onSubmitFuture =
+          surfaceController.onSubmit.first;
+      await tester.tap(find.byType(ElevatedButton));
+      await onSubmitFuture;
+    });
     await tester.pump();
 
-    // Advance fake time to process stream error propagation and
-    // error reporting.
-    await tester.pump(const Duration(seconds: 1));
-
     // Verify the error was caught and reported
-    final ChatMessage message = await onSubmitFuture;
     expect(message, isNotNull);
     expect(
-      message.parts.first.asUiInteractionPart!.interaction,
+      message!.parts.first.asUiInteractionPart!.interaction,
       contains('throwError'),
     );
-
     surfaceController.dispose();
   });
 

@@ -13,8 +13,6 @@ import 'package:genui/src/model/ui_models.dart';
 import 'package:genui/src/primitives/simple_items.dart';
 import 'package:genui/test/validation.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
-// ignore: implementation_imports
-import 'package:json_schema_builder/src/schema_registry.dart';
 
 import 'message_builders.dart';
 

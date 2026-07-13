@@ -143,7 +143,10 @@ void main() {
           properties: {
             'child': 'button_text',
             'action': {
-              'functionCall': {'call': 'crashFunc'},
+              'functionCall': {
+                'call': 'crashFunc',
+                'args': <String, Object?>{},
+              },
             },
           },
         ),

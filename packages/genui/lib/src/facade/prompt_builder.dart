@@ -5,10 +5,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../model/catalog.dart';
 import '../primitives/constants.dart';
+import '../primitives/embedded_schemas.g.dart';
 import '../primitives/simple_items.dart';
 
 /// Common fragments for prompts, to explain agent behavior.
@@ -124,11 +124,10 @@ abstract class PromptBuilder {
 
   static Future<({String commonTypes, String serverToClient})>
   _loadSchemas() async {
-    final String commonTypes = await rootBundle.loadString(commonTypesAssetKey);
-    final String serverToClient = await rootBundle.loadString(
-      serverToClientAssetKey,
+    return (
+      commonTypes: commonTypesSchemaJson,
+      serverToClient: serverToClientSchemaJson,
     );
-    return (commonTypes: commonTypes, serverToClient: serverToClient);
   }
 
   Iterable<String> systemPrompt();

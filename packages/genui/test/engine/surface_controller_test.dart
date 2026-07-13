@@ -454,7 +454,7 @@ void main() {
 
         final errorObj = errorJson['error'] as Map<String, dynamic>;
         expect(errorObj['code'], 'VALIDATION_FAILED');
-        expect(errorObj['message'], contains('Missing required property'));
+        expect(errorObj['message'], contains('Required property'));
       },
     );
   });

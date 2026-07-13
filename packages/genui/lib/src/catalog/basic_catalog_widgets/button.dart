@@ -233,8 +233,9 @@ Future<void> _handlePress(
     final Stream<Object?> resultStream = itemContext.dataContext.resolve(
       funcMap,
     );
+    final iterator = StreamIterator<Object?>(resultStream);
     try {
-      await resultStream.first.timeout(
+      await iterator.moveNext().timeout(
         const Duration(seconds: 10),
         onTimeout: () => throw TimeoutException(
           'Function execution for $callName timed out',
@@ -268,6 +269,8 @@ Future<void> _handlePress(
           stackTrace,
         );
       }
+    } finally {
+      await iterator.cancel();
     }
   } else {
     genUiLogger.warning(
