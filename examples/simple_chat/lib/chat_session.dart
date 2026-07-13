@@ -64,20 +64,19 @@ final Catalog _customCatalog = _basicCatalog.copyWith(
   newItems: [climbingLocationItem],
 );
 
-Future<PromptBuilder> _promptBuilderFor(Catalog catalog) async =>
-    await PromptBuilder.createChat(
-      catalog: catalog,
-      systemPromptFragments: [
-        Prompts.summary,
-        PromptFragments.acknowledgeUser(),
-        PromptFragments.requireAtLeastOneSubmitElement(
-          prefix: PromptBuilder.defaultImportancePrefix,
-        ),
-        PromptFragments.uiGenerationRestriction(
-          prefix: PromptBuilder.defaultImportancePrefix,
-        ),
-      ],
-    );
+PromptBuilder _promptBuilderFor(Catalog catalog) => PromptBuilder.chat(
+  catalog: catalog,
+  systemPromptFragments: [
+    Prompts.summary,
+    PromptFragments.acknowledgeUser(),
+    PromptFragments.requireAtLeastOneSubmitElement(
+      prefix: PromptBuilder.defaultImportancePrefix,
+    ),
+    PromptFragments.uiGenerationRestriction(
+      prefix: PromptBuilder.defaultImportancePrefix,
+    ),
+  ],
+);
 
 sealed class ChatSession extends ChangeNotifier {
   ChatSession._();
@@ -197,7 +196,7 @@ class A2uiChatSession extends ChatSession {
   late final StreamSubscription<ChatMessage> _submitSub;
   late final StreamSubscription<SurfaceUpdate> _surfaceSub;
 
-  Future<void> _init() async {
+  void _init() {
     _messageSub = _transport.incomingMessages.listen(
       _surfaceController.handleMessage,
     );
@@ -207,7 +206,7 @@ class A2uiChatSession extends ChatSession {
     );
     _surfaceSub = _surfaceController.surfaceUpdates.listen(_onSurfaceUpdate);
 
-    final PromptBuilder pb = await _promptBuilderFor(_catalog);
+    final PromptBuilder pb = _promptBuilderFor(_catalog);
     _transport.addSystemMessage(pb.systemPromptJoined());
   }
 

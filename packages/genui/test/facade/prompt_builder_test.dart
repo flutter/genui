@@ -35,11 +35,11 @@ void main() {
           'You are a chat assistant.',
           'You sometimes tell jokes to the user',
         ];
-        final PromptBuilder chatBuilder = await PromptBuilder.createChat(
+        final PromptBuilder chatBuilder = PromptBuilder.chat(
           catalog: testCatalog,
           systemPromptFragments: systemPromptFragments,
         );
-        final PromptBuilder customBuilder = await PromptBuilder.createCustom(
+        final PromptBuilder customBuilder = PromptBuilder.custom(
           catalog: testCatalog,
           allowedOperations: SurfaceOperations.createOnly(dataModel: false),
           systemPromptFragments: systemPromptFragments,
@@ -75,11 +75,11 @@ void main() {
       test(b.key, () async {
         final SurfaceOperations operations = b.value;
 
-        final String prompt = (await PromptBuilder.createCustom(
+        final String prompt = PromptBuilder.custom(
           catalog: testCatalog,
           allowedOperations: operations,
           systemPromptFragments: systemPromptFragments,
-        )).systemPromptJoined();
+        ).systemPromptJoined();
 
         for (final fragment in systemPromptFragments) {
           expect(prompt, contains(fragment));
@@ -142,9 +142,9 @@ void main() {
         catalogId: 'test_catalog',
       );
 
-      final String prompt = (await PromptBuilder.createChat(
+      final String prompt = PromptBuilder.chat(
         catalog: catalogWithFunctions,
-      )).systemPromptJoined();
+      ).systemPromptJoined();
 
       expect(prompt, contains('pluralize'));
       expect(
@@ -173,9 +173,9 @@ void main() {
 
       final customCatalog = Catalog([customItem], catalogId: 'custom_catalog');
 
-      final String prompt = (await PromptBuilder.createChat(
+      final String prompt = PromptBuilder.chat(
         catalog: customCatalog,
-      )).systemPromptJoined();
+      ).systemPromptJoined();
 
       expect(prompt, contains('CustomCard'));
       expect(prompt, contains('Card elevation.'));
@@ -188,18 +188,14 @@ void main() {
       final catalog = Catalog([
         BasicCatalogItems.text,
       ], catalogId: 'my_custom_catalog');
-      final PromptBuilder builder = await PromptBuilder.createChat(
-        catalog: catalog,
-      );
+      final PromptBuilder builder = PromptBuilder.chat(catalog: catalog);
       final String prompt = builder.systemPromptJoined();
       expect(prompt, contains('The active catalog ID is: "my_custom_catalog"'));
     });
 
     test('is not surfaced in system prompt when not provided', () async {
       final catalog = Catalog([BasicCatalogItems.text]);
-      final PromptBuilder builder = await PromptBuilder.createChat(
-        catalog: catalog,
-      );
+      final PromptBuilder builder = PromptBuilder.chat(catalog: catalog);
       final String prompt = builder.systemPromptJoined();
       expect(prompt, isNot(contains('The active catalog ID is:')));
     });
