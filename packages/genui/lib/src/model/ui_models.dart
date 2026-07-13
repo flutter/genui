@@ -10,6 +10,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:meta/meta.dart' show internal;
 
 import '../primitives/constants.dart';
+import '../primitives/embedded_schemas.g.dart';
 import '../primitives/simple_items.dart';
 import 'schema_validation.dart' as schema_validation;
 
@@ -169,13 +170,22 @@ class SurfaceDefinition {
 
   /// Validates the UI definition against a schema.
   Future<void> validate(Schema schema, {SchemaRegistry? registry}) async {
+    final SchemaRegistry reg = registry ?? SchemaRegistry();
+    if (registry == null) {
+      reg.addSchema(
+        Uri.parse(commonTypesSchemaId),
+        Schema.fromMap(
+          jsonDecode(commonTypesSchemaJson) as Map<String, Object?>,
+        ),
+      );
+    }
     await schema_validation.validateComponents(
       surfaceId: surfaceId,
       components: components.values.map(
         (c) => (id: c.id, type: c.type, json: c.toJson()),
       ),
       schema: schema,
-      registry: registry ?? SchemaRegistry(),
+      registry: reg,
     );
   }
 }
