@@ -86,9 +86,7 @@ class DirectorySampleSource implements SampleSource {
     final List<SampleRef> refs = files
         .map(
           (file) => SampleRef(
-            name: directory.fileSystem.path.basenameWithoutExtension(
-              file.path,
-            ),
+            name: directory.fileSystem.path.basenameWithoutExtension(file.path),
             load: file.readAsString,
           ),
         )

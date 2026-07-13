@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
@@ -230,10 +232,13 @@ Future<void> _handlePress(
     final Stream<Object?> resultStream = itemContext.dataContext.resolve(
       funcMap,
     );
+    final iterator = StreamIterator<Object?>(resultStream);
     try {
-      await resultStream.first;
+      await iterator.moveNext();
     } catch (exception, stackTrace) {
       itemContext.reportError(exception, stackTrace);
+    } finally {
+      await iterator.cancel();
     }
   } else {
     genUiLogger.warning(

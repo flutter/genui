@@ -11,11 +11,12 @@ import '../primitives/simple_items.dart';
 ///
 /// Throws [A2uiValidationException] on the first component that fails. State
 /// is not rolled back.
-void validateComponents({
+Future<void> validateComponents({
   required String surfaceId,
   required Iterable<({String id, String type, JsonMap json})> components,
   required Schema schema,
-}) {
+  required SchemaRegistry registry,
+}) async {
   final List<Map<String, Object?>> allowedSchemas = _extractAllowedSchemas(
     schema.value,
   );
@@ -28,12 +29,16 @@ void validateComponents({
     for (final s in allowedSchemas) {
       if (_schemaMatchesType(s, component.type)) {
         try {
-          _validateInstance(
-            component.json,
+          final List<ValidationError> validationErrors = await Schema.fromMap(
             s,
-            '/components/${component.id}',
-            surfaceId,
-          );
+          ).validate(component.json, schemaRegistry: registry);
+          if (validationErrors.isNotEmpty) {
+            throw A2uiValidationException(
+              validationErrors.join('; '),
+              surfaceId: surfaceId,
+              path: '/components/${component.id}',
+            );
+          }
           matched = true;
           break;
         } catch (e) {
@@ -97,76 +102,4 @@ bool _schemaMatchesType(Map<String, Object?> schema, String type) {
     };
   }
   return false;
-}
-
-void _validateInstance(
-  Object? instance,
-  Map<String, Object?> schema,
-  String path,
-  String surfaceId,
-) {
-  if (instance == null) return;
-
-  if (schema case {'const': Object? constVal} when instance != constVal) {
-    throw A2uiValidationException(
-      'Value mismatch. Expected $constVal, got $instance',
-      surfaceId: surfaceId,
-      path: path,
-    );
-  }
-  if (schema case {
-    'enum': List<Object?> enums,
-  } when !enums.contains(instance)) {
-    throw A2uiValidationException(
-      'Value not in enum: $instance',
-      surfaceId: surfaceId,
-      path: path,
-    );
-  }
-  if (schema case {'required': List<Object?> required} when instance is Map) {
-    for (final String key in required.cast<String>()) {
-      if (!instance.containsKey(key)) {
-        throw A2uiValidationException(
-          'Missing required property: $key',
-          surfaceId: surfaceId,
-          path: path,
-        );
-      }
-    }
-  }
-  if (schema case {
-    'properties': Map<String, Object?> props,
-  } when instance is Map) {
-    for (final MapEntry<String, Object?> entry in props.entries) {
-      final String key = entry.key;
-      final propSchema = entry.value as Map<String, Object?>;
-      if (instance.containsKey(key)) {
-        _validateInstance(instance[key], propSchema, '$path/$key', surfaceId);
-      }
-    }
-  }
-  if (schema case {
-    'items': Map<String, Object?> itemsSchema,
-  } when instance is List) {
-    for (var i = 0; i < instance.length; i++) {
-      _validateInstance(instance[i], itemsSchema, '$path/$i', surfaceId);
-    }
-  }
-  if (schema case {'oneOf': List<Object?> oneOfs}) {
-    var oneMatched = false;
-    for (final Map<String, Object?> s in oneOfs.cast<Map<String, Object?>>()) {
-      try {
-        _validateInstance(instance, s, path, surfaceId);
-        oneMatched = true;
-        break;
-      } catch (_) {}
-    }
-    if (!oneMatched) {
-      throw A2uiValidationException(
-        'Value did not match any oneOf schema',
-        surfaceId: surfaceId,
-        path: path,
-      );
-    }
-  }
 }
