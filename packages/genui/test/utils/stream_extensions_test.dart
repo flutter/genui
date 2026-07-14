@@ -104,7 +104,9 @@ void main() {
       });
 
       final emitted = <String>[];
-      final subscription = resultStream.listen(emitted.add);
+      final StreamSubscription<String> subscription = resultStream.listen(
+        emitted.add,
+      );
 
       controller.add(1);
       await Future<void>.value();
