@@ -260,7 +260,9 @@ interface class Catalog {
               'type': 'object',
               'properties': {
                 'component': {'const': item.name},
-                ...item.dataSchema.value['properties'] as Map<String, dynamic>,
+                ...((item.dataSchema.value['properties']
+                        as Map<String, dynamic>?) ??
+                    const <String, dynamic>{}),
               },
               'required': {
                 'component',

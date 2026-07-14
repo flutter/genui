@@ -58,12 +58,13 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   late final surface_reg.SurfaceRegistry _registry =
       surface_reg.SurfaceRegistry();
   final Map<String, DataModel> _liveDataModels = {};
+  static final Schema _commonTypesSchema = Schema.fromMap(
+    jsonDecode(commonTypesSchemaJson) as Map<String, Object?>,
+  );
+
   SchemaRegistry _createSchemaRegistry(Catalog catalog) {
     final registry = SchemaRegistry();
-    registry.addSchema(
-      Uri.parse(commonTypesSchemaId),
-      Schema.fromMap(jsonDecode(commonTypesSchemaJson) as Map<String, Object?>),
-    );
+    registry.addSchema(Uri.parse(commonTypesSchemaId), _commonTypesSchema);
     registry.addSchema(
       Uri.parse('https://a2ui.org/specification/v0_9/catalog.json'),
       catalog.fullSchema,

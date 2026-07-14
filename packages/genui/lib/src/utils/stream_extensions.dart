@@ -62,6 +62,14 @@ extension SwitchMapExtension<T> on Stream<T> {
           },
         );
       },
+      onPause: () {
+        outerSubscription?.pause();
+        innerSubscription?.pause();
+      },
+      onResume: () {
+        outerSubscription?.resume();
+        innerSubscription?.resume();
+      },
       onCancel: () {
         cancelInner();
         outerSubscription?.cancel();

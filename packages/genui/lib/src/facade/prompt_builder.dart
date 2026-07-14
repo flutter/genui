@@ -424,9 +424,13 @@ final class _BasicPromptBuilder extends PromptBuilder {
         },
     };
 
+    final defs = Map<String, dynamic>.from(
+      catalogJson[r'$defs'] as Map<String, dynamic>,
+    );
+    catalogJson[r'$defs'] = defs;
+
     if (functions.isNotEmpty) {
       catalogJson['functions'] = functions;
-      final defs = catalogJson[r'$defs'] as Map<String, dynamic>;
       defs['anyFunction'] = {
         'oneOf': [
           for (final name in functions.keys) {r'$ref': '#/functions/$name'},
@@ -434,7 +438,6 @@ final class _BasicPromptBuilder extends PromptBuilder {
       };
     } else {
       catalogJson.remove('functions');
-      final defs = catalogJson[r'$defs'] as Map<String, dynamic>;
       defs['anyFunction'] = {'not': <String, dynamic>{}};
     }
 

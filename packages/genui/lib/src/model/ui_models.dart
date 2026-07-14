@@ -168,16 +168,15 @@ class SurfaceDefinition {
     return 'A user interface is shown with the following content:\n$text.';
   }
 
+  static final Schema _commonTypesSchema = Schema.fromMap(
+    jsonDecode(commonTypesSchemaJson) as Map<String, Object?>,
+  );
+
   /// Validates the UI definition against a schema.
   Future<void> validate(Schema schema, {SchemaRegistry? registry}) async {
     final SchemaRegistry reg = registry ?? SchemaRegistry();
     if (registry == null) {
-      reg.addSchema(
-        Uri.parse(commonTypesSchemaId),
-        Schema.fromMap(
-          jsonDecode(commonTypesSchemaJson) as Map<String, Object?>,
-        ),
-      );
+      reg.addSchema(Uri.parse(commonTypesSchemaId), _commonTypesSchema);
     }
     await schema_validation.validateComponents(
       surfaceId: surfaceId,
