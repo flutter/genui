@@ -94,5 +94,40 @@ void main() {
         await completer.future;
       },
     );
+
+    test('pause and resume are propagated to subscriptions', () async {
+      final controller = StreamController<int>();
+      final innerController = StreamController<String>();
+
+      final Stream<String> resultStream = controller.stream.switchMap((val) {
+        return innerController.stream;
+      });
+
+      final emitted = <String>[];
+      final subscription = resultStream.listen(emitted.add);
+
+      controller.add(1);
+      await Future<void>.value();
+
+      expect(controller.isPaused, isFalse);
+      expect(innerController.isPaused, isFalse);
+
+      subscription.pause();
+      // Allow event loop to process pause commands
+      await Future<void>.value();
+
+      expect(controller.isPaused, isTrue);
+      expect(innerController.isPaused, isTrue);
+
+      subscription.resume();
+      await Future<void>.value();
+
+      expect(controller.isPaused, isFalse);
+      expect(innerController.isPaused, isFalse);
+
+      await subscription.cancel();
+      await controller.close();
+      await innerController.close();
+    });
   });
 }
