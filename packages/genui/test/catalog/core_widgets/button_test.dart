@@ -9,10 +9,26 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
 import 'package:json_schema_builder/json_schema_builder.dart';
+import 'package:logging/logging.dart';
 
 import '../../test_infra/message_builders.dart';
 
 void main() {
+  setUpAll(() {
+    Logger.root.level = Level.ALL;
+    Logger.root.onRecord.listen((record) {
+      debugPrint(
+        '[${record.level.name}] ${record.loggerName}: ${record.message}',
+      );
+      if (record.error != null) {
+        debugPrint('Error: ${record.error}');
+      }
+      if (record.stackTrace != null) {
+        debugPrint('StackTrace:\n${record.stackTrace}');
+      }
+    });
+  });
+
   testWidgets('Button widget renders and handles taps', (
     WidgetTester tester,
   ) async {
@@ -140,8 +156,12 @@ void main() {
     });
     await tester.pump();
 
-    // Verify error was reported
+    // Verify the error was caught and reported
     expect(message, isNotNull);
+    expect(
+      message!.parts.first.asUiInteractionPart!.interaction,
+      contains('throwError'),
+    );
     surfaceController.dispose();
   });
 

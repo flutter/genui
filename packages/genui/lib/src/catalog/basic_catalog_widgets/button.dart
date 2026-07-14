@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
+import '../../model/a2ui_exceptions.dart';
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../model/data_model.dart';
@@ -234,9 +235,40 @@ Future<void> _handlePress(
     );
     final iterator = StreamIterator<Object?>(resultStream);
     try {
-      await iterator.moveNext();
+      await iterator.moveNext().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => throw TimeoutException(
+          'Function execution for $callName timed out',
+        ),
+      );
     } catch (exception, stackTrace) {
-      itemContext.reportError(exception, stackTrace);
+      genUiLogger.severe(
+        'Error executing function call "$callName" on button press',
+        exception,
+        stackTrace,
+      );
+
+      if (exception is A2uiFunctionException) {
+        itemContext.reportError(exception, stackTrace);
+      } else if (exception is TimeoutException) {
+        itemContext.reportError(
+          A2uiFunctionException(
+            'Function execution timed out.',
+            functionName: callName,
+            cause: exception,
+          ),
+          stackTrace,
+        );
+      } else {
+        itemContext.reportError(
+          A2uiFunctionException(
+            'Function execution failed. Please check arguments and try again.',
+            functionName: callName,
+            cause: exception,
+          ),
+          stackTrace,
+        );
+      }
     } finally {
       await iterator.cancel();
     }
