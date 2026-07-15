@@ -17,13 +17,14 @@ on:
 jobs:
   publish:
     if: ${{ github.repository_owner == 'flutter' }}
-    uses: dart-lang/ecosystem/.github/workflows/publish.yaml@main
+    # Ignored because dart-lang ecosystem reusable workflows are designed to run from @main.
+    uses: dart-lang/ecosystem/.github/workflows/publish.yaml@main # zizmor: ignore[unpinned-uses]
     with:
       # See https://github.com/dart-lang/ecosystem/tree/main/pkgs/firehose#options
       sdk: beta # version of dart sdk to use for publishing
       use-flutter: true
       write-comments: false
-      checkout_submodules: false
+      checkout_submodules: true
     permissions:
       id-token: write
       pull-requests: write

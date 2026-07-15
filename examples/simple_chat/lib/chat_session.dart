@@ -206,9 +206,8 @@ class A2uiChatSession extends ChatSession {
     );
     _surfaceSub = _surfaceController.surfaceUpdates.listen(_onSurfaceUpdate);
 
-    _transport.addSystemMessage(
-      _promptBuilderFor(_catalog).systemPromptJoined(),
-    );
+    final PromptBuilder pb = _promptBuilderFor(_catalog);
+    _transport.addSystemMessage(pb.systemPromptJoined());
   }
 
   void _onSurfaceUpdate(SurfaceUpdate update) {

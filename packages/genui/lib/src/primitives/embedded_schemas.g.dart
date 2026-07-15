@@ -1,130 +1,15 @@
-You are a helpful assistant who chats with a user.
+// Copyright 2025 The Flutter Authors.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
--------------------------------------
+// GENERATED FILE. DO NOT EDIT MANUALLY.
+// To regenerate, run: dart run build_runner build
 
-Your responses should contain acknowledgment of the user message.
-
--------------------------------------
-
-IMPORTANT: When you are asking for information from the user, you should always include
-at least one submit button of some kind or another submitting element so that
-the user can indicate that they are done providing information.
-
--------------------------------------
-
-Use the provided tools to respond to user using rich UI elements.
-
--------------------------------------
-
-The active catalog ID is: "test_catalog". You must use this catalog ID when creating surfaces.
-
--------------------------------------
-
-IMPORTANT: You do not have the ability to execute code. If you need to perform calculations, do them yourself.
-
--------------------------------------
-
-IMPORTANT: You do not have the ability to use tools for UI generation.
-
--------------------------------------
-
-IMPORTANT: You do not have the ability to use function calls for UI generation.
-
--------------------------------------
-
-**REQUIRED PROPERTIES:** You MUST include ALL required properties for every component, even if they are inside a template or will be bound to data.
-- For 'Text', you MUST provide 'text'. If dynamic, use { "path": "..." }.
-- For 'Image', you MUST provide 'url'. If dynamic, use { "path": "..." }.
-- For 'Button', you MUST provide 'action'.
-- For 'TextField', 'CheckBox', etc., you MUST provide 'label'.
-
-**EXAMPLES:**
-
-1. Create a surface:
-```json
-{
-  "version": "v0.9",
-  "createSurface": {
-    "surfaceId": "main",
-    "catalogId": "https://a2ui.org/specification/v0_9/basic_catalog.json",
-    "sendDataModel": true
-  }
-}
-```
-
-2. Update components:
-```json
-{
-  "version": "v0.9",
-  "updateComponents": {
-    "surfaceId": "main",
-    "components": [
-      {
-        // The root component MUST have id "root"
-        "id": "root",
-        "component": "Column",
-        "justify": "start",
-        "children": [
-          "headerText",
-          "content"
-        ]
-      }
-    ]
-  }
-}
-```
-
-**IMPORTANT:**
-- One of the components sent in one of the `updateComponents` MUST have id "root", or nothing will be displayed.
-- Do NOT nest `components` inside `createSurface`. Use `updateComponents` to add components to a surface.
-- `createSurface` ONLY sets up the surface (ID and catalog). It does NOT take content.
-- To show a UI, you typically send a `createSurface` message (if the surface doesn't exist), followed by an `updateComponents` message.
-
--------------------------------------
-
-Your responses should contain acknowledgment of the user message.
-
--------------------------------------
-
-IMPORTANT: When you are asking for information from the user, you should always include
-at least one submit button of some kind or another submitting element so that
-the user can indicate that they are done providing information.
-
--------------------------------------
-
------CONTROLLING_THE_UI_START-----
-You can control the UI by outputting valid A2UI JSON messages wrapped in markdown code blocks.
-
-Supported messages are: `updateComponents`, `updateDataModel`.
-
-- `updateComponents`: Updates components in a surface.
-- `updateDataModel`: Updates the data model.
-
-Properties:
-
-- `updateComponents`: Requires `surfaceId` and a list of `components`.
-One component MUST have `id: "root"`.
-- `updateDataModel`: Requires `surfaceId`, `path` and `value`.
-
-To update an existing UI:
-1. Output an `updateComponents` message with the existing `surfaceId` and the new component definitions.
------CONTROLLING_THE_UI_END-----
-
--------------------------------------
-
------OUTPUT_FORMAT_START-----
-When constructing UI, you must output a VALID A2UI JSON object representing one of the A2UI message types (`updateComponents`, `updateDataModel`).
-- You can treat the A2UI schema as a specification for the JSON you typically output.
-- The JSON block must be valid and complete.
-- Ensure your JSON is fenced with ```json and ```.
------OUTPUT_FORMAT_END-----
-
--------------------------------------
-
------COMMON_TYPES_START-----
+/// Embedded schema contents of 'common_types.json'.
+const String commonTypesSchemaJson = r'''
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "common_types.json",
+  "$id": "https://a2ui.org/specification/v0_9/common_types.json",
   "title": "A2UI Common Types",
   "description": "Common type definitions used across A2UI schemas.",
   "$defs": {
@@ -427,116 +312,10 @@ When constructing UI, you must output a VALID A2UI JSON object representing one 
     }
   }
 }
------COMMON_TYPES_END-----
+''';
 
--------------------------------------
-
------CATALOG_SCHEMA_START-----
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://a2ui.org/specification/v0_9/catalog.json",
-  "title": "A2UI Catalog",
-  "description": "Custom catalog of A2UI components and functions.",
-  "catalogId": "test_catalog",
-  "components": {
-    "Text": {
-      "type": "object",
-      "allOf": [
-        {
-          "$ref": "common_types.json#/$defs/ComponentCommon"
-        },
-        {
-          "$ref": "#/$defs/CatalogComponentCommon"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "component": {
-              "type": "string",
-              "enum": [
-                "Text"
-              ]
-            },
-            "text": {
-              "description": "While simple Markdown is supported (without HTML or image references), utilizing dedicated UI components is generally preferred for a richer and more structured presentation.",
-              "$ref": "common_types.json#/$defs/DynamicString"
-            },
-            "variant": {
-              "type": "string",
-              "description": "A hint for the base text style.",
-              "enum": [
-                "h1",
-                "h2",
-                "h3",
-                "h4",
-                "h5",
-                "caption",
-                "body"
-              ]
-            }
-          },
-          "required": [
-            "component",
-            "text"
-          ]
-        }
-      ],
-      "unevaluatedProperties": false
-    }
-  },
-  "$defs": {
-    "CatalogComponentCommon": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "A unique identifier for this component instance within the surface. This ID is used to refer to the component in layout children arrays or event handlers."
-        }
-      },
-      "required": [
-        "id"
-      ]
-    },
-    "theme": {
-      "type": "object",
-      "properties": {
-        "primaryColor": {
-          "type": "string",
-          "description": "The primary brand color used for highlights (e.g., primary buttons, active borders). Renderers may generate variants of this color for different contexts. Format: Hexadecimal code (e.g., '#00BFFF').",
-          "pattern": "^#[0-9a-fA-F]{6}$"
-        },
-        "iconUrl": {
-          "type": "string",
-          "format": "uri",
-          "description": "A URL for an image that identifies the agent or tool associated with the surface."
-        },
-        "agentDisplayName": {
-          "type": "string",
-          "description": "Text to be displayed next to the surface to identify the agent or tool that created it."
-        }
-      },
-      "additionalProperties": true
-    },
-    "anyComponent": {
-      "oneOf": [
-        {
-          "$ref": "#/components/Text"
-        }
-      ],
-      "discriminator": {
-        "propertyName": "component"
-      }
-    },
-    "anyFunction": {
-      "not": {}
-    }
-  }
-}
------CATALOG_SCHEMA_END-----
-
--------------------------------------
-
------MESSAGE_SCHEMA_START-----
+/// Embedded schema contents of 'server_to_client.json'.
+const String serverToClientSchemaJson = r'''
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://a2ui.org/specification/v0_9/server_to_client.json",
@@ -669,4 +448,4 @@ When constructing UI, you must output a VALID A2UI JSON object representing one 
     }
   }
 }
------MESSAGE_SCHEMA_END-----
+''';

@@ -65,7 +65,7 @@ void main() {
   });
 
   group('SurfaceDefinition', () {
-    test('validate throws exception on mismatch', () {
+    test('validate throws exception on mismatch', () async {
       final component = const Component(
         id: 'test',
         type: 'Text',
@@ -87,13 +87,13 @@ void main() {
         },
       );
 
-      expect(
-        () => surfaceDefinition.validate(schema),
+      await expectLater(
+        surfaceDefinition.validate(schema),
         throwsA(isA<A2uiValidationException>()),
       );
     });
 
-    test('validate passes on correct match', () {
+    test('validate passes on correct match', () async {
       final component = const Component(
         id: 'test',
         type: 'Text',
@@ -117,7 +117,7 @@ void main() {
         },
       );
 
-      surfaceDefinition.validate(schema); // Should not throw
+      await surfaceDefinition.validate(schema); // Should not throw
     });
   });
 

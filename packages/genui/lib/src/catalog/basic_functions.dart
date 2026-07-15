@@ -7,6 +7,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../functions/format_string.dart';
+import '../model/a2ui_schemas.dart';
 import '../model/client_function.dart';
 import '../primitives/simple_items.dart';
 
@@ -181,8 +182,9 @@ class RegexFunction extends SynchronousClientFunction {
   ClientFunctionReturnType get returnType => ClientFunctionReturnType.boolean;
 
   @override
-  Schema get argumentSchema =>
-      S.object(properties: {'value': S.string(), 'pattern': S.string()});
+  Schema get argumentSchema => S.object(
+    properties: {'value': A2uiSchemas.stringReference(), 'pattern': S.string()},
+  );
 
   @override
   Object? executeSync(JsonMap args, ExecutionContext _) {
@@ -262,7 +264,11 @@ class NumericFunction extends SynchronousClientFunction {
 
   @override
   Schema get argumentSchema => S.object(
-    properties: {'value': S.number(), 'min': S.number(), 'max': S.number()},
+    properties: {
+      'value': A2uiSchemas.numberReference(),
+      'min': S.number(),
+      'max': S.number(),
+    },
   );
 
   @override
@@ -296,7 +302,8 @@ class EmailFunction extends SynchronousClientFunction {
   ClientFunctionReturnType get returnType => ClientFunctionReturnType.boolean;
 
   @override
-  Schema get argumentSchema => S.object(properties: {'value': S.string()});
+  Schema get argumentSchema =>
+      S.object(properties: {'value': A2uiSchemas.stringReference()});
 
   @override
   Object? executeSync(JsonMap args, ExecutionContext _) {
@@ -323,7 +330,8 @@ class OpenUrlFunction extends SynchronousClientFunction {
   ClientFunctionReturnType get returnType => ClientFunctionReturnType.empty;
 
   @override
-  Schema get argumentSchema => S.object(properties: {'url': S.string()});
+  Schema get argumentSchema =>
+      S.object(properties: {'url': A2uiSchemas.stringReference()});
 
   @override
   Object? executeSync(JsonMap args, ExecutionContext _) {
@@ -357,7 +365,7 @@ class FormatNumberFunction extends SynchronousClientFunction {
   @override
   Schema get argumentSchema => S.object(
     properties: {
-      'value': S.number(),
+      'value': A2uiSchemas.numberReference(),
       'decimalPlaces': S.integer(),
       'useGrouping': S.boolean(),
     },
@@ -405,8 +413,12 @@ class FormatCurrencyFunction extends SynchronousClientFunction {
   ClientFunctionReturnType get returnType => ClientFunctionReturnType.string;
 
   @override
-  Schema get argumentSchema =>
-      S.object(properties: {'value': S.number(), 'currencyCode': S.string()});
+  Schema get argumentSchema => S.object(
+    properties: {
+      'value': A2uiSchemas.numberReference(),
+      'currencyCode': S.string(),
+    },
+  );
 
   @override
   Object? executeSync(JsonMap args, ExecutionContext _) {
@@ -484,7 +496,7 @@ class PluralizeFunction extends SynchronousClientFunction {
   @override
   Schema get argumentSchema => S.object(
     properties: {
-      'value': S.number(),
+      'value': A2uiSchemas.numberReference(),
       'zero': S.string(),
       'one': S.string(),
       'two': S.string(),

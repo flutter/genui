@@ -22,7 +22,8 @@ on:
   schedule:
     - cron: "0 15 * * *" # daily at 15:00 UTC
   # React promptly to the events that can change a PR's flag state.
-  pull_request_target:
+  # Ignored since pull_request_target is used safely here (checks out main branch to run triage script).
+  pull_request_target: # zizmor: ignore[dangerous-triggers]
     types: [opened, edited, reopened, ready_for_review, synchronize]
   issue_comment:
     types: [created]

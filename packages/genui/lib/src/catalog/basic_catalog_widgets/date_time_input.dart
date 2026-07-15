@@ -340,9 +340,7 @@ final dateTimeInput = CatalogItem(
         {
           "id": "root",
           "component": "DateTimeInput",
-          "value": {
-            "path": "/myDateTime"
-          }
+          "value": "2026-05-15"
         }
       ]
     ''',
@@ -354,7 +352,7 @@ final dateTimeInput = CatalogItem(
           "value": {
             "path": "/myDate"
           },
-          "enableTime": false
+          "variant": "date"
         }
       ]
     ''',
@@ -366,7 +364,7 @@ final dateTimeInput = CatalogItem(
           "value": {
             "path": "/myTime"
           },
-          "enableDate": false
+          "variant": "time"
         }
       ]
     ''',

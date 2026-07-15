@@ -82,7 +82,7 @@ based on a widget catalog from the developers' project.
 
 ## Connecting to an AI agent
 
-The `genui` framework is designed to be backend agnostic. You can use any AI SDK (such as `google_generative_ai`, `dartantic_ai`, or `firebase_vertexai`) to generate content. The framework provides adapters (like `A2uiTransportAdapter`) to ingest the AI response and render it.
+The `genui` framework is designed to be backend agnostic. You can use any AI SDK (such as `firebase_ai` or `dartantic_ai`) to generate content. The framework provides adapters (like `A2uiTransportAdapter`) to ingest the AI response and render it.
 
 For custom agent servers that implement the A2UI protocol, you can use the `genui_a2a` package.
 

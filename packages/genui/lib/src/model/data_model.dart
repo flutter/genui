@@ -6,7 +6,6 @@ import 'dart:async';
 
 import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:flutter/foundation.dart';
-import 'package:stream_transform/stream_transform.dart';
 
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
