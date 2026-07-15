@@ -14,7 +14,8 @@ on:
     types: [opened, synchronize, reopened, labeled, unlabeled]
 jobs:
   health:
-    uses: dart-lang/ecosystem/.github/workflows/health.yaml@main
+    # Ignored because dart-lang ecosystem reusable workflows are designed to run from @main.
+    uses: dart-lang/ecosystem/.github/workflows/health.yaml@main # zizmor: ignore[unpinned-uses]
     with:
       checks: "changelog"
     permissions:

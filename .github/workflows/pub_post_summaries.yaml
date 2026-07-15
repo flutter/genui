@@ -7,7 +7,8 @@
 name: Comment on the pull request
 
 on:
-  workflow_run:
+  # Ignored because workflow_run is used securely to post comments without giving PR workflows write permissions.
+  workflow_run: # zizmor: ignore[dangerous-triggers]
     workflows: 
       - Publish
     types:
@@ -15,6 +16,7 @@ on:
 
 jobs:
   upload:
-    uses: dart-lang/ecosystem/.github/workflows/post_summaries.yaml@main
+    # Ignored because dart-lang ecosystem reusable workflows are designed to run from @main.
+    uses: dart-lang/ecosystem/.github/workflows/post_summaries.yaml@main # zizmor: ignore[unpinned-uses]
     permissions:
       pull-requests: write
