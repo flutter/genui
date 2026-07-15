@@ -87,6 +87,10 @@ class _NodeSurfaceState extends State<NodeSurface> {
   }
 
   void _attach() {
+    genUiLogger.info(
+      'NodeSurface attached to surface ${widget.surface.id}; rendering '
+      'through the node layer',
+    );
     _dataModel = InMemoryDataModel.wrap(widget.surface.dataModel);
     _resolver = core.NodeResolver<core.ComponentApi>(
       widget.surface,

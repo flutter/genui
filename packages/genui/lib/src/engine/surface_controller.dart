@@ -106,6 +106,13 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   /// The registry of surfaces managed by this controller.
   surface_reg.SurfaceRegistry get registry => _registry;
 
+  /// The live core surface model for [surfaceId], or null if the surface
+  /// does not exist. Experimental: exists to construct a `NodeSurface`,
+  /// which renders from the live model instead of [SurfaceContext.definition]
+  /// snapshots.
+  core.SurfaceModel<core.ComponentApi>? liveSurfaceFor(String surfaceId) =>
+      _registry.getLiveSurface(surfaceId);
+
   DataModel _dataModelFor(String surfaceId) {
     final DataModel? live = _liveDataModels[surfaceId];
     if (live != null) return live;

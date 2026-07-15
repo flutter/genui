@@ -2,9 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:genui/genui.dart';
+
+/// Renders surfaces through the experimental node layer (`NodeSurface`)
+/// instead of `Surface`. Enable with `--dart-define=nodes=true`.
+const bool _useNodeLayer = bool.fromEnvironment('nodes');
 
 class Message {
   Message({this.text, this.surfaceId, this.isUser = false})
@@ -40,6 +45,47 @@ class MessageView extends StatelessWidget {
       host != null,
       'A SurfaceHost is required to render surface $surfaceId',
     );
-    return Surface(surfaceContext: host!.contextFor(surfaceId));
+    final SurfaceHost surfaceHost = host!;
+    if (_useNodeLayer && surfaceHost is SurfaceController) {
+      return _NodeLayerMessageSurface(
+        controller: surfaceHost,
+        surfaceId: surfaceId,
+      );
+    }
+    return Surface(surfaceContext: surfaceHost.contextFor(surfaceId));
+  }
+}
+
+/// Renders a surface through [NodeSurface] once its core model exists,
+/// watching the definition snapshot only to learn about creation.
+class _NodeLayerMessageSurface extends StatelessWidget {
+  const _NodeLayerMessageSurface({
+    required this.controller,
+    required this.surfaceId,
+  });
+
+  final SurfaceController controller;
+  final String surfaceId;
+
+  @override
+  Widget build(BuildContext context) {
+    final SurfaceContext surfaceContext = controller.contextFor(surfaceId);
+    return ValueListenableBuilder<SurfaceDefinition?>(
+      valueListenable: surfaceContext.definition,
+      builder: (context, definition, _) {
+        final core.SurfaceModel<core.ComponentApi>? surface = controller
+            .liveSurfaceFor(surfaceId);
+        final Catalog? catalog = surfaceContext.catalog;
+        if (definition == null || surface == null || catalog == null) {
+          return const SizedBox.shrink();
+        }
+        return NodeSurface(
+          surface: surface,
+          catalog: catalog,
+          onEvent: surfaceContext.handleUiEvent,
+          reportError: surfaceContext.reportError,
+        );
+      },
+    );
   }
 }
