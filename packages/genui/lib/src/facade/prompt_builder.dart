@@ -477,14 +477,24 @@ final class _BasicPromptBuilder extends PromptBuilder {
       '  ',
     ).convert(manifest.toJson());
     final String toolName = CatalogContext.loadCatalogItemsTool.name;
+    final String exampleItemNames = manifest.items
+        .take(2)
+        .map((item) => jsonEncode(item.name))
+        .join(', ');
+    final loadItemsInputExample = '{"items": [$exampleItemNames]}';
 
     return _fenced('''
 The active A2UI catalog is available as a compact manifest below. It lists the
 available components and a short description of each, but NOT their full schemas.
 
-Before emitting any A2UI, call the $toolName tool (input shape
-{"items": ["Card", "Text"]}) to load the exact schema and examples for the
-components you need.
+Every A2UI message must be a top-level JSON object with exactly two keys:
+- "version": "v0.9"
+- One supported message name whose value is the message payload.
+Keep all operation properties inside the message payload, not at the top level.
+
+Before emitting any A2UI, call the $toolName tool (for example,
+$loadItemsInputExample) to load the exact schema and examples for the components
+you need.
 
 In updateComponents.components, each component is an object with:
 - id: a unique component id. Use "root" for the root component.

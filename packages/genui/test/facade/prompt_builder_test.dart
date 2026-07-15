@@ -86,15 +86,30 @@ void main() {
       expect(prompt, isNot(contains('A2UI_JSON_SCHEMA')));
     });
 
-    test(
-      'instructs the model to call loadCatalogItems with canonical input',
-      () {
-        final String prompt = incrementalPromptFor(testCatalog);
+    test('describes the required A2UI message envelope', () {
+      final catalogWithoutPromptFragments = Catalog([
+        BasicCatalogItems.text,
+      ], catalogId: 'minimal_catalog');
+      final String prompt = PromptBuilder.chat(
+        catalog: catalogWithoutPromptFragments,
+        catalogPromptMode: CatalogPromptMode.incremental,
+      ).systemPromptJoined();
 
-        expect(prompt, contains('loadCatalogItems'));
-        expect(prompt, contains('{"items": ["Card", "Text"]}'));
-      },
-    );
+      expect(prompt, contains('top-level JSON object'));
+      expect(prompt, contains('"version": "v0.9"'));
+      expect(prompt, contains('message payload'));
+    });
+
+    test('uses active manifest names in the loadCatalogItems example', () {
+      final textOnlyCatalog = Catalog([
+        BasicCatalogItems.text,
+      ], catalogId: 'text_only_catalog');
+      final String prompt = incrementalPromptFor(textOnlyCatalog);
+
+      expect(prompt, contains('loadCatalogItems'));
+      expect(prompt, contains('{"items": ["Text"]}'));
+      expect(prompt, isNot(contains('{"items": ["Card", "Text"]}')));
+    });
 
     test('describes the component envelope (id and component)', () {
       final String prompt = incrementalPromptFor(testCatalog);

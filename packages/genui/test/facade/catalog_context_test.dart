@@ -176,6 +176,11 @@ void main() {
 
       expect(tool.name, 'loadCatalogItems');
       expect(tool.description, isNotEmpty);
+      expect(
+        tool.description,
+        contains('exact item names from the catalog manifest'),
+      );
+      expect(tool.description, isNot(contains('"Card"')));
 
       final Map<String, Object?> schema = tool.inputSchema.value;
       expect(schema['type'], 'object');

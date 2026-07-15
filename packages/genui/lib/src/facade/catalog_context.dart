@@ -131,9 +131,10 @@ abstract final class CatalogContext {
         name: 'loadCatalogItems',
         description:
             'Loads the A2UI schemas and examples for the named catalog items. '
-            'Pass all the components you need for this turn in one call '
-            '(e.g. {"items": ["Card", "Text"]}); returns each component\'s '
-            'schema and examples so you can emit valid updateComponents.',
+            'Pass all the components you need for this turn in one call, using '
+            'exact item names from the catalog manifest. Returns each '
+            'component\'s schema and examples so you can emit valid '
+            'updateComponents.',
         inputSchema: S.object(
           properties: {
             'items': S.list(
