@@ -1,6 +1,6 @@
 # `json_schema_builder` Change Log
 
-## 0.1.6 (in progress)
+## 0.1.6
 
 - **Feature**: Export `SchemaRegistry` to support managing schema references during component validation.
 
