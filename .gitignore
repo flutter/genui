@@ -86,3 +86,6 @@ app.*.map.json
 .vscode/settings.json
 
 **/devtools_options.yaml
+
+# Generated video output from generate_video_test.
+*.mp4

@@ -1,0 +1,98 @@
+glossary:
+   - term: scene
+     description: action, continuous in time and space
+
+   - term: shot
+     description: >
+        part of action, showed continuously from a single perspective
+        (perspective can move with the camera)
+
+   - term: key frame
+     description: >
+        if the composition changes throughout the shot because characters move (blocking) or
+        camera moves (staging) or both, then key frames 
+        show key events or compositions of the shot
+
+scene: >
+   A girl sits on a sofa, knitting.
+   A ball of yarn rests in a basket on the floor beside her.
+   She is relaxed.
+
+   A kitten sits nearby, watching her with curious eyes.
+   It spots the yarn and decides to play.
+   It jumps into the basket and bats the yarn around.
+   The kitten chases it across the room, knocking over
+   furniture and making a mess.
+   The girl watches, scared and shocked. She drops her knitting and covers her face with her hands.
+   Then she hears a soft 'Mew!' and opens her eyes.
+   Her frightened face melts into a big smile.
+   She finds the tangled yarn on the floor shaped like a heart.
+   She smiles and pets the kitten.
+
+shots:
+  - description: >
+      A girl is sitting on a sofa, knitting. A ball of yarn
+      rests in a basket on the floor beside her.
+      A kitten sits nearby, watching her with curious eyes.
+    keyframes:
+      - description: A girl is sitting on a sofa, knitting.
+        duration: 1s
+      - description: A ball of yarn rests in a basket on the floor beside her. It unwinds slowly.
+        duration: 2s
+      - description: A kitten sits nearby, watching her with curious eyes.
+        duration: 1s
+
+  - description: >
+      The kitten spots the yarn, decides to play, jumps into
+      the basket, and bats the yarn around. The kitten chases the yarn across the room, knocking over
+      furniture and making a mess.
+    keyframes:
+      - description: The kitten spots the yarn and decides to play.
+        duration: 1s
+      - description: The kitten jumps into the basket.
+        duration: 1s
+      - description: The kitten bats the yarn around, the ball starting to unwind.
+        duration: 2s
+      - description: The kitten darts out of the basket, chasing the loose yarn.
+        duration: 1s
+      - description: It races across the room, knocking over furniture.
+        duration: 2s
+      - description: The room is a mess, yarn trailing everywhere.
+        duration: 1s
+
+  - description: >
+      The girl watches, scared and shocked. She drops her
+      knitting and covers her face with her hands. The girl hears a soft 'Mew!', opens her eyes.
+      Her frightened face melts into a big smile.
+    keyframes:
+      - description: The girl watches, scared and shocked.
+        duration: 1s
+      - description: She drops her knitting.
+        duration: 1s
+      - description: She covers her face with her hands.
+        duration: 1s
+      - description: She hears a soft 'Mew!' and opens her eyes.
+        duration: 1s
+      - description: Her frightened face melts into a big smile.
+        duration: 1s
+
+  - description: >
+      The tangled yarn on the floor is shaped like a heart.
+    keyframes:
+      - description: A close up of the tangled yarn on the floor shaped like a heart.
+        duration: 2s
+
+  - description: >
+      The girl smiles and pets the kitten.
+    keyframes:
+      - description: The girl steps to the kitten.
+        duration: 1s
+      - description: She smiles and pets the kitten.
+        duration: 2s
+
+  - description: >
+      The girl and kitten untangle the yarn.
+    keyframes:
+      - description: > 
+          A final wide shot of the girl sitting on the floor, untangling the yarn and kitten sleeping near here.
+        duration: 3s
