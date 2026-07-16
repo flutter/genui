@@ -68,7 +68,17 @@ The packages code should be always release ready. That means:
    - check if the PR follows [firehose rules](https://github.com/dart-lang/ecosystem/tree/main/pkgs/firehose).
    - add a table [like this](https://github.com/flutter/genui/pull/941#issuecomment-4556675732) to each PR.
 
-2. **Manual**: After reviewing and merging the PR, for each 'ready to publish' version the author of the PR should run `flutter pub publish` or `dart pub publish`.
+2. **Manual**: After reviewing and merging the versioning PR, the releaser should:
+   1. Ensure you are working from a clean repository on the `main` branch and that git submodules are up to date:
+      ```bash
+      git submodule update --init --recursive
+      ```
+   2. **For each package** that needs to be published:
+      1. Ensure that the `CHANGELOG.md` and `pubspec.yaml` versions agree.
+      2. Run `flutter pub get`.
+      3. Run `flutter test`.
+      4. When everything passes, run `flutter pub publish` and check its output to ensure the package was published successfully without warnings or errors.
+      5. Check [pub.dev](https://pub.dev/) to ensure the package was actually published.
 
 TODO(polina-c): add validation that all PRs include CHANGELOG.md entries: https://github.com/flutter/genui/issues/967.
 
