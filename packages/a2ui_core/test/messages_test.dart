@@ -105,6 +105,46 @@ void main() {
       );
     });
 
+    test('throws when version field is missing', () {
+      expect(
+        () => A2uiMessage.fromJson({
+          'createSurface': {'surfaceId': 's1', 'catalogId': 'c1'},
+        }),
+        throwsA(isA<A2uiValidationError>()),
+      );
+    });
+
+    test('throws when version is not v0.9', () {
+      expect(
+        () => A2uiMessage.fromJson({
+          'version': 'v0.8',
+          'createSurface': {'surfaceId': 's1', 'catalogId': 'c1'},
+        }),
+        throwsA(isA<A2uiValidationError>()),
+      );
+    });
+
+    test('throws when version is not a string', () {
+      expect(
+        () => A2uiMessage.fromJson({
+          'version': 123,
+          'createSurface': {'surfaceId': 's1', 'catalogId': 'c1'},
+        }),
+        throwsA(isA<A2uiValidationError>()),
+      );
+    });
+
+    test('throws when more than one message type is present', () {
+      expect(
+        () => A2uiMessage.fromJson({
+          'version': 'v0.9',
+          'createSurface': {'surfaceId': 's1', 'catalogId': 'c1'},
+          'updateComponents': {'surfaceId': 's1', 'components': <Object?>[]},
+        }),
+        throwsA(isA<A2uiValidationError>()),
+      );
+    });
+
     test('roundtrips through toJson/fromJson', () {
       final original = CreateSurfaceMessage(
         surfaceId: 's1',

@@ -4,12 +4,15 @@
 
 import 'package:json_schema_builder/json_schema_builder.dart';
 
+import '../primitives/constants.dart';
 import '../primitives/simple_items.dart';
 import 'catalog.dart';
 
 /// Provides a set of pre-defined, reusable schema objects for common
 /// A2UI patterns, simplifying the creation of CatalogItem definitions.
 abstract final class A2uiSchemas {
+  static String get _commonTypesUri => commonTypesSchemaId;
+
   /// Defines the usage of the function registry.
   static Schema clientFunctions() {
     return S.list(
@@ -280,17 +283,9 @@ abstract final class A2uiSchemas {
 
   /// Schema for a validation check, including logic and an error message.
   static Schema validationCheck({String? description}) {
-    return S.object(
+    return S.combined(
+      $ref: '$_commonTypesUri#/\$defs/CheckRule',
       description: description,
-      properties: {
-        'message': S.string(description: 'Error message if validation fails.'),
-        'condition': S.any(
-          description:
-              'DynamicBoolean condition (FunctionCall, DataBinding, or '
-              'literal).',
-        ),
-      },
-      required: ['message', 'condition'],
     );
   }
 
@@ -300,16 +295,22 @@ abstract final class A2uiSchemas {
     String? description,
     List<String>? enumValues,
   }) {
-    final literal = S.string(
-      description: 'A literal string value.',
-      enumValues: enumValues,
-    );
-    final Schema binding = dataBindingSchema(
-      description: 'A path to a string.',
-    );
-    final Schema function = functionCall();
+    if (enumValues != null) {
+      return S.combined(
+        allOf: [
+          S.combined($ref: '$_commonTypesUri#/\$defs/DynamicString'),
+          S.combined(
+            anyOf: [
+              S.string(enumValues: enumValues),
+              S.object(),
+            ],
+          ),
+        ],
+        description: description,
+      );
+    }
     return S.combined(
-      oneOf: [literal, binding, function],
+      $ref: '$_commonTypesUri#/\$defs/DynamicString',
       description: description,
     );
   }
@@ -317,13 +318,8 @@ abstract final class A2uiSchemas {
   /// Schema for a value that can be either a literal number or a
   /// data-bound path to a number in the DataModel.
   static Schema numberReference({String? description}) {
-    final literal = S.number(description: 'A literal number value.');
-    final Schema binding = dataBindingSchema(
-      description: 'A path to a number.',
-    );
-    final Schema function = functionCall();
     return S.combined(
-      oneOf: [literal, binding, function],
+      $ref: '$_commonTypesUri#/\$defs/DynamicNumber',
       description: description,
     );
   }
@@ -331,13 +327,8 @@ abstract final class A2uiSchemas {
   /// Schema for a value that can be either a literal boolean or a
   /// data-bound path to a boolean in the DataModel.
   static Schema booleanReference({String? description}) {
-    final literal = S.boolean(description: 'A literal boolean value.');
-    final Schema binding = dataBindingSchema(
-      description: 'A path to a boolean.',
-    );
-    final Schema function = functionCall();
     return S.combined(
-      oneOf: [literal, binding, function],
+      $ref: '$_commonTypesUri#/\$defs/DynamicBoolean',
       description: description,
     );
   }
@@ -383,46 +374,17 @@ abstract final class A2uiSchemas {
   ///
   /// Can be either a server-side event or a client-side function call.
   static Schema action({String? description}) {
-    final eventSchema = S.object(
-      properties: {
-        'event': S.object(
-          properties: {
-            'name': S.string(
-              description:
-                  'The name of the action to be dispatched to the server.',
-            ),
-            'context': S.object(
-              description: 'Arbitrary context data to send with the action.',
-              additionalProperties: true,
-            ),
-          },
-          required: ['name'],
-        ),
-      },
-      required: ['event'],
-    );
-
-    final functionCallSchema = S.object(
-      properties: {'functionCall': functionCall()},
-      required: ['functionCall'],
-    );
-
     return S.combined(
+      $ref: '$_commonTypesUri#/\$defs/Action',
       description: description,
-      oneOf: [eventSchema, functionCallSchema],
     );
   }
 
   /// Schema for a value that can be either a literal array of strings or a
   /// data-bound path to an array of strings.
   static Schema stringArrayReference({String? description}) {
-    final literal = S.list(items: S.string());
-    final Schema binding = dataBindingSchema(
-      description: 'A path to a string list.',
-    );
-    final Schema function = functionCall();
     return S.combined(
-      oneOf: [literal, binding, function],
+      $ref: '$_commonTypesUri#/\$defs/DynamicStringList',
       description: description,
     );
   }
@@ -436,7 +398,12 @@ abstract final class A2uiSchemas {
         'the component tree.',
     properties: {
       surfaceIdKey: S.string(description: 'The unique ID for the surface.'),
-      'catalogId': S.string(description: 'The URI of the component catalog.'),
+      'catalogId': S.string(
+        description:
+            'A string that uniquely identifies this catalog. It is recommended '
+            'to prefix this with an internet domain that you own, to avoid '
+            "conflicts e.g. 'mycompany.com:somecatalog'.",
+      ),
       'theme': S.object(
         description: 'Theme parameters for the surface.',
         additionalProperties: true,

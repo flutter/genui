@@ -5,3 +5,7 @@
 /// The catalog ID for the basic catalog.
 const String basicCatalogId =
     'https://a2ui.org/specification/v0_9/basic_catalog.json';
+
+/// The schema URI for common A2UI types.
+const String commonTypesSchemaId =
+    'https://a2ui.org/specification/v0_9/common_types.json';

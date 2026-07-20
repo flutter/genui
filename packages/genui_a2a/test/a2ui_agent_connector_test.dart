@@ -5,6 +5,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart' as genui;
 import 'package:genui_a2a/genui_a2a.dart';
@@ -103,7 +104,7 @@ void main() {
       ];
       fakeClient.messageStreamHandler = (_) => Stream.fromIterable(responses);
 
-      final messages = <genui.A2uiMessage>[];
+      final messages = <core.A2uiMessage>[];
       connector.stream.listen(messages.add);
 
       final userMessage = genui.ChatMessage.user(
@@ -122,7 +123,7 @@ void main() {
       expect(connector.contextId, 'context1');
       expect(fakeClient.messageStreamCalled, 1);
       expect(messages.length, 1);
-      expect(messages.first, isA<genui.UpdateComponents>());
+      expect(messages.first, isA<core.UpdateComponentsMessage>());
     });
 
     test('connectAndSend sends multiple text parts', () async {

@@ -10,8 +10,7 @@ This directory contains the following specifications:
 - [Style guide](styleguide.md)
 - [Design](design.md)
 - [Pull requests](pull_requests.md)
-- [Publishing](publishing.md)
-- [Examples](../../examples/README.md)
+- [Releases](release.md)
 
 ## Note for AI models
 
@@ -21,6 +20,11 @@ To signal, that you have read and understood the specifications, please start yo
 ```
 I have read and understood ./docs/contributing/README.md.
 ```
+
+## Binary files
+
+Avoid adding binary files to the repository. If a binary file is needed, minimize its size and accompany it with a markdown file that 
+describes the binary file and how it was created.
 
 ## Documentation
 

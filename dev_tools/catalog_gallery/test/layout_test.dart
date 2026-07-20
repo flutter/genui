@@ -4,6 +4,7 @@
 
 import 'dart:io';
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:catalog_gallery/sample_parser.dart';
 import 'package:file/file.dart' as file_pkg;
 import 'package:flutter/material.dart';
@@ -38,13 +39,13 @@ void main() {
       catalogs: [BasicCatalogItems.asCatalog()],
     );
 
-    await for (final A2uiMessage message in sample.messages) {
+    await for (final core.A2uiMessage message in sample.messages) {
       var messageToProcess = message;
-      if (message is CreateSurface) {
+      if (message is core.CreateSurfaceMessage) {
         // We manually inject the basic catalog since createSurface might ref
         // external URL in this test environment, we just assume the basic
         // catalog is available
-        messageToProcess = CreateSurface(
+        messageToProcess = core.CreateSurfaceMessage(
           surfaceId: message.surfaceId,
           catalogId: basicCatalogId,
           theme: message.theme,
@@ -81,7 +82,7 @@ void main() {
         catalogs: [BasicCatalogItems.asCatalog()],
       );
 
-      await for (final A2uiMessage message in sample.messages) {
+      await for (final core.A2uiMessage message in sample.messages) {
         controller.handleMessage(message);
       }
 

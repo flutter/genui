@@ -3,16 +3,14 @@
 // found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:convert';
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:flutter/foundation.dart';
-import 'package:stream_transform/stream_transform.dart';
 
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 import '../utils/stream_extensions.dart';
 import 'client_function.dart' as cf;
-
 import 'data_path.dart';
 
 export 'data_path.dart';
@@ -49,7 +47,7 @@ class DataContext implements cf.ExecutionContext {
 
   /// Subscribes to a path, resolving it against the current context.
   @override
-  ValueNotifier<T?> subscribe<T>(DataPath path) {
+  ValueListenable<T?> subscribe<T>(DataPath path) {
     final DataPath absolutePath = resolvePath(path);
     return _dataModel.subscribe<T>(absolutePath);
   }
@@ -58,7 +56,7 @@ class DataContext implements cf.ExecutionContext {
   @override
   Stream<T?> subscribeStream<T>(DataPath path) {
     late StreamController<T?> controller;
-    ValueNotifier<T?>? notifier;
+    ValueListenable<T?>? notifier;
 
     void listener() {
       if (!controller.isClosed) {
@@ -73,8 +71,11 @@ class DataContext implements cf.ExecutionContext {
         notifier!.addListener(listener);
       },
       onCancel: () {
-        notifier?.removeListener(listener);
-        notifier?.dispose();
+        final currentNotifier = notifier;
+        currentNotifier?.removeListener(listener);
+        if (currentNotifier is ChangeNotifier) {
+          (currentNotifier as ChangeNotifier).dispose();
+        }
         notifier = null;
         controller.close();
       },
@@ -92,8 +93,6 @@ class DataContext implements cf.ExecutionContext {
       _dataModel.update(resolvePath(path), contents);
 
   /// Creates a new, nested DataContext for a child widget.
-  ///
-  /// Used by list/template widgets to create a context for their children.
   @override
   DataContext nested(DataPath relativePath) =>
       DataContext._(_dataModel, resolvePath(relativePath), _functions);
@@ -105,10 +104,6 @@ class DataContext implements cf.ExecutionContext {
 
   /// Resolves any dynamic values (bindings or function calls) in the given
   /// value.
-  ///
-  /// String values are treated as literals (no interpolation).
-  /// Maps with a 'path' key are resolved to the value at that path.
-  /// Maps with a 'call' key are executed as functions.
   @override
   Stream<Object?> resolve(Object? value) => _evaluateStream(value);
 
@@ -137,7 +132,6 @@ class DataContext implements cf.ExecutionContext {
       return Stream.value(null);
     }
 
-    // Resolve arguments
     final Map<String, Object?> args = {};
     final Object? argsJson = callDefinition['args'];
 
@@ -182,7 +176,6 @@ class DataContext implements cf.ExecutionContext {
 }
 
 /// Resolves a context map definition against a [DataContext].
-///
 Future<JsonMap> resolveContext(
   DataContext dataContext,
   JsonMap? contextDefinition,
@@ -229,24 +222,12 @@ class DataModelTypeException implements Exception {
 abstract interface class DataModel {
   /// Updates the data model at a specific absolute path and notifies all
   /// relevant subscribers.
-  ///
-  /// If [absolutePath] is root, the entire data model is replaced
-  /// (if contents is a Map).
   void update(DataPath absolutePath, Object? contents);
 
   /// Subscribes to a specific absolute path in the data model.
   ValueNotifier<T?> subscribe<T>(DataPath absolutePath);
 
   /// Binds an external state [source] to a [path] in the DataModel.
-  ///
-  /// **Side Effect:** Calling this method immediately performs a synchronous
-  /// `update()` on the DataModel at the specified [path] using the current
-  /// value of the [source].
-  ///
-  /// If [twoWay] is true, changes in the DataModel at [path] will also
-  /// update the [source] (assuming [source] is a [ValueNotifier]).
-  ///
-  /// Returns a function that disposes the binding.
   void Function() bindExternalState<T>({
     required DataPath path,
     required ValueListenable<T> source,
@@ -261,61 +242,41 @@ abstract interface class DataModel {
   T? getValue<T>(DataPath absolutePath);
 }
 
-/// Standard in-memory implementation of [DataModel].
+/// Standard in-memory implementation of [DataModel]. Facade over
+/// `a2ui_core.DataModel`.
 class InMemoryDataModel implements DataModel {
-  JsonMap _data = {};
-  final Map<DataPath, _RefCountedValueNotifier<Object?>> _subscriptions = {};
+  /// Creates an empty in-memory data model.
+  InMemoryDataModel() : _core = core.DataModel(), _ownsCore = true;
 
-  final List<VoidCallback> _cleanupCallbacks = [];
+  /// Wraps an existing core data model.
+  @internal
+  InMemoryDataModel.wrap(core.DataModel coreDataModel)
+    : _core = coreDataModel,
+      _ownsCore = false;
+
+  final core.DataModel _core;
+  // True when this owns `_core` (created by the default constructor) and must
+  // dispose it; false when wrapping a borrowed `core.DataModel` owned by
+  // a2ui_core's `SurfaceModel`.
+  final bool _ownsCore;
+  final List<VoidCallback> _externalSubscriptions = [];
+
+  /// The wrapped core data model. Intended for GenUI internals only.
+  @internal
+  core.DataModel get coreDataModel => _core;
 
   @override
   void update(DataPath absolutePath, Object? contents) {
-    genUiLogger.info(
-      'DataModel.update: path=$absolutePath, contents='
-      '${const JsonEncoder.withIndent('  ').convert(contents)}',
-    );
-
-    if (absolutePath == DataPath.root) {
-      if (contents is Map) {
-        _data = Map<String, Object?>.from(contents);
-      } else {
-        genUiLogger.warning(
-          'DataModel.update: contents for root path is not a Map: $contents',
-        );
-        if (contents == null) {
-          _data = {};
-        }
-      }
-      _notifySubscribers(DataPath.root);
-      return;
-    }
-
-    _updateValue(_data, absolutePath.segments, contents);
-    _notifySubscribers(absolutePath);
+    _core.set(absolutePath.toString(), contents);
   }
 
   @override
   ValueNotifier<T?> subscribe<T>(DataPath absolutePath) {
-    genUiLogger.finer('DataModel.subscribe: path=$absolutePath');
-    if (_subscriptions.containsKey(absolutePath)) {
-      final notifier =
-          _subscriptions[absolutePath]! as _RefCountedValueNotifier<T?>;
-      notifier.incrementRef();
-      return notifier;
-    }
-
-    final T? initialValue = getValue<T>(absolutePath);
-    final notifier = _RefCountedValueNotifier<T?>(
-      initialValue,
-      onDispose: () {
-        _subscriptions.remove(absolutePath);
-      },
+    return _SignalNotifier<T>(
+      _core.watch<Object?>(absolutePath.toString()),
+      absolutePath,
     );
-    _subscriptions[absolutePath] = notifier;
-    return notifier;
   }
-
-  final List<VoidCallback> _externalSubscriptions = [];
 
   @override
   void Function() bindExternalState<T>({
@@ -358,8 +319,6 @@ class InMemoryDataModel implements DataModel {
         subscription.addListener(onModelChanged);
         removeModelListener = () {
           subscription.removeListener(onModelChanged);
-          // When we are done with the subscription, we should dispose it to
-          // decrement ref count.
           subscription.dispose();
         };
         _externalSubscriptions.add(removeModelListener);
@@ -379,168 +338,58 @@ class InMemoryDataModel implements DataModel {
 
   @override
   void dispose() {
-    for (final VoidCallback callback in _cleanupCallbacks) {
-      callback();
-    }
-    _cleanupCallbacks.clear();
-
-    for (final VoidCallback callback in _externalSubscriptions) {
+    for (final callback in List<VoidCallback>.of(_externalSubscriptions)) {
       callback();
     }
     _externalSubscriptions.clear();
-
-    // The DataModel does not own the refcounts of the returned notifiers.
-    // They are owned by the subscribers who called subscribe().
-    // We only need to clear our cache. Let the subscribers dispose them.
-    _subscriptions.clear();
+    if (_ownsCore) {
+      _core.dispose();
+    }
   }
 
   @override
   T? getValue<T>(DataPath absolutePath) {
-    if (absolutePath == DataPath.root) {
-      _checkType<T>(_data, absolutePath);
-      return _data as T?;
-    }
-    final Object? value = _getValue(_data, absolutePath.segments);
-    _checkType<T>(value, absolutePath);
-    return value as T?;
-  }
-
-  void _checkType<T>(Object? value, DataPath path) {
+    final Object? value = _core.get(absolutePath.toString());
     if (value != null && value is! T) {
       throw DataModelTypeException(
-        path: path,
+        path: absolutePath,
         expectedType: T,
         actualType: value.runtimeType,
       );
     }
-  }
-
-  Object? _getValue(Object? current, List<String> segments) {
-    if (segments.isEmpty) {
-      return current;
-    }
-
-    final String segment = segments.first;
-    final List<String> remaining = segments.sublist(1);
-
-    if (current is Map) {
-      return _getValue(current[segment], remaining);
-    } else if (current is List) {
-      final int? index = int.tryParse(segment);
-      if (index != null && index >= 0 && index < current.length) {
-        return _getValue(current[index], remaining);
-      }
-    }
-    return null;
-  }
-
-  void _updateValue(Object? current, List<String> segments, Object? value) {
-    if (segments.isEmpty) {
-      return;
-    }
-
-    final String segment = segments.first;
-    final List<String> remaining = segments.sublist(1);
-
-    if (current is Map) {
-      if (remaining.isEmpty) {
-        if (value == null) {
-          current.remove(segment);
-        } else {
-          current[segment] = value;
-        }
-        return;
-      }
-
-      Object? nextNode = current[segment];
-      if (nextNode == null) {
-        if (value == null) {
-          return;
-        }
-
-        final String nextSegment = remaining.first;
-        final isNextSegmentListIndex = int.tryParse(nextSegment) != null;
-        nextNode = isNextSegmentListIndex ? <dynamic>[] : <String, dynamic>{};
-        current[segment] = nextNode;
-      }
-      _updateValue(nextNode, remaining, value);
-    } else if (current is List) {
-      final int? index = int.tryParse(segment);
-      if (index != null && index >= 0) {
-        if (remaining.isEmpty) {
-          if (index < current.length) {
-            if (value == null) {
-              current[index] = value;
-            } else {
-              current[index] = value;
-            }
-          } else if (index == current.length) {
-            if (value != null) current.add(value);
-          }
-        } else {
-          if (index < current.length) {
-            _updateValue(current[index], remaining, value);
-          } else if (index == current.length) {
-            final String nextSegment = remaining.first;
-            final isNextSegmentListIndex = int.tryParse(nextSegment) != null;
-            final Object newItem = isNextSegmentListIndex
-                ? <dynamic>[]
-                : <String, dynamic>{};
-            current.add(newItem);
-            _updateValue(newItem, remaining, value);
-          }
-        }
-      }
-    }
-  }
-
-  void _notifySubscribers(DataPath path) {
-    if (_subscriptions.containsKey(path)) {
-      _subscriptions[path]!.value = getValue(path);
-    }
-
-    var parent = path;
-    while (!parent.isAbsolute || parent.segments.isNotEmpty) {
-      if (parent == DataPath.root) break;
-      if (!parent.isAbsolute && parent.segments.isEmpty) break;
-      parent = parent.dirname;
-      final _RefCountedValueNotifier<Object?>? notifier =
-          _subscriptions[parent];
-      if (notifier != null) {
-        final Object? newValue = getValue<Object?>(parent);
-        if (newValue != notifier.value) {
-          notifier.value = newValue;
-        } else {
-          // _updateValue mutates containers in place, which means
-          // listeners on this ancestor won't get automatically notified by
-          // the `ValueNotifier.value` setter.
-          notifier.forceNotify();
-        }
-      }
-    }
-
-    for (final DataPath p in _subscriptions.keys.toList()) {
-      if (p.startsWith(path) && p != path) {
-        _subscriptions[p]!.value = getValue(p);
-      }
-    }
+    return value as T?;
   }
 }
 
-class _RefCountedValueNotifier<T> extends ValueNotifier<T> {
-  _RefCountedValueNotifier(super.value, {this.onDispose});
-
-  final VoidCallback? onDispose;
-  int _refCount = 1;
-  bool _isDisposed = false;
-
-  void incrementRef() {
-    _refCount++;
+/// Bridges a preact_signals [core.ReadonlySignal] to a Flutter
+/// [ValueNotifier].
+class _SignalNotifier<T> extends ValueNotifier<T?> {
+  _SignalNotifier(this._signal, this._path)
+    : super(_cast<T>(_signal.peek(), _path)) {
+    _disposeEffect = core.effect(() {
+      final T? newValue = _cast<T>(_signal.value, _path);
+      if (newValue == value) {
+        notifyListeners();
+      } else {
+        value = newValue;
+      }
+    });
   }
 
-  void forceNotify() {
-    notifyListeners();
+  final core.ReadonlySignal<Object?> _signal;
+  final DataPath _path;
+  late final void Function() _disposeEffect;
+  bool _isDisposed = false;
+
+  static T? _cast<T>(Object? v, DataPath path) {
+    if (v != null && v is! T) {
+      throw DataModelTypeException(
+        path: path,
+        expectedType: T,
+        actualType: v.runtimeType,
+      );
+    }
+    return v as T?;
   }
 
   @override
@@ -548,16 +397,13 @@ class _RefCountedValueNotifier<T> extends ValueNotifier<T> {
     if (_isDisposed) {
       genUiLogger.warning(
         'Attempt to dispose of already disposed notifier',
-        '_RefCountedValueNotifier.dispose Error',
+        '_SignalNotifier.dispose Error',
         StackTrace.current,
       );
       return;
     }
-    _refCount--;
-    if (_refCount <= 0) {
-      _isDisposed = true;
-      onDispose?.call();
-      super.dispose();
-    }
+    _isDisposed = true;
+    _disposeEffect();
+    super.dispose();
   }
 }

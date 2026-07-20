@@ -10,25 +10,28 @@ on:
   schedule:
     - cron: "0 * * * *" # hourly
 
+permissions:
+  contents: read
+
 jobs:
   eval-job:
     # Do not run on forked branches,
     # because the test does not have access to secrets in forks.
-    if: github.repository == 'flutter/genui'
+    if: secrets.REPO_GEMINI_API_KEY != ''
     runs-on: ubuntu-latest
     environment: eval
     steps:
       - name: Check that REPO_GEMINI_API_KEY is set and available
-        env:
-          # REPO_GEMINI_API_KEY is expected to be set in the repository secrets
-          # See https://docs.github.com/en/actions/security-guides/encrypted-secrets
-          GEMINI_API_KEY: ${{ secrets.REPO_GEMINI_API_KEY }}
         run: |
           if [ -z "$GEMINI_API_KEY" ]; then
             echo "ERROR: REPO_GEMINI_API_KEY is not set"
             exit 1
           fi
           echo "GEMINI_API_KEY has ${#GEMINI_API_KEY} characters"
+        env:
+          # REPO_GEMINI_API_KEY is expected to be set in the repository secrets
+          # See https://docs.github.com/en/actions/security-guides/encrypted-secrets
+          GEMINI_API_KEY: ${{ secrets.REPO_GEMINI_API_KEY }}
       - name: Install Flutter
         # Before bumping, verify the new version is on the flutter org's
         # enterprise actions allowlist, or CI will fail with startup_failure.
@@ -39,15 +42,17 @@ jobs:
       - name: Print Flutter version
         run: flutter --version
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          persist-credentials: false
       - name: Install dependencies
         working-directory: tool/e2e
         run: dart pub get
       - name: Run e2e tests
         working-directory: tool/e2e
+        run: flutter test --dart-define=GEMINI_API_KEY=$GEMINI_API_KEY
         env:
           GEMINI_API_KEY: ${{ secrets.REPO_GEMINI_API_KEY }}
-        run: flutter test --dart-define=GEMINI_API_KEY=$GEMINI_API_KEY
       - name: Cache dependencies
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae
         with:

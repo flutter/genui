@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
+import '../../test_infra/message_builders.dart';
+
 void main() {
   testWidgets('Tabs widget renders and handles taps', (
     WidgetTester tester,
@@ -19,8 +21,8 @@ void main() {
       ],
     );
     const surfaceId = 'testSurface';
-    final components = [
-      const Component(
+    final List<JsonMap> components = [
+      component(
         id: 'root',
         type: 'Tabs',
         properties: {
@@ -31,22 +33,22 @@ void main() {
           ],
         },
       ),
-      const Component(
+      component(
         id: 'text1',
         type: 'Text',
         properties: {'component': 'Text', 'text': 'This is the first tab.'},
       ),
-      const Component(
+      component(
         id: 'text2',
         type: 'Text',
         properties: {'component': 'Text', 'text': 'This is the second tab.'},
       ),
     ];
     surfaceController.handleMessage(
-      UpdateComponents(surfaceId: surfaceId, components: components),
+      updateComponents(surfaceId: surfaceId, components: components),
     );
     surfaceController.handleMessage(
-      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+      createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(
@@ -84,15 +86,15 @@ void main() {
 
     // Initialize data model with tab 1 (index 1) active
     surfaceController.handleMessage(
-      UpdateDataModel(
+      updateDataModel(
         surfaceId: surfaceId,
         path: DataPath('/'),
         value: {'currentTab': 1},
       ),
     );
 
-    final components = [
-      const Component(
+    final List<JsonMap> components = [
+      component(
         id: 'root',
         type: 'Tabs',
         properties: {
@@ -104,12 +106,12 @@ void main() {
           ],
         },
       ),
-      const Component(
+      component(
         id: 'text1',
         type: 'Text',
         properties: {'component': 'Text', 'text': 'Content 1'},
       ),
-      const Component(
+      component(
         id: 'text2',
         type: 'Text',
         properties: {'component': 'Text', 'text': 'Content 2'},
@@ -117,10 +119,10 @@ void main() {
     ];
 
     surfaceController.handleMessage(
-      UpdateComponents(surfaceId: surfaceId, components: components),
+      updateComponents(surfaceId: surfaceId, components: components),
     );
     surfaceController.handleMessage(
-      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+      createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     // Initial build
@@ -141,7 +143,7 @@ void main() {
 
     // Update data model to switch to Tab 1 (index 0)
     surfaceController.handleMessage(
-      UpdateDataModel(
+      updateDataModel(
         surfaceId: 'testSurface',
         path: DataPath('/currentTab'),
         value: 0,

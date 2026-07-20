@@ -4,6 +4,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/src/model/ui_models.dart';
+import 'package:genui/src/primitives/a2ui_validation_exception.dart';
 import 'package:genui/src/primitives/simple_items.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
@@ -64,7 +65,7 @@ void main() {
   });
 
   group('SurfaceDefinition', () {
-    test('validate throws exception on mismatch', () {
+    test('validate throws exception on mismatch', () async {
       final component = const Component(
         id: 'test',
         type: 'Text',
@@ -86,13 +87,13 @@ void main() {
         },
       );
 
-      expect(
-        () => surfaceDefinition.validate(schema),
+      await expectLater(
+        surfaceDefinition.validate(schema),
         throwsA(isA<A2uiValidationException>()),
       );
     });
 
-    test('validate passes on correct match', () {
+    test('validate passes on correct match', () async {
       final component = const Component(
         id: 'test',
         type: 'Text',
@@ -116,7 +117,7 @@ void main() {
         },
       );
 
-      surfaceDefinition.validate(schema); // Should not throw
+      await surfaceDefinition.validate(schema); // Should not throw
     });
   });
 

@@ -4,11 +4,11 @@
 
 import 'dart:async';
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
-
 import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:logging/logging.dart';
 
@@ -35,9 +35,9 @@ void main() {
         };
 
         try {
-          A2uiMessage.fromJson(json);
-          fail('Should have thrown A2uiValidationException');
-        } on A2uiValidationException catch (e) {
+          core.A2uiMessage.fromJson(json);
+          fail('Should have thrown A2uiValidationError');
+        } on core.A2uiValidationError catch (e) {
           expect(e.message, contains('Unknown A2UI message type'));
         }
       },

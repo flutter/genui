@@ -33,39 +33,41 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   matrix:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.generate_matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
         with:
           # Fetch the full history to be able to diff against the base branch
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Generate testing matrix
         id: generate_matrix
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           # Find all directories containing pubspec.yaml in packages, tools, and examples.
           # tool/e2e is excluded, because it requires GEMINI_API_KEY and is exercised in other workflow
           ALL_DIRS=$(find packages examples tool -name pubspec.yaml -not -path "*/.dart_tool/*" -not -path "tool/e2e/*" -exec dirname {} \;)
 
           # Get the list of changed files. The method depends on the event type.
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
             # Try using gh pr diff first to get the precise list of changed files.
             # This avoids false positives if main has moved forward.
             # We wrap it in an if statement to catch failures (e.g. diff too large).
-            if ! CHANGED_FILES=$(gh pr diff --name-only ${{ github.event.pull_request.number }}); then
+            if ! CHANGED_FILES=$(gh pr diff --name-only "$PR_NUMBER"); then
               echo "Warning: 'gh pr diff' failed. This usually happens when the PR is very large."
-              echo "Falling back to 'git diff' against origin/${{ github.base_ref }}."
-              CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }} HEAD)
+              echo "Falling back to 'git diff' against origin/${GITHUB_BASE_REF}."
+              CHANGED_FILES=$(git diff --name-only "origin/$GITHUB_BASE_REF" HEAD)
             fi
           else
             # For pushes, diff between the two SHAs of the push.
-            CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }})
+            CHANGED_FILES=$(git diff --name-only "$EVENT_BEFORE" "$EVENT_AFTER")
           fi
 
           # Build a regex to match any of the package directories or the workflow file.
@@ -98,12 +100,20 @@ jobs:
           JSON_MATRIX="$JSON_MATRIX]"
 
           echo "matrix=$JSON_MATRIX" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          EVENT_BEFORE: ${{ github.event.before }}
+          EVENT_AFTER: ${{ github.event.after }}
 
   copyright:
     runs-on: ubuntu-latest
     if: github.repository == 'flutter/genui'
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          persist-credentials: false
       # Before bumping, verify the new version is on the flutter org's
       # enterprise actions allowlist, or CI will fail with startup_failure.
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
@@ -119,9 +129,10 @@ jobs:
     runs-on: ubuntu-latest
     if: github.repository == 'flutter/genui'
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
         with:
           submodules: recursive
+          persist-credentials: false
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
         with:
           channel: stable
@@ -144,7 +155,9 @@ jobs:
         flutter_version: [beta, stable]
         os: [ubuntu-latest]
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          persist-credentials: false
       - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
         with:
           distribution: "zulu"

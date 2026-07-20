@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
+import '../../test_infra/message_builders.dart';
+
 void main() {
   testWidgets('Icon widget renders with literal string', (
     WidgetTester tester,
@@ -16,14 +18,14 @@ void main() {
       ],
     );
     const surfaceId = 'testSurface';
-    final components = [
-      const Component(id: 'root', type: 'Icon', properties: {'name': 'add'}),
+    final List<JsonMap> components = [
+      component(id: 'root', type: 'Icon', properties: {'name': 'add'}),
     ];
     surfaceController.handleMessage(
-      UpdateComponents(surfaceId: surfaceId, components: components),
+      updateComponents(surfaceId: surfaceId, components: components),
     );
     surfaceController.handleMessage(
-      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+      createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(
@@ -48,8 +50,8 @@ void main() {
       ],
     );
     const surfaceId = 'testSurface';
-    final components = [
-      const Component(
+    final List<JsonMap> components = [
+      component(
         id: 'root',
         type: 'Icon',
         properties: {
@@ -58,17 +60,17 @@ void main() {
       ),
     ];
     surfaceController.handleMessage(
-      UpdateComponents(surfaceId: surfaceId, components: components),
+      updateComponents(surfaceId: surfaceId, components: components),
     );
     surfaceController.handleMessage(
-      UpdateDataModel(
+      updateDataModel(
         surfaceId: 'testSurface',
         path: DataPath('/iconName'),
         value: 'close',
       ),
     );
     surfaceController.handleMessage(
-      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+      createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(

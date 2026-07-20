@@ -2,10 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
+import 'package:meta/meta.dart' show internal;
 
+import '../primitives/constants.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 import 'catalog_item.dart';
@@ -141,7 +144,7 @@ interface class Catalog {
         CatalogItemContext(
           data: itemContext.data,
           id: itemContext.id,
-          type: widgetType,
+          type: itemContext.type,
           buildChild: (String childId, [DataContext? childDataContext]) =>
               itemContext.buildChild(
                 childId,
@@ -160,6 +163,14 @@ interface class Catalog {
     );
   }
 
+  /// The catalog id used to register this catalog with `a2ui_core` and to match
+  /// a live surface back to it: [catalogId] when set, otherwise a synthesized
+  /// id for an inline catalog. The advertised id ([toCapabilitiesJson]), the
+  /// registered runtime id ([coreCatalogFor]), and `SurfaceController`'s lookup
+  /// all use this, so an inline catalog's id cannot diverge between them.
+  @internal
+  String get effectiveCatalogId => catalogId ?? 'inline_catalog_$hashCode';
+
   /// Generates a JSON map suitable for inclusion in an inline catalog array
   /// within `A2UiClientCapabilities`.
   ///
@@ -168,9 +179,7 @@ interface class Catalog {
   /// to be an array of objects.
   JsonMap toCapabilitiesJson() {
     return {
-      if (catalogId != null) 'catalogId': catalogId,
-      // Provide a fallback ID for inline if catalogId is null
-      if (catalogId == null) 'catalogId': 'inline_catalog_$hashCode',
+      'catalogId': effectiveCatalogId,
       'components': {
         for (final item in items) item.name: item.dataSchema.value,
       },
@@ -236,6 +245,122 @@ interface class Catalog {
       required: ['components', 'styles', 'functions'],
     );
   }
+
+  /// A dynamically generated [Schema] representing the catalog, including
+  /// all custom components, functions, and specification defs.
+  Schema get fullSchema {
+    final Map<String, dynamic> components = {
+      for (final item in items)
+        item.name: {
+          'type': 'object',
+          'allOf': [
+            {r'$ref': '$commonTypesSchemaId#/\$defs/ComponentCommon'},
+            {r'$ref': r'#/$defs/CatalogComponentCommon'},
+            {
+              'type': 'object',
+              'properties': {
+                'component': {'const': item.name},
+                ...((item.dataSchema.value['properties']
+                        as Map<String, dynamic>?) ??
+                    const <String, dynamic>{}),
+              },
+              'required': {
+                'component',
+                if (item.dataSchema.value['required'] is List)
+                  ...(item.dataSchema.value['required'] as List),
+              }.toList(),
+            },
+          ],
+          'unevaluatedProperties': false,
+        },
+    };
+
+    final Map<String, dynamic> functions = {
+      for (final func in this.functions)
+        func.name: {
+          'type': 'object',
+          'description': func.description,
+          'properties': {
+            'call': {'const': func.name},
+            'args': func.argumentSchema.value,
+            'returnType': {'const': func.returnType.value},
+          },
+          'required': ['call', 'args'],
+          'unevaluatedProperties': false,
+        },
+    };
+
+    final Map<String, dynamic> catalogJson = {
+      r'$schema': 'https://json-schema.org/draft/2020-12/schema',
+      r'$id': 'https://a2ui.org/specification/v0_9/catalog.json',
+      'title': 'A2UI Catalog',
+      'description': 'Custom catalog of A2UI components and functions.',
+      if (catalogId != null) 'catalogId': catalogId,
+      'components': components,
+      if (functions.isNotEmpty) 'functions': functions,
+      r'$defs': {
+        'CatalogComponentCommon': {
+          'type': 'object',
+          'properties': {
+            'id': {
+              'type': 'string',
+              'description':
+                  'A unique identifier for this component instance within '
+                  'the surface. This ID is used to refer to the component '
+                  'in layout children arrays or event handlers.',
+            },
+          },
+          'required': ['id'],
+        },
+        'theme': {
+          'type': 'object',
+          'properties': {
+            'primaryColor': {
+              'type': 'string',
+              'description':
+                  'The primary brand color used for highlights (e.g., '
+                  'primary buttons, active borders). Renderers may generate '
+                  'variants of this color for different contexts. Format: '
+                  "Hexadecimal code (e.g., '#00BFFF').",
+              'pattern': r'^#[0-9a-fA-F]{6}$',
+            },
+            'iconUrl': {
+              'type': 'string',
+              'format': 'uri',
+              'description':
+                  'A URL for an image that identifies the agent or tool '
+                  'associated with the surface.',
+            },
+            'agentDisplayName': {
+              'type': 'string',
+              'description':
+                  'Text to be displayed next to the surface to identify '
+                  'the agent or tool that created it.',
+            },
+          },
+          'additionalProperties': true,
+        },
+        'anyComponent': components.isEmpty
+            ? {'not': <String, dynamic>{}}
+            : {
+                'oneOf': [
+                  for (final name in components.keys)
+                    {r'$ref': '#/components/$name'},
+                ],
+                'discriminator': {'propertyName': 'component'},
+              },
+        'anyFunction': functions.isEmpty
+            ? {'not': <String, dynamic>{}}
+            : {
+                'oneOf': [
+                  for (final name in functions.keys)
+                    {r'$ref': '#/functions/$name'},
+                ],
+              },
+      },
+    };
+    return Schema.fromMap(catalogJson);
+  }
 }
 
 /// An exception thrown when a requested item is not found in the [Catalog].
@@ -262,3 +387,26 @@ class CatalogItemNotFoundException implements Exception {
     return buffer.toString();
   }
 }
+
+class _CatalogItemComponentApi implements core.ComponentApi {
+  _CatalogItemComponentApi(this._item);
+  final CatalogItem _item;
+
+  @override
+  String get name => _item.name;
+
+  @override
+  Schema get schema => _item.dataSchema;
+}
+
+/// Builds the `a2ui_core` [core.Catalog] for [catalog], used when constructing
+/// a [core.SurfaceModel] so `a2ui_core` lookups see real component metadata
+/// instead of an empty stub.
+@internal
+core.Catalog<core.ComponentApi> coreCatalogFor(Catalog catalog) =>
+    core.Catalog<core.ComponentApi>(
+      id: catalog.effectiveCatalogId,
+      components: catalog.items
+          .map<core.ComponentApi>(_CatalogItemComponentApi.new)
+          .toList(growable: false),
+    );

@@ -9,8 +9,26 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 
 import 'package:json_schema_builder/json_schema_builder.dart';
+import 'package:logging/logging.dart';
+
+import '../../test_infra/message_builders.dart';
 
 void main() {
+  setUpAll(() {
+    Logger.root.level = Level.ALL;
+    Logger.root.onRecord.listen((record) {
+      debugPrint(
+        '[${record.level.name}] ${record.loggerName}: ${record.message}',
+      );
+      if (record.error != null) {
+        debugPrint('Error: ${record.error}');
+      }
+      if (record.stackTrace != null) {
+        debugPrint('StackTrace:\n${record.stackTrace}');
+      }
+    });
+  });
+
   testWidgets('Button widget renders and handles taps', (
     WidgetTester tester,
   ) async {
@@ -25,8 +43,8 @@ void main() {
     );
     surfaceController.onSubmit.listen((event) => message = event);
     const surfaceId = 'testSurface';
-    final components = [
-      const Component(
+    final List<JsonMap> components = [
+      component(
         id: 'root',
         type: 'Button',
         properties: {
@@ -36,17 +54,17 @@ void main() {
           },
         },
       ),
-      const Component(
+      component(
         id: 'button_text',
         type: 'Text',
         properties: {'text': 'Click Me'},
       ),
     ];
     surfaceController.handleMessage(
-      UpdateComponents(surfaceId: surfaceId, components: components),
+      updateComponents(surfaceId: surfaceId, components: components),
     );
     surfaceController.handleMessage(
-      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+      createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(
@@ -74,13 +92,10 @@ void main() {
   testWidgets('Button widget handles stream errors gracefully', (
     WidgetTester tester,
   ) async {
-    ChatMessage? message;
-    // Create a stream controller that we can use to emit errors
-    final streamController = StreamController<Object?>.broadcast();
-
     final mockFunction = MockFunction(
       name: 'throwError',
-      onExecute: (args, context) => streamController.stream,
+      onExecute: (args, context) =>
+          Stream<Object?>.error(Exception('Stream error')),
     );
 
     final surfaceController = SurfaceController(
@@ -92,29 +107,32 @@ void main() {
         ),
       ],
     );
+    ChatMessage? message;
     surfaceController.onSubmit.listen((event) => message = event);
 
     const surfaceId = 'testSurface';
-    final components = [
-      const Component(
+    final List<JsonMap> components = [
+      component(
         id: 'root',
         type: 'Button',
         properties: {
           'child': 'button_text',
-          'action': {'call': 'throwError'},
+          'action': {
+            'functionCall': {'call': 'throwError'},
+          },
         },
       ),
-      const Component(
+      component(
         id: 'button_text',
         type: 'Text',
         properties: {'text': 'Click Me'},
       ),
     ];
     surfaceController.handleMessage(
-      UpdateComponents(surfaceId: surfaceId, components: components),
+      updateComponents(surfaceId: surfaceId, components: components),
     );
     surfaceController.handleMessage(
-      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+      createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(
@@ -130,26 +148,20 @@ void main() {
     await tester.pumpAndSettle();
 
     // Tap the button to trigger the function call
-    await tester.tap(find.byType(ElevatedButton));
-
-    // Emit an error from the stream
-    streamController.addError(Exception('Stream error'));
-
-    // Pump to process the error
+    await tester.runAsync(() async {
+      final Future<ChatMessage> onSubmitFuture =
+          surfaceController.onSubmit.first;
+      await tester.tap(find.byType(ElevatedButton));
+      await onSubmitFuture;
+    });
     await tester.pump();
 
-    // Wait for the message to be received, pumping the widget tree
-    var retries = 0;
-    while (message == null && retries < 50) {
-      await tester.pump(const Duration(milliseconds: 10));
-      retries++;
-    }
-
-    // Verify error was reported
+    // Verify the error was caught and reported
     expect(message, isNotNull);
-
-    // The test passes if no unhandled exception crashes the test.
-    await streamController.close();
+    expect(
+      message!.parts.first.asUiInteractionPart!.interaction,
+      contains('throwError'),
+    );
     surfaceController.dispose();
   });
 
@@ -168,15 +180,15 @@ void main() {
       const surfaceId = 'validationTest';
       // Initialize with a value that fails the check
       surfaceController.handleMessage(
-        UpdateDataModel(
+        updateDataModel(
           surfaceId: surfaceId,
           path: DataPath('/count'),
           value: 0,
         ),
       );
 
-      final components = [
-        const Component(
+      final List<JsonMap> components = [
+        component(
           id: 'root',
           type: 'Button',
           properties: {
@@ -198,7 +210,7 @@ void main() {
             ],
           },
         ),
-        const Component(
+        component(
           id: 'button_text',
           type: 'Text',
           properties: {'text': 'Click Me'},
@@ -206,10 +218,10 @@ void main() {
       ];
 
       surfaceController.handleMessage(
-        UpdateComponents(surfaceId: surfaceId, components: components),
+        updateComponents(surfaceId: surfaceId, components: components),
       );
       surfaceController.handleMessage(
-        const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+        createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
       );
 
       await tester.pumpWidget(
@@ -238,7 +250,7 @@ void main() {
 
       // Update data model to pass the check
       surfaceController.handleMessage(
-        UpdateDataModel(
+        updateDataModel(
           surfaceId: surfaceId,
           path: DataPath('/count'),
           value: 1,

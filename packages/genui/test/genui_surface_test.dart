@@ -7,6 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
 import 'package:logging/logging.dart';
 
+import 'test_infra/message_builders.dart';
+
 void main() {
   late SurfaceController controller;
   final testCatalog = Catalog([
@@ -26,8 +28,8 @@ void main() {
     WidgetTester tester,
   ) async {
     const surfaceId = 'testSurface';
-    final components = [
-      const Component(
+    final List<JsonMap> components = [
+      component(
         id: 'root',
         type: 'Button',
         properties: {
@@ -37,13 +39,13 @@ void main() {
           },
         },
       ),
-      const Component(id: 'text', type: 'Text', properties: {'text': 'Hello'}),
+      component(id: 'text', type: 'Text', properties: {'text': 'Hello'}),
     ];
     controller.handleMessage(
-      UpdateComponents(surfaceId: surfaceId, components: components),
+      updateComponents(surfaceId: surfaceId, components: components),
     );
     controller.handleMessage(
-      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+      createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(
@@ -58,8 +60,8 @@ void main() {
 
   testWidgets('SurfaceWidget handles events', (WidgetTester tester) async {
     const surfaceId = 'testSurface';
-    final components = [
-      const Component(
+    final List<JsonMap> components = [
+      component(
         id: 'root',
         type: 'Button',
         properties: {
@@ -69,13 +71,13 @@ void main() {
           },
         },
       ),
-      const Component(id: 'text', type: 'Text', properties: {'text': 'Hello'}),
+      component(id: 'text', type: 'Text', properties: {'text': 'Hello'}),
     ];
     controller.handleMessage(
-      UpdateComponents(surfaceId: surfaceId, components: components),
+      updateComponents(surfaceId: surfaceId, components: components),
     );
     controller.handleMessage(
-      const CreateSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+      createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
     );
 
     await tester.pumpWidget(
@@ -92,22 +94,15 @@ void main() {
     'SurfaceWidget renders container and logs error on catalog miss',
     (WidgetTester tester) async {
       const surfaceId = 'testSurface';
-      final components = [
-        const Component(
-          id: 'root',
-          type: 'Text',
-          properties: {'text': 'Hello'},
-        ),
+      final List<JsonMap> components = [
+        component(id: 'root', type: 'Text', properties: {'text': 'Hello'}),
       ];
       controller.handleMessage(
-        UpdateComponents(surfaceId: surfaceId, components: components),
+        updateComponents(surfaceId: surfaceId, components: components),
       );
       // Request a catalogId that doesn't exist in the controller.
       controller.handleMessage(
-        const CreateSurface(
-          surfaceId: surfaceId,
-          catalogId: 'non_existent_catalog',
-        ),
+        createSurface(surfaceId: surfaceId, catalogId: 'non_existent_catalog'),
       );
 
       final logs = <LogRecord>[];
@@ -139,4 +134,42 @@ void main() {
       );
     },
   );
+
+  testWidgets('rebuilds when components change after creation', (
+    WidgetTester tester,
+  ) async {
+    const surfaceId = 'testSurface';
+    controller.handleMessage(
+      updateComponents(
+        surfaceId: surfaceId,
+        components: [
+          component(id: 'root', type: 'Text', properties: {'text': 'first'}),
+        ],
+      ),
+    );
+    controller.handleMessage(
+      createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Surface(surfaceContext: controller.contextFor(surfaceId)),
+      ),
+    );
+    expect(find.text('first'), findsOneWidget);
+
+    // Updating the live surface should rebuild it in place.
+    controller.handleMessage(
+      updateComponents(
+        surfaceId: surfaceId,
+        components: [
+          component(id: 'root', type: 'Text', properties: {'text': 'second'}),
+        ],
+      ),
+    );
+    await tester.pump();
+
+    expect(find.text('second'), findsOneWidget);
+    expect(find.text('first'), findsNothing);
+  });
 }

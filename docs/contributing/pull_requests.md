@@ -14,4 +14,4 @@ You may get CI presubmit errors on pull requests for several reasons. This secti
 
 In general, the job checks if all [pub.dev](https://pub.dev) packages are release ready. 
 
-See [publishing.md](publishing.md) for more details.
+See [release.md](release.md) for more details.

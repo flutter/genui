@@ -4,14 +4,17 @@
 
 import 'dart:convert';
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:genui/src/model/a2ui_message.dart';
 import 'package:genui/src/model/a2ui_schemas.dart';
 import 'package:genui/src/model/catalog.dart';
 import 'package:genui/src/model/catalog_item.dart';
 import 'package:genui/src/model/ui_models.dart';
 import 'package:genui/src/primitives/simple_items.dart';
+import 'package:genui/test/validation.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
+
+import 'message_builders.dart';
 
 /// Validates the examples in the catalog items in the catalog.
 void validateCatalogExamples(
@@ -48,13 +51,16 @@ void validateCatalogExamples(
             reason: 'Example must have a component with id "root"',
           );
 
-          final surfaceUpdate = UpdateComponents(
+          final core.UpdateComponentsMessage surfaceUpdate = updateComponents(
             surfaceId: 'test-surface',
-            components: components,
+            components: components.map((c) => c.toJson()).toList(),
           );
+
+          final SchemaRegistry registry = createSchemaRegistryWithCommonTypes();
 
           final List<ValidationError> validationErrors = await schema.validate(
             surfaceUpdate.toJson(),
+            schemaRegistry: registry,
           );
           expect(validationErrors, isEmpty);
         });

@@ -11,7 +11,37 @@ abstract class A2uiMessage {
 
   /// Deserializes a JSON envelope into a typed [A2uiMessage].
   factory A2uiMessage.fromJson(Map<String, dynamic> json) {
-    final String version = json['version'] as String? ?? 'v0.9';
+    final Object? rawVersion = json['version'];
+    if (rawVersion is! String) {
+      throw A2uiValidationError(
+        "A2UI message must have a string 'version' field.",
+        details: json,
+      );
+    }
+    if (rawVersion != 'v0.9') {
+      throw A2uiValidationError(
+        "A2UI message must have version 'v0.9' (got '$rawVersion').",
+        details: json,
+      );
+    }
+    final String version = rawVersion;
+
+    const messageBodyKeys = {
+      'createSurface',
+      'updateComponents',
+      'updateDataModel',
+      'deleteSurface',
+    };
+    final List<String> presentKeys = messageBodyKeys
+        .where(json.containsKey)
+        .toList();
+    if (presentKeys.length > 1) {
+      throw A2uiValidationError(
+        'A2UI message must contain exactly one of '
+        '${messageBodyKeys.join(', ')}; got ${presentKeys.join(', ')}.',
+        details: json,
+      );
+    }
 
     if (json.containsKey('createSurface')) {
       final body = json['createSurface'] as Map<String, dynamic>;
@@ -53,7 +83,7 @@ abstract class A2uiMessage {
 
     throw A2uiValidationError(
       'Unknown A2UI message type. Expected one of: '
-      'createSurface, updateComponents, updateDataModel, deleteSurface.',
+      '${messageBodyKeys.join(', ')}.',
       details: json,
     );
   }

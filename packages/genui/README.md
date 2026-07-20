@@ -90,7 +90,7 @@ running `flutter create`.
 `genui` is backend-agnostic and can connect to any agent provider. You simply need to implement the `onSend` callback in `A2uiTransportAdapter` to bridge your AI service to the framework.
 
 1.  **Implement `onSend`**: This callback takes a `ChatMessage` and returns a `Future<void>`.
-2.  **Call your AI Service**: Use your preferred AI client (e.g., `google_generative_ai`, `firebase_vertexai`, or a custom HTTP client) to send the message.
+2.  **Call your AI Service**: Use your preferred AI client (e.g., `firebase_ai` or a custom HTTP client) to send the message.
 3.  **Pipe Results**: As chunks of text arrive from the AI stream, feed them into `A2uiTransportAdapter.addChunk()`.
 
 ### 3. Create the connection to an agent

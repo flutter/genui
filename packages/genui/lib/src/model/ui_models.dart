@@ -4,11 +4,15 @@
 
 import 'dart:convert';
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:collection/collection.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
+import 'package:meta/meta.dart' show internal;
 
 import '../primitives/constants.dart';
+import '../primitives/embedded_schemas.g.dart';
 import '../primitives/simple_items.dart';
+import 'schema_validation.dart' as schema_validation;
 
 /// A callback that is called when events are sent.
 typedef SendEventsCallback =
@@ -19,8 +23,8 @@ typedef DispatchEventCallback = void Function(UiEvent event);
 
 /// A data object that represents a user interaction event in the UI.
 ///
-/// Used to send information from the app to the AI about user
-/// actions, such as tapping a button or entering text.
+/// Used to send information from the app to the AI about user actions,
+/// such as tapping a button or entering text.
 extension type UiEvent.fromMap(JsonMap _json) {
   /// The ID of the surface that this event originated from.
   String get surfaceId => _json[surfaceIdKey] as String;
@@ -32,20 +36,21 @@ extension type UiEvent.fromMap(JsonMap _json) {
   String get eventType => _json['eventType'] as String;
 
   /// The value associated with the event, if any.
-  ///
-  /// For example, the text in a `TextField`, or the value of a `Checkbox`.
   Object? get value => _json['value'];
 
   /// The timestamp of when the event occurred.
   DateTime get timestamp => DateTime.parse(_json['timestamp'] as String);
 
+  /// Whether this is a [UserActionEvent]. Extension types are erased to their
+  /// representation at runtime, so `event is UserActionEvent` is always true
+  /// for any [UiEvent]; the action's `name` key is the real discriminator.
+  bool get isUserAction => _json.containsKey('name');
+
   /// Converts this event to a map, suitable for JSON serialization.
   JsonMap toMap() => _json;
 }
 
-/// A UI event that represents a user action.
-///
-/// Triggers a submission to the AI, such as tapping a button.
+/// A UI event that represents a user action; triggers a submission to the AI.
 extension type UserActionEvent.fromMap(JsonMap _json) implements UiEvent {
   /// Creates a [UserActionEvent] from a set of properties.
   UserActionEvent({
@@ -80,21 +85,9 @@ final class _Json {
 
 /// A data object that represents the entire UI definition.
 ///
-/// The root object that defines a complete UI to be rendered.
+/// This is an immutable snapshot; the live, mutable state is owned by
+/// `a2ui_core.SurfaceModel`.
 class SurfaceDefinition {
-  /// The ID of the surface that this UI belongs to.
-  final String surfaceId;
-
-  /// The ID of the catalog to use for rendering this surface.
-  final String catalogId;
-
-  /// A map of all widget definitions in the UI, keyed by their ID.
-  Map<String, Component> get components => UnmodifiableMapView(_components);
-  final Map<String, Component> _components;
-
-  /// The theme for this surface.
-  final JsonMap? theme;
-
   /// Creates a [SurfaceDefinition].
   SurfaceDefinition({
     required this.surfaceId,
@@ -116,6 +109,32 @@ class SurfaceDefinition {
       theme: json[_Json.theme] as JsonMap?,
     );
   }
+
+  /// Creates a snapshot from a live core surface model.
+  factory SurfaceDefinition.fromCore(core.SurfaceModel surface) {
+    return SurfaceDefinition(
+      surfaceId: surface.id,
+      catalogId: surface.catalog.id,
+      components: {
+        for (final core.ComponentModel component in surface.componentsModel.all)
+          component.id: Component.fromCore(component),
+      },
+      theme: surface.theme.isEmpty ? null : JsonMap.from(surface.theme),
+    );
+  }
+
+  /// The ID of the surface that this UI belongs to.
+  final String surfaceId;
+
+  /// The ID of the catalog to use for rendering this surface.
+  final String catalogId;
+
+  /// A map of all widget definitions in the UI, keyed by their ID.
+  Map<String, Component> get components => UnmodifiableMapView(_components);
+  final Map<String, Component> _components;
+
+  /// The theme for this surface.
+  final JsonMap? theme;
 
   /// Creates a copy of this [SurfaceDefinition] with the given fields replaced.
   SurfaceDefinition copyWith({
@@ -149,166 +168,24 @@ class SurfaceDefinition {
     return 'A user interface is shown with the following content:\n$text.';
   }
 
+  static final Schema _commonTypesSchema = Schema.fromMap(
+    jsonDecode(commonTypesSchemaJson) as Map<String, Object?>,
+  );
+
   /// Validates the UI definition against a schema.
-  ///
-  /// Throws [A2uiValidationException] if validation fails.
-  void validate(Schema schema) {
-    final String jsonOutput = schema.toJson();
-    final schemaMap = jsonDecode(jsonOutput) as Map<String, dynamic>;
-
-    List<Map<String, dynamic>> allowedSchemas = [];
-    if (schemaMap.containsKey('oneOf')) {
-      allowedSchemas = (schemaMap['oneOf'] as List)
-          .cast<Map<String, dynamic>>();
-    } else if (schemaMap.containsKey('properties') &&
-        (schemaMap['properties'] as Map).containsKey('components')) {
-      final componentsProp =
-          (schemaMap['properties'] as Map)['components']
-              as Map<String, dynamic>;
-      if (componentsProp.containsKey('items')) {
-        final items = componentsProp['items'] as Map<String, dynamic>;
-        if (items.containsKey('oneOf')) {
-          allowedSchemas = (items['oneOf'] as List)
-              .cast<Map<String, dynamic>>();
-        } else {
-          allowedSchemas = [items];
-        }
-      } else if (componentsProp.containsKey('properties')) {
-        allowedSchemas = (componentsProp['properties'] as Map).values
-            .cast<Map<String, dynamic>>()
-            .toList();
-      }
+  Future<void> validate(Schema schema, {SchemaRegistry? registry}) async {
+    final SchemaRegistry reg = registry ?? SchemaRegistry();
+    if (registry == null) {
+      reg.addSchema(Uri.parse(commonTypesSchemaId), _commonTypesSchema);
     }
-
-    if (allowedSchemas.isEmpty) {
-      return;
-    }
-
-    for (final Component component in components.values) {
-      var matched = false;
-      List<String> errors = [];
-      final JsonMap instanceJson = component.toJson();
-
-      for (final s in allowedSchemas) {
-        if (_schemaMatchesType(s, component.type)) {
-          try {
-            _validateInstance(instanceJson, s, '/components/${component.id}');
-            matched = true;
-            break;
-          } catch (e) {
-            errors.add(e.toString());
-          }
-        }
-      }
-
-      if (!matched) {
-        if (errors.isNotEmpty) {
-          throw A2uiValidationException(
-            'Validation failed for component ${component.id} '
-            '(${component.type}): ${errors.join("; ")}',
-            surfaceId: surfaceId,
-            path: '/components/${component.id}',
-          );
-        }
-        throw A2uiValidationException(
-          'Unknown component type: ${component.type}',
-          surfaceId: surfaceId,
-          path: '/components/${component.id}',
-        );
-      }
-    }
-  }
-
-  bool _schemaMatchesType(Map<String, dynamic> schema, String type) {
-    if (schema case {
-      'properties': {'component': Map<String, dynamic> compProp},
-    }) {
-      return switch (compProp) {
-        {'const': String constType} when constType == type => true,
-        {'enum': List<dynamic> enums} when enums.contains(type) => true,
-        _ => false,
-      };
-    }
-    return false;
-  }
-
-  void _validateInstance(
-    Object? instance,
-    Map<String, dynamic> schema,
-    String path,
-  ) {
-    if (instance == null) {
-      return;
-    }
-
-    if (schema case {'const': Object? constVal} when instance != constVal) {
-      throw A2uiValidationException(
-        'Value mismatch. Expected $constVal, got $instance',
-        surfaceId: surfaceId,
-        path: path,
-      );
-    }
-
-    if (schema case {
-      'enum': List<dynamic> enums,
-    } when !enums.contains(instance)) {
-      throw A2uiValidationException(
-        'Value not in enum: $instance',
-        surfaceId: surfaceId,
-        path: path,
-      );
-    }
-
-    if (schema case {'required': List<dynamic> required} when instance is Map) {
-      for (final String key in required.cast<String>()) {
-        if (!instance.containsKey(key)) {
-          throw A2uiValidationException(
-            'Missing required property: $key',
-            surfaceId: surfaceId,
-            path: path,
-          );
-        }
-      }
-    }
-
-    if (schema case {
-      'properties': Map<String, dynamic> props,
-    } when instance is Map) {
-      for (final MapEntry<String, dynamic> entry in props.entries) {
-        final String key = entry.key;
-        final propSchema = entry.value as Map<String, dynamic>;
-        if (instance.containsKey(key)) {
-          _validateInstance(instance[key], propSchema, '$path/$key');
-        }
-      }
-    }
-
-    if (schema case {
-      'items': Map<String, dynamic> itemsSchema,
-    } when instance is List) {
-      for (var i = 0; i < instance.length; i++) {
-        _validateInstance(instance[i], itemsSchema, '$path/$i');
-      }
-    }
-
-    if (schema case {'oneOf': List<dynamic> oneOfs}) {
-      var oneMatched = false;
-      for (final Map<String, dynamic> s
-          in oneOfs.cast<Map<String, dynamic>>()) {
-        try {
-          _validateInstance(instance, s, path);
-          oneMatched = true;
-          break;
-        } catch (_) {}
-      }
-      if (!oneMatched) {
-        throw A2uiValidationException(
-          'Value did not match any oneOf schema',
-          surfaceId: surfaceId,
-          path: path,
-        );
-      }
-    }
+    await schema_validation.validateComponents(
+      surfaceId: surfaceId,
+      components: components.values.map(
+        (c) => (id: c.id, type: c.type, json: c.toJson()),
+      ),
+      schema: schema,
+      registry: reg,
+    );
   }
 }
 
@@ -334,6 +211,15 @@ final class Component {
     properties.remove('component');
 
     return Component(id: id, type: rawType, properties: properties);
+  }
+
+  /// Creates a snapshot from a live core component model.
+  factory Component.fromCore(core.ComponentModel component) {
+    return Component(
+      id: component.id,
+      type: component.type,
+      properties: JsonMap.from(component.properties),
+    );
   }
 
   /// The unique ID of the component.
@@ -362,76 +248,43 @@ final class Component {
       Object.hash(id, type, const DeepCollectionEquality().hash(properties));
 }
 
-/// Exception thrown when validation fails.
-class A2uiValidationException implements Exception {
-  /// Creates a [A2uiValidationException].
-  A2uiValidationException(
-    this.message, {
-    this.surfaceId,
-    this.path,
-    this.json,
-    this.cause,
-  });
-
-  /// The error message.
-  final String message;
-
-  /// The ID of the surface where the validation error occurred.
-  final String? surfaceId;
-
-  /// The path in the data/component model where the error occurred.
-  final String? path;
-
-  /// The JSON that caused the error.
-  final Object? json;
-
-  /// The underlying cause of the error.
-  final Object? cause;
-
-  @override
-  String toString() {
-    final buffer = StringBuffer('A2uiValidationException: $message');
-    if (surfaceId != null) buffer.write(' (surface: $surfaceId)');
-    if (path != null) buffer.write(' (path: $path)');
-    if (cause != null) buffer.write('\nCause: $cause');
-    if (json != null) buffer.write('\nJSON: $json');
-    return buffer.toString();
-  }
-}
-
-/// A sealed class representing an update to the UI managed by the system.
-///
-/// Subclasses: [SurfaceAdded], [ComponentsUpdated], and [SurfaceRemoved].
+/// Surface lifecycle events emitted by `SurfaceController.surfaceUpdates`.
 sealed class SurfaceUpdate {
-  /// Creates a [SurfaceUpdate] for the given [surfaceId].
   const SurfaceUpdate(this.surfaceId);
-
-  /// The ID of the surface that was updated.
   final String surfaceId;
 }
 
 /// Fired when a new surface is created.
 final class SurfaceAdded extends SurfaceUpdate {
-  /// Creates a [SurfaceAdded] event for the given [surfaceId] and
-  /// [definition].
+  /// Constructs from a [SurfaceDefinition]. `SurfaceController` uses
+  /// [SurfaceAdded.fromCore] internally.
   const SurfaceAdded(super.surfaceId, this.definition);
 
-  /// The definition of the new surface.
+  /// Internal: snapshots the definition from a live core surface.
+  @internal
+  SurfaceAdded.fromCore(super.surfaceId, core.SurfaceModel coreSurface)
+    : definition = SurfaceDefinition.fromCore(coreSurface);
+
+  /// Snapshot definition for this surface.
   final SurfaceDefinition definition;
 }
 
-/// Fired when an existing surface is modified.
+/// Fired when an existing surface's component set is modified.
 final class ComponentsUpdated extends SurfaceUpdate {
-  /// Creates a [ComponentsUpdated] event for the given [surfaceId] and
-  /// [definition].
+  /// Constructs from a [SurfaceDefinition]. `SurfaceController` uses
+  /// [ComponentsUpdated.fromCore] internally.
   const ComponentsUpdated(super.surfaceId, this.definition);
 
-  /// The new definition of the surface.
+  /// Internal: snapshots the definition from a live core surface.
+  @internal
+  ComponentsUpdated.fromCore(super.surfaceId, core.SurfaceModel coreSurface)
+    : definition = SurfaceDefinition.fromCore(coreSurface);
+
+  /// Snapshot definition for this surface.
   final SurfaceDefinition definition;
 }
 
 /// Fired when a surface is deleted.
 final class SurfaceRemoved extends SurfaceUpdate {
-  /// Creates a [SurfaceRemoved] event for the given [surfaceId].
   const SurfaceRemoved(super.surfaceId);
 }

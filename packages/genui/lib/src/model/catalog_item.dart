@@ -18,7 +18,7 @@ typedef ChildBuilderCallback =
 /// A callback that builds an example of a catalog item.
 ///
 /// The returned string must be a valid JSON representation of a list of
-/// [Component] objects. One of the components in the list must have the `id`
+/// component objects. One of the components in the list must have the `id`
 /// 'root'.
 typedef ExampleBuilderCallback = String Function();
 
@@ -26,11 +26,6 @@ typedef ExampleBuilderCallback = String Function();
 typedef CatalogWidgetBuilder = Widget Function(CatalogItemContext itemContext);
 
 /// Context provided to a [CatalogItem]'s widget builder.
-///
-/// This class encapsulates all the information and callbacks needed to build
-/// a catalog widget, including access to the widget's data, its position in
-/// the component tree, and mechanisms for building children and dispatching
-/// events.
 final class CatalogItemContext {
   /// Creates a [CatalogItemContext] with the required parameters.
   ///
@@ -115,7 +110,7 @@ final class CatalogItem {
     final List<Object?> requiredProps =
         originalMap['required'] as List<Object?>? ?? <Object?>[];
 
-    return ObjectSchema.fromMap(<String, Object?>{
+    final schema = ObjectSchema.fromMap(<String, Object?>{
       ...originalMap,
       'properties': <String, Object?>{
         ...properties,
@@ -125,7 +120,9 @@ final class CatalogItem {
         },
       },
       'required': <Object?>['component', ...requiredProps],
+      'additionalProperties': true,
     });
+    return schema;
   }
 
   /// The builder for this widget.
@@ -145,7 +142,7 @@ final class CatalogItem {
   /// example usage of this widget.
   ///
   /// Each returned string must be a valid JSON representation of a list of
-  /// [Component] objects. For the example to be renderable, one of the
+  /// component objects. For the example to be renderable, one of the
   /// components in the list must have the `id` 'root', which will be used as
   /// the entry point for rendering.
   ///

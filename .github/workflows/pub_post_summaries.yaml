@@ -1,0 +1,22 @@
+# Copyright 2025 The Flutter Authors.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# A CI configuration for pub-publish to write comments on PRs.
+
+name: Comment on the pull request
+
+on:
+  # Ignored because workflow_run is used securely to post comments without giving PR workflows write permissions.
+  workflow_run: # zizmor: ignore[dangerous-triggers]
+    workflows: 
+      - Publish
+    types:
+      - completed
+
+jobs:
+  upload:
+    # Ignored because dart-lang ecosystem reusable workflows are designed to run from @main.
+    uses: dart-lang/ecosystem/.github/workflows/post_summaries.yaml@main # zizmor: ignore[unpinned-uses]
+    permissions:
+      pull-requests: write
