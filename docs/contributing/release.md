@@ -1,5 +1,5 @@
 
-# Publishing 
+# Release process 
 
 Publishing to [pub.dev](https://pub.dev) happens automatically via GitHub Actions, with the help of
 [firehose rules](https://github.com/dart-lang/ecosystem/tree/main/pkgs/firehose).
