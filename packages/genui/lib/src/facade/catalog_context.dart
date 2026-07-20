@@ -9,6 +9,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../model/catalog.dart';
 import '../model/catalog_item.dart';
+import '../primitives/constants.dart';
 import '../primitives/simple_items.dart';
 
 /// A compact summary of a single catalog item.
@@ -230,8 +231,9 @@ abstract final class CatalogContext {
       itemSchema['required'] as List<Object?>? ?? const [],
     );
 
-    return {
+    final JsonMap envelope = {
       ...itemSchema,
+      'additionalProperties': false,
       'properties': {
         ...itemProperties,
         'id': {
@@ -242,6 +244,12 @@ abstract final class CatalogContext {
       },
       'required': ['id', ...itemRequired.where((value) => value != 'id')],
     };
+    return jsonDecode(
+          jsonEncode(
+            envelope,
+          ).replaceAll(commonTypesSchemaId, 'common_types.json'),
+        )
+        as JsonMap;
   }
 
   /// Decodes each of the item's example builders as structured JSON.

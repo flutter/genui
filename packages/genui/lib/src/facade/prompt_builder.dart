@@ -425,22 +425,15 @@ final class _BasicPromptBuilder extends PromptBuilder {
       return _incrementalSystemPrompt();
     }
     final String catalogSchema = _generateCatalogSchema(catalog);
-
-    final String cleanCommonTypes = commonTypesSchema.replaceAll(
-      commonTypesSchemaId,
-      'common_types.json',
-    );
-    final String cleanServerToClient = serverToClientSchema.replaceAll(
-      commonTypesSchemaId,
-      'common_types.json',
-    );
+    final ({String commonTypes, String serverToClient}) cleanSchemas =
+        _cleanSchemas();
 
     return _assembleSystemPrompt(
       afterTechnical: const <String>[],
       schemaSections: <String>[
-        _fenced(cleanCommonTypes, sectionName: 'COMMON TYPES'),
+        _fenced(cleanSchemas.commonTypes, sectionName: 'COMMON TYPES'),
         _fenced(catalogSchema, sectionName: 'CATALOG SCHEMA'),
-        _fenced(cleanServerToClient, sectionName: 'MESSAGE SCHEMA'),
+        _fenced(cleanSchemas.serverToClient, sectionName: 'MESSAGE SCHEMA'),
       ],
       restrictUiTools: true,
     );
@@ -458,14 +451,35 @@ final class _BasicPromptBuilder extends PromptBuilder {
         'createSurface is enabled.',
       );
     }
+    final ({String commonTypes, String serverToClient}) cleanSchemas =
+        _cleanSchemas();
     return _assembleSystemPrompt(
       afterTechnical: <String>[
         PromptFragments.incrementalCatalogToolPolicy(prefix: importancePrefix),
       ],
-      schemaSections: <String>[_incrementalCatalogPrompt()],
+      schemaSections: <String>[
+        _fenced(cleanSchemas.commonTypes, sectionName: 'COMMON TYPES'),
+        _incrementalCatalogPrompt(),
+        _fenced(
+          _encodeCatalogFunctions(catalog),
+          sectionName: 'CATALOG FUNCTIONS',
+        ),
+        _fenced(cleanSchemas.serverToClient, sectionName: 'MESSAGE SCHEMA'),
+      ],
       restrictUiTools: false,
     );
   }
+
+  ({String commonTypes, String serverToClient}) _cleanSchemas() => (
+    commonTypes: commonTypesSchema.replaceAll(
+      commonTypesSchemaId,
+      'common_types.json',
+    ),
+    serverToClient: serverToClientSchema.replaceAll(
+      commonTypesSchemaId,
+      'common_types.json',
+    ),
+  );
 
   /// Assembles the shared system-prompt fragment chain.
   ///
@@ -522,11 +536,6 @@ final class _BasicPromptBuilder extends PromptBuilder {
 The active A2UI catalog is available as a compact manifest below. It lists the
 available components and a short description of each, but NOT their full schemas.
 
-Every A2UI message must be a top-level JSON object with exactly two keys:
-- "version": "v0.9"
-- One supported message name whose value is the message payload.
-Keep all operation properties inside the message payload, not at the top level.
-
 Before emitting any A2UI, call the $toolName tool (for example,
 $loadItemsInputExample) to load the exact schema and examples for the components
 you need.
@@ -549,6 +558,40 @@ $encodedManifest
       catalog.fullSchema.value as Map<String, dynamic>,
     );
 
+    final ({Map<String, dynamic> functions, Map<String, dynamic> anyFunction})
+    functionSchemas = _catalogFunctionSchemas(catalog);
+
+    final defs = Map<String, dynamic>.from(
+      catalogJson[r'$defs'] as Map<String, dynamic>,
+    );
+    catalogJson[r'$defs'] = defs;
+
+    if (functionSchemas.functions.isNotEmpty) {
+      catalogJson['functions'] = functionSchemas.functions;
+      defs['anyFunction'] = functionSchemas.anyFunction;
+    } else {
+      catalogJson.remove('functions');
+      defs['anyFunction'] = functionSchemas.anyFunction;
+    }
+
+    final String json = const JsonEncoder.withIndent('  ').convert(catalogJson);
+    return json.replaceAll(commonTypesSchemaId, 'common_types.json');
+  }
+
+  String _encodeCatalogFunctions(Catalog catalog) {
+    final ({Map<String, dynamic> functions, Map<String, dynamic> anyFunction})
+    functionSchemas = _catalogFunctionSchemas(catalog);
+    final JsonMap catalogFunctions = {
+      'functions': functionSchemas.functions,
+      r'$defs': {'anyFunction': functionSchemas.anyFunction},
+    };
+    return const JsonEncoder.withIndent('  ')
+        .convert(catalogFunctions)
+        .replaceAll(commonTypesSchemaId, 'common_types.json');
+  }
+
+  ({Map<String, dynamic> functions, Map<String, dynamic> anyFunction})
+  _catalogFunctionSchemas(Catalog catalog) {
     final Map<String, dynamic> functions = {
       for (final func in catalog.functions)
         func.name: {
@@ -557,26 +600,14 @@ $encodedManifest
           'returnType': func.returnType.value,
         },
     };
-
-    final defs = Map<String, dynamic>.from(
-      catalogJson[r'$defs'] as Map<String, dynamic>,
-    );
-    catalogJson[r'$defs'] = defs;
-
-    if (functions.isNotEmpty) {
-      catalogJson['functions'] = functions;
-      defs['anyFunction'] = {
-        'oneOf': [
-          for (final name in functions.keys) {r'$ref': '#/functions/$name'},
-        ],
-      };
-    } else {
-      catalogJson.remove('functions');
-      defs['anyFunction'] = {'not': <String, dynamic>{}};
-    }
-
-    final String json = const JsonEncoder.withIndent('  ').convert(catalogJson);
-    return json.replaceAll(commonTypesSchemaId, 'common_types.json');
+    final Map<String, dynamic> anyFunction = functions.isEmpty
+        ? {'not': <String, dynamic>{}}
+        : {
+            'oneOf': [
+              for (final name in functions.keys) {r'$ref': '#/functions/$name'},
+            ],
+          };
+    return (functions: functions, anyFunction: anyFunction);
   }
 
   static String? _encodedDataModel(JsonMap? clientDataModel) {

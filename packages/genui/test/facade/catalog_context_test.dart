@@ -112,6 +112,42 @@ void main() {
       expect(required, contains('child'));
     });
 
+    test('loaded schema rejects additional properties', () {
+      final LoadCatalogItemsResult result = CatalogContext.loadItems(
+        catalog,
+        <String>['Card'],
+      );
+
+      expect(result.items.single.schema['additionalProperties'], isFalse);
+    });
+
+    test('rewrites common-types refs in loaded schemas', () {
+      final referencedItem = CatalogItem(
+        name: 'Referenced',
+        dataSchema: ObjectSchema.fromMap(<String, Object?>{
+          'type': 'object',
+          'properties': <String, Object?>{
+            'action': <String, Object?>{
+              r'$ref': '$commonTypesSchemaId#/\$defs/Action',
+            },
+          },
+        }),
+        widgetBuilder: (_) => const SizedBox.shrink(),
+      );
+      final referencedCatalog = Catalog(<CatalogItem>[
+        referencedItem,
+      ], catalogId: 'referenced_catalog');
+
+      final LoadCatalogItemsResult result = CatalogContext.loadItems(
+        referencedCatalog,
+        <String>['Referenced'],
+      );
+      final encodedSchema = result.items.single.schema.toString();
+
+      expect(encodedSchema, contains(r'common_types.json#/$defs/Action'));
+      expect(encodedSchema, isNot(contains('https://a2ui.org')));
+    });
+
     test('parses example JSON when valid', () {
       final LoadCatalogItemsResult result = CatalogContext.loadItems(
         catalog,

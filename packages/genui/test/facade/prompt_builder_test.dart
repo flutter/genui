@@ -81,7 +81,10 @@ void main() {
     test('includes a catalog manifest section and omits the full schema', () {
       final String prompt = incrementalPromptFor(testCatalog);
 
+      expect(prompt, contains('COMMON_TYPES'));
       expect(prompt, contains('A2UI_CATALOG_MANIFEST'));
+      expect(prompt, contains('CATALOG_FUNCTIONS'));
+      expect(prompt, contains('MESSAGE_SCHEMA'));
       expect(prompt, isNot(contains('CATALOG_SCHEMA')));
     });
 
@@ -106,9 +109,8 @@ void main() {
         catalogPromptMode: CatalogPromptMode.incremental,
       ).systemPromptJoined();
 
-      expect(prompt, contains('top-level JSON object'));
-      expect(prompt, contains('"version": "v0.9"'));
-      expect(prompt, contains('message payload'));
+      expect(prompt, contains('MESSAGE_SCHEMA'));
+      expect(prompt, contains('"const": "v0.9"'));
     });
 
     test('uses active manifest names in the loadCatalogItems example', () {
@@ -120,6 +122,28 @@ void main() {
       expect(prompt, contains('loadCatalogItems'));
       expect(prompt, contains('{"items": ["Text"]}'));
       expect(prompt, isNot(contains('{"items": ["Card", "Text"]}')));
+    });
+
+    test('includes catalog functions and anyFunction', () {
+      final functionsCatalog = Catalog(
+        <CatalogItem>[BasicCatalogItems.text],
+        functions: <ClientFunction>[BasicFunctions.requiredFunction],
+        catalogId: 'functions_catalog',
+      );
+      final String prompt = incrementalPromptFor(functionsCatalog);
+
+      expect(prompt, contains('CATALOG_FUNCTIONS'));
+      expect(prompt, contains('"required"'));
+      expect(prompt, contains('"anyFunction"'));
+      expect(prompt, contains(r'"$ref": "#/functions/required"'));
+    });
+
+    test('includes an impossible anyFunction when functions are empty', () {
+      final String prompt = incrementalPromptFor(testCatalog);
+
+      expect(prompt, contains('"functions": {}'));
+      expect(prompt, contains('"anyFunction"'));
+      expect(prompt, contains('"not": {}'));
     });
 
     test('describes the component envelope (id and component)', () {
