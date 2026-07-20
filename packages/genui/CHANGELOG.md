@@ -1,5 +1,9 @@
 # `genui` Changelog
 
+## 0.10.1
+
+- Depend on `a2ui_core` 0.1.0, its first non-pre-release version.
+
 ## 0.10.0
 
 - **BREAKING**: Changed `SurfaceDefinition.validate` to be asynchronous to support resolving `$ref` schemas via `SchemaRegistry`.

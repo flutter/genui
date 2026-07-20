@@ -1,5 +1,9 @@
 # `genui_a2a` Changelog
 
+## 0.10.1
+
+- Depend on `a2ui_core` 0.1.0, its first non-pre-release version.
+
 ## 0.10.0
 
 - **BREAKING**: `A2uiAgentConnector.stream` now emits `package:a2ui_core`
