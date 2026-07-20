@@ -122,6 +122,45 @@ void main() {
       expect(result.items.single.examples.first, isA<List<Object?>>());
     });
 
+    test('identifies the item and example when example JSON is invalid', () {
+      final invalidExampleItem = CatalogItem(
+        name: 'BrokenCard',
+        dataSchema: S.object(),
+        widgetBuilder: (_) => const SizedBox.shrink(),
+        exampleData: <ExampleBuilderCallback>[
+          () => '[]',
+          () => '{invalid json',
+        ],
+      );
+      final invalidExampleCatalog = Catalog(<CatalogItem>[
+        invalidExampleItem,
+      ], catalogId: 'invalid_example_catalog');
+
+      expect(
+        () => CatalogContext.loadItems(invalidExampleCatalog, <String>[
+          'BrokenCard',
+        ]),
+        throwsA(
+          isA<FormatException>()
+              .having(
+                (FormatException error) => error.message,
+                'message',
+                allOf(contains('BrokenCard'), contains('example 1')),
+              )
+              .having(
+                (FormatException error) => error.source,
+                'source',
+                '{invalid json',
+              )
+              .having(
+                (FormatException error) => error.offset,
+                'offset',
+                isNotNull,
+              ),
+        ),
+      );
+    });
+
     test('preserves request order and removes duplicates', () {
       final LoadCatalogItemsResult result = CatalogContext.loadItems(
         catalog,

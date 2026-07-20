@@ -246,8 +246,20 @@ abstract final class CatalogContext {
 
   /// Decodes each of the item's example builders as structured JSON.
   static List<Object?> _examplesFor(CatalogItem item) {
-    return [
-      for (final buildExample in item.exampleData) jsonDecode(buildExample()),
-    ];
+    final examples = <Object?>[];
+    for (var index = 0; index < item.exampleData.length; index++) {
+      final String json = item.exampleData[index]();
+      try {
+        examples.add(jsonDecode(json));
+      } on FormatException catch (error) {
+        throw FormatException(
+          'Failed to parse example $index for catalog item "${item.name}": '
+          '${error.message}',
+          error.source,
+          error.offset,
+        );
+      }
+    }
+    return examples;
   }
 }
