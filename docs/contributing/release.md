@@ -50,7 +50,7 @@ The versions may have postfixes:
 - **`-noop`**: used in CHANGELOG.md and pubspec.yaml to indicate that the code does not contain publishable changes comparing to the previously published version and thus should not be published to pub.dev.
 - **no postfix**: release ready version, that should be pushed to pub.dev right after merging the PR that introduced the changes.
 
-The packages code should be always release ready. That means:
+The packages' code should always be release-ready. That means:
 
 1. Use `-wip` version (format `0.1.0-wip002`) if ready versions for this packages were never published yet, and are planned to be published in the future. 
 
@@ -111,9 +111,9 @@ TODO: Consume solution for [dependabot issue][dependabot/dependabot-core#15057] 
 [About Dependabot version updates]: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/about-dependabot-version-updates
 [dependabot/dependabot-core#15057]: https://github.com/dependabot/dependabot-core/issues/15057
 
-## How to configure GitHub and pub.dev for auto-publishing?
+## How to configure GitHub and pub.dev for auto-publishing
 
-GitHub and pub.dev are already configured for auto-publishing. This section is here in case this needs to be reproduced for new repo or new package. 
+GitHub and pub.dev are already configured for auto-publishing. This section is here in case this needs to be reproduced for a new repo or a new package. 
 
 Note that you need to have administrative permissions to update configuration.
 
