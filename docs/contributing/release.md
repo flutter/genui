@@ -62,7 +62,7 @@ The packages code should be always release ready. That means:
 
 5. If your feature is partially implemented, hide the feature's code behind a false-by-default flag, and use **release-ready** version. (There is no detailed guidance how to define this flag yet. It should be outlined when it is needed. Please create an issue if you need it soon.)
 
-## How to publishing happens?
+## How publishing happens?
 
 1. **Auto**: The workflow job `publish / validate` will:
    - check if the PR follows [firehose rules](https://github.com/dart-lang/ecosystem/tree/main/pkgs/firehose).
