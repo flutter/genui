@@ -10,8 +10,7 @@ This directory contains the following specifications:
 - [Style guide](styleguide.md)
 - [Design](design.md)
 - [Pull requests](pull_requests.md)
-- [Publishing](publishing.md)
-- [Examples](../../examples/README.md)
+- [Releases](release.md)
 
 ## Note for AI models
 
