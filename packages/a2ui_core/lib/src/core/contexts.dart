@@ -2,11 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import '../primitives/errors.dart';
 import '../primitives/reactivity.dart';
 import 'catalog.dart';
 import 'common.dart';
 import 'component_model.dart';
 import 'data_model.dart';
+import 'messages.dart';
 import 'surface_model.dart';
 
 /// A function that invokes a catalog function by name.
@@ -24,11 +26,14 @@ typedef FunctionInvoker =
 /// paths like `/users/0/name`. Also evaluates data bindings and
 /// function calls.
 class DataContext {
+  final SurfaceModel<ComponentApi> surface;
   final DataModel dataModel;
   final FunctionInvoker _invoke;
   final String path;
 
-  DataContext(this.dataModel, this._invoke, this.path);
+  DataContext(this.surface, this.path)
+    : dataModel = surface.dataModel,
+      _invoke = surface.catalog.invoke;
 
   String resolvePath(String relativePath) {
     if (relativePath.startsWith('/')) return relativePath;
@@ -52,7 +57,7 @@ class DataContext {
       for (final MapEntry<String, dynamic> entry in call.args.entries) {
         args[entry.key] = resolveSync(entry.value);
       }
-      final Object? result = _invoke(call.call, args, this);
+      final Object? result = _evaluateFunction(call.call, args);
       if (result is ReadonlySignal) {
         return result.value;
       }
@@ -87,7 +92,7 @@ class DataContext {
           );
           args[entry.key] = resolved.value;
         }
-        final Object? result = _invoke(call.call, args, this);
+        final Object? result = _evaluateFunction(call.call, args);
         if (result is ReadonlySignal) {
           return result.value;
         }
@@ -97,8 +102,27 @@ class DataContext {
     return signal(value);
   }
 
+  /// Invokes a catalog function. A throw is reported as an EXPRESSION_ERROR
+  /// on the surface and resolves to null, so a bad function reference
+  /// degrades the bound value instead of crashing resolution.
+  Object? _evaluateFunction(String name, Map<String, dynamic> args) {
+    try {
+      return _invoke(name, args, this);
+    } catch (error) {
+      surface.dispatchError(
+        A2uiClientError(
+          code: 'EXPRESSION_ERROR',
+          surfaceId: surface.id,
+          message: error is A2uiError ? error.message : error.toString(),
+          details: error is A2uiExpressionError ? error.details : null,
+        ),
+      );
+      return null;
+    }
+  }
+
   DataContext nested(String relativePath) {
-    return DataContext(dataModel, _invoke, resolvePath(relativePath));
+    return DataContext(surface, resolvePath(relativePath));
   }
 
   void set(String relativePath, Object? value) {
@@ -113,11 +137,7 @@ class ComponentContext {
   final DataContext dataContext;
 
   ComponentContext(this.surface, this.componentModel, {String? basePath})
-    : dataContext = DataContext(
-        surface.dataModel,
-        surface.catalog.invoke,
-        basePath ?? '/',
-      );
+    : dataContext = DataContext(surface, basePath ?? '/');
 
   /// Dispatches an action from the component.
   Future<void> dispatchAction(Map<String, dynamic> action) {
@@ -143,7 +163,10 @@ extension CatalogInvokerExtension on Catalog {
   Object? invoke(String name, Map<String, dynamic> args, DataContext context) {
     final FunctionImplementation? fn = functions[name];
     if (fn == null) {
-      throw ArgumentError('Function not found: $name');
+      throw A2uiExpressionError(
+        "Function not found in catalog '$id': $name",
+        expression: name,
+      );
     }
     return fn.execute(args, context);
   }
