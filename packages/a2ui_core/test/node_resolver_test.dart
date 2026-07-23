@@ -52,6 +52,29 @@ class _ShoutFunction extends FunctionImplementation {
   }
 }
 
+class _PingFunction extends FunctionImplementation {
+  int invocationCount = 0;
+
+  @override
+  String get name => 'ping';
+
+  @override
+  A2uiReturnType get returnType => A2uiReturnType.string;
+
+  @override
+  Schema get argumentSchema => Schema.object(properties: {});
+
+  @override
+  Object? execute(
+    Map<String, Object?> args,
+    DataContext context, [
+    CancellationSignal? cancellationSignal,
+  ]) {
+    invocationCount++;
+    return 'pong';
+  }
+}
+
 class _Opaque {
   final int marker;
   _Opaque(this.marker);
@@ -796,6 +819,28 @@ void main() {
       resolver.dispose();
     });
 
+    test('resolves a call to an unknown function to null and dispatches an '
+        'expression error instead of throwing', () {
+      final (
+        catalog: Catalog<ComponentApi> catalog,
+        surface: SurfaceModel<ComponentApi> surface,
+        resolver: NodeResolver<ComponentApi> resolver,
+      ) = setup();
+      final errors = <A2uiClientError>[];
+      surface.onError.addListener(errors.add);
+      add(surface, 'root', 'Text', {
+        'text': {'call': 'unregistered', 'args': <String, Object?>{}},
+      });
+
+      final ComponentNode root = resolver.rootNode.value!;
+      expect(props(root)['text'], isNull);
+      expect(errors, hasLength(1));
+      expect(errors[0].code, 'EXPRESSION_ERROR');
+      expect(errors[0].surfaceId, 'surf-1');
+      expect(errors[0].message, contains('Function not found'));
+      resolver.dispose();
+    });
+
     test('renders a self-referencing component as a placeholder child', () {
       final (
         catalog: Catalog<ComponentApi> catalog,
@@ -860,6 +905,83 @@ void main() {
         errors.where((e) => e.code == 'UNKNOWN_COMPONENT_TYPE').length,
         reportsBefore,
       );
+      resolver.dispose();
+    });
+  });
+
+  group('NodeResolver functionCall actions', () {
+    test('executes a functionCall action through the evaluator when fired, '
+        'emitting no action event', () async {
+      final ping = _PingFunction();
+      final catalog = Catalog<ComponentApi>(
+        id: 'function-action-catalog',
+        components: [
+          _TestComponentApi(
+            'Button',
+            Schema.object(
+              properties: {
+                'label': CommonSchemas.dynamicString,
+                'action': CommonSchemas.action,
+              },
+            ),
+          ),
+        ],
+        functions: [ping],
+      );
+      final surface = SurfaceModel<ComponentApi>('surf-1', catalog: catalog);
+      final resolver = NodeResolver<ComponentApi>(surface, catalog);
+      final actions = <A2uiClientAction>[];
+      final errors = <A2uiClientError>[];
+      surface.onAction.addListener(actions.add);
+      surface.onError.addListener(errors.add);
+      add(surface, 'root', 'Button', {
+        'label': 'Go',
+        'action': {
+          'functionCall': {'call': 'ping', 'args': <String, Object?>{}},
+        },
+      });
+
+      final ComponentNode root = resolver.rootNode.value!;
+      expect(ping.invocationCount, 0);
+      final Object? fire = props(root)['action'];
+      expect(fire, isA<Function>());
+      (fire as Function)();
+      await flush();
+
+      expect(ping.invocationCount, 1);
+      expect(actions, isEmpty);
+      expect(errors, isEmpty);
+      resolver.dispose();
+    });
+
+    test('resolves an unknown function in a functionCall action to an '
+        'expression error instead of throwing', () async {
+      final (
+        catalog: Catalog<ComponentApi> catalog,
+        surface: SurfaceModel<ComponentApi> surface,
+        resolver: NodeResolver<ComponentApi> resolver,
+      ) = setup();
+      final actions = <A2uiClientAction>[];
+      final errors = <A2uiClientError>[];
+      surface.onAction.addListener(actions.add);
+      surface.onError.addListener(errors.add);
+      add(surface, 'root', 'Button', {
+        'label': 'Go',
+        'action': {
+          'functionCall': {'call': 'unregistered', 'args': <String, Object?>{}},
+        },
+      });
+
+      final ComponentNode root = resolver.rootNode.value!;
+      final Object? fire = props(root)['action'];
+      expect(fire, isA<Function>());
+      (fire as Function)();
+      await flush();
+
+      expect(errors, hasLength(1));
+      expect(errors[0].code, 'EXPRESSION_ERROR');
+      expect(errors[0].message, contains('Function not found'));
+      expect(actions, isEmpty);
       resolver.dispose();
     });
   });
