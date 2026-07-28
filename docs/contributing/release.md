@@ -91,23 +91,9 @@ TODO(polina-c): update this section after fix of https://github.com/dart-lang/ec
 
 Weekly:
 
-1. Make sure each releasable dart package is released (TODO: [auto-create P0 bug](https://github.com/dart-lang/ecosystem/issues/423))
-   1.1. Check the `Package publishing` table in the [latest merged PR that touches releasable code](https://github.com/flutter/genui/pulls?q=is%3Apr+is%3Amerged+%22Package+publishing%22) to see if all non-wip versions are marked `already published`.
-   1.2. For packages not yet published, publish them by running `flutter pub publish` (if you do not have permissions, ask in the team chat to be made an admin on the admin page of the package).
-
-2. Make sure publishable changes are not under `wip` in `CHANGELOG.md` (should be [auto-validated](https://github.com/dart-lang/ecosystem/issues/422) in future).
-   
-   If publishable changes are under `wip` in `CHANGELOG.md`:
-
-   2.1. Convert the wip version to a non-wip version in `CHANGELOG.md`.
-
-   2.2. Publish the new version.
-   
-   2.3. Comment on the PR that merged publishable changes under `wip`:
-    
-     > This PR wrongly placed publishable changes under a `wip` version. This is corrected in PR <link>. See guidelines [here](https://github.com/flutter/genui/blob/main/docs/contributing/publishing.md#-wip-vs-non--wip-production-ready-versions).
-
-   2.4. Make sure the PR author and reviewers acknowledged the comment.
+Make sure each releasable dart package is released (TODO: [auto-create P0 bug](https://github.com/dart-lang/ecosystem/issues/423))
+   1. Check the `Package publishing` table in the [latest merged PR that touches releasable code](https://github.com/flutter/genui/pulls?q=is%3Apr+is%3Amerged+%22Package+publishing%22) to see if all non-wip versions are marked `already published`.
+   2. For packages not yet published, publish them by running `flutter pub publish` (if you do not have permissions, ask in the team chat to be made an admin on the admin page of the package).
 
 ## How upgrade of dependencies happens?
 
