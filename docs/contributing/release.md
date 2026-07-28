@@ -92,7 +92,7 @@ TODO(polina-c): update this section after fix of https://github.com/dart-lang/ec
 Weekly:
 
 1. Make sure each releasable dart package is released (TODO: [auto-create P0 bug](https://github.com/dart-lang/ecosystem/issues/423))
-   1.1. Check the `Package publishing` table in the [latest merged PR](https://github.com/flutter/genui/pulls?q=is%3Apr+is%3Amerged+) to see if all non-wip versions are marked `already published`.
+   1.1. Check the `Package publishing` table in the [latest merged PR that touches releasable code](https://github.com/flutter/genui/pulls?q=is%3Apr+is%3Amerged+%22Package+publishing%22) to see if all non-wip versions are marked `already published`.
    1.2. For packages not yet published, publish them by running `flutter pub publish` (if you do not have permissions, ask in the team chat to be made an admin on the admin page of the package).
 
 2. Make sure publishable changes are not under `wip` in `CHANGELOG.md` (should be [auto-validated](https://github.com/dart-lang/ecosystem/issues/422) in future).
