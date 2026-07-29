@@ -6,6 +6,7 @@ import 'package:logging/logging.dart';
 
 import '../primitives/event_notifier.dart';
 import '../primitives/reactivity.dart';
+import 'resolved_binding.dart';
 
 final _log = Logger('a2ui_core.nodes');
 
@@ -17,9 +18,11 @@ typedef NodeProps = Map<String, Object?>;
 
 /// One resolved component instance in the rendered tree.
 ///
-/// A node's [props] hold fully resolved values: primitives for dynamic
-/// values, ready-to-call closures for actions, and live [ComponentNode]
-/// references (or lists of them) for child properties.
+/// A node's [props] hold fully resolved values: a [ResolvedBinding]
+/// (snapshot plus optional write) for each dynamic value, ready-to-call
+/// closures for actions, and live [ComponentNode] references (or lists of
+/// them) for child properties. The tree is whatever is reachable from the
+/// resolver's root; there is no separate graph structure or traversal API.
 ///
 /// Emission contract: [props] emits when this node's own resolved properties
 /// change, including when a child *reference* is replaced (a placeholder
@@ -113,8 +116,9 @@ class ComponentNode {
   }
 
   /// Serializes the resolved tree for debugging and headless assertions.
-  /// Child nodes serialize recursively; action closures and setters
-  /// serialize as the string `'<Action>'`.
+  /// Child nodes serialize recursively, bindings serialize as their
+  /// snapshot value, and action closures serialize as the string
+  /// `'<Action>'`.
   Map<String, Object?> toJson() {
     if (isPlaceholder) {
       return {'id': componentId, 'type': placeholderType};
@@ -136,12 +140,16 @@ bool sameValue(Object? a, Object? b) {
   if (a is String && b is String) return a == b;
   if (a is num && b is num) return a == b;
   if (a is bool && b is bool) return a == b;
+  if (a is ResolvedBinding && b is ResolvedBinding) return a == b;
   return false;
 }
 
 Object? _serializeValue(Object? value) {
   if (value is ComponentNode) {
     return value.toJson();
+  }
+  if (value is ResolvedBinding) {
+    return _serializeValue(value.value);
   }
   if (value is Function) {
     return '<Action>';

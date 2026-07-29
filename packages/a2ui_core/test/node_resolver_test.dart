@@ -8,9 +8,12 @@
 /// shared-node use-after-dispose, and whole-list template respawn).
 ///
 /// Known divergences from the TypeScript suite:
-/// - The Dart binder synthesizes `setX` setters only for path-bound dynamic
-///   props; web_core's synthesizes them for every two-way dynamic prop, so
-///   the serialization test here expects no setters for literal values.
+/// - Dynamic properties resolve to a [ResolvedBinding] (snapshot value plus
+///   a write capability only where the payload bound a path), implementing
+///   the cross-SDK data-binding contract. web_core still resolves dynamic
+///   properties to a plain value with a synthesized `setX` sibling; it
+///   adopts the binding shape with the v1.0 patchset, since changing it is
+///   breaking for published code.
 /// - The compile-time rejection of a schema-only catalog has no Dart
 ///   equivalent: `Catalog` only holds `FunctionImplementation`s, so a
 ///   signature-only catalog is not constructable at all.
@@ -149,6 +152,10 @@ void add(
 
 NodeProps props(ComponentNode node) => node.props.peek();
 
+/// Unwraps the [ResolvedBinding] snapshot for a dynamic property.
+Object? bound(ComponentNode node, String key) =>
+    (props(node)[key] as ResolvedBinding<Object?>?)?.value;
+
 ComponentNode child(ComponentNode node, String key, [int? index]) {
   final Object? value = index == null
       ? props(node)[key]
@@ -198,7 +205,7 @@ void main() {
       add(surface, 'child_1', 'Text', {'text': 'Hello Node'});
       final ComponentNode upgraded = child(root, 'children', 0);
       expect(upgraded.type, 'Text');
-      expect(props(upgraded)['text'], 'Hello Node');
+      expect(bound(upgraded, 'text'), 'Hello Node');
 
       surface.componentsModel.removeComponent('child_1');
       expect(child(root, 'children', 0).type, placeholderType);
@@ -257,10 +264,10 @@ void main() {
         'text': {'path': '/username'},
       });
       final ComponentNode root = resolver.rootNode.value!;
-      expect(props(root)['text'], 'Alice');
+      expect(bound(root, 'text'), 'Alice');
 
       surface.dataModel.set('/username', 'Bob');
-      expect(props(root)['text'], 'Bob');
+      expect(bound(root, 'text'), 'Bob');
       resolver.dispose();
     });
 
@@ -275,7 +282,7 @@ void main() {
       final ComponentNode root = resolver.rootNode.value!;
       final ComponentNode textNode = child(root, 'child');
       expect(textNode.type, 'Text');
-      expect(props(textNode)['text'], 'Hello');
+      expect(bound(textNode, 'text'), 'Hello');
       resolver.dispose();
     });
 
@@ -294,8 +301,8 @@ void main() {
       final List<ComponentNode> children = (props(root)['children'] as List)
           .cast<ComponentNode>();
       expect(children, hasLength(2));
-      expect(props(children[0])['text'], 'C1');
-      expect(props(children[1])['text'], 'C2');
+      expect(bound(children[0], 'text'), 'C1');
+      expect(bound(children[1], 'text'), 'C2');
       resolver.dispose();
     });
 
@@ -321,8 +328,8 @@ void main() {
       expect(children, hasLength(2));
       expect(children[0].instanceId, 'item_tpl-[/items/0]');
       expect(children[0].dataPath, '/items/0');
-      expect(props(children[0])['text'], 'A');
-      expect(props(children[1])['text'], 'B');
+      expect(bound(children[0], 'text'), 'A');
+      expect(bound(children[1], 'text'), 'B');
       resolver.dispose();
     });
 
@@ -352,7 +359,7 @@ void main() {
       final ComponentNode upgraded = child(root, 'children', 0);
       expect(identical(upgraded, placeholder), isFalse);
       expect(upgraded.type, 'Text');
-      expect(props(upgraded)['text'], 'Arrived');
+      expect(bound(upgraded, 'text'), 'Arrived');
       expect(placeholder.disposed, isTrue);
       expect(destroyed, 1);
       emissions.dispose();
@@ -406,7 +413,7 @@ void main() {
         'text': {'path': '/missing'},
       });
       final ComponentNode root = resolver.rootNode.value!;
-      expect(props(root)['text'], isNull);
+      expect(bound(root, 'text'), isNull);
       resolver.dispose();
     });
 
@@ -436,7 +443,7 @@ void main() {
             .cast<ComponentNode>();
         expect(after, hasLength(2));
         expect(identical(after[0], before[0]), isTrue);
-        expect(props(after[1])['text'], 'C3');
+        expect(bound(after[1], 'text'), 'C3');
         expect(before[1].disposed, isTrue);
         resolver.dispose();
       },
@@ -468,7 +475,7 @@ void main() {
       final List<ComponentNode> children = (props(root)['children'] as List)
           .cast<ComponentNode>();
       expect(children, hasLength(1));
-      expect(props(children[0])['text'], 'T0');
+      expect(bound(children[0], 'text'), 'T0');
       expect(explicitChild.disposed, isTrue);
       resolver.dispose();
     });
@@ -489,10 +496,10 @@ void main() {
         },
       });
       final ComponentNode root = resolver.rootNode.value!;
-      expect(props(root)['text'], 'ALICE');
+      expect(bound(root, 'text'), 'ALICE');
 
       surface.dataModel.set('/username', 'bob');
-      expect(props(root)['text'], 'BOB');
+      expect(bound(root, 'text'), 'BOB');
       resolver.dispose();
     });
 
@@ -517,10 +524,10 @@ void main() {
       expect(items[0]['title'], 'One');
       final Object? first = items[0]['child'];
       expect(first, isA<ComponentNode>());
-      expect(props(first as ComponentNode)['text'], 'First');
+      expect(bound(first as ComponentNode, 'text'), 'First');
       final Object? second = items[1]['child'];
       expect(second, isA<ComponentNode>());
-      expect(props(second as ComponentNode)['text'], 'Second');
+      expect(bound(second as ComponentNode, 'text'), 'Second');
       resolver.dispose();
     });
 
@@ -578,7 +585,7 @@ void main() {
         final List<ComponentNode> grown = (props(root)['children'] as List)
             .cast<ComponentNode>();
         expect(grown, hasLength(3));
-        expect(props(grown[2])['text'], 'C');
+        expect(bound(grown[2], 'text'), 'C');
 
         surface.dataModel.set('/items', [
           {'name': 'A'},
@@ -690,7 +697,7 @@ void main() {
       expect(sharedViaA.disposed, isTrue);
       expect(sharedViaB.disposed, isFalse);
       surface.dataModel.set('/label', 'still updating');
-      expect(props(sharedViaB)['text'], 'still updating');
+      expect(bound(sharedViaB, 'text'), 'still updating');
       resolver.dispose();
     });
 
@@ -774,7 +781,7 @@ void main() {
 
       surface.dataModel.set('/username', 'Bob');
       expect(boundEmissions.count, 1);
-      expect(props(boundText)['text'], 'Bob');
+      expect(bound(boundText, 'text'), 'Bob');
       expect(rootEmissions.count, 0);
 
       // Editing one item's field re-fires the template's array
@@ -782,7 +789,7 @@ void main() {
       // update while the template parent's props stay identity-stable and
       // silent.
       surface.dataModel.set('/items/0/name', 'A2');
-      expect(props(item0)['text'], 'A2');
+      expect(bound(item0, 'text'), 'A2');
       expect(item0Emissions.count, greaterThanOrEqualTo(1));
       expect(templateColumnEmissions.count, 0);
       expect(rootEmissions.count, 0);
@@ -833,7 +840,7 @@ void main() {
       });
 
       final ComponentNode root = resolver.rootNode.value!;
-      expect(props(root)['text'], isNull);
+      expect(bound(root, 'text'), isNull);
       expect(errors, hasLength(1));
       expect(errors[0].code, 'EXPRESSION_ERROR');
       expect(errors[0].surfaceId, 'surf-1');
@@ -868,11 +875,11 @@ void main() {
         'text': {'path': '/blob'},
       });
       final ComponentNode root = resolver.rootNode.value!;
-      expect(identical((props(root)['text'] as Map)['wrapper'], first), isTrue);
+      expect(identical((bound(root, 'text') as Map)['wrapper'], first), isTrue);
 
       surface.dataModel.set('/blob', {'wrapper': second});
       expect(
-        identical((props(root)['text'] as Map)['wrapper'], second),
+        identical((bound(root, 'text') as Map)['wrapper'], second),
         isTrue,
       );
       resolver.dispose();
@@ -905,6 +912,90 @@ void main() {
         errors.where((e) => e.code == 'UNKNOWN_COMPONENT_TYPE').length,
         reportsBefore,
       );
+      resolver.dispose();
+    });
+  });
+
+  group('NodeResolver resolved bindings (write-path contract)', () {
+    test('exposes dynamic values as bindings, writable iff path-bound', () {
+      final (
+        catalog: Catalog<ComponentApi> catalog,
+        surface: SurfaceModel<ComponentApi> surface,
+        resolver: NodeResolver<ComponentApi> resolver,
+      ) = setup();
+      surface.dataModel.set('/label', 'Go');
+      add(surface, 'root', 'Column', {
+        'children': ['txt', 'btn'],
+      });
+      add(surface, 'txt', 'Text', {'text': 'Hi'});
+      add(surface, 'btn', 'Button', {
+        'label': {'path': '/label'},
+      });
+      final ComponentNode root = resolver.rootNode.value!;
+
+      final literal =
+          props(child(root, 'children', 0))['text'] as ResolvedBinding<Object?>;
+      expect(literal.value, 'Hi');
+      expect(literal.writable, isFalse);
+      expect(literal.set, isNull);
+
+      final pathBound =
+          props(child(root, 'children', 1))['label']
+              as ResolvedBinding<Object?>;
+      expect(pathBound.value, 'Go');
+      expect(pathBound.writable, isTrue);
+      pathBound.set!('Next');
+      expect(surface.dataModel.get('/label'), 'Next');
+      expect(bound(child(root, 'children', 1), 'label'), 'Next');
+      resolver.dispose();
+    });
+
+    test('writes through a template item binding land at the item scope', () {
+      final (
+        catalog: Catalog<ComponentApi> catalog,
+        surface: SurfaceModel<ComponentApi> surface,
+        resolver: NodeResolver<ComponentApi> resolver,
+      ) = setup();
+      surface.dataModel.set('/items', [
+        {'name': 'A'},
+        {'name': 'B'},
+      ]);
+      add(surface, 'root', 'Column', {
+        'children': {'componentId': 'item_tpl', 'path': '/items'},
+      });
+      add(surface, 'item_tpl', 'Text', {
+        'text': {'path': 'name'},
+      });
+      final ComponentNode root = resolver.rootNode.value!;
+      final List<ComponentNode> children = (props(root)['children'] as List)
+          .cast<ComponentNode>();
+
+      final second = props(children[1])['text'] as ResolvedBinding<Object?>;
+      second.set!('B2');
+
+      expect(surface.dataModel.get('/items/1/name'), 'B2');
+      expect(surface.dataModel.get('/items/0/name'), 'A');
+      expect(bound(children[0], 'text'), 'A');
+      expect(bound(children[1], 'text'), 'B2');
+      resolver.dispose();
+    });
+
+    test('serializes path-bound values as their snapshot, no setter '
+        'entries', () {
+      final (
+        catalog: Catalog<ComponentApi> catalog,
+        surface: SurfaceModel<ComponentApi> surface,
+        resolver: NodeResolver<ComponentApi> resolver,
+      ) = setup();
+      surface.dataModel.set('/t', 'Hello');
+      add(surface, 'root', 'Text', {
+        'text': {'path': '/t'},
+      });
+      expect(resolver.rootNode.value!.toJson(), {
+        'id': 'root',
+        'type': 'Text',
+        'text': 'Hello',
+      });
       resolver.dispose();
     });
   });

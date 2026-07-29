@@ -21,6 +21,7 @@ export 'src/core/surface_model.dart';
 export 'src/nodes/component_node.dart';
 export 'src/nodes/node_resolver.dart';
 export 'src/nodes/ref_fields.dart';
+export 'src/nodes/resolved_binding.dart';
 export 'src/primitives/cancellation.dart';
 export 'src/primitives/data_path.dart';
 export 'src/primitives/errors.dart';
