@@ -139,34 +139,29 @@ void main() {
     expect(find.text('Gamma'), findsOneWidget);
   });
 
-  testWidgets(
-    'renders unmarked single-child references through the legacy fallback '
-    'and dispatches actions',
-    (WidgetTester tester) async {
-      final (
-        core.SurfaceModel<core.ComponentApi> surface,
-        List<UiEvent> events,
-      ) = createSurface();
-      add(surface, 'root', 'Button', {
-        'child': 'label',
-        'action': {
-          'event': {'name': 'pressed'},
-        },
-      });
-      add(surface, 'label', 'Text', {'text': 'Press me'});
+  testWidgets('renders unmarked single-child references from raw definitions '
+      'and dispatches actions', (WidgetTester tester) async {
+    final (core.SurfaceModel<core.ComponentApi> surface, List<UiEvent> events) =
+        createSurface();
+    add(surface, 'root', 'Button', {
+      'child': 'label',
+      'action': {
+        'event': {'name': 'pressed'},
+      },
+    });
+    add(surface, 'label', 'Text', {'text': 'Press me'});
 
-      await tester.pumpWidget(host(surface, events));
-      await tester.pumpAndSettle();
-      expect(find.text('Press me'), findsOneWidget);
+    await tester.pumpWidget(host(surface, events));
+    await tester.pumpAndSettle();
+    expect(find.text('Press me'), findsOneWidget);
 
-      await tester.tap(find.byType(ElevatedButton));
-      await tester.pumpAndSettle();
+    await tester.tap(find.byType(ElevatedButton));
+    await tester.pumpAndSettle();
 
-      expect(events, hasLength(1));
-      expect(events.single.isUserAction, isTrue);
-      expect(events.single.surfaceId, 'node-surface-test');
-    },
-  );
+    expect(events, hasLength(1));
+    expect(events.single.isUserAction, isTrue);
+    expect(events.single.surfaceId, 'node-surface-test');
+  });
 
   testWidgets('reconciles an explicit children list change', (
     WidgetTester tester,

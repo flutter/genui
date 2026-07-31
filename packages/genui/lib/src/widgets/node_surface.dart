@@ -28,9 +28,9 @@ import 'surface.dart';
 /// child-reference properties arrive as resolved nodes (templates expanded
 /// one node per data item, missing components as placeholders swapped in
 /// place, list changes reconciled with surviving nodes reused). Properties
-/// the engine cannot classify as child references fall back to the legacy
-/// id-walking path, so catalogs work before their schemas declare
-/// references.
+/// the resolver cannot classify as child references are rendered by walking
+/// the raw definitions by id, as [Surface] does, so catalogs whose schemas
+/// do not declare references still work.
 class NodeSurface extends StatefulWidget {
   /// Creates a [NodeSurface].
   const NodeSurface({
@@ -212,9 +212,9 @@ class _NodeSurfaceState extends State<NodeSurface> {
             return _buildNode(child);
           }
           // The schema did not mark this property as a child reference, so
-          // the engine resolved no node for it; walk the raw definition the
-          // way [Surface] does.
-          return _buildLegacyWidget(
+          // the resolver produced no node for it; walk the raw definition
+          // the way [Surface] does.
+          return _buildFromDefinition(
             context,
             id,
             childDataContext ?? dataContext,
@@ -227,10 +227,10 @@ class _NodeSurfaceState extends State<NodeSurface> {
     }
   }
 
-  /// The legacy fallback: renders a component and its descendants directly
-  /// from the raw definitions, bypassing the node layer. Used for child
-  /// references the engine could not classify from the schema.
-  Widget _buildLegacyWidget(
+  /// Renders a component and its descendants directly from the raw
+  /// definitions, bypassing the node layer. Used for child references the
+  /// resolver could not classify from the schema.
+  Widget _buildFromDefinition(
     BuildContext context,
     String componentId,
     DataContext dataContext,
@@ -249,7 +249,7 @@ class _NodeSurfaceState extends State<NodeSurface> {
         data: JsonMap.from(model.properties),
         dataContext: dataContext,
         buildChild: (String id, [DataContext? childDataContext]) =>
-            _buildLegacyWidget(context, id, childDataContext ?? dataContext),
+            _buildFromDefinition(context, id, childDataContext ?? dataContext),
       );
     } catch (exception, stackTrace) {
       _reportError(exception, stackTrace);

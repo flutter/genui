@@ -3,20 +3,12 @@
 // found in the LICENSE file.
 
 /// Conformance suite for the node layer, ported from web_core's
-/// `node-resolver.test.ts` (itself ported from the Python reference
-/// `test_node_graph.py` plus defect coverage: eager action resolution,
-/// shared-node use-after-dispose, and whole-list template respawn).
+/// `node-resolver.test.ts`.
 ///
-/// Known divergences from the TypeScript suite:
-/// - Dynamic properties resolve to a [ResolvedBinding] (snapshot value plus
-///   a write capability only where the payload bound a path), implementing
-///   the cross-SDK data-binding contract. web_core still resolves dynamic
-///   properties to a plain value with a synthesized `setX` sibling; it
-///   adopts the binding shape with the v1.0 patchset, since changing it is
-///   breaking for published code.
-/// - The compile-time rejection of a schema-only catalog has no Dart
-///   equivalent: `Catalog` only holds `FunctionImplementation`s, so a
-///   signature-only catalog is not constructable at all.
+/// Known divergence from the TypeScript suite: the compile-time rejection of
+/// a schema-only catalog has no Dart equivalent, because `Catalog` only
+/// holds `FunctionImplementation`s and a signature-only catalog is not
+/// constructable at all.
 library;
 
 import 'package:a2ui_core/a2ui_core.dart';
@@ -618,8 +610,6 @@ void main() {
         },
       });
       final ComponentNode root = resolver.rootNode.value!;
-      // Unlike web_core, the Dart binder synthesizes setters only for
-      // path-bound props, so the literal-valued Text and Button carry none.
       expect(root.toJson(), {
         'id': 'root',
         'type': 'Column',
@@ -785,9 +775,8 @@ void main() {
       expect(rootEmissions.count, 0);
 
       // Editing one item's field re-fires the template's array
-      // subscription (ancestor-path propagation); the item node must
-      // update while the template parent's props stay identity-stable and
-      // silent.
+      // subscription; the item node must update while the template
+      // parent's props stay identity-stable and silent.
       surface.dataModel.set('/items/0/name', 'A2');
       expect(bound(item0, 'text'), 'A2');
       expect(item0Emissions.count, greaterThanOrEqualTo(1));
@@ -861,8 +850,8 @@ void main() {
     });
 
     test('propagates changes to non-plain object values', () {
-      // Class instances have no entries for key-wise stabilization to
-      // compare, so the engine must treat them as always-changed.
+      // Class instances have no entries to compare key by key, so the
+      // resolver must treat them as always-changed.
       final (
         catalog: Catalog<ComponentApi> catalog,
         surface: SurfaceModel<ComponentApi> surface,
@@ -916,7 +905,7 @@ void main() {
     });
   });
 
-  group('NodeResolver resolved bindings (write-path contract)', () {
+  group('NodeResolver resolved bindings (write path)', () {
     test('exposes dynamic values as bindings, writable iff path-bound', () {
       final (
         catalog: Catalog<ComponentApi> catalog,

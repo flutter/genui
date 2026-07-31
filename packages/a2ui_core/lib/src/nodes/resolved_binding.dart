@@ -6,9 +6,8 @@
 /// value, plus a write capability when (and only when) the payload bound a
 /// data path.
 ///
-/// This is the Dart spelling of the cross-SDK `DataBinding` concept; the
-/// name differs because `DataBinding` here is the wire model of the
-/// `{"path": ...}` payload spelling.
+/// Not to be confused with `DataBinding`, the wire model of the
+/// `{"path": ...}` payload.
 ///
 /// `set` is null when the payload supplied a literal or a function call, so
 /// an unchecked write does not compile under sound null safety. A null `set`
@@ -26,9 +25,9 @@ final class ResolvedBinding<T> {
   /// Whether writes have a destination (the payload bound a data path).
   bool get writable => set != null;
 
-  /// Bindings compare by snapshot value and writability, so the node
-  /// emission gate can suppress no-op updates even though each update
-  /// constructs a new binding instance.
+  /// Bindings compare by snapshot value and writability, so the shallow
+  /// comparison in the node's `setProps` can suppress no-op updates even
+  /// though each update constructs a new binding instance.
   @override
   bool operator ==(Object other) =>
       other is ResolvedBinding &&

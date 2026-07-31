@@ -44,18 +44,16 @@ class _NodeRecord {
   });
 }
 
-/// The tree engine of the node layer: turns a surface's flat component map
-/// into a live tree of resolved [ComponentNode]s rooted at [rootNode]. Child
-/// references become [ComponentNode] objects, template `ChildList`s spawn one
-/// node per array item, not-yet-arrived components appear as placeholder
-/// nodes and are upgraded in place, and every node's binder and data
-/// subscriptions are torn down when its parent stops referencing it or the
-/// resolver is disposed.
+/// Turns a surface's flat component map into a live tree of resolved
+/// [ComponentNode]s rooted at [rootNode]. Child references become
+/// [ComponentNode] objects, template `ChildList`s spawn one node per array
+/// item, not-yet-arrived components appear as placeholder nodes and are
+/// upgraded in place, and every node's binder and data subscriptions are
+/// torn down when its parent stops referencing it or the resolver is
+/// disposed.
 ///
 /// Construction requires the same catalog instance the surface was
-/// constructed with. Resolution executes catalog functions, so it needs a
-/// catalog with implementations; [Catalog] only holds
-/// [FunctionImplementation]s, so every constructable catalog qualifies.
+/// constructed with.
 ///
 /// Node identity is parent-scoped: each referencing position gets its own
 /// node, so one component id mounted at two positions yields two nodes and
@@ -356,7 +354,8 @@ class NodeResolver<T extends ComponentApi> {
   /// Rebuilds a node's resolved props from its binder output: child
   /// reference properties become live [ComponentNode]s, children this parent
   /// no longer references are disposed, and unchanged values keep reference
-  /// identity so the node's shallow emission gate stays exact.
+  /// identity so the shallow comparison in [ComponentNode.setProps] stays
+  /// exact.
   void _materialize(_NodeRecord record) {
     if (record.node.disposed) {
       return;

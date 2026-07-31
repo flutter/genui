@@ -78,9 +78,8 @@ class ComponentNode {
   }
 
   /// Replaces the resolved props, emitting only if a shallow comparison shows
-  /// a change. Callers keep unchanged values reference-identical (child nodes
-  /// come from the resolver's cache; untouched lists keep their identity), so
-  /// shallow comparison is exact rather than heuristic.
+  /// a change. Callers must keep unchanged values reference-identical; the
+  /// shallow comparison is exact only under that invariant.
   void setProps(NodeProps next) {
     if (_disposed) {
       return;
@@ -131,10 +130,10 @@ class ComponentNode {
   }
 }
 
-/// Whether two prop values are the same by the emission gate's standards:
-/// reference identity, with value equality for primitives (equal strings are
-/// not always [identical], so identity alone would report equal-value
-/// updates as changes).
+/// Whether two prop values count as unchanged for the shallow comparison in
+/// [ComponentNode.setProps]: reference identity, with value equality for
+/// primitives (equal strings are not always [identical], so identity alone
+/// would report equal-value updates as changes).
 bool sameValue(Object? a, Object? b) {
   if (identical(a, b)) return true;
   if (a is String && b is String) return a == b;
