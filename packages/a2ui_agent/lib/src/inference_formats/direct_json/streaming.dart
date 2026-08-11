@@ -46,7 +46,7 @@ class JsonFragmentScanner {
   /// Returns the message fragments contained in [source].
   List<MessageFragment> scan() {
     final fragments = <MessageFragment>[];
-    var index = _skipWhitespace(0);
+    int index = _skipWhitespace(0);
     if (index < source.length && source[index] == '[') index++;
 
     while (true) {
@@ -206,7 +206,7 @@ class JsonFragmentScanner {
     }
 
     final closers = StringBuffer();
-    for (var i = result.stack.length - 1; i >= 0; i--) {
+    for (int i = result.stack.length - 1; i >= 0; i--) {
       closers.write(result.stack[i].isObject ? '}' : ']');
     }
     return '$text$closers';
@@ -215,11 +215,11 @@ class JsonFragmentScanner {
   /// Decodes the string literal ending at [end] (the index of its closing
   /// quote), so that escape sequences in property keys are honoured.
   static String? _decodeStringLiteral(String source, int end) {
-    var start = end - 1;
+    int start = end - 1;
     while (start >= 0) {
       if (source[start] == '"') {
         var backslashes = 0;
-        var index = start - 1;
+        int index = start - 1;
         while (index >= 0 && source[index] == r'\') {
           backslashes++;
           index--;
@@ -385,7 +385,7 @@ class DirectJsonStreamProcessor extends IncrementalStreamProcessor {
         continue;
       }
       final String encoded = jsonEncode(component);
-      final String key = '$index $id';
+      final key = '$index $id';
       if (_emittedComponents[key] == encoded) continue;
       _emittedComponents[key] = encoded;
       fresh.add(component);

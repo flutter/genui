@@ -42,7 +42,7 @@ abstract final class PayloadFixer {
 
     final List<Object?> entries = decoded is List ? decoded : [decoded];
     final messages = <Map<String, dynamic>>[];
-    for (final Object? entry in entries) {
+    for (final entry in entries) {
       if (entry is! Map) {
         throw A2uiFormatError(
           'A2UI payload entries must be JSON objects, got '
