@@ -242,7 +242,7 @@ void expandSchemaRefs(Object? node) {
 A2uiReturnType _parseReturnType(Object? value) {
   if (value is! String) return A2uiReturnType.any;
   if (value == A2uiReturnType.void_.jsonValue) return A2uiReturnType.void_;
-  for (final type in A2uiReturnType.values) {
+  for (final A2uiReturnType type in A2uiReturnType.values) {
     if (type.name == value) return type;
   }
   return A2uiReturnType.any;
