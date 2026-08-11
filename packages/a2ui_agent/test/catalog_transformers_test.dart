@@ -26,9 +26,9 @@ void main() {
 
     test('preserves id, functions and theme schema', () {
       final catalog = MinimalCatalog();
-      final Catalog<ComponentApi> pruned = ComponentPruningTransformer(
-        const ['Text'],
-      ).transform(catalog);
+      final Catalog<ComponentApi> pruned = ComponentPruningTransformer(const [
+        'Text',
+      ]).transform(catalog);
 
       expect(pruned.id, catalog.id);
       expect(pruned.functions.keys, catalog.functions.keys);
@@ -56,9 +56,9 @@ void main() {
     });
 
     test('keeps a named function', () {
-      final Catalog<ComponentApi> pruned = FunctionPruningTransformer(
-        const ['capitalize'],
-      ).transform(MinimalCatalog());
+      final Catalog<ComponentApi> pruned = FunctionPruningTransformer(const [
+        'capitalize',
+      ]).transform(MinimalCatalog());
 
       expect(pruned.functions.keys, ['capitalize']);
     });
@@ -92,7 +92,9 @@ void main() {
     test('caches the transformed catalog', () {
       final config = CatalogConfig(
         MinimalCatalog(),
-        transformers: [ComponentPruningTransformer(const ['Text'])],
+        transformers: [
+          ComponentPruningTransformer(const ['Text']),
+        ],
       );
 
       expect(

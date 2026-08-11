@@ -82,9 +82,7 @@ class SentinelTokenizer {
         final int keep = _partialTagSuffixLength(rest, tag);
         final String emit = rest.substring(0, rest.length - keep);
         if (emit.isNotEmpty) {
-          tokens.add(
-            _inBlock ? BlockContentToken(emit) : TextToken(emit),
-          );
+          tokens.add(_inBlock ? BlockContentToken(emit) : TextToken(emit));
         }
         _buffer.write(rest.substring(rest.length - keep));
         return tokens;
@@ -95,8 +93,9 @@ class SentinelTokenizer {
         tokens.add(_inBlock ? BlockContentToken(emit) : TextToken(emit));
       }
       tokens.add(
-        _inBlock ? const BlockEndToken(terminated: true) : const
-            BlockStartToken(),
+        _inBlock
+            ? const BlockEndToken(terminated: true)
+            : const BlockStartToken(),
       );
       _inBlock = !_inBlock;
       rest = rest.substring(index + tag.length);
@@ -158,10 +157,7 @@ class SentinelTokenizer {
           raw.write(content);
         case BlockEndToken(terminated: final bool terminated):
           parts.add(
-            RawResponsePart(
-              RawA2uiPart(raw.toString()),
-              isFinal: terminated,
-            ),
+            RawResponsePart(RawA2uiPart(raw.toString()), isFinal: terminated),
           );
           raw.clear();
           inBlock = false;

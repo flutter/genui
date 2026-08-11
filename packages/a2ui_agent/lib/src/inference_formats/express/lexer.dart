@@ -87,11 +87,7 @@ class ExpressLexer {
   ExpressToken _next() {
     _skipIgnored();
     if (_offset >= source.length) {
-      return ExpressToken(
-        type: ExpressTokenType.eof,
-        lexeme: '',
-        line: _line,
-      );
+      return ExpressToken(type: ExpressTokenType.eof, lexeme: '', line: _line);
     }
 
     final int startLine = _line;
@@ -239,10 +235,7 @@ class ExpressLexer {
     _offset++; // consume '?'
     final int start = _offset;
     if (_offset >= source.length || !_isIdentifierStart(source[_offset])) {
-      throw A2uiFormatError(
-        "A check must be written '?name'.",
-        line: line,
-      );
+      throw A2uiFormatError("A check must be written '?name'.", line: line);
     }
     while (_offset < source.length && _isIdentifierPart(source[_offset])) {
       _offset++;

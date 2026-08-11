@@ -186,11 +186,7 @@ class ExpressCompiler {
     }
     _usedIds.add(name);
     final sink = <Map<String, dynamic>>[];
-    final Map<String, dynamic> component = _compileComponent(
-      name,
-      value,
-      sink,
-    );
+    final Map<String, dynamic> component = _compileComponent(name, value, sink);
     return [component, ...sink];
   }
 
@@ -590,7 +586,6 @@ class ExpressCompiler {
       ..add(compiled)
       ..addAll(descendants);
   }
-
 
   String _generateId(String parentId, String property, {int? index}) {
     final base = index == null

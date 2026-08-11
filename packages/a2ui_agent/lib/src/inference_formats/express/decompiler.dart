@@ -35,9 +35,7 @@ class ExpressDecompiler {
             '${_string(message.catalogId)})',
           );
         case DeleteSurfaceMessage():
-          lines.add(
-            '$expressDeleteSurfaceCall(${_string(message.surfaceId)})',
-          );
+          lines.add('$expressDeleteSurfaceCall(${_string(message.surfaceId)})');
         case UpdateDataModelMessage():
           lines.add(
             r'$'
@@ -83,12 +81,9 @@ class ExpressDecompiler {
         positional.add(expressSkipPlaceholder);
         continue;
       }
-      positional.add(
-        _value(component[parameter.name], parameter.schema),
-      );
+      positional.add(_value(component[parameter.name], parameter.schema));
     }
-    while (positional.isNotEmpty &&
-        positional.last == expressSkipPlaceholder) {
+    while (positional.isNotEmpty && positional.last == expressSkipPlaceholder) {
       positional.removeLast();
     }
 
@@ -233,9 +228,7 @@ class ExpressDecompiler {
 
   /// Quotes [value], preferring a raw string when escaping would obscure it.
   String _string(String value) {
-    if (value.contains(r'\') &&
-        !value.contains('"') &&
-        !value.contains('\n')) {
+    if (value.contains(r'\') && !value.contains('"') && !value.contains('\n')) {
       return 'r"$value"';
     }
     final String escaped = value

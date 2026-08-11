@@ -66,9 +66,14 @@ Map<String, dynamic> catalogToDocument(Catalog<ComponentApi> catalog) {
   final components = <String, dynamic>{};
   for (final MapEntry<String, ComponentApi> entry
       in catalog.components.entries) {
-    final Map<String, dynamic> schema = entry.value.schema.toJsonMap();
-    expandSchemaRefs(schema);
-    final Map<String, dynamic> flattened = _mergeAllOf(schema);
+    // Flatten before expanding references: a shared fragment such as
+    // `Checkable` carries both a `REF:` marker and the properties it
+    // contributes, so expanding first would replace it with a bare `$ref` and
+    // lose those properties from the component's own property list.
+    final Map<String, dynamic> flattened = _mergeAllOf(
+      entry.value.schema.toJsonMap(),
+    );
+    expandSchemaRefs(flattened);
     components[entry.key] = {
       'allOf': [
         {r'$ref': r'common_types.json#/$defs/ComponentCommon'},
@@ -289,8 +294,7 @@ Map<String, Object?> _stripComponentEnvelope(Map<String, Object?> schema) {
     if (branch is! Map) continue;
     final Object? branchProperties = branch['properties'];
     if (branchProperties is Map) {
-      for (final MapEntry<Object?, Object?> entry
-          in branchProperties.entries) {
+      for (final MapEntry<Object?, Object?> entry in branchProperties.entries) {
         final Object? key = entry.key;
         if (key is String && !envelopeKeys.contains(key)) {
           properties[key] = entry.value;

@@ -28,14 +28,11 @@ void main() {
         '<a2ui-json>[1]</a2ui-json>mid<a2ui-json>[2]</a2ui-json>',
       );
 
-      expect(
-        parts.map((part) => part.part),
-        [
-          const RawA2uiPart('[1]'),
-          const TextPart('mid'),
-          const RawA2uiPart('[2]'),
-        ],
-      );
+      expect(parts.map((part) => part.part), [
+        const RawA2uiPart('[1]'),
+        const TextPart('mid'),
+        const RawA2uiPart('[2]'),
+      ]);
     });
 
     test('marks an unterminated block as not final', () {
@@ -56,12 +53,27 @@ void main() {
   });
 
   group('wrap', () {
-    test('round trips through unwrap', () {
-      const String response =
-          'Hello <a2ui-json>[{"version":"v0.9"}]</a2ui-json> bye';
+    test('re-adds the sentinel tags around raw blocks', () {
       final DirectJsonParser subject = parser();
 
-      expect(subject.wrap(subject.unwrap(response)), response);
+      expect(
+        subject.wrap(const [
+          RawResponsePart(TextPart('Hello')),
+          RawResponsePart(RawA2uiPart('[{"version":"v0.9"}]')),
+        ]),
+        'Hello<a2ui-json>[{"version":"v0.9"}]</a2ui-json>',
+      );
+    });
+
+    test('is a fixed point of unwrap', () {
+      final DirectJsonParser subject = parser();
+      const response = 'Hello <a2ui-json>[{"version":"v0.9"}]</a2ui-json> bye';
+
+      // unwrap trims conversational text, so wrapping is idempotent from the
+      // second pass on rather than byte-identical to the model's output.
+      final String wrapped = subject.wrap(subject.unwrap(response));
+      expect(subject.wrap(subject.unwrap(wrapped)), wrapped);
+      expect(wrapped, contains('<a2ui-json>[{"version":"v0.9"}]</a2ui-json>'));
     });
   });
 
@@ -115,8 +127,7 @@ void main() {
 ]}}]
 ''');
 
-      final UpdateComponentsMessage message =
-          messages.single as UpdateComponentsMessage;
+      final message = messages.single as UpdateComponentsMessage;
       expect(message.components.single['text'], 'a, b, and c');
     });
 
@@ -130,7 +141,9 @@ void main() {
 
     test('strips a markdown fence', () {
       final List<AgentToRendererMessage> messages = parser().compile(
-        '```json\n[{"version": "v0.9", "deleteSurface": {"surfaceId": "s"}}]\n```',
+        '```json\n'
+        '[{"version": "v0.9", "deleteSurface": {"surfaceId": "s"}}]\n'
+        '```',
       );
 
       expect(messages.single, isA<DeleteSurfaceMessage>());

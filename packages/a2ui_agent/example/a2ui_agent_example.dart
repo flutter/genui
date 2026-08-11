@@ -21,9 +21,7 @@ void main() {
         ],
       ),
     ],
-    examples: {
-      'A greeting with a dismiss button': _greetingExample(),
-    },
+    examples: {'A greeting with a dismiss button': _greetingExample()},
   );
 
   // 2. Per request, negotiate against what the renderer says it can render.
@@ -63,8 +61,9 @@ void main() {
     formatFactory: const ExpressFormatFactory(),
   );
   print('\n--- express ---');
-  for (final ResponsePart part
-      in expressProcessor.parseResponse(_fakeExpressOutput)) {
+  for (final ResponsePart part in expressProcessor.parseResponse(
+    _fakeExpressOutput,
+  )) {
     if (part is A2uiPart) {
       for (final AgentToRendererMessage message in part.a2ui) {
         print('a2ui: ${message.toJson()}');

@@ -82,13 +82,12 @@ class ExpressParser extends Parser {
     protocolVersion: protocolVersion,
   );
 
-  ExpressStreamProcessor get _processor =>
-      _stream ??= ExpressStreamProcessor(
-        createCompiler: _newCompiler,
-        validator: _validator,
-        openTag: openTag,
-        closeTag: closeTag,
-      );
+  ExpressStreamProcessor get _processor => _stream ??= ExpressStreamProcessor(
+    createCompiler: _newCompiler,
+    validator: _validator,
+    openTag: openTag,
+    closeTag: closeTag,
+  );
 }
 
 /// Compiles Express statements as they stream in.

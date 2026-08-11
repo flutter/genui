@@ -47,15 +47,15 @@ List<Catalog<ComponentApi>> resolveCatalogs(
   }
 
   if (active.isEmpty) {
+    final bool ignoredInline =
+        rendererCapabilities.inlineCatalogs.isNotEmpty &&
+        !acceptsInlineCatalogs;
     throw A2uiCapabilityError(
       'No catalog is shared between the agent and the renderer. The agent '
       'supports: ${catalogs.map((config) => config.id).join(', ')}. The '
-      'renderer supports: ${supported.join(', ')}'
-      '${rendererCapabilities.inlineCatalogs.isEmpty || acceptsInlineCatalogs
-          ? ''
-          : ' (it also sent inline catalogs, which this agent does not '
-                'accept)'}'
-      '.',
+      'renderer supports: ${supported.join(', ')}.'
+      '${ignoredInline ? ' The renderer also sent inline catalogs, which this '
+                'agent does not accept.' : ''}',
     );
   }
   return active;
