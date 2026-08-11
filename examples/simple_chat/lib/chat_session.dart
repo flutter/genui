@@ -121,7 +121,7 @@ sealed class ChatSession extends ChangeNotifier {
       _currentAiMessage = Message(isUser: false, text: '');
       _messages.add(_currentAiMessage!);
     }
-    _currentAiMessage!.text = '${_currentAiMessage!.text ?? ''}\n$chunk';
+    _currentAiMessage!.text = (_currentAiMessage!.text ?? '') + chunk;
     notifyListeners();
   }
 

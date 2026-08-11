@@ -1,5 +1,10 @@
 # `genui` Changelog
 
+## 0.10.2
+
+- Fixed `A2uiTransportAdapter.incomingText` trimming every streamed chunk, which
+  made words run together when chunks were concatenated.
+
 ## 0.10.1
 
 - Depend on `a2ui_core` 0.1.0, its first non-pre-release version.
