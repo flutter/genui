@@ -15,6 +15,7 @@ abstract class IncrementalStreamProcessor {
   final SentinelTokenizer _tokenizer;
   final StringBuffer _block = StringBuffer();
   bool _inBlock = false;
+  bool _wrapped = true;
 
   IncrementalStreamProcessor({
     required String openTag,
@@ -43,6 +44,7 @@ abstract class IncrementalStreamProcessor {
   /// When [wrapped] is false the chunk is treated as raw payload content with
   /// no surrounding sentinel tags.
   List<ResponsePart> add(String chunk, {bool wrapped = true}) {
+    _wrapped = wrapped;
     if (!wrapped) {
       if (!_inBlock) {
         _inBlock = true;
@@ -60,9 +62,12 @@ abstract class IncrementalStreamProcessor {
   }
 
   /// Flushes buffered state at the end of the stream.
-  List<ResponsePart> flush({bool wrapped = true}) {
+  ///
+  /// [wrapped] defaults to whatever the last [add] call used, so a stream that
+  /// was parsed unwrapped is also flushed unwrapped.
+  List<ResponsePart> flush({bool? wrapped}) {
     final parts = <ResponsePart>[];
-    if (wrapped) {
+    if (wrapped ?? _wrapped) {
       for (final SentinelToken token in _tokenizer.flush()) {
         parts.addAll(_handle(token));
       }
