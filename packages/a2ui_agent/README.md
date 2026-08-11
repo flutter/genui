@@ -1,7 +1,8 @@
 # A2UI Agent SDK
 
-The agent side of [A2UI](https://a2ui.org) for Dart: everything between "the
-model is about to be called" and "the renderer receives A2UI".
+The agent side of [A2UI](https://a2ui.org) for Dart:
+when agent and renderer are in different processes, this SDK is
+what is needed on agent side.
 
 It covers catalog management, capability negotiation, prompt engineering,
 response parsing, payload validation and transport packaging, so an agent can
@@ -56,15 +57,15 @@ Run the full walkthrough with
 The SDK separates single-responsibility primitives from a high-level facade, so
 that an agent can adopt the whole pipeline or reach past it for one piece.
 
-| Layer | Types |
-| --- | --- |
-| Application facade | `A2uiGenerator`, `A2uiRequestProcessor`, `CatalogConfig`, catalog providers |
+| Layer                | Types                                                                             |
+| -------------------- | --------------------------------------------------------------------------------- |
+| Application facade   | `A2uiGenerator`, `A2uiRequestProcessor`, `CatalogConfig`, catalog providers       |
 | Catalog transformers | `CatalogTransformer`, `ComponentPruningTransformer`, `FunctionPruningTransformer` |
-| Inference formats | `InferenceFormat`, `InferenceFormatFactory`, `DirectJsonFormat`, `ExpressFormat` |
-| Prompt generation | `PromptGenerator` and the per-format generators |
-| Parsing | `Parser`, `RawResponsePart`, `TextPart`, `RawA2uiPart`, `A2uiPart` |
-| Validation | `A2uiPayloadValidator` |
-| Negotiation | `resolveCatalogs`, `A2uiRendererCapabilities` |
+| Inference formats    | `InferenceFormat`, `InferenceFormatFactory`, `DirectJsonFormat`, `ExpressFormat`  |
+| Prompt generation    | `PromptGenerator` and the per-format generators                                   |
+| Parsing              | `Parser`, `RawResponsePart`, `TextPart`, `RawA2uiPart`, `A2uiPart`                |
+| Validation           | `A2uiPayloadValidator`                                                            |
+| Negotiation          | `resolveCatalogs`, `A2uiRendererCapabilities`                                     |
 
 ### Catalogs
 
