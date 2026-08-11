@@ -1,0 +1,14 @@
+name: a2ui_agent
+description: The A2UI agent SDK.
+version: 0.0.1-wip
+
+resolution: workspace
+
+environment:
+  sdk: ">=3.10.0 <4.0.0"
+
+dependencies:
+  a2ui_core: ^0.1.0
+
+dev_dependencies:
+  test: ^1.25.6
