@@ -10,5 +10,6 @@
 library;
 
 export 'widgets/fallback_widget.dart';
+export 'widgets/node_surface.dart';
 export 'widgets/surface.dart';
 export 'widgets/widget_utilities.dart';

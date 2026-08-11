@@ -26,13 +26,16 @@ void main() {
       final context = ComponentContext(surface, comp);
       final binder = GenericBinder(context, MinimalTextApi().schema);
 
-      expect(binder.resolvedProps.value['text'], 'initial');
+      expect(
+        (binder.resolvedProps.value['text'] as ResolvedBinding<Object?>).value,
+        'initial',
+      );
 
       binder.dispose();
 
       surface.dataModel.set('/val', 'updated');
       expect(
-        binder.resolvedProps.value['text'],
+        (binder.resolvedProps.value['text'] as ResolvedBinding<Object?>).value,
         'initial',
         reason: 'binder should not react after dispose',
       );

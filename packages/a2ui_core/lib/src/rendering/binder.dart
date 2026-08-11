@@ -7,6 +7,7 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import '../core/common.dart';
 import '../core/component_model.dart';
 import '../core/contexts.dart';
+import '../nodes/resolved_binding.dart';
 import '../primitives/reactivity.dart';
 
 /// Represents the intended runtime behavior of a property parsed from
@@ -88,14 +89,22 @@ class GenericBinder {
       case Behavior.dynamic:
         final ReadonlySignal<Object?> sig = context.dataContext
             .resolveListenable(value);
+        final void Function(Object?)? write =
+            (value is Map && value.containsKey('path'))
+            ? ((newValue) =>
+                  context.dataContext.set(value['path'] as String, newValue))
+            : null;
         if (!isSync) {
           _subscriptions.add(
             sig.subscribe((newValue) {
-              _updateDeepValue(path, newValue);
+              _updateDeepValue(
+                path,
+                ResolvedBinding<Object?>(newValue, set: write),
+              );
             }),
           );
         }
-        return sig.value;
+        return ResolvedBinding<Object?>(sig.value, set: write);
 
       case Behavior.action:
         return () async {
@@ -223,19 +232,6 @@ class GenericBinder {
           result['validationErrors'] = errors;
         }
 
-        // Add setters for dynamic properties
-        for (final MapEntry<String, BehaviorNode> entry in shape.entries) {
-          if (entry.value.type == Behavior.dynamic) {
-            final String key = entry.key;
-            final setterName = 'set${key[0].toUpperCase()}${key.substring(1)}';
-            final Object? rawValue = value[key];
-            if (rawValue is Map && rawValue.containsKey('path')) {
-              result[setterName] = (Object? newValue) {
-                context.dataContext.set(rawValue['path'] as String, newValue);
-              };
-            }
-          }
-        }
         return result;
 
       case Behavior.array:
