@@ -151,21 +151,66 @@ bool schemaAcceptsString(Schema schema) {
 /// The property names across [catalogs] whose values may be plain strings.
 ///
 /// A streaming parser can safely auto-close a truncated string value for these
-/// keys, because a partially received string is still a valid value for the
-/// property. Keys whose values are numbers, objects or lists are excluded:
-/// healing those would fabricate structure the model never emitted.
+/// keys, because a prefix of the final string is still a legitimate value that
+/// simply grows as more of the stream arrives.
+///
+/// Three kinds of string-valued property are excluded, because a prefix of
+/// their value is not a weaker version of it but a wrong one:
+///
+/// - component references, where a truncated id points at nothing;
+/// - enumerated values, where a prefix is not a member of the enum;
+/// - pattern-constrained values, where a prefix need not match the pattern.
+///
+/// Properties holding numbers, objects or lists are excluded too: healing
+/// those would fabricate structure the model never emitted.
 Set<String> progressiveStringKeys(Iterable<Catalog<ComponentApi>> catalogs) {
   final keys = <String>{};
+  final excluded = <String>{};
   for (final catalog in catalogs) {
     for (final ComponentApi component in catalog.components.values) {
       final ({Map<String, Schema> properties, Set<String> required}) flat =
           flattenSchemaProperties(component.schema);
       for (final MapEntry<String, Schema> entry in flat.properties.entries) {
-        if (schemaAcceptsString(entry.value)) keys.add(entry.key);
+        if (_isHealableString(entry.value)) {
+          keys.add(entry.key);
+        } else {
+          excluded.add(entry.key);
+        }
       }
     }
   }
-  return Set<String>.unmodifiable(keys);
+  // A key that is unsafe in any catalog is unsafe everywhere: the streaming
+  // parser heals by key name, before it knows which component it belongs to.
+  return Set<String>.unmodifiable(keys.difference(excluded));
+}
+
+bool _isHealableString(Schema schema) {
+  if (!schemaAcceptsString(schema)) return false;
+
+  final String? ref = schemaRefName(schema);
+  if (ref == 'ComponentId' || ref == 'ChildList') return false;
+
+  return !_hasConstrainedString(schema);
+}
+
+/// Whether [schema] restricts strings to an enum or a pattern, in any branch.
+bool _hasConstrainedString(Schema schema) {
+  if (schema['enum'] != null || schema['pattern'] != null) return true;
+  if (schema['const'] != null) return true;
+
+  for (final key in const ['anyOf', 'oneOf', 'allOf']) {
+    final Object? branches = schema[key];
+    if (branches is! List) continue;
+    for (final Object? branch in branches) {
+      if (branch is Map &&
+          _hasConstrainedString(
+            Schema.fromMap(branch.cast<String, Object?>()),
+          )) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 String _lastPointerSegment(String pointer) {
