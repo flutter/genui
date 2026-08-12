@@ -134,16 +134,10 @@ sealed class ChatSession extends ChangeNotifier {
   }
 
   Future<void> _runRequest(Future<void> Function() body) async {
-    if (_isProcessing) {
-      // The text input is disabled while a request is in flight, but a rendered
-      // surface stays interactive, so its buttons can still submit. This app
-      // handles one request at a time: a second one would clear
-      // `_currentAiMessage` mid-stream and split the running response across
-      // two bubbles, and whichever request finished first would clear
-      // `_isProcessing` while the other was still going.
-      _logger.warning('Ignoring a request made while one is in progress.');
-      return;
-    }
+    if (_isProcessing) return;
+
+    // TODO: disable input when isProcessing is true.
+
     // The response streams in through `_updateAiMessage`, which starts a new
     // bubble when `_currentAiMessage` is null and appends to that bubble
     // otherwise. Clearing it here is what gives the coming response a bubble of
