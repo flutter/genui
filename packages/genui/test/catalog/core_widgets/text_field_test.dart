@@ -26,10 +26,11 @@ Future<SurfaceController> _pumpTextField(
 }) async {
   final surfaceController = SurfaceController(
     catalogs: [
-      Catalog(
-        BasicCatalogItems.asCatalog().items,
+      // `copyWith` keeps the basic catalog's own functions, which the `checks`
+      // in these tests are written against.
+      BasicCatalogItems.asCatalog().copyWith(
         catalogId: _catalogId,
-        functions: functions,
+        newFunctions: functions,
       ),
     ],
   );
@@ -517,24 +518,47 @@ void main() {
       variant: 'number',
     );
 
-    // A number is typed one character at a time, so the intermediate states
-    // have to survive even though they are not yet parseable numbers.
-    for (final String partial in ['-', '-1', '-1.', '-1.0']) {
+    // A number is typed one character at a time, so every intermediate state
+    // has to survive, including the ones that are not yet numbers.
+    for (final partial in ['-', '-1', '-1.', '-1.0', '-1.05']) {
       await tester.enterText(find.byType(TextField), partial);
       await tester.pumpAndSettle();
       expect(find.text(partial), findsOneWidget, reason: 'typing "$partial"');
     }
 
-    // Anything that does not parse falls back to the raw text, which is what
-    // keeps the field from fighting the user mid-edit.
-    await tester.enterText(find.byType(TextField), '-1.');
+    // Text that is not yet a number is stored as-is; anything parseable is
+    // stored as a number.
+    await tester.enterText(find.byType(TextField), '-');
     await tester.pumpAndSettle();
-    expect(_value(surfaceController), '-1.');
+    expect(_value(surfaceController), '-');
 
     // A second decimal point is not part of any number, so it is rejected.
     await tester.enterText(find.byType(TextField), '-1.2.3');
     await tester.pumpAndSettle();
-    expect(find.text('-1.'), findsOneWidget);
+    expect(find.text('-'), findsOneWidget);
+  });
+
+  testWidgets('TextField with variant "number" can be typed into one key at a '
+      'time', (WidgetTester tester) async {
+    final SurfaceController surfaceController = await _pumpVariant(
+      tester,
+      variant: 'number',
+    );
+
+    // Typing "12.5" keystroke by keystroke. Writing 12.0 to the data model at
+    // the "12." keystroke must not rewrite the field, or the next keystroke
+    // would append to "12.0" and produce 12.05.
+    for (final String keystroke in '12.5'.split('')) {
+      final EditableText editable = tester.widget(find.byType(EditableText));
+      await tester.enterText(
+        find.byType(TextField),
+        '${editable.controller.text}$keystroke',
+      );
+      await tester.pumpAndSettle();
+    }
+
+    expect(find.text('12.5'), findsOneWidget);
+    expect(_value(surfaceController), 12.5);
   });
 
   testWidgets('TextField defaults to a single line of plain text', (

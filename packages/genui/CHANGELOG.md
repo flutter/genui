@@ -8,7 +8,7 @@
 - Added examples of how to use TextField.
 
 - Fixed `TextField` variants: `longText` now grows to fit multiple lines,
-  `number` now rejects non-numeric input on all platforms, and the `obscured`
+  `number` now rejects non-numeric input, and the `obscured`
   example now sets `variant` so that it is actually obscured.
 
 ## 0.10.1

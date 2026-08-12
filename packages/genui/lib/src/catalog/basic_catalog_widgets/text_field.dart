@@ -136,7 +136,8 @@ class _TextFieldState extends State<_TextField> {
   @override
   void didUpdateWidget(_TextField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.initialValue != _controller.text) {
+    if (widget.initialValue != _controller.text &&
+        !_isSameNumberAsTyped(widget.initialValue)) {
       _controller.text = widget.initialValue;
       // No need to manually calculate error here, stream should handle it if
       // related to value.
@@ -145,6 +146,18 @@ class _TextFieldState extends State<_TextField> {
         widget.context != oldWidget.context) {
       _setupValidation();
     }
+  }
+
+  /// Whether [value] is just another spelling of the number already in the
+  /// field, such as `-1.0` for a field the user has typed `-1.` into.
+  ///
+  /// A number variant writes a [num] to the data model, which comes back as its
+  /// canonical string. Overwriting the field with that string would rewrite the
+  /// text mid-edit, so that typing `-1.5` would land on `-1.05`.
+  bool _isSameNumberAsTyped(String value) {
+    if (widget.variant != _Variant.number) return false;
+    final num? parsed = num.tryParse(value);
+    return parsed != null && parsed == num.tryParse(_controller.text);
   }
 
   void _setupValidation() {
@@ -287,7 +300,7 @@ final textField = CatalogItem(
         {
           "id": "root",
           "component": "$_componentName",
-          "${_Json.label}": "What is your initial price?",
+          "${_Json.label}": "What is minimum allowed temperature?",
           "${_Json.variant}": "${_Variant.number}"
         }
       ]
