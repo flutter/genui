@@ -1,3 +1,3 @@
-# A2UI Agent SDK
+# A2UI Flutter SDK
 
 TODO: add readme

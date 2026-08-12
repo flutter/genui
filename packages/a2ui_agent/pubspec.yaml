@@ -2,10 +2,10 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-name: a2ui_agent
-description: The A2UI agent SDK.
-version: 0.0.1-wip
-repository: https://github.com/flutter/genui/tree/main/packages/a2ui_agent
+name: a2ui_flutter
+description: The A2UI Flutter SDK.
+version: 0.0.1-wip002
+repository: https://github.com/flutter/genui/tree/main/packages/a2ui_flutter
 
 resolution: workspace
 
@@ -14,6 +14,7 @@ environment:
 
 dependencies:
   a2ui_core: ^0.1.0
+  json_schema_builder: ^0.1.3
 
 dev_dependencies:
   test: ^1.26.2
