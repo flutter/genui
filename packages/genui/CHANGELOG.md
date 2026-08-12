@@ -11,6 +11,11 @@
   `number` now rejects non-numeric input, and the `obscured`
   example now sets `variant` so that it is actually obscured.
 
+- `TextField.validationRegexp` is now enforced: the value has to match the
+  pattern in full, an empty field is exempt, and a value that does not match
+  shows an error and blocks `onSubmittedAction`. It was previously accepted and
+  ignored.
+
 ## 0.10.1
 
 - Depend on `a2ui_core` 0.1.0, its first non-pre-release version.

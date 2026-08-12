@@ -13,6 +13,7 @@ import '../../model/catalog_item.dart';
 import '../../model/data_model.dart';
 import '../../model/ui_models.dart';
 import '../../model/validation_helper.dart';
+import '../../primitives/logging.dart';
 import '../../primitives/simple_items.dart';
 import '../../widgets/widget_utilities.dart';
 
@@ -52,7 +53,12 @@ final _schema = S.object(
       ],
     ),
     _Json.checks: A2uiSchemas.checkable(),
-    _Json.validationRegexp: S.string(),
+    _Json.validationRegexp: S.string(
+      description:
+          'A regular expression the value has to match in full for the field '
+          'to be valid. An empty field is exempt; use a `required` check to '
+          'demand a value at all.',
+    ),
     _Json.onSubmittedAction: A2uiSchemas.action(),
   },
 );
@@ -121,15 +127,27 @@ class _TextField extends StatefulWidget {
   State<_TextField> createState() => _TextFieldState();
 }
 
+/// Shown when the text does not match the component's `validationRegexp`,
+/// which, unlike a check, carries no message of its own.
+const _invalidFormatMessage = 'Invalid format';
+
 class _TextFieldState extends State<_TextField> {
   late final TextEditingController _controller;
-  String? _errorText;
+  String? _checkError;
+  String? _formatError;
   StreamSubscription<String?>? _validationSubscription;
+
+  /// The error to show, if any.
+  ///
+  /// A failing check wins over a failing regexp, since it comes with a message
+  /// written for this particular field.
+  String? get _error => _checkError ?? _formatError;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.initialValue);
+    _formatError = _formatErrorFor(widget.initialValue);
     _setupValidation();
   }
 
@@ -146,6 +164,28 @@ class _TextFieldState extends State<_TextField> {
         widget.context != oldWidget.context) {
       _setupValidation();
     }
+    // A build follows, so the new error does not need a `setState`.
+    _formatError = _formatErrorFor(_controller.text);
+  }
+
+  /// The error for [text] not matching [_TextField.validationRegexp], or `null`
+  /// when it matches.
+  ///
+  /// The pattern has to match all of [text], and an empty field is exempt, so
+  /// that this behaves like the HTML `pattern` attribute that other A2UI
+  /// renderers map this property to. Demanding a value at all is what a
+  /// `required` check is for.
+  String? _formatErrorFor(String text) {
+    final String? pattern = widget.validationRegexp;
+    if (pattern == null || text.isEmpty) return null;
+    final RegExp regexp;
+    try {
+      regexp = RegExp('^(?:$pattern)\$');
+    } on FormatException catch (error) {
+      genUiLogger.warning('Invalid validationRegexp "$pattern": $error');
+      return null;
+    }
+    return regexp.hasMatch(text) ? null : _invalidFormatMessage;
   }
 
   /// Whether [value] is just another spelling of the number already in the
@@ -167,8 +207,8 @@ class _TextFieldState extends State<_TextField> {
     if (widget.checks == null ||
         widget.checks!.isEmpty ||
         widget.context == null) {
-      if (_errorText != null && mounted) {
-        setState(() => _errorText = null);
+      if (_checkError != null && mounted) {
+        setState(() => _checkError = null);
       }
       return;
     }
@@ -177,8 +217,8 @@ class _TextFieldState extends State<_TextField> {
         ValidationHelper.validateStream(widget.checks, widget.context).listen((
           String? newError,
         ) {
-          if (newError != _errorText && mounted) {
-            setState(() => _errorText = newError);
+          if (newError != _checkError && mounted) {
+            setState(() => _checkError = newError);
           }
         });
   }
@@ -199,10 +239,7 @@ class _TextFieldState extends State<_TextField> {
 
     return TextField(
       controller: _controller,
-      decoration: InputDecoration(
-        labelText: widget.label,
-        errorText: _errorText,
-      ),
+      decoration: InputDecoration(labelText: widget.label, errorText: _error),
       obscureText: isObscured,
       // Suggestions and autocorrect would leak or corrupt a password, and are
       // meaningless for numbers.
@@ -224,13 +261,18 @@ class _TextFieldState extends State<_TextField> {
       // which is what stops non-numeric input on desktop and web.
       inputFormatters: isNumber ? [_numberFormatter] : null,
       onChanged: (val) {
+        // Checks are handled via data model updates + stream, but the regexp
+        // is checked against the text itself.
+        final String? formatError = _formatErrorFor(val);
+        if (formatError != _formatError) {
+          setState(() => _formatError = formatError);
+        }
         widget.onChanged(val);
-        // Validation is handled via data model updates + stream
       },
       onSubmitted: (val) {
         // Validation is handled via data model updates + stream
         // But we check current error state before submitting.
-        if (_errorText == null) {
+        if (_error == null) {
           widget.onSubmitted(val);
         }
       },
@@ -251,7 +293,9 @@ class _TextFieldState extends State<_TextField> {
 /// - `variant`: The kind of input the field accepts. Can be `shortText` (the
 ///   default), `longText`, `number`, or `obscured`.
 /// - `checks`: Validation checks to run against the field's value.
-/// - `validationRegexp`: A regular expression to validate the input.
+/// - `validationRegexp`: A regular expression the value has to match in full.
+///   An empty field is exempt, matching the HTML `pattern` attribute that other
+///   A2UI renderers map this to.
 /// - `onSubmittedAction`: The action to perform when the user submits the
 ///   text field. A `longText` field is not submitted by pressing enter, since
 ///   that inserts a newline instead.
@@ -313,6 +357,21 @@ final textField = CatalogItem(
           "component": "$_componentName",
           "${_Json.label}": "Enter your password here",
           "${_Json.variant}": "${_Variant.obscured}"
+        }
+      ]
+    ''',
+    // A price, written with a dollar sign, greater than zero, and with at most
+    // two decimals. Character classes keep the pattern free of backslashes,
+    // which would have to be escaped again to survive JSON.
+    () =>
+        '''
+      [
+        {
+          "id": "root",
+          "component": "$_componentName",
+          "${_Json.label}": "What price do you want to offer, e.g. \$9.99?",
+          "${_Json.variant}": "${_Variant.shortText}",
+          "${_Json.validationRegexp}": "[\$](?:[1-9][0-9]*(?:[.][0-9]{1,2})?|0[.](?:[1-9][0-9]?|[0-9][1-9]))"
         }
       ]
     ''',

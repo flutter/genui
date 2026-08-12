@@ -784,4 +784,127 @@ void main() {
       'unbound',
     );
   });
+
+  testWidgets('TextField reports a value that fails its validationRegexp', (
+    WidgetTester tester,
+  ) async {
+    final List<ChatMessage> submissions = [];
+    await _pumpTextField(
+      tester,
+      submissions: submissions,
+      properties: {
+        'label': 'Zip code',
+        'value': {'path': '/value'},
+        'validationRegexp': '[0-9]{5}',
+        'onSubmittedAction': {
+          'event': {'name': 'submitted'},
+        },
+      },
+    );
+
+    // An empty field is exempt, so the form does not open covered in errors.
+    expect(find.text('Invalid format'), findsNothing);
+
+    await tester.enterText(find.byType(TextField), '123');
+    await tester.pumpAndSettle();
+    expect(find.text('Invalid format'), findsOneWidget);
+
+    // The regexp has to match the whole value, so a longer zip code that
+    // merely contains five digits is still invalid.
+    await tester.enterText(find.byType(TextField), '123456');
+    await tester.pumpAndSettle();
+    expect(find.text('Invalid format'), findsOneWidget);
+
+    // An invalid value cannot be submitted, just like a failing check.
+    await _submit(tester);
+    expect(submissions, isEmpty);
+
+    await tester.enterText(find.byType(TextField), '12345');
+    await tester.pumpAndSettle();
+    expect(find.text('Invalid format'), findsNothing);
+
+    await _submit(tester);
+    expect(submissions, hasLength(1));
+  });
+
+  testWidgets('TextField reports a value bound in from the data model that '
+      'fails its validationRegexp', (WidgetTester tester) async {
+    final SurfaceController surfaceController = await _pumpTextField(
+      tester,
+      properties: {
+        'label': 'Zip code',
+        'value': {'path': '/value'},
+        'validationRegexp': '[0-9]{5}',
+      },
+    );
+
+    surfaceController.handleMessage(
+      updateDataModel(
+        surfaceId: _surfaceId,
+        path: DataPath('/value'),
+        value: 'not a zip',
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Invalid format'), findsOneWidget);
+  });
+
+  testWidgets('TextField ignores a validationRegexp that does not compile', (
+    WidgetTester tester,
+  ) async {
+    final SurfaceController surfaceController = await _pumpTextField(
+      tester,
+      properties: {
+        'label': 'Input',
+        'value': {'path': '/value'},
+        'validationRegexp': '[unterminated',
+      },
+    );
+
+    await tester.enterText(find.byType(TextField), 'anything');
+    await tester.pumpAndSettle();
+
+    // The field stays usable rather than rejecting everything the user types.
+    expect(find.text('Invalid format'), findsNothing);
+    expect(_value(surfaceController), 'anything');
+  });
+
+  testWidgets('TextField validates a price with the catalog example regexp', (
+    WidgetTester tester,
+  ) async {
+    // Taken from the shipped example rather than copied, so that the example
+    // and what it promises cannot drift apart.
+    final JsonMap example = BasicCatalogItems.textField.exampleData
+        .map((build) => (jsonDecode(build()) as List).first as JsonMap)
+        .firstWhere((component) => component.containsKey('validationRegexp'));
+
+    await _pumpTextField(
+      tester,
+      properties: {
+        'label': example['label'],
+        'value': {'path': '/value'},
+        'validationRegexp': example['validationRegexp'],
+      },
+    );
+
+    for (final valid in [r'$5', r'$12.99', r'$0.99', r'$0.01', r'$10.5']) {
+      await tester.enterText(find.byType(TextField), valid);
+      await tester.pumpAndSettle();
+      expect(find.text('Invalid format'), findsNothing, reason: valid);
+    }
+
+    for (final invalid in [
+      '5', // No dollar sign.
+      r'-$5', // Not positive.
+      r'$0', // Not positive.
+      r'$0.00', // Not positive.
+      r'$12.345', // More than two decimals.
+      r'$12.99 or best offer', // Matches only part of the value.
+    ]) {
+      await tester.enterText(find.byType(TextField), invalid);
+      await tester.pumpAndSettle();
+      expect(find.text('Invalid format'), findsOneWidget, reason: invalid);
+    }
+  });
 }
