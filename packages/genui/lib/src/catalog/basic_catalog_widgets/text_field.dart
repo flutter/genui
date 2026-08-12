@@ -191,7 +191,7 @@ final textField = CatalogItem(
         {
           "id": "root",
           "component": "TextField",
-          "label": "Enter your name here:"
+          "label": "Enter your name here:",
           "variant": "shortText"
         }
       ]
@@ -212,7 +212,7 @@ final textField = CatalogItem(
           "id": "root",
           "component": "TextField",
           "label": "Type your story here:",
-          "variant": "longText"
+          "variant": "longText",
           "value": "Once upon a time..."
         }
       ]
@@ -223,7 +223,7 @@ final textField = CatalogItem(
           "id": "root",
           "component": "TextField",
           "label": "What is your initial price?",
-          "variant": "number",
+          "variant": "number"
         }
       ]
     ''',
