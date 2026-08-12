@@ -191,8 +191,8 @@ final textField = CatalogItem(
         {
           "id": "root",
           "component": "TextField",
-          "value": "Hello World",
-          "label": "Greeting"
+          "label": "Enter your name here:"
+          "textFieldType": "shortText"
         }
       ]
     ''',
@@ -201,8 +201,38 @@ final textField = CatalogItem(
         {
           "id": "root",
           "component": "TextField",
-          "value": "password123",
-          "label": "Password",
+          "label": "Type your story here:",
+          "textFieldType": "longText"
+        }
+      ]
+    ''',
+    () => '''
+      [
+        {
+          "id": "root",
+          "component": "TextField",
+          "label": "Type your story here:",
+          "textFieldType": "longText"
+          "value": "Once upon a time..."
+        }
+      ]
+    ''',
+    () => '''
+      [
+        {
+          "id": "root",
+          "component": "TextField",
+          "label": "What is your initial price?",
+          "textFieldType": "number",
+        }
+      ]
+    ''',
+    () => '''
+      [
+        {
+          "id": "root",
+          "component": "TextField",
+          "label": "Enter your password here",
           "textFieldType": "obscured"
         }
       ]
