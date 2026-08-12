@@ -17,7 +17,7 @@ import '../../primitives/logging.dart';
 import '../../primitives/simple_items.dart';
 import '../../widgets/widget_utilities.dart';
 
-class _Json {
+class _Fields {
   static const String value = 'value';
   static const String label = 'label';
   static const String checks = 'checks';
@@ -38,11 +38,11 @@ final _componentName = 'TextField';
 final _schema = S.object(
   description: 'A text input field.',
   properties: {
-    _Json.value: A2uiSchemas.stringReference(
+    _Fields.value: A2uiSchemas.stringReference(
       description: 'The value of the text field.',
     ),
-    _Json.label: A2uiSchemas.stringReference(),
-    _Json.variant: S.string(
+    _Fields.label: A2uiSchemas.stringReference(),
+    _Fields.variant: S.string(
       description:
           '''The kind of input the field accepts. ${_Variant.shortText} (the default) is a single line of text, ${_Variant.longText} is multi-line text, ${_Variant.number} only accepts numeric input, and ${_Variant.obscured} hides the typed characters, e.g. for passwords.''',
       enumValues: [
@@ -52,14 +52,14 @@ final _schema = S.object(
         _Variant.obscured,
       ],
     ),
-    _Json.checks: A2uiSchemas.checkable(),
-    _Json.validationRegexp: S.string(
+    _Fields.checks: A2uiSchemas.checkable(),
+    _Fields.validationRegexp: S.string(
       description:
           'A regular expression the value has to match in full for the field '
           'to be valid. An empty field is exempt; use a `required` check to '
           'demand a value at all.',
     ),
-    _Json.onSubmittedAction: A2uiSchemas.action(),
+    _Fields.onSubmittedAction: A2uiSchemas.action(),
   },
 );
 
@@ -72,20 +72,22 @@ extension type _TextFieldData.fromMap(JsonMap _json) {
     String? validationRegexp,
     JsonMap? onSubmittedAction,
   }) => _TextFieldData.fromMap({
-    _Json.value: value,
-    _Json.label: label,
-    _Json.checks: checks,
-    _Json.variant: variant,
-    _Json.validationRegexp: validationRegexp,
-    _Json.onSubmittedAction: onSubmittedAction,
+    _Fields.value: value,
+    _Fields.label: label,
+    _Fields.checks: checks,
+    _Fields.variant: variant,
+    _Fields.validationRegexp: validationRegexp,
+    _Fields.onSubmittedAction: onSubmittedAction,
   });
 
-  Object? get value => _json[_Json.value];
-  Object? get label => _json[_Json.label];
-  List<JsonMap>? get checks => (_json[_Json.checks] as List?)?.cast<JsonMap>();
-  String? get variant => _json[_Json.variant] as String?;
-  String? get validationRegexp => _json[_Json.validationRegexp] as String?;
-  JsonMap? get onSubmittedAction => _json[_Json.onSubmittedAction] as JsonMap?;
+  Object? get value => _json[_Fields.value];
+  Object? get label => _json[_Fields.label];
+  List<JsonMap>? get checks =>
+      (_json[_Fields.checks] as List?)?.cast<JsonMap>();
+  String? get variant => _json[_Fields.variant] as String?;
+  String? get validationRegexp => _json[_Fields.validationRegexp] as String?;
+  JsonMap? get onSubmittedAction =>
+      _json[_Fields.onSubmittedAction] as JsonMap?;
 }
 
 /// Matches a number, as well as the partial input it is typed through, such as
@@ -310,8 +312,8 @@ final textField = CatalogItem(
         {
           "id": "root",
           "component": "$_componentName",
-          "${_Json.label}": "Enter your name here:",
-          "${_Json.variant}": "${_Variant.shortText}"
+          "${_Fields.label}": "Enter your name here:",
+          "${_Fields.variant}": "${_Variant.shortText}"
         }
       ]
     ''',
@@ -321,8 +323,8 @@ final textField = CatalogItem(
         {
           "id": "root",
           "component": "$_componentName",
-          "${_Json.label}": "Type your story here:",
-          "${_Json.variant}": "${_Variant.longText}"
+          "${_Fields.label}": "Type your story here:",
+          "${_Fields.variant}": "${_Variant.longText}"
         }
       ]
     ''',
@@ -332,9 +334,9 @@ final textField = CatalogItem(
         {
           "id": "root",
           "component": "$_componentName",
-          "${_Json.label}": "Type your story here:",
-          "${_Json.variant}": "${_Variant.longText}",
-          "${_Json.value}": "Once upon a time..."
+          "${_Fields.label}": "Type your story here:",
+          "${_Fields.variant}": "${_Variant.longText}",
+          "${_Fields.value}": "Once upon a time..."
         }
       ]
     ''',
@@ -344,8 +346,8 @@ final textField = CatalogItem(
         {
           "id": "root",
           "component": "$_componentName",
-          "${_Json.label}": "What is minimum allowed temperature?",
-          "${_Json.variant}": "${_Variant.number}"
+          "${_Fields.label}": "What is minimum allowed temperature?",
+          "${_Fields.variant}": "${_Variant.number}"
         }
       ]
     ''',
@@ -355,8 +357,8 @@ final textField = CatalogItem(
         {
           "id": "root",
           "component": "$_componentName",
-          "${_Json.label}": "Enter your password here",
-          "${_Json.variant}": "${_Variant.obscured}"
+          "${_Fields.label}": "Enter your password here",
+          "${_Fields.variant}": "${_Variant.obscured}"
         }
       ]
     ''',
@@ -369,9 +371,9 @@ final textField = CatalogItem(
         {
           "id": "root",
           "component": "$_componentName",
-          "${_Json.label}": "What price do you want to offer, e.g. \$9.99?",
-          "${_Json.variant}": "${_Variant.shortText}",
-          "${_Json.validationRegexp}": "[\$](?:[1-9][0-9]*(?:[.][0-9]{1,2})?|0[.](?:[1-9][0-9]?|[0-9][1-9]))"
+          "${_Fields.label}": "What price do you want to offer, e.g. \$9.99?",
+          "${_Fields.variant}": "${_Variant.shortText}",
+          "${_Fields.validationRegexp}": "[\$](?:[1-9][0-9]*(?:[.][0-9]{1,2})?|0[.](?:[1-9][0-9]?|[0-9][1-9]))"
         }
       ]
     ''',
@@ -381,7 +383,7 @@ final textField = CatalogItem(
     final Object? valueRef = textFieldData.value;
     final path = (valueRef is Map && valueRef.containsKey('path'))
         ? valueRef['path'] as String
-        : '${itemContext.id}.${_Json.value}';
+        : '${itemContext.id}.${_Fields.value}';
     return BoundString(
       dataContext: itemContext.dataContext,
       value: {'path': path},
