@@ -127,7 +127,7 @@ provider.
        super.initState();
 
        // Create a SurfaceController with a widget catalog.
-       _controller = SurfaceController(catalogs: [CoreCatalogItems.asCatalog()]);
+       _controller = SurfaceController(catalogs: [BasicCatalogItems.asCatalog()]);
 
        // Create transport adapter
        _transport = A2uiTransportAdapter(onSend: _onSendToLLM);
@@ -269,7 +269,7 @@ To receive and display generated UI:
 
 ### 5. [Optional] Add your own widgets to the catalog
 
-In addition to using the catalog of widgets in `CoreCatalogItems`, you can
+In addition to using the catalog of widgets in `BasicCatalogItems`, you can
 create custom widgets for the agent to generate. Use the following
 instructions.
 
@@ -358,7 +358,7 @@ Include your catalog items when instantiating `SurfaceController`.
 
 ```dart
 _controller = SurfaceController(
-  catalogs: [CoreCatalogItems.asCatalog().copyWith([riddleCard])],
+  catalogs: [BasicCatalogItems.asCatalog().copyWith([riddleCard])],
 );
 ```
 
