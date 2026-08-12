@@ -1,4 +1,4 @@
-# `genai_primitives` Changelog
+# [genai_primitives](https://pub.dev/packages/genai_primitives) Changelog
 
 ## 0.2.4
 
