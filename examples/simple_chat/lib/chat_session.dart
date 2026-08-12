@@ -134,6 +134,7 @@ sealed class ChatSession extends ChangeNotifier {
   }
 
   Future<void> _runRequest(Future<void> Function() body) async {
+    if (_isProcessing) return;
     // The response streams in through `_updateAiMessage`, which starts a new
     // bubble when `_currentAiMessage` is null and appends to that bubble
     // otherwise. Clearing it here is what gives the coming response a bubble of
