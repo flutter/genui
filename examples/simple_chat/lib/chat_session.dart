@@ -134,6 +134,13 @@ sealed class ChatSession extends ChangeNotifier {
   }
 
   Future<void> _runRequest(Future<void> Function() body) async {
+    // The response streams in through `_updateAiMessage`, which starts a new
+    // bubble when `_currentAiMessage` is null and appends to that bubble
+    // otherwise. Clearing it here is what gives the coming response a bubble of
+    // its own. Every request runs through here, both typed messages and the
+    // ones a surface submits when the user taps a button, so a button's reply
+    // does not end up appended to the previous response.
+    _currentAiMessage = null;
     _isProcessing = true;
     notifyListeners();
     try {
@@ -164,7 +171,6 @@ class TextOnlyChatSession extends ChatSession {
   Future<void> sendMessage(String text) async {
     if (text.isEmpty) return;
 
-    _currentAiMessage = null;
     _addUserMessage(text);
 
     await _runRequest(
@@ -235,9 +241,6 @@ class A2uiChatSession extends ChatSession {
   @override
   Future<void> sendMessage(String text) async {
     if (text.isEmpty) return;
-
-    // Reset current AI message so new response gets a new bubble
-    _currentAiMessage = null;
 
     _addUserMessage(text);
 
