@@ -5,6 +5,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../../model/a2ui_schemas.dart';
@@ -15,19 +16,44 @@ import '../../model/validation_helper.dart';
 import '../../primitives/simple_items.dart';
 import '../../widgets/widget_utilities.dart';
 
+class _Json {
+  static const String value = 'value';
+  static const String label = 'label';
+  static const String checks = 'checks';
+  static const String variant = 'variant';
+  static const String validationRegexp = 'validationRegexp';
+  static const String onSubmittedAction = 'onSubmittedAction';
+}
+
+class _Variant {
+  static const String shortText = 'shortText';
+  static const String longText = 'longText';
+  static const String number = 'number';
+  static const String obscured = 'obscured';
+}
+
+final _componentName = 'TextField';
+
 final _schema = S.object(
   description: 'A text input field.',
   properties: {
-    'value': A2uiSchemas.stringReference(
+    _Json.value: A2uiSchemas.stringReference(
       description: 'The value of the text field.',
     ),
-    'label': A2uiSchemas.stringReference(),
-    'variant': S.string(
-      enumValues: ['shortText', 'longText', 'number', 'obscured'],
+    _Json.label: A2uiSchemas.stringReference(),
+    _Json.variant: S.string(
+      description:
+          '''The kind of input the field accepts. ${_Variant.shortText} (the default) is a single line of text, ${_Variant.longText} is multi-line text, ${_Variant.number} only accepts numeric input, and ${_Variant.obscured} hides the typed characters, e.g. for passwords.''',
+      enumValues: [
+        _Variant.shortText,
+        _Variant.longText,
+        _Variant.number,
+        _Variant.obscured,
+      ],
     ),
-    'checks': A2uiSchemas.checkable(),
-    'validationRegexp': S.string(),
-    'onSubmittedAction': A2uiSchemas.action(),
+    _Json.checks: A2uiSchemas.checkable(),
+    _Json.validationRegexp: S.string(),
+    _Json.onSubmittedAction: A2uiSchemas.action(),
   },
 );
 
@@ -40,21 +66,35 @@ extension type _TextFieldData.fromMap(JsonMap _json) {
     String? validationRegexp,
     JsonMap? onSubmittedAction,
   }) => _TextFieldData.fromMap({
-    'value': value,
-    'label': label,
-    'checks': checks,
-    'variant': variant,
-    'validationRegexp': validationRegexp,
-    'onSubmittedAction': onSubmittedAction,
+    _Json.value: value,
+    _Json.label: label,
+    _Json.checks: checks,
+    _Json.variant: variant,
+    _Json.validationRegexp: validationRegexp,
+    _Json.onSubmittedAction: onSubmittedAction,
   });
 
-  Object? get value => _json['value'];
-  Object? get label => _json['label'];
-  List<JsonMap>? get checks => (_json['checks'] as List?)?.cast<JsonMap>();
-  String? get variant => _json['variant'] as String?;
-  String? get validationRegexp => _json['validationRegexp'] as String?;
-  JsonMap? get onSubmittedAction => _json['onSubmittedAction'] as JsonMap?;
+  Object? get value => _json[_Json.value];
+  Object? get label => _json[_Json.label];
+  List<JsonMap>? get checks => (_json[_Json.checks] as List?)?.cast<JsonMap>();
+  String? get variant => _json[_Json.variant] as String?;
+  String? get validationRegexp => _json[_Json.validationRegexp] as String?;
+  JsonMap? get onSubmittedAction => _json[_Json.onSubmittedAction] as JsonMap?;
 }
+
+/// Matches a number, as well as the partial input it is typed through, such as
+/// `-`, `1.` or `-1.5`.
+final _numberPattern = RegExp(r'^-?\d*\.?\d*$');
+
+/// Rejects any edit that would make the text something other than a number.
+///
+/// Partial input such as `-` or `1.` is accepted so that a number can be typed
+/// one character at a time; [num.tryParse] is what decides whether the current
+/// text is an actual number.
+final _numberFormatter = TextInputFormatter.withFunction(
+  (oldValue, newValue) =>
+      _numberPattern.hasMatch(newValue.text) ? newValue : oldValue,
+);
 
 class _TextField extends StatefulWidget {
   const _TextField({
@@ -62,7 +102,7 @@ class _TextField extends StatefulWidget {
     this.label,
     this.checks,
     this.context,
-    this.textFieldType,
+    this.variant,
     this.validationRegexp,
     required this.onChanged,
     required this.onSubmitted,
@@ -72,7 +112,7 @@ class _TextField extends StatefulWidget {
   final String? label;
   final List<JsonMap>? checks;
   final DataContext? context;
-  final String? textFieldType;
+  final String? variant;
   final String? validationRegexp;
   final void Function(String) onChanged;
   final void Function(String) onSubmitted;
@@ -139,18 +179,37 @@ class _TextFieldState extends State<_TextField> {
 
   @override
   Widget build(BuildContext context) {
+    final String? variant = widget.variant;
+    final isObscured = variant == _Variant.obscured;
+    final isLongText = variant == _Variant.longText;
+    final isNumber = variant == _Variant.number;
+
     return TextField(
       controller: _controller,
       decoration: InputDecoration(
         labelText: widget.label,
         errorText: _errorText,
       ),
-      obscureText: widget.textFieldType == 'obscured',
-      keyboardType: switch (widget.textFieldType) {
-        'number' => .number,
-        'longText' => .multiline,
+      obscureText: isObscured,
+      // Suggestions and autocorrect would leak or corrupt a password, and are
+      // meaningless for numbers.
+      autocorrect: !isObscured && !isNumber,
+      enableSuggestions: !isObscured && !isNumber,
+      // `null` lets the field grow with its content; obscured text is only
+      // valid on a single line.
+      maxLines: isLongText ? null : 1,
+      minLines: isLongText ? 3 : null,
+      keyboardType: switch (variant) {
+        _Variant.number => const TextInputType.numberWithOptions(
+          signed: true,
+          decimal: true,
+        ),
+        _Variant.longText => .multiline,
         _ => .text,
       },
+      // The keyboard type is only a hint, so numbers are also enforced here,
+      // which is what stops non-numeric input on desktop and web.
+      inputFormatters: isNumber ? [_numberFormatter] : null,
       onChanged: (val) {
         widget.onChanged(val);
         // Validation is handled via data model updates + stream
@@ -174,66 +233,73 @@ class _TextFieldState extends State<_TextField> {
 ///
 /// ## Parameters:
 ///
-/// - `text`: The initial value of the text field.
+/// - `value`: The initial value of the text field.
 /// - `label`: The text to display as the label for the text field.
-/// - `textFieldType`: The type of text field. Can be `shortText`, `longText`,
-///   `number`, `date`, or `obscured`.
+/// - `variant`: The kind of input the field accepts. Can be `shortText` (the
+///   default), `longText`, `number`, or `obscured`.
+/// - `checks`: Validation checks to run against the field's value.
 /// - `validationRegexp`: A regular expression to validate the input.
 /// - `onSubmittedAction`: The action to perform when the user submits the
-///   text field.
+///   text field. A `longText` field is not submitted by pressing enter, since
+///   that inserts a newline instead.
 final textField = CatalogItem(
-  name: 'TextField',
+  name: _componentName,
   isImplicitlyFlexible: true,
   dataSchema: _schema,
   exampleData: [
-    () => '''
+    () =>
+        '''
       [
         {
           "id": "root",
-          "component": "TextField",
-          "label": "Enter your name here:",
-          "variant": "shortText"
+          "component": "$_componentName",
+          "${_Json.label}": "Enter your name here:",
+          "${_Json.variant}": "${_Variant.shortText}"
         }
       ]
     ''',
-    () => '''
+    () =>
+        '''
       [
         {
           "id": "root",
-          "component": "TextField",
-          "label": "Type your story here:",
-          "variant": "longText"
+          "component": "$_componentName",
+          "${_Json.label}": "Type your story here:",
+          "${_Json.variant}": "${_Variant.longText}"
         }
       ]
     ''',
-    () => '''
+    () =>
+        '''
       [
         {
           "id": "root",
-          "component": "TextField",
-          "label": "Type your story here:",
-          "variant": "longText",
-          "value": "Once upon a time..."
+          "component": "$_componentName",
+          "${_Json.label}": "Type your story here:",
+          "${_Json.variant}": "${_Variant.longText}",
+          "${_Json.value}": "Once upon a time..."
         }
       ]
     ''',
-    () => '''
+    () =>
+        '''
       [
         {
           "id": "root",
-          "component": "TextField",
-          "label": "What is your initial price?",
-          "variant": "number"
+          "component": "$_componentName",
+          "${_Json.label}": "What is your initial price?",
+          "${_Json.variant}": "${_Variant.number}"
         }
       ]
     ''',
-    () => '''
+    () =>
+        '''
       [
         {
           "id": "root",
-          "component": "TextField",
-          "label": "Enter your password here",
-          "textFieldType": "obscured"
+          "component": "$_componentName",
+          "${_Json.label}": "Enter your password here",
+          "${_Json.variant}": "${_Variant.obscured}"
         }
       ]
     ''',
@@ -243,7 +309,7 @@ final textField = CatalogItem(
     final Object? valueRef = textFieldData.value;
     final path = (valueRef is Map && valueRef.containsKey('path'))
         ? valueRef['path'] as String
-        : '${itemContext.id}.value';
+        : '${itemContext.id}.${_Json.value}';
     return BoundString(
       dataContext: itemContext.dataContext,
       value: {'path': path},
@@ -261,10 +327,10 @@ final textField = CatalogItem(
               label: label,
               checks: textFieldData.checks,
               context: itemContext.dataContext,
-              textFieldType: textFieldData.variant,
+              variant: textFieldData.variant,
               validationRegexp: textFieldData.validationRegexp,
               onChanged: (newValue) {
-                if (textFieldData.variant == 'number') {
+                if (textFieldData.variant == _Variant.number) {
                   final num? numberValue = num.tryParse(newValue);
                   if (numberValue != null) {
                     itemContext.dataContext.update(DataPath(path), numberValue);

@@ -8,6 +8,54 @@ import 'package:genui/genui.dart';
 
 import '../../test_infra/message_builders.dart';
 
+/// Renders a single `TextField` component bound to `/value`.
+Future<SurfaceController> _pumpVariant(
+  WidgetTester tester, {
+  required String variant,
+}) async {
+  final surfaceController = SurfaceController(
+    catalogs: [BasicCatalogItems.asCatalog()],
+  );
+  addTearDown(surfaceController.dispose);
+  const surfaceId = 'variantTest';
+
+  surfaceController.handleMessage(
+    updateComponents(
+      surfaceId: surfaceId,
+      components: [
+        component(
+          id: 'root',
+          type: 'TextField',
+          properties: {
+            'label': 'Input',
+            'variant': variant,
+            'value': {'path': '/value'},
+          },
+        ),
+      ],
+    ),
+  );
+  surfaceController.handleMessage(
+    createSurface(surfaceId: surfaceId, catalogId: basicCatalogId),
+  );
+
+  await tester.pumpWidget(
+    MaterialApp(
+      home: Scaffold(
+        body: Surface(surfaceContext: surfaceController.contextFor(surfaceId)),
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
+
+  return surfaceController;
+}
+
+Object? _value(SurfaceController controller) => controller
+    .contextFor('variantTest')
+    .dataModel
+    .getValue<Object>(DataPath('/value'));
+
 void main() {
   testWidgets('TextField with no weight in Row defaults to weight: 1 '
       'and expands', (WidgetTester tester) async {
@@ -297,5 +345,105 @@ void main() {
 
     // The text field should convert the integer 123 to "123"
     expect(find.text('123'), findsOneWidget);
+  });
+
+  testWidgets('TextField with variant "obscured" hides what is typed', (
+    WidgetTester tester,
+  ) async {
+    final SurfaceController surfaceController = await _pumpVariant(
+      tester,
+      variant: 'obscured',
+    );
+
+    final TextField field = tester.widget(find.byType(TextField));
+    expect(field.obscureText, isTrue);
+    // Obscured text is only valid on a single line.
+    expect(field.maxLines, 1);
+    // Neither of these should be able to observe a password.
+    expect(field.autocorrect, isFalse);
+    expect(field.enableSuggestions, isFalse);
+
+    await tester.enterText(find.byType(TextField), 'hunter2');
+    await tester.pumpAndSettle();
+
+    expect(_value(surfaceController), 'hunter2');
+    // The value reaches the data model, but is painted as obscuring characters
+    // rather than as the typed text.
+    final EditableText editable = tester.widget(find.byType(EditableText));
+    expect(editable.obscureText, isTrue);
+  });
+
+  testWidgets('TextField with variant "longText" accepts multiple lines', (
+    WidgetTester tester,
+  ) async {
+    final SurfaceController surfaceController = await _pumpVariant(
+      tester,
+      variant: 'longText',
+    );
+
+    final TextField field = tester.widget(find.byType(TextField));
+    // A null `maxLines` lets the field grow with its content.
+    expect(field.maxLines, isNull);
+    expect(field.minLines, 3);
+    expect(field.keyboardType, TextInputType.multiline);
+
+    final double singleLineHeight = tester
+        .getSize(find.byType(TextField))
+        .height;
+
+    await tester.enterText(
+      find.byType(TextField),
+      'Once upon a time\nthere was a text field\nthat could wrap\nand wrap',
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      _value(surfaceController),
+      'Once upon a time\nthere was a text field\nthat could wrap\nand wrap',
+    );
+    // The field grew to fit the extra lines.
+    expect(
+      tester.getSize(find.byType(TextField)).height,
+      greaterThan(singleLineHeight),
+    );
+  });
+
+  testWidgets('TextField with variant "number" only accepts numbers', (
+    WidgetTester tester,
+  ) async {
+    final SurfaceController surfaceController = await _pumpVariant(
+      tester,
+      variant: 'number',
+    );
+
+    final TextField field = tester.widget(find.byType(TextField));
+    expect(field.maxLines, 1);
+    expect(
+      field.keyboardType,
+      const TextInputType.numberWithOptions(signed: true, decimal: true),
+    );
+
+    // Non-numeric input is rejected outright.
+    await tester.enterText(find.byType(TextField), 'abc');
+    await tester.pumpAndSettle();
+    expect(find.text('abc'), findsNothing);
+    expect(_value(surfaceController), isNull);
+
+    // Signed decimals are accepted, and stored as numbers rather than strings.
+    await tester.enterText(find.byType(TextField), '-12.5');
+    await tester.pumpAndSettle();
+    expect(find.text('-12.5'), findsOneWidget);
+    expect(_value(surfaceController), -12.5);
+
+    // A rejected edit leaves the previously entered number untouched.
+    await tester.enterText(find.byType(TextField), '-12.5e');
+    await tester.pumpAndSettle();
+    expect(find.text('-12.5'), findsOneWidget);
+    expect(_value(surfaceController), -12.5);
+
+    // The field can still be cleared.
+    await tester.enterText(find.byType(TextField), '');
+    await tester.pumpAndSettle();
+    expect(_value(surfaceController), '');
   });
 }

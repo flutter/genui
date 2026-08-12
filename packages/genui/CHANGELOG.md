@@ -7,6 +7,10 @@
 
 - Added examples of how to use TextField.
 
+- Fixed `TextField` variants: `longText` now grows to fit multiple lines,
+  `number` now rejects non-numeric input on all platforms, and the `obscured`
+  example now sets `variant` so that it is actually obscured.
+
 ## 0.10.1
 
 - Depend on `a2ui_core` 0.1.0, its first non-pre-release version.
