@@ -5,6 +5,8 @@
 - Fixed `A2uiTransportAdapter.incomingText` trimming every streamed chunk, which
   made words run together when chunks were concatenated.
 
+- Added examples of how to use TextField.
+
 ## 0.10.1
 
 - Depend on `a2ui_core` 0.1.0, its first non-pre-release version.
