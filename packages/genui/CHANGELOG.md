@@ -1,4 +1,4 @@
-# `genui` Changelog
+# [genui](https://pub.dev/packages/genui) Changelog
 
 ## 0.10.2
 
