@@ -1,4 +1,4 @@
-# `genui_a2a` Changelog
+# [genui_a2a](https://pub.dev/packages/genui_a2a) Changelog
 
 ## 0.10.1
 

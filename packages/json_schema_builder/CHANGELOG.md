@@ -1,4 +1,4 @@
-# `json_schema_builder` Change Log
+# [json_schema_builder](https://pub.dev/packages/json_schema_builder) Change Log
 
 ## 0.1.6
 

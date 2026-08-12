@@ -1,4 +1,20 @@
-# `genui` Changelog
+# [genui](https://pub.dev/packages/genui) Changelog
+
+## 0.10.2
+
+- Fixed `A2uiTransportAdapter.incomingText` trimming every streamed chunk, which
+  made words run together when chunks were concatenated.
+
+- Added examples of how to use TextField.
+
+- Fixed `TextField` variants: `longText` now grows to fit multiple lines,
+  `number` now rejects non-numeric input, and the `obscured`
+  example now sets `variant` so that it is actually obscured.
+
+- `TextField.validationRegexp` is now enforced: the value has to match the
+  pattern in full, an empty field is exempt, and a value that does not match
+  shows an error and blocks `onSubmittedAction`. It was previously accepted and
+  ignored.
 
 ## 0.10.1
 

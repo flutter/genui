@@ -1,4 +1,4 @@
-# `a2ui_core` Changelog
+# [a2ui_core](https://pub.dev/packages/a2ui_core) Changelog
 
 ## 0.1.0
 

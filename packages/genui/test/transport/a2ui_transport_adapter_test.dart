@@ -29,6 +29,16 @@ void main() {
       await textFuture;
     });
 
+    test('incomingText preserves chunk whitespace', () async {
+      final Future<dynamic> textFuture = expectLater(
+        transportAdapter.incomingText,
+        emitsInOrder(['a variety of friendly ', 'spots']),
+      );
+      transportAdapter.addChunk('a variety of friendly ');
+      transportAdapter.addChunk('spots');
+      await textFuture;
+    });
+
     test('addChunk with message updates state', () async {
       // Using JSON block
       final json = '''```json
