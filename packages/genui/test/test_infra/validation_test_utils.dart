@@ -4,7 +4,7 @@
 
 import 'dart:convert';
 
-import '../../../archive/a2ui_core/lib/a2ui_core.dart' as core;
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/src/model/a2ui_schemas.dart';
 import 'package:genui/src/model/catalog.dart';

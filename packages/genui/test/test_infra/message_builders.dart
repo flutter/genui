@@ -7,7 +7,7 @@
 // `package:genui` consumes the core message types directly; these helpers keep
 // test setup terse and mirror the named-argument shape the tests already use.
 
-import '../../../archive/a2ui_core/lib/a2ui_core.dart' as core;
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:genui/src/model/data_path.dart';
 import 'package:genui/src/primitives/simple_items.dart';
 

@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import '../../../archive/a2ui_core/lib/a2ui_core.dart' as core;
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:genui/src/transport/a2ui_transport_adapter.dart';
 import 'package:test/test.dart';
 
