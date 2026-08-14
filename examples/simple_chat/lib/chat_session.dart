@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import '../../../packages/archive/a2ui_core/lib/a2ui_core.dart' as core;
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:flutter/foundation.dart';
 import 'package:genui/genui.dart';
 import 'package:logging/logging.dart';
