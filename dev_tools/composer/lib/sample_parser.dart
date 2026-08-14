@@ -4,7 +4,7 @@
 
 import 'dart:convert';
 
-import '../../../packages/archive/a2ui_core/lib/a2ui_core.dart' as core;
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:yaml/yaml.dart';
 
 /// A parsed sample containing metadata and a stream of A2UI messages.
