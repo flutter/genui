@@ -4,7 +4,7 @@
 
 import 'dart:convert';
 
-import 'package:a2ui_core/a2ui_core.dart' as core;
+import '../../../packages/archive/a2ui_core/lib/a2ui_core.dart' as core;
 import 'package:file/file.dart';
 import 'package:yaml/yaml.dart';
 

@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:a2ui_core/a2ui_core.dart' as core;
+import '../../archive/a2ui_core/lib/a2ui_core.dart' as core;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

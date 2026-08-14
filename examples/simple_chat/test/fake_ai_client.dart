@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:a2ui_core/a2ui_core.dart' as core;
+import '../../../packages/archive/a2ui_core/lib/a2ui_core.dart' as core;
 import 'package:dartantic_ai/dartantic_ai.dart' as dartantic;
 import 'package:simple_chat/agent/ai_client.dart';
 

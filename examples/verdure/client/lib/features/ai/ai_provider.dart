@@ -5,7 +5,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:a2ui_core/a2ui_core.dart' as core;
+import '../../../../../../packages/archive/a2ui_core/lib/a2ui_core.dart'
+    as core;
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:genui/genui.dart';

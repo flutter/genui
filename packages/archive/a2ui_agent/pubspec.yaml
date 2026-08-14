@@ -7,8 +7,6 @@ description: The A2UI agent SDK.
 version: 0.0.1-wip
 repository: https://github.com/flutter/genui/tree/main/packages/a2ui_agent
 
-resolution: workspace
-
 environment:
   sdk: ">=3.10.0 <4.0.0"
 

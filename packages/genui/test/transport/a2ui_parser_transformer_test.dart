@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:a2ui_core/a2ui_core.dart' as core;
+import '../../../archive/a2ui_core/lib/a2ui_core.dart' as core;
 import 'package:async/async.dart';
 import 'package:genui/src/model/generation_events.dart';
 import 'package:genui/src/primitives/a2ui_validation_exception.dart';

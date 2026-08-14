@@ -7,8 +7,6 @@ description: Core package for A2UI protocol.
 repository: https://github.com/flutter/genui/tree/main/packages/a2ui_core
 version: 0.1.0
 
-resolution: workspace
-
 environment:
   sdk: ">=3.10.0 <4.0.0"
 

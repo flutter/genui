@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:a2ui_core/a2ui_core.dart' as core;
+import '../../../packages/archive/a2ui_core/lib/a2ui_core.dart' as core;
 import 'package:catalog_gallery/sample_parser.dart';
 import 'package:flutter_test/flutter_test.dart';
 
