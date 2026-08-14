@@ -8,6 +8,7 @@
 /// for building chat-centric generative applications.
 library;
 
+export 'facade/catalog_context.dart';
 export 'facade/conversation.dart';
 export 'facade/prompt_builder.dart';
 export 'facade/widgets/chat_primitives.dart';
