@@ -24,11 +24,13 @@
       "cwd": "examples/verdure/client",
       "request": "launch",
       "type": "dart",
-      "args": ["--dart-define=GEMINI_API_KEY=${env:GEMINI_API_KEY}"]
+      "args": [
+        "--dart-define=GEMINI_API_KEY=${env:GEMINI_API_KEY}"
+      ]
     },
     {
       "name": "catalog_gallery",
-      "cwd": "examples/catalog_gallery",
+      "cwd": "dev_tools/catalog_gallery",
       "request": "launch",
       "type": "dart"
     },

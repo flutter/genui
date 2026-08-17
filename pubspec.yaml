@@ -17,7 +17,6 @@ workspace:
   - examples/simple_chat
   - examples/verdure/client
 
-  - packages/a2ui_core
   - packages/genui
   - packages/genui_a2a
   - packages/json_schema_builder
