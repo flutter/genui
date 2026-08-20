@@ -136,7 +136,8 @@ sealed class ChatSession extends ChangeNotifier {
   Future<void> _runRequest(Future<void> Function() body) async {
     if (_isProcessing) return;
 
-    // TODO: disable input when isProcessing is true.
+    // TODO(https://github.com/a2ui-project/a2ui/issues/2236):
+    // disable input when isProcessing is true.
 
     // The response streams in through `_updateAiMessage`, which starts a new
     // bubble when `_currentAiMessage` is null and appends to that bubble
