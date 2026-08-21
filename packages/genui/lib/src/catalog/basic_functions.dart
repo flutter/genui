@@ -309,7 +309,7 @@ class EmailFunction extends SynchronousClientFunction {
   Object? executeSync(JsonMap args, ExecutionContext _) {
     final Object? value = args['value'];
     if (value is! String) return false;
-    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+\$');
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
     return emailRegex.hasMatch(value);
   }
 }
