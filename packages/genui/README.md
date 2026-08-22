@@ -72,8 +72,6 @@ graph TD
     Conversation -- "loops back" --> ExternalLLM;
 ```
 
-See [DESIGN.md](./DESIGN.md) for more detailed information about the design.
-
 ## Getting Started with `genui`
 
 This guidance explains how to quickly get started with the
