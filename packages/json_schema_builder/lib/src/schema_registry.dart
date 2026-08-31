@@ -43,23 +43,48 @@ class SchemaRegistry {
   ///
   /// This method can also resolve fragments and JSON pointers within a schema.
   Future<Schema?> resolve(Uri uri) async {
+    final Schema? schema = await fetch(uri);
+    if (schema == null) return null;
+    return _getSchemaFromFragment(uri, schema);
+  }
+
+  /// Resolves a schema from the given [uri] without performing any I/O.
+  ///
+  /// This behaves like [resolve], except that it only looks at the schemas this
+  /// registry already holds: those added with [addSchema], and those a previous
+  /// [resolve] or [fetch] call brought in.
+  ///
+  /// Throws a [SchemaResolutionRequiredException] if resolving [uri] would
+  /// require fetching a schema that this registry does not hold.
+  Schema? resolveSync(Uri uri) {
     final Uri uriWithoutFragment = uri.removeFragment();
-    if (_schemas.containsKey(uriWithoutFragment)) {
-      return _getSchemaFromFragment(uri, _schemas[uriWithoutFragment]!);
+    final Schema? schema = _schemas[uriWithoutFragment];
+    if (schema == null) {
+      throw SchemaResolutionRequiredException(uriWithoutFragment);
     }
+    return _getSchemaFromFragment(uri, schema);
+  }
 
-    try {
-      final Schema? schema = await _schemaCache.get(uriWithoutFragment);
-      if (schema == null) {
-        return null;
-      }
-      _schemas[uriWithoutFragment] = schema;
-      _registerIds(schema, uriWithoutFragment);
+  /// Fetches the schema resource that [uri] points into, ignoring any fragment,
+  /// and adds it to this registry.
+  ///
+  /// Returns the schema, or `null` if there is none. If the registry already
+  /// holds it, it is returned without any I/O. Throws a [SchemaFetchException]
+  /// if the fetch fails.
+  ///
+  /// This is the asynchronous counterpart to [resolveSync]: it performs the
+  /// I/O that [resolveSync] refuses to perform, so that a subsequent
+  /// [resolveSync] of the same URI can answer from memory.
+  Future<Schema?> fetch(Uri uri) async {
+    final Uri uriWithoutFragment = uri.removeFragment();
+    final Schema? registered = _schemas[uriWithoutFragment];
+    if (registered != null) return registered;
 
-      return _getSchemaFromFragment(uri, schema);
-    } on SchemaFetchException {
-      rethrow;
-    }
+    final Schema? schema = await _schemaCache.get(uriWithoutFragment);
+    if (schema == null) return null;
+    _schemas[uriWithoutFragment] = schema;
+    _registerIds(schema, uriWithoutFragment);
+    return schema;
   }
 
   /// Gets the URI for a given schema, if it has been registered.

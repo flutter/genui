@@ -17,3 +17,27 @@ class SchemaFetchException implements Exception {
     return message;
   }
 }
+
+/// Thrown by the synchronous validation path when a reference can only be
+/// resolved by fetching a schema that is not in the `SchemaRegistry` yet.
+///
+/// Synchronous validation never performs I/O, so it cannot fetch the schema
+/// itself. Rather than treating the unresolved subschema as unconstrained,
+/// which would silently turn a missing fetch into a passing validation, it
+/// throws this exception.
+///
+/// To fix it, either add the schema at [uri] to the registry before
+/// validating, or use the asynchronous `validate` method, which fetches
+/// remote schemas as it needs them.
+class SchemaResolutionRequiredException implements Exception {
+  /// The URI of the schema that would have to be fetched, without any fragment.
+  final Uri uri;
+
+  SchemaResolutionRequiredException(this.uri);
+
+  @override
+  String toString() =>
+      'Synchronous validation requires the schema at $uri, which is not '
+      'registered. Add it to the SchemaRegistry, or use the asynchronous '
+      'Schema.validate to fetch it.';
+}

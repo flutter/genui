@@ -135,3 +135,33 @@ Future<void> main() async {
   - List contains duplicate items at path #root["roles"]
   - Additional property "extraField" is not allowed. at path #root["extraField"]
 ```
+
+### Synchronous Validation
+
+`validate` is asynchronous only because a `$ref` may point at a schema that has
+to be fetched. If your schema has no such references — because they are inlined,
+or because you registered every referenced schema up front — use `validateSync`
+instead and skip the `Future`:
+
+```dart
+final errors = userProfileSchema.validateSync(validUser);
+```
+
+`validateSync` performs no I/O. If validation reaches a reference whose target
+would have to be fetched, it throws a `SchemaResolutionRequiredException` naming
+that target instead of skipping the reference, so a missing fetch can never turn
+into a passing validation.
+
+To validate synchronously against a schema that does have remote references,
+give both calls the same `SchemaRegistry`. The asynchronous call fetches what it
+needs into the registry, and every later validation can be synchronous:
+
+```dart
+final registry = SchemaRegistry();
+await schema.validate(firstValue, schemaRegistry: registry);
+final errors = schema.validateSync(secondValue, schemaRegistry: registry);
+```
+
+Note that a schema declaring a `$schema` meta-schema needs that meta-schema
+resolved too, so pre-register it (or fetch it with one `validate` call) before
+validating synchronously.

@@ -32,6 +32,16 @@ class ValidationContext {
   final Map<String, bool> vocabularies;
   final LoggingContext? loggingContext;
 
+  /// The outcome of every fetch made for this validation, keyed by the URI of
+  /// the schema resource, that did not produce a schema.
+  ///
+  /// A `null` value means the fetch produced no schema, and a non-null value is
+  /// the exception it failed with. Successful fetches land in [schemaRegistry]
+  /// instead. Keeping the failures here rather than in the registry scopes them
+  /// to a single validation, so that a later validation retries the fetch just
+  /// as it did before this context existed.
+  final Map<Uri, SchemaFetchException?> _failedFetches;
+
   /// Creates a new validation context.
   ValidationContext(
     this.rootSchema, {
@@ -48,7 +58,7 @@ class ValidationContext {
       'https://json-schema.org/draft/2020-12/vocab/format-annotation': true,
       'https://json-schema.org/draft/2020-12/vocab/content': true,
     },
-  });
+  }) : _failedFetches = {};
 
   ValidationContext._copyWith({
     required this.rootSchema,
@@ -57,7 +67,39 @@ class ValidationContext {
     required this.schemaRegistry,
     required this.vocabularies,
     required this.loggingContext,
-  });
+    required Map<Uri, SchemaFetchException?> failedFetches,
+  }) : _failedFetches = failedFetches;
+
+  /// Resolves the schema at [uri] for this validation, without performing any
+  /// I/O.
+  ///
+  /// This is [SchemaRegistry.resolveSync], plus the outcomes of the fetches
+  /// already made for this validation: a fetch that failed throws its
+  /// [SchemaFetchException] again, and one that produced no schema resolves to
+  /// `null` again, rather than asking for the fetch to be repeated.
+  Schema? resolveSchemaSync(Uri uri) {
+    final Uri uriWithoutFragment = uri.removeFragment();
+    if (_failedFetches.containsKey(uriWithoutFragment)) {
+      final SchemaFetchException? failure = _failedFetches[uriWithoutFragment];
+      if (failure != null) throw failure;
+      return null;
+    }
+    return schemaRegistry.resolveSync(uri);
+  }
+
+  /// Fetches the schema at [uri] into [schemaRegistry], recording the outcome
+  /// so that [resolveSchemaSync] can answer for [uri] without fetching again.
+  Future<void> fetchSchema(Uri uri) async {
+    final Uri uriWithoutFragment = uri.removeFragment();
+    try {
+      final Schema? schema = await schemaRegistry.fetch(uriWithoutFragment);
+      if (schema == null) {
+        _failedFetches[uriWithoutFragment] = null;
+      }
+    } on SchemaFetchException catch (e) {
+      _failedFetches[uriWithoutFragment] = e;
+    }
+  }
 
   /// Creates a copy of this context with a new [newSourceUri].
   ValidationContext withSourceUri(Uri newSourceUri) {
@@ -68,6 +110,7 @@ class ValidationContext {
       schemaRegistry: schemaRegistry,
       vocabularies: vocabularies,
       loggingContext: loggingContext,
+      failedFetches: _failedFetches,
     );
   }
 
@@ -80,13 +123,46 @@ class ValidationContext {
       schemaRegistry: schemaRegistry,
       vocabularies: newVocabularies,
       loggingContext: loggingContext,
+      failedFetches: _failedFetches,
     );
+  }
+}
+
+/// Runs a synchronous validation [body], fetching the remote schemas it asks
+/// for into [context] and retrying until every reference resolves from
+/// memory.
+///
+/// This is what makes the asynchronous entry points thin wrappers around the
+/// synchronous core: the only I/O validation ever needs is fetching the target
+/// of a reference, and the synchronous core reports exactly which target it is
+/// missing by throwing a [SchemaResolutionRequiredException]. Each retry
+/// therefore resolves one more remote reference, and a schema with no remote
+/// references runs [body] exactly once.
+Future<T> _resolvingRemoteRefs<T>(
+  ValidationContext context,
+  T Function() body,
+) async {
+  final fetched = <Uri>{};
+  while (true) {
+    try {
+      return body();
+    } on SchemaResolutionRequiredException catch (e) {
+      if (!fetched.add(e.uri)) {
+        // The outcome of the fetch was not recorded, so retrying would loop
+        // forever.
+        rethrow;
+      }
+      await context.fetchSchema(e.uri);
+    }
   }
 }
 
 /// Validates the given [data] against a [schema].
 ///
 /// This is a helper function for recursively validating subschemas.
+///
+/// Remote references are fetched as they are encountered. See
+/// [validateSubSchemaSync] for the synchronous equivalent.
 Future<ValidationResult> validateSubSchema(
   Object? schema,
   Object? data,
@@ -94,7 +170,32 @@ Future<ValidationResult> validateSubSchema(
   ValidationContext context,
   List<Schema> dynamicScope, {
   AnnotationSet? initialAnnotations,
-}) async {
+}) => _resolvingRemoteRefs(
+  context,
+  () => validateSubSchemaSync(
+    schema,
+    data,
+    currentPath,
+    context,
+    dynamicScope,
+    initialAnnotations: initialAnnotations,
+  ),
+);
+
+/// Validates the given [data] against a [schema], without performing any I/O.
+///
+/// This is a helper function for recursively validating subschemas.
+///
+/// Every reference must resolve from `context.schemaRegistry`; see
+/// [SchemaValidation.validateSync] for what happens when one does not.
+ValidationResult validateSubSchemaSync(
+  Object? schema,
+  Object? data,
+  List<String> currentPath,
+  ValidationContext context,
+  List<Schema> dynamicScope, {
+  AnnotationSet? initialAnnotations,
+}) {
   if (schema is bool) {
     if (schema == false) {
       return ValidationResult.failure([
@@ -109,7 +210,7 @@ Future<ValidationResult> validateSubSchema(
     return ValidationResult.success(AnnotationSet.empty());
   }
   if (schema is Map) {
-    return await Schema.fromMap(schema.cast<String, Object?>()).validateSchema(
+    return Schema.fromMap(schema.cast<String, Object?>()).validateSchemaSync(
       data,
       currentPath,
       context,
@@ -127,6 +228,11 @@ extension SchemaValidation on Schema {
   ///
   /// Returns a list of [ValidationError] if validation fails,
   /// or an empty list if validation succeeds.
+  ///
+  /// Remote references (`$ref`s pointing at a schema that is not already in
+  /// [schemaRegistry]) are fetched as they are encountered. If this schema has
+  /// none, prefer [validateSync], which does the same work without the
+  /// [Future].
   Future<List<ValidationError>> validate(
     Object? data, {
     bool strictFormat = false,
@@ -136,37 +242,198 @@ extension SchemaValidation on Schema {
   }) async {
     final SchemaRegistry registry =
         schemaRegistry ?? SchemaRegistry(loggingContext: loggingContext);
-    ValidationResult? result;
     try {
-      final Uri baseUri = sourceUri ?? Uri.parse('local://schema');
-      registry.addSchema(baseUri, this);
-      final context = ValidationContext(
-        this,
+      final ValidationContext context = _rootValidationContext(
+        registry,
         strictFormat: strictFormat,
-        sourceUri: baseUri,
-        schemaRegistry: registry,
+        sourceUri: sourceUri,
         loggingContext: loggingContext,
       );
-      result = await validateSchema(data, [], context, [this]);
+      final ValidationResult result = await _resolvingRemoteRefs(
+        context,
+        () => validateSchemaSync(data, [], context, [this]),
+      );
+      return result.errors;
     } finally {
       if (schemaRegistry == null) {
         // If we created our own, we need to dispose it.
         registry.dispose();
       }
     }
-    return result.errors;
+  }
+
+  /// Validates the given [data] against this schema, without performing any
+  /// I/O.
+  ///
+  /// Returns a list of [ValidationError] if validation fails, or an empty list
+  /// if validation succeeds. The results are identical to those of [validate].
+  ///
+  /// This requires that every reference in this schema resolves without
+  /// fetching anything: references within the schema itself, and references to
+  /// schemas already added to [schemaRegistry]. That covers schemas whose
+  /// `$ref`s have been inlined, and schemas whose dependencies were registered
+  /// up front.
+  ///
+  /// If validation reaches a reference whose target would have to be fetched,
+  /// this throws a [SchemaResolutionRequiredException] naming that target,
+  /// rather than skipping the reference — an unfetched subschema would
+  /// otherwise be silently treated as unconstrained and turn a missing fetch
+  /// into a passing validation. Use [validate] for schemas with remote
+  /// references, or pass a [schemaRegistry] that already holds them.
+  List<ValidationError> validateSync(
+    Object? data, {
+    bool strictFormat = false,
+    Uri? sourceUri,
+    SchemaRegistry? schemaRegistry,
+    LoggingContext? loggingContext,
+  }) {
+    final SchemaRegistry registry =
+        schemaRegistry ?? SchemaRegistry(loggingContext: loggingContext);
+    try {
+      final ValidationContext context = _rootValidationContext(
+        registry,
+        strictFormat: strictFormat,
+        sourceUri: sourceUri,
+        loggingContext: loggingContext,
+      );
+      return validateSchemaSync(data, [], context, [this]).errors;
+    } finally {
+      if (schemaRegistry == null) {
+        // If we created our own, we need to dispose it.
+        registry.dispose();
+      }
+    }
+  }
+
+  /// Registers this schema in [registry] and creates the context that
+  /// validation of it starts from.
+  ValidationContext _rootValidationContext(
+    SchemaRegistry registry, {
+    required bool strictFormat,
+    required Uri? sourceUri,
+    required LoggingContext? loggingContext,
+  }) {
+    final Uri baseUri = sourceUri ?? Uri.parse('local://schema');
+    registry.addSchema(baseUri, this);
+    return ValidationContext(
+      this,
+      strictFormat: strictFormat,
+      sourceUri: baseUri,
+      schemaRegistry: registry,
+      loggingContext: loggingContext,
+    );
   }
 
   /// Validates the given [data] against this schema, including any subschemas.
   ///
   /// This is the main entry point for validating an object against a schema.
+  ///
+  /// Remote references are fetched as they are encountered. See
+  /// [validateSchemaSync] for the synchronous equivalent.
   Future<ValidationResult> validateSchema(
     Object? data,
     List<String> currentPath,
     ValidationContext context,
     List<Schema> dynamicScope, {
     AnnotationSet? initialAnnotations,
-  }) async {
+  }) => _resolvingRemoteRefs(
+    context,
+    () => validateSchemaSync(
+      data,
+      currentPath,
+      context,
+      dynamicScope,
+      initialAnnotations: initialAnnotations,
+    ),
+  );
+
+  /// Validates the given [data] against the type-specific keywords in this
+  /// schema.
+  ///
+  /// Remote references are fetched as they are encountered. See
+  /// [validateTypeSpecificKeywordsSync] for the synchronous equivalent.
+  Future<ValidationResult> validateTypeSpecificKeywords(
+    Object? data,
+    List<String> currentPath,
+    ValidationContext context,
+    List<Schema> dynamicScope,
+  ) => _resolvingRemoteRefs(
+    context,
+    () => validateTypeSpecificKeywordsSync(
+      data,
+      currentPath,
+      context,
+      dynamicScope,
+    ),
+  );
+
+  /// Validates an object against the schema.
+  ///
+  /// Remote references are fetched as they are encountered. See
+  /// [validateObjectSync] for the synchronous equivalent.
+  Future<ValidationResult> validateObject(
+    Map<String, Object?> data,
+    List<String> currentPath,
+    ValidationContext context,
+    List<Schema> dynamicScope,
+  ) => _resolvingRemoteRefs(
+    context,
+    () => validateObjectSync(data, currentPath, context, dynamicScope),
+  );
+
+  /// Validates a list against the schema.
+  ///
+  /// Remote references are fetched as they are encountered. See
+  /// [validateListSync] for the synchronous equivalent.
+  Future<ValidationResult> validateList(
+    List<Object?> data,
+    List<String> currentPath,
+    ValidationContext context,
+    List<Schema> dynamicScope,
+  ) => _resolvingRemoteRefs(
+    context,
+    () => validateListSync(data, currentPath, context, dynamicScope),
+  );
+
+  /// Resolves a `$ref` reference to a schema.
+  ///
+  /// The target is fetched if it is not registered yet. See [resolveRefSync]
+  /// for the synchronous equivalent.
+  Future<(Schema, Uri)?> resolveRef(
+    String ref,
+    Schema rootSchema,
+    ValidationContext context,
+  ) => _resolvingRemoteRefs(
+    context,
+    () => resolveRefSync(ref, rootSchema, context),
+  );
+
+  /// Resolves a `$dynamicRef` reference to a schema.
+  ///
+  /// The target is fetched if it is not registered yet. See
+  /// [resolveDynamicRefSync] for the synchronous equivalent.
+  Future<(Schema, Uri)?> resolveDynamicRef(
+    String ref,
+    List<Schema> dynamicScope,
+    ValidationContext context,
+  ) => _resolvingRemoteRefs(
+    context,
+    () => resolveDynamicRefSync(ref, dynamicScope, context),
+  );
+
+  /// Validates the given [data] against this schema, including any subschemas,
+  /// without performing any I/O.
+  ///
+  /// This is the main entry point for validating an object against a schema.
+  /// Every reference must resolve from `context.schemaRegistry`; see
+  /// [validateSync] for what happens when one does not.
+  ValidationResult validateSchemaSync(
+    Object? data,
+    List<String> currentPath,
+    ValidationContext context,
+    List<Schema> dynamicScope, {
+    AnnotationSet? initialAnnotations,
+  }) {
     var currentContext = context;
     if ($id != null) {
       // This is a heuristic to avoid re-resolving a relative path that has
@@ -189,7 +456,7 @@ extension SchemaValidation on Schema {
     if ($schema != null) {
       try {
         final Uri metaSchemaUri = Uri.parse($schema!);
-        final Schema? metaSchema = await currentContext.schemaRegistry.resolve(
+        final Schema? metaSchema = currentContext.resolveSchemaSync(
           metaSchemaUri,
         );
         if (metaSchema != null) {
@@ -224,7 +491,7 @@ extension SchemaValidation on Schema {
     }
 
     if ($dynamicRef case final ref?) {
-      final (Schema, Uri)? resolution = await resolveDynamicRef(
+      final (Schema, Uri)? resolution = resolveDynamicRefSync(
         ref,
         newDynamicScope,
         currentContext,
@@ -233,8 +500,12 @@ extension SchemaValidation on Schema {
         final ValidationContext newContext = currentContext.withSourceUri(
           referencedUri,
         );
-        final ValidationResult refResult = await referencedSchema
-            .validateSchema(data, currentPath, newContext, newDynamicScope);
+        final ValidationResult refResult = referencedSchema.validateSchemaSync(
+          data,
+          currentPath,
+          newContext,
+          newDynamicScope,
+        );
         errors.addAll(refResult.errors);
         allAnnotations = allAnnotations.merge(refResult.annotations);
 
@@ -242,8 +513,8 @@ extension SchemaValidation on Schema {
         siblingSchemaMap.remove(kDynamicRef);
         if (siblingSchemaMap.isNotEmpty) {
           final siblingSchema = Schema.fromMap(siblingSchemaMap);
-          final ValidationResult siblingResult = await siblingSchema
-              .validateSchema(
+          final ValidationResult siblingResult = siblingSchema
+              .validateSchemaSync(
                 data,
                 currentPath,
                 currentContext,
@@ -266,7 +537,7 @@ extension SchemaValidation on Schema {
     }
 
     if ($ref case final ref?) {
-      final (Schema, Uri)? resolution = await resolveRef(
+      final (Schema, Uri)? resolution = resolveRefSync(
         ref,
         currentContext.rootSchema,
         currentContext,
@@ -275,8 +546,12 @@ extension SchemaValidation on Schema {
         final ValidationContext newContext = currentContext.withSourceUri(
           referencedUri,
         );
-        final ValidationResult refResult = await referencedSchema
-            .validateSchema(data, currentPath, newContext, newDynamicScope);
+        final ValidationResult refResult = referencedSchema.validateSchemaSync(
+          data,
+          currentPath,
+          newContext,
+          newDynamicScope,
+        );
         context.loggingContext?.log(
           'Annotations from $ref: ${refResult.annotations.evaluatedKeys}',
         );
@@ -287,8 +562,8 @@ extension SchemaValidation on Schema {
         siblingSchemaMap.remove(kRef);
         if (siblingSchemaMap.isNotEmpty) {
           final siblingSchema = Schema.fromMap(siblingSchemaMap);
-          final ValidationResult siblingResult = await siblingSchema
-              .validateSchema(
+          final ValidationResult siblingResult = siblingSchema
+              .validateSchemaSync(
                 data,
                 currentPath,
                 currentContext,
@@ -312,7 +587,7 @@ extension SchemaValidation on Schema {
 
     // 1. Conditional Applicators: if/then/else
     if (ifSchema case final ifS?) {
-      final ValidationResult ifResult = await validateSubSchema(
+      final ValidationResult ifResult = validateSubSchemaSync(
         ifS,
         data,
         currentPath,
@@ -322,7 +597,7 @@ extension SchemaValidation on Schema {
       if (ifResult.isValid) {
         allAnnotations = allAnnotations.merge(ifResult.annotations);
         if (thenSchema case final thenS?) {
-          final ValidationResult thenResult = await validateSubSchema(
+          final ValidationResult thenResult = validateSubSchemaSync(
             thenS,
             data,
             currentPath,
@@ -336,7 +611,7 @@ extension SchemaValidation on Schema {
         }
       } else {
         if (elseSchema case final elseS?) {
-          final ValidationResult elseResult = await validateSubSchema(
+          final ValidationResult elseResult = validateSubSchemaSync(
             elseS,
             data,
             currentPath,
@@ -355,7 +630,7 @@ extension SchemaValidation on Schema {
     if (allOf case final List<Object?> allOfList) {
       final allOfAnnotations = <AnnotationSet>[];
       for (final subSchema in allOfList) {
-        final ValidationResult result = await validateSubSchema(
+        final ValidationResult result = validateSubSchemaSync(
           subSchema,
           data,
           currentPath,
@@ -375,7 +650,7 @@ extension SchemaValidation on Schema {
       final anyOfAnnotations = <AnnotationSet>[];
       final allAnyOfErrors = <ValidationError>[];
       for (final subSchema in anyOfList) {
-        final ValidationResult result = await validateSubSchema(
+        final ValidationResult result = validateSubSchemaSync(
           subSchema,
           data,
           currentPath,
@@ -401,7 +676,7 @@ extension SchemaValidation on Schema {
       var passedCount = 0;
       AnnotationSet? oneOfAnnotations;
       for (final subSchema in oneOfList) {
-        final ValidationResult result = await validateSubSchema(
+        final ValidationResult result = validateSubSchemaSync(
           subSchema,
           data,
           currentPath,
@@ -429,7 +704,7 @@ extension SchemaValidation on Schema {
     }
 
     if (not case final notSchema?) {
-      final ValidationResult result = await validateSubSchema(
+      final ValidationResult result = validateSubSchemaSync(
         notSchema,
         data,
         currentPath,
@@ -473,7 +748,7 @@ extension SchemaValidation on Schema {
     }
 
     // 4. Type-Specific Validation
-    final ValidationResult typeResult = await validateTypeSpecificKeywords(
+    final ValidationResult typeResult = validateTypeSpecificKeywordsSync(
       data,
       currentPath,
       currentContext,
@@ -493,7 +768,7 @@ extension SchemaValidation on Schema {
         for (final String dataKey in data.keys) {
           if (!allAnnotations.evaluatedKeys.contains(dataKey)) {
             final newPath = [...currentPath, dataKey];
-            final ValidationResult result = await validateSubSchema(
+            final ValidationResult result = validateSubSchemaSync(
               up,
               data[dataKey],
               newPath,
@@ -515,7 +790,7 @@ extension SchemaValidation on Schema {
         for (var i = 0; i < data.length; i++) {
           if (!allAnnotations.evaluatedItems.contains(i)) {
             final newPath = [...currentPath, i.toString()];
-            final ValidationResult result = await validateSubSchema(
+            final ValidationResult result = validateSubSchemaSync(
               ui,
               data[i],
               newPath,
@@ -538,12 +813,12 @@ extension SchemaValidation on Schema {
 
   /// Validates the given [data] against the type-specific keywords in this
   /// schema.
-  Future<ValidationResult> validateTypeSpecificKeywords(
+  ValidationResult validateTypeSpecificKeywordsSync(
     Object? data,
     List<String> currentPath,
     ValidationContext context,
     List<Schema> dynamicScope,
-  ) async {
+  ) {
     final JsonType actualType = getJsonType(data);
     final errors = <ValidationError>[];
 
@@ -582,14 +857,14 @@ extension SchemaValidation on Schema {
     // Now, apply keywords based on the actual type of the data.
     switch (actualType) {
       case JsonType.object:
-        return await (this as ObjectSchema).validateObject(
+        return (this as ObjectSchema).validateObjectSync(
           data as Map<String, Object?>,
           currentPath,
           context,
           dynamicScope,
         );
       case JsonType.list:
-        return await (this as ListSchema).validateList(
+        return (this as ListSchema).validateListSync(
           data as List<Object?>,
           currentPath,
           context,
@@ -720,14 +995,14 @@ extension SchemaValidation on Schema {
 
   /// Validates an object against the schema.
   ///
-  /// This method is called by [validateTypeSpecificKeywords] when the data is
-  /// a [Map].
-  Future<ValidationResult> validateObject(
+  /// This method is called by [validateTypeSpecificKeywordsSync] when the
+  /// data is a [Map].
+  ValidationResult validateObjectSync(
     Map<String, Object?> data,
     List<String> currentPath,
     ValidationContext context,
     List<Schema> dynamicScope,
-  ) async {
+  ) {
     final objectSchema = this as ObjectSchema;
     final errors = <ValidationError>[];
     var annotations = AnnotationSet.empty();
@@ -797,7 +1072,7 @@ extension SchemaValidation on Schema {
     if (objectSchema.dependentSchemas case final ds?) {
       for (final MapEntry<String, Schema> entry in ds.entries) {
         if (data.containsKey(entry.key)) {
-          final ValidationResult result = await validateSubSchema(
+          final ValidationResult result = validateSubSchemaSync(
             entry.value,
             data,
             currentPath,
@@ -816,7 +1091,7 @@ extension SchemaValidation on Schema {
         if (data.containsKey(entry.key)) {
           final List<String> newPath = [...currentPath, entry.key];
           evaluatedKeys.add(entry.key);
-          final ValidationResult result = await entry.value.validateSchema(
+          final ValidationResult result = entry.value.validateSchemaSync(
             data[entry.key],
             newPath,
             context,
@@ -835,7 +1110,7 @@ extension SchemaValidation on Schema {
           if (pattern.hasMatch(dataKey)) {
             final newPath = [...currentPath, dataKey];
             evaluatedKeys.add(dataKey);
-            final ValidationResult result = await entry.value.validateSchema(
+            final ValidationResult result = entry.value.validateSchemaSync(
               data[dataKey],
               newPath,
               context,
@@ -850,7 +1125,7 @@ extension SchemaValidation on Schema {
 
     if (objectSchema.propertyNames case final propNamesSchema?) {
       for (final String key in data.keys) {
-        final ValidationResult result = await propNamesSchema.validateSchema(
+        final ValidationResult result = propNamesSchema.validateSchemaSync(
           key,
           currentPath,
           context,
@@ -866,7 +1141,7 @@ extension SchemaValidation on Schema {
 
       if (objectSchema.additionalProperties case final ap?) {
         final newPath = [...currentPath, dataKey];
-        final ValidationResult result = await ap.validateSchema(
+        final ValidationResult result = ap.validateSchemaSync(
           data[dataKey],
           newPath,
           context,
@@ -892,14 +1167,14 @@ extension SchemaValidation on Schema {
 
   /// Validates a list against the schema.
   ///
-  /// This method is called by [validateTypeSpecificKeywords] when the data is
-  /// a [List].
-  Future<ValidationResult> validateList(
+  /// This method is called by [validateTypeSpecificKeywordsSync] when the
+  /// data is a [List].
+  ValidationResult validateListSync(
     List<Object?> data,
     List<String> currentPath,
     ValidationContext context,
     List<Schema> dynamicScope,
-  ) async {
+  ) {
     final errors = <ValidationError>[];
     final evaluatedItems = <int>{};
     final listSchema = this as ListSchema;
@@ -953,7 +1228,7 @@ extension SchemaValidation on Schema {
     if (listSchema.contains case final containsSchema?) {
       final matches = <int>[];
       for (var i = 0; i < data.length; i++) {
-        final ValidationResult result = await validateSubSchema(
+        final ValidationResult result = validateSubSchemaSync(
           containsSchema,
           data[i],
           currentPath,
@@ -1012,7 +1287,7 @@ extension SchemaValidation on Schema {
       for (var i = 0; i < pItems.length && i < data.length; i++) {
         evaluatedItems.add(i);
         final newPath = [...currentPath, i.toString()];
-        final ValidationResult result = await validateSubSchema(
+        final ValidationResult result = validateSubSchemaSync(
           pItems[i],
           data[i],
           newPath,
@@ -1027,7 +1302,7 @@ extension SchemaValidation on Schema {
       for (var i = startIndex; i < data.length; i++) {
         evaluatedItems.add(i);
         final newPath = [...currentPath, i.toString()];
-        final ValidationResult result = await validateSubSchema(
+        final ValidationResult result = validateSubSchemaSync(
           itemSchema,
           data[i],
           newPath,
@@ -1061,16 +1336,20 @@ extension SchemaValidation on Schema {
     throw StateError('Unknown JSON type for value: $data');
   }
 
-  /// Resolves a `$ref` reference to a schema.
-  Future<(Schema, Uri)?> resolveRef(
+  /// Resolves a `$ref` reference to a schema, without performing any I/O.
+  ///
+  /// Returns `null` if the reference does not resolve. Throws a
+  /// [SchemaResolutionRequiredException] if resolving it would require
+  /// fetching a schema that is not registered; see [validateSync].
+  (Schema, Uri)? resolveRefSync(
     String ref,
     Schema rootSchema,
     ValidationContext context,
-  ) async {
+  ) {
     final Uri baseUri = context.sourceUri!;
     final Uri refUri = baseUri.resolve(ref);
     try {
-      final Schema? schema = await context.schemaRegistry.resolve(refUri);
+      final Schema? schema = context.resolveSchemaSync(refUri);
       if (schema == null) return null;
       return (schema, refUri);
     } on SchemaFetchException {
@@ -1078,14 +1357,19 @@ extension SchemaValidation on Schema {
     }
   }
 
-  /// Resolves a `$dynamicRef` reference to a schema.
-  Future<(Schema, Uri)?> resolveDynamicRef(
+  /// Resolves a `$dynamicRef` reference to a schema, without performing any
+  /// I/O.
+  ///
+  /// Returns `null` if the reference does not resolve. Throws a
+  /// [SchemaResolutionRequiredException] if resolving it would require
+  /// fetching a schema that is not registered; see [validateSync].
+  (Schema, Uri)? resolveDynamicRefSync(
     String ref,
     List<Schema> dynamicScope,
     ValidationContext context,
-  ) async {
+  ) {
     // 1. Initial resolution, just like $ref
-    final (Schema, Uri)? initialResolution = await resolveRef(
+    final (Schema, Uri)? initialResolution = resolveRefSync(
       ref,
       dynamicScope.last,
       context,

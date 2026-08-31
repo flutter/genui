@@ -54,6 +54,21 @@ void main() {
     schemaRegistry.addSchema(uri, schema);
   }
 
+  // Test cases the synchronous path could not run because they still needed a
+  // schema fetched. Everything the remotes directory covers is registered
+  // above, and the asynchronous run of each case fetches anything else into the
+  // registry before the synchronous run, so this is expected to stay empty.
+  final syncSkipped = <String>[];
+  tearDownAll(() {
+    expect(
+      syncSkipped,
+      isEmpty,
+      reason:
+          'Cases that the synchronous validation path did not cover. Register '
+          'the schemas they reference so that both paths run.',
+    );
+  });
+
   for (final File file in testFilePaths.map(File.new)) {
     final String content = file.readAsStringSync();
     final tests = jsonDecode(content) as List;
@@ -105,6 +120,32 @@ void main() {
                     'Log:\n${loggingContext.buffer}',
               );
             }
+
+            // Run the same case through the synchronous path. The asynchronous
+            // run above fetched anything remote into `schemaRegistry`, which is
+            // the precondition `validateSync` documents, so the two runs must
+            // produce exactly the same errors.
+            final List<ValidationError> syncErrors;
+            try {
+              syncErrors = schema.validateSync(
+                data,
+                sourceUri: file.uri,
+                schemaRegistry: schemaRegistry,
+                loggingContext: loggingContext,
+              );
+            } on SchemaResolutionRequiredException catch (e) {
+              // This case still needs a schema fetched, which the synchronous
+              // path deliberately refuses to do.
+              syncSkipped.add('$groupDescription / $testDescription: ${e.uri}');
+              return;
+            }
+            expect(
+              syncErrors.map((ValidationError e) => e.toErrorString()),
+              errors.map((ValidationError e) => e.toErrorString()),
+              reason:
+                  'Synchronous validation disagreed with asynchronous '
+                  'validation.\nLog:\n${loggingContext.buffer}',
+            );
           });
         }
       });
