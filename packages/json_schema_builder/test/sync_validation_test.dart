@@ -290,4 +290,353 @@ void main() {
       );
     });
   });
+  group('asynchronous helpers', () {
+    /// Creates the context that validation of [schema] starts from, the way
+    /// the entry points do.
+    ValidationContext contextFor(Schema schema, {SchemaRegistry? registry}) {
+      final SchemaRegistry schemaRegistry = registry ?? SchemaRegistry();
+      final Uri sourceUri = Uri.parse('local://schema');
+      schemaRegistry.addSchema(sourceUri, schema);
+      return ValidationContext(
+        schema,
+        sourceUri: sourceUri,
+        schemaRegistry: schemaRegistry,
+      );
+    }
+
+    test('validateSubSchema applies a subschema', () async {
+      final ValidationContext context = contextFor(personSchema);
+
+      expect(
+        (await validateSubSchema(
+          {'type': 'string'},
+          'Ada',
+          [],
+          context,
+          [],
+        )).isValid,
+        isTrue,
+      );
+      expect(
+        (await validateSubSchema(
+          {'type': 'string'},
+          1,
+          [],
+          context,
+          [],
+        )).isValid,
+        isFalse,
+      );
+      // A boolean schema accepts or rejects everything.
+      expect(
+        (await validateSubSchema(true, 'Ada', [], context, [])).isValid,
+        isTrue,
+      );
+      expect(
+        (await validateSubSchema(false, 'Ada', [], context, [])).isValid,
+        isFalse,
+      );
+      // Anything that is not a schema at all constrains nothing.
+      expect(
+        (await validateSubSchema(42, 'Ada', [], context, [])).isValid,
+        isTrue,
+      );
+    });
+
+    test('validateSchema fetches the references it needs', () async {
+      final SchemaRegistry registry = _registryServing({
+        'https://example.com/name.json': {'type': 'string', 'minLength': 1},
+      });
+      addTearDown(registry.dispose);
+      final schema = Schema.fromMap({r'$ref': 'https://example.com/name.json'});
+      final ValidationContext context = contextFor(schema, registry: registry);
+
+      expect(
+        (await schema.validateSchema('Ada', [], context, [schema])).isValid,
+        isTrue,
+      );
+      expect(
+        (await schema.validateSchema('', [], context, [
+          schema,
+        ])).errors.map((ValidationError e) => e.error),
+        contains(ValidationErrorType.minLengthNotMet),
+      );
+    });
+
+    test(
+      'validateTypeSpecificKeywords applies the keywords for the type',
+      () async {
+        final schema = Schema.fromMap({'type': 'integer', 'maximum': 10});
+        final ValidationContext context = contextFor(schema);
+
+        expect(
+          (await schema.validateTypeSpecificKeywords(5, [], context, [
+            schema,
+          ])).isValid,
+          isTrue,
+        );
+        expect(
+          (await schema.validateTypeSpecificKeywords(11, [], context, [
+            schema,
+          ])).errors.map((ValidationError e) => e.error),
+          contains(ValidationErrorType.maximumExceeded),
+        );
+      },
+    );
+
+    test('validateObject applies the object keywords', () async {
+      final ValidationContext context = contextFor(personSchema);
+
+      expect(
+        (await personSchema.validateObject(
+          {'name': 'Ada'},
+          [],
+          context,
+          [personSchema],
+        )).isValid,
+        isTrue,
+      );
+      expect(
+        (await personSchema.validateObject(
+          {'age': 36},
+          [],
+          context,
+          [personSchema],
+        )).errors.map((ValidationError e) => e.error),
+        contains(ValidationErrorType.requiredPropertyMissing),
+      );
+    });
+
+    test('validateList applies the list keywords', () async {
+      final schema = Schema.fromMap({
+        'type': 'array',
+        'minItems': 2,
+        'items': {'type': 'integer'},
+      });
+      final ValidationContext context = contextFor(schema);
+
+      expect(
+        (await schema.validateList([1, 2], [], context, [schema])).isValid,
+        isTrue,
+      );
+      expect(
+        (await schema.validateList(
+          [1],
+          [],
+          context,
+          [schema],
+        )).errors.map((ValidationError e) => e.error),
+        contains(ValidationErrorType.minItemsNotMet),
+      );
+    });
+
+    test(
+      'resolveRef resolves a local reference and fetches a remote one',
+      () async {
+        final SchemaRegistry registry = _registryServing({
+          'https://example.com/name.json': {'type': 'string'},
+        });
+        addTearDown(registry.dispose);
+        final schema = Schema.fromMap({
+          r'$defs': {
+            'positiveInt': {'type': 'integer', 'minimum': 1},
+          },
+        });
+        final ValidationContext context = contextFor(
+          schema,
+          registry: registry,
+        );
+
+        final (Schema, Uri)? local = await schema.resolveRef(
+          r'#/$defs/positiveInt',
+          schema,
+          context,
+        );
+        expect(local?.$1.value, {'type': 'integer', 'minimum': 1});
+
+        final (Schema, Uri)? remote = await schema.resolveRef(
+          'https://example.com/name.json',
+          schema,
+          context,
+        );
+        expect(remote?.$1.value, {'type': 'string'});
+        expect(remote?.$2, Uri.parse('https://example.com/name.json'));
+
+        expect(
+          await schema.resolveRef(r'#/$defs/missing', schema, context),
+          isNull,
+        );
+      },
+    );
+
+    test('resolveDynamicRef follows the dynamic scope', () async {
+      final schema = Schema.fromMap({
+        r'$id': 'https://example.com/root.json',
+        r'$defs': {
+          'item': {r'$dynamicAnchor': 'item', 'type': 'integer'},
+        },
+      });
+      final ValidationContext context = contextFor(schema);
+
+      final (Schema, Uri)? resolved = await schema.resolveDynamicRef('#item', [
+        schema,
+      ], context);
+      expect(resolved?.$1.value, {
+        r'$dynamicAnchor': 'item',
+        'type': 'integer',
+      });
+
+      expect(
+        await schema.resolveDynamicRef('#missing', [schema], context),
+        isNull,
+      );
+    });
+  });
+
+  group('reference resolution failures', () {
+    test(r'reports an unresolvable $dynamicRef', () async {
+      final schema = Schema.fromMap({r'$dynamicRef': r'#/$defs/missing'});
+
+      expect(
+        (await schema.validate(
+          'anything',
+        )).map((ValidationError e) => e.toErrorString()),
+        contains(contains('Failed to resolve dynamic reference')),
+      );
+    });
+
+    test('reports a meta schema that cannot be fetched', () async {
+      final SchemaRegistry registry = _registryServing(const {});
+      addTearDown(registry.dispose);
+      final schema = Schema.fromMap({
+        r'$schema': 'https://example.com/meta.json',
+        'type': 'string',
+      });
+
+      expect(
+        (await schema.validate(
+          'Ada',
+          schemaRegistry: registry,
+        )).map((ValidationError e) => e.toErrorString()),
+        contains(contains('Failed to resolve meta schema')),
+      );
+    });
+
+    test(
+      'keeps every vocabulary for a meta schema that declares none',
+      () async {
+        final registry = SchemaRegistry()
+          ..addSchema(
+            Uri.parse('https://example.com/meta.json'),
+            Schema.fromMap({'type': 'object'}),
+          );
+        addTearDown(registry.dispose);
+        final schema = Schema.fromMap({
+          r'$schema': 'https://example.com/meta.json',
+          'type': 'string',
+          'minLength': 3,
+        });
+
+        // The meta schema has no $vocabulary, so validation keeps all of them
+        // and minLength still applies.
+        expect(schema.validateSync('abc', schemaRegistry: registry), isEmpty);
+        expect(
+          schema
+              .validateSync('ab', schemaRegistry: registry)
+              .map((ValidationError e) => e.error),
+          contains(ValidationErrorType.minLengthNotMet),
+        );
+      },
+    );
+
+    test('treats a fetch that produces no schema as unresolved', () async {
+      final registry = SchemaRegistry(schemaCache: _EmptySchemaCache());
+      addTearDown(registry.dispose);
+      final schema = Schema.fromMap({
+        r'$ref': 'https://example.com/nothing.json',
+      });
+
+      expect(
+        (await schema.validate(
+          'Ada',
+          schemaRegistry: registry,
+        )).map((ValidationError e) => e.error),
+        contains(ValidationErrorType.refResolutionError),
+      );
+    });
+  });
+
+  group('SchemaRegistry', () {
+    test('resolve returns a registered schema, fragment and all', () async {
+      final registry = SchemaRegistry();
+      addTearDown(registry.dispose);
+      registry.addSchema(
+        Uri.parse('https://example.com/root.json'),
+        Schema.fromMap({
+          r'$defs': {
+            'name': {'type': 'string'},
+          },
+        }),
+      );
+
+      expect(
+        (await registry.resolve(
+          Uri.parse(r'https://example.com/root.json#/$defs/name'),
+        ))?.value,
+        {'type': 'string'},
+      );
+      expect(
+        await registry.resolve(
+          Uri.parse(r'https://example.com/root.json#/$defs/missing'),
+        ),
+        isNull,
+      );
+    });
+
+    test('resolve fetches a schema it does not hold', () async {
+      final SchemaRegistry registry = _registryServing({
+        'https://example.com/name.json': {'type': 'string'},
+      });
+      addTearDown(registry.dispose);
+
+      expect(
+        (await registry.resolve(
+          Uri.parse('https://example.com/name.json'),
+        ))?.value,
+        {'type': 'string'},
+      );
+      // The schema is registered now, so the synchronous path can see it.
+      expect(
+        registry.resolveSync(Uri.parse('https://example.com/name.json'))?.value,
+        {'type': 'string'},
+      );
+    });
+
+    test('resolve reports a fetch that produces no schema as null', () async {
+      final registry = SchemaRegistry(schemaCache: _EmptySchemaCache());
+      addTearDown(registry.dispose);
+
+      expect(
+        await registry.resolve(Uri.parse('https://example.com/nothing.json')),
+        isNull,
+      );
+    });
+  });
+
+  group('SchemaResolutionRequiredException', () {
+    test('names the schema that would have to be fetched', () {
+      final exception = SchemaResolutionRequiredException(
+        Uri.parse('https://example.com/name.json'),
+      );
+
+      expect(exception.toString(), contains('https://example.com/name.json'));
+      expect(exception.toString(), contains('SchemaRegistry'));
+    });
+  });
+}
+
+/// A cache whose fetches succeed without producing a schema.
+class _EmptySchemaCache extends SchemaCache {
+  @override
+  Future<Schema?> get(Uri uri) async => null;
 }
