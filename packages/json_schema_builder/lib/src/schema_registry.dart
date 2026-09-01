@@ -106,46 +106,37 @@ class SchemaRegistry {
     required Uri baseUri,
   }) async {
     final unresolved = <Uri, SchemaFetchException?>{};
-    final Set<Uri> seen = {baseUri.removeFragment()};
-    // The resources whose own references have yet to be collected.
-    var frontier = <(Schema, Uri)>[(schema, baseUri.removeFragment())];
-    while (frontier.isNotEmpty) {
-      final toFetch = <Uri>{};
-      final next = <(Schema, Uri)>[];
-      for (final (Schema resource, Uri resourceUri) in frontier) {
+    final seen = <Uri>{baseUri.removeFragment()};
+    // The resources whose own references have not been collected yet.
+    var pending = <Uri, Schema>{baseUri.removeFragment(): schema};
+    while (pending.isNotEmpty) {
+      final references = <Uri>{};
+      for (final MapEntry<Uri, Schema> resource in pending.entries) {
         for (final Uri reference in _referencedResources(
-          resource,
-          resourceUri,
+          resource.value,
+          resource.key,
         )) {
-          if (!seen.add(reference)) continue;
-          final Schema? held = _schemas[reference];
-          if (held == null) {
-            toFetch.add(reference);
-          } else {
-            // Already held, but its own references may not be.
-            next.add((held, reference));
-          }
+          if (seen.add(reference)) references.add(reference);
         }
       }
-      frontier = next;
-      if (toFetch.isEmpty) continue;
-      final List<(Uri, Schema?)> fetched = await Future.wait(
-        toFetch.map((Uri uri) async {
+      // This round of references, fetched in parallel. One that the registry
+      // already holds comes back without any I/O, and whatever comes back is
+      // walked in the next round.
+      pending = {};
+      await Future.wait(
+        references.map((Uri uri) async {
           try {
-            return (uri, await fetch(uri));
+            final Schema? resource = await fetch(uri);
+            if (resource == null) {
+              unresolved[uri] = null;
+            } else {
+              pending[uri] = resource;
+            }
           } on SchemaFetchException catch (e) {
             unresolved[uri] = e;
-            return (uri, null);
           }
         }),
       );
-      for (final (Uri uri, Schema? resource) in fetched) {
-        if (resource == null) {
-          unresolved.putIfAbsent(uri, () => null);
-        } else {
-          frontier.add((resource, uri));
-        }
-      }
     }
     return unresolved;
   }
@@ -183,16 +174,15 @@ class SchemaRegistry {
   Set<Uri> _referencedResources(Schema schema, Uri baseUri) {
     final references = <Uri>{};
     _walkSchema(schema, baseUri, (Schema subschema, Uri subschemaBaseUri) {
-      for (final reference in <String?>[
+      final Uri ownResource = subschemaBaseUri.removeFragment();
+      for (final String? reference in [
         subschema.$ref,
         subschema.$dynamicRef,
         subschema.$schema,
       ]) {
         if (reference == null) continue;
         final Uri target = subschemaBaseUri.resolve(reference).removeFragment();
-        if (target != subschemaBaseUri.removeFragment()) {
-          references.add(target);
-        }
+        if (target != ownResource) references.add(target);
       }
     });
     return references;

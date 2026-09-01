@@ -5,8 +5,9 @@
 - **Feature**: Add `Schema.validateSync`, a synchronous validation entry point
   for schemas whose references all resolve without fetching. Validation itself
   is now a synchronous core, and the existing `Schema.validate` is a thin
-  asynchronous wrapper around it that fetches remote references into the
-  `SchemaRegistry` as they are needed. Behavior of `validate` is unchanged.
+  asynchronous wrapper around it that fetches the remote references it needs
+  into the `SchemaRegistry` up front, in parallel. Behavior of `validate` is
+  unchanged.
 - **Feature**: Add `SchemaRegistry.resolveSync` and `SchemaRegistry.fetch`,
   which split reference resolution from fetching, and
   `SchemaRegistry.prefetchDependencies`, which fetches the schemas a schema

@@ -139,9 +139,10 @@ Future<void> main() async {
 ### Synchronous Validation
 
 `validate` is asynchronous only because a `$ref` may point at a schema that has
-to be fetched. If your schema has no such references — because they are inlined,
-or because you registered every referenced schema up front — use `validateSync`
-instead and skip the `Future`:
+to be fetched (loaded from source and parsed into a `Schema`). If your schema
+has no such references — because they are inlined, or because you registered
+every referenced schema up front — use `validateSync` instead and skip the
+`Future`:
 
 ```dart
 final errors = userProfileSchema.validateSync(validUser);
@@ -152,16 +153,6 @@ would have to be fetched, it throws a `SchemaResolutionRequiredException` naming
 that target instead of skipping the reference, so a missing fetch can never turn
 into a passing validation.
 
-To validate synchronously against a schema that does have remote references,
-give both calls the same `SchemaRegistry`. The asynchronous call fetches what it
-needs into the registry, and every later validation can be synchronous:
-
-```dart
-final registry = SchemaRegistry();
-await schema.validate(firstValue, schemaRegistry: registry);
-final errors = schema.validateSync(secondValue, schemaRegistry: registry);
-```
-
 To fetch those schemas without validating anything, prepare the registry with
 `prefetchDependencies`, which fetches everything the schema refers to, and
 everything those schemas refer to in turn, in parallel:
@@ -169,7 +160,11 @@ everything those schemas refer to in turn, in parallel:
 ```dart
 final registry = SchemaRegistry();
 await registry.prefetchDependencies(schema, baseUri: sourceUri);
-final errors = schema.validateSync(value, sourceUri: sourceUri, schemaRegistry: registry);
+final errors = schema.validateSync(
+  value,
+  sourceUri: sourceUri,
+  schemaRegistry: registry,
+);
 ```
 
 Note that a schema declaring a `$schema` meta-schema needs that meta-schema

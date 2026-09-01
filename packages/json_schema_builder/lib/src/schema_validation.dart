@@ -105,11 +105,10 @@ class ValidationContext {
   /// recording the outcome of each fetch so that [_resolveSchemaSync] can
   /// answer for it without fetching again.
   ///
-  /// This is what makes the asynchronous entry points thin wrappers around the
-  /// synchronous core: the only I/O validation ever needs is fetching the
-  /// target of a reference, and every target it can reach is named in the
-  /// schema itself. Bringing them all in up front, in parallel, leaves the
-  /// validation itself with nothing left to wait for.
+  /// The only I/O validation ever needs is fetching the target of a reference,
+  /// and every target it can reach is named in the schema itself. Bringing
+  /// them all in up front, in parallel, is what lets the asynchronous entry
+  /// points run the synchronous core once and wait for nothing.
   Future<void> _prefetchRemoteRefs(Schema schema) async {
     _failedFetches.addAll(
       await schemaRegistry.prefetchDependencies(schema, baseUri: sourceUri!),
@@ -130,7 +129,7 @@ class ValidationContext {
   }
 
   /// Creates a copy of this context with a new set of [newVocabularies].
-  ValidationContext withVocabularies(Map<String, bool> newVocabularies) {
+  ValidationContext _withVocabularies(Map<String, bool> newVocabularies) {
     return ValidationContext._copyWith(
       rootSchema: rootSchema,
       strictFormat: strictFormat,
@@ -219,12 +218,12 @@ extension SchemaValidation on Schema {
   /// Returns a list of [ValidationError] if validation fails,
   /// or an empty list if validation succeeds.
   ///
-  /// Remote references (`$ref`s pointing at a schema that is not already in
-  /// [schemaRegistry]) are fetched (loaded from source and parsed
-  /// into a [Schema]) into it up front, in parallel, and the
-  /// validation itself then runs synchronously. If this schema has no such
-  /// references, prefer [validateSync], which does the same work without the
-  /// [Future].
+  /// A remote reference — a `$ref` pointing at a schema that is not already in
+  /// [schemaRegistry] — is fetched into it up front: loaded from its source,
+  /// parsed into a [Schema], and registered. The fetches run in parallel, and
+  /// the validation itself then runs synchronously. If this schema has no
+  /// remote references, prefer [validateSync], which does the same work
+  /// without the [Future].
   Future<List<ValidationError>> validate(
     Object? data, {
     bool strictFormat = false,
@@ -452,12 +451,12 @@ extension SchemaValidation on Schema {
         if (metaSchema != null) {
           final Object? vocabulary = metaSchema.value['\$vocabulary'];
           if (vocabulary is Map) {
-            currentContext = currentContext.withVocabularies(
+            currentContext = currentContext._withVocabularies(
               vocabulary.cast<String, bool>(),
             );
           } else {
             // If $vocabulary is not present, default to all vocabularies.
-            currentContext = currentContext.withVocabularies(const {
+            currentContext = currentContext._withVocabularies(const {
               'https://json-schema.org/draft/2020-12/vocab/core': true,
               'https://json-schema.org/draft/2020-12/vocab/applicator': true,
               'https://json-schema.org/draft/2020-12/vocab/unevaluated': true,
