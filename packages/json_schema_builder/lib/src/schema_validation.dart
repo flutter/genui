@@ -138,6 +138,16 @@ class ValidationContext {
 /// missing by throwing a [SchemaResolutionRequiredException]. Each retry
 /// therefore resolves one more remote reference, and a schema with no remote
 /// references runs [body] exactly once.
+///
+/// The signal is an exception rather than a result type threaded through the
+/// traversal because the throw is not introduced for this loop: it is the
+/// documented failure mode of the public [SchemaValidation.validateSync],
+/// which returns `List<ValidationError>`, and a reference that could not be
+/// resolved is not a validation error. Returning it instead would mean every
+/// recursive call site in the synchronous core has to test for it and
+/// propagate it by hand, and a site that forgets treats the unresolved
+/// subschema as unconstrained — the silent pass this design exists to
+/// prevent, traded for a signal that cannot be dropped.
 Future<T> _resolvingRemoteRefs<T>(
   ValidationContext context,
   T Function() body,
