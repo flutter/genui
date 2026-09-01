@@ -87,6 +87,69 @@ class SchemaRegistry {
     return schema;
   }
 
+  /// Fetches the schema resources that [schema] refers to, and that this
+  /// registry does not already hold, adding them to it.
+  ///
+  /// References in [schema] are resolved against [baseUri], the URI it is
+  /// registered under. Whatever a fetched schema refers to in turn is fetched
+  /// as well, and the resources discovered at each step are fetched in
+  /// parallel. Once this completes, [resolveSync] can answer for every
+  /// reference in [schema] that resolves at all, which is what
+  /// `Schema.validateSync` requires.
+  ///
+  /// Returns the resources that could not be brought in, keyed by URI: the
+  /// value is the [SchemaFetchException] the fetch failed with, or `null` if
+  /// the fetch produced no schema. Such an entry is not by itself an error,
+  /// because a reference that validation never reaches never has to resolve.
+  Future<Map<Uri, SchemaFetchException?>> prefetchDependencies(
+    Schema schema, {
+    required Uri baseUri,
+  }) async {
+    final unresolved = <Uri, SchemaFetchException?>{};
+    final Set<Uri> seen = {baseUri.removeFragment()};
+    // The resources whose own references have yet to be collected.
+    var frontier = <(Schema, Uri)>[(schema, baseUri.removeFragment())];
+    while (frontier.isNotEmpty) {
+      final toFetch = <Uri>{};
+      final next = <(Schema, Uri)>[];
+      for (final (Schema resource, Uri resourceUri) in frontier) {
+        for (final Uri reference in _referencedResources(
+          resource,
+          resourceUri,
+        )) {
+          if (!seen.add(reference)) continue;
+          final Schema? held = _schemas[reference];
+          if (held == null) {
+            toFetch.add(reference);
+          } else {
+            // Already held, but its own references may not be.
+            next.add((held, reference));
+          }
+        }
+      }
+      frontier = next;
+      if (toFetch.isEmpty) continue;
+      final List<(Uri, Schema?)> fetched = await Future.wait(
+        toFetch.map((Uri uri) async {
+          try {
+            return (uri, await fetch(uri));
+          } on SchemaFetchException catch (e) {
+            unresolved[uri] = e;
+            return (uri, null);
+          }
+        }),
+      );
+      for (final (Uri uri, Schema? resource) in fetched) {
+        if (resource == null) {
+          unresolved.putIfAbsent(uri, () => null);
+        } else {
+          frontier.add((resource, uri));
+        }
+      }
+    }
+    return unresolved;
+  }
+
   /// Gets the URI for a given schema, if it has been registered.
   ///
   /// This method performs a deep comparison to find a matching schema in the
@@ -105,74 +168,34 @@ class SchemaRegistry {
   }
 
   void _registerIds(Schema schema, Uri baseUri) {
-    final String? id = schema.$id;
-    if (id != null) {
-      // This is a heuristic to avoid re-resolving a relative path that has
-      // already been applied to the base URI.
-      if (id.endsWith('/') && baseUri.path.endsWith('/$id')) {
-        _schemas[baseUri.removeFragment()] = schema;
-      } else {
-        final Uri newUri = baseUri.resolve(id);
-        _schemas[newUri.removeFragment()] = schema;
-        baseUri = newUri;
+    _walkSchema(schema, baseUri, (Schema subschema, Uri subschemaBaseUri) {
+      if (subschema.$id != null) {
+        _schemas[subschemaBaseUri.removeFragment()] = subschema;
       }
-    }
+    });
+  }
 
-    void recurseOnMap(Map<String, Object?> map) {
-      _registerIds(Schema.fromMap(map), baseUri);
-    }
-
-    void recurseOnList(List<Object?> list) {
-      for (final item in list) {
-        if (item is Map<String, Object?>) {
-          recurseOnMap(item);
+  /// The URIs of the schema resources that [schema] refers to, other than the
+  /// resource it is itself part of.
+  ///
+  /// References are resolved against [baseUri], and against the base URI of
+  /// any `$id` within [schema], exactly as validation resolves them.
+  Set<Uri> _referencedResources(Schema schema, Uri baseUri) {
+    final references = <Uri>{};
+    _walkSchema(schema, baseUri, (Schema subschema, Uri subschemaBaseUri) {
+      for (final reference in <String?>[
+        subschema.$ref,
+        subschema.$dynamicRef,
+        subschema.$schema,
+      ]) {
+        if (reference == null) continue;
+        final Uri target = subschemaBaseUri.resolve(reference).removeFragment();
+        if (target != subschemaBaseUri.removeFragment()) {
+          references.add(target);
         }
       }
-    }
-
-    // Keywords with map-of-schemas values
-    const mapOfSchemasKeywords = <String>[
-      'properties',
-      'patternProperties',
-      'dependentSchemas',
-      '\$defs',
-    ];
-    for (final keyword in mapOfSchemasKeywords) {
-      if (schema.value[keyword] case final Map<String, Object?> map?) {
-        for (final Object? value in map.values) {
-          if (value is Map<String, Object?>) {
-            recurseOnMap(value);
-          }
-        }
-      }
-    }
-
-    // Keywords with schema values
-    const schemaKeywords = [
-      'additionalProperties',
-      'unevaluatedProperties',
-      'items',
-      'unevaluatedItems',
-      'contains',
-      'propertyNames',
-      'not',
-      'if',
-      'then',
-      'else',
-    ];
-    for (final keyword in schemaKeywords) {
-      if (schema.value[keyword] case final Map<String, Object?> map) {
-        recurseOnMap(map);
-      }
-    }
-
-    // Keywords with list-of-schemas values
-    const listOfSchemasKeywords = ['allOf', 'anyOf', 'oneOf', 'prefixItems'];
-    for (final keyword in listOfSchemasKeywords) {
-      if (schema.value[keyword] case final List<Object?> list) {
-        recurseOnList(list);
-      }
-    }
+    });
+    return references;
   }
 
   Schema? _getSchemaFromFragment(Uri uri, Schema schema) {
@@ -259,5 +282,83 @@ class SchemaRegistry {
 
     visit(schema.value, isRootOfResource: true);
     return result;
+  }
+}
+
+/// Calls [visit] with [schema] and every subschema of it, along with the base
+/// URI that the references in that subschema resolve against.
+///
+/// The base URI starts as [baseUri] and changes as the walk enters a subschema
+/// declaring an `$id`, exactly as it does during validation.
+void _walkSchema(
+  Schema schema,
+  Uri baseUri,
+  void Function(Schema schema, Uri baseUri) visit,
+) {
+  final String? id = schema.$id;
+  var currentBaseUri = baseUri;
+  if (id != null) {
+    // This is a heuristic to avoid re-resolving a relative path that has
+    // already been applied to the base URI.
+    if (!(id.endsWith('/') && baseUri.path.endsWith('/$id'))) {
+      currentBaseUri = baseUri.resolve(id);
+    }
+  }
+  visit(schema, currentBaseUri);
+
+  void recurseOnMap(Map<String, Object?> map) {
+    _walkSchema(Schema.fromMap(map), currentBaseUri, visit);
+  }
+
+  void recurseOnList(List<Object?> list) {
+    for (final item in list) {
+      if (item is Map<String, Object?>) {
+        recurseOnMap(item);
+      }
+    }
+  }
+
+  // Keywords with map-of-schemas values
+  const mapOfSchemasKeywords = <String>[
+    'properties',
+    'patternProperties',
+    'dependentSchemas',
+    '\$defs',
+  ];
+  for (final keyword in mapOfSchemasKeywords) {
+    if (schema.value[keyword] case final Map<String, Object?> map?) {
+      for (final Object? value in map.values) {
+        if (value is Map<String, Object?>) {
+          recurseOnMap(value);
+        }
+      }
+    }
+  }
+
+  // Keywords with schema values
+  const schemaKeywords = [
+    'additionalProperties',
+    'unevaluatedProperties',
+    'items',
+    'unevaluatedItems',
+    'contains',
+    'propertyNames',
+    'not',
+    'if',
+    'then',
+    'else',
+  ];
+  for (final keyword in schemaKeywords) {
+    if (schema.value[keyword] case final Map<String, Object?> map) {
+      recurseOnMap(map);
+    }
+  }
+
+  // Keywords with list-of-schemas values
+  const listOfSchemasKeywords = ['allOf', 'anyOf', 'oneOf', 'prefixItems'];
+  for (final keyword in listOfSchemasKeywords) {
+    if (schema.value[keyword] case final List<Object?> list) {
+      recurseOnList(list);
+    }
   }
 }

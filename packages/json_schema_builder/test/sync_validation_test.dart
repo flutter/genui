@@ -2,7 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -272,6 +274,60 @@ void main() {
         )).map((ValidationError e) => e.error),
         contains(ValidationErrorType.minLengthNotMet),
       );
+    });
+
+    test('fetches independent remote references in parallel', () async {
+      var inFlight = 0;
+      var mostInFlight = 0;
+      final bothArrived = Completer<void>();
+      final client = MockClient((http.Request request) async {
+        inFlight++;
+        mostInFlight = max(mostInFlight, inFlight);
+        if (inFlight == 2 && !bothArrived.isCompleted) bothArrived.complete();
+        // Hold each request open until the other one arrives, so that the two
+        // can only both complete if they were made concurrently.
+        await bothArrived.future.timeout(
+          const Duration(seconds: 5),
+          onTimeout: () {},
+        );
+        inFlight--;
+        return http.Response(jsonEncode({'type': 'string'}), 200);
+      });
+      final registry = SchemaRegistry(
+        schemaCache: SchemaCache(httpClient: client),
+      );
+      addTearDown(registry.dispose);
+      final schema = Schema.fromMap({
+        'type': 'object',
+        'properties': {
+          'first': {r'$ref': 'https://example.com/first.json'},
+          'second': {r'$ref': 'https://example.com/second.json'},
+        },
+      });
+
+      expect(
+        await schema.validate({
+          'first': 'Ada',
+          'second': 'Grace',
+        }, schemaRegistry: registry),
+        isEmpty,
+      );
+      expect(mostInFlight, 2);
+    });
+
+    test('a reference it never reaches does not fail the validation', () async {
+      final SchemaRegistry registry = _registryServing(const {});
+      addTearDown(registry.dispose);
+      final schema = Schema.fromMap({
+        'type': 'string',
+        r'$defs': {
+          'unused': {r'$ref': 'https://example.com/missing.json'},
+        },
+      });
+
+      // The reference is prefetched and the fetch fails, but nothing validates
+      // against it, so the data is still valid.
+      expect(await schema.validate('Ada', schemaRegistry: registry), isEmpty);
     });
 
     test('fetches a chain of remote references', () async {
@@ -610,6 +666,43 @@ void main() {
         registry.resolveSync(Uri.parse('https://example.com/name.json'))?.value,
         {'type': 'string'},
       );
+    });
+
+    test('prefetchDependencies fetches a chain of references', () async {
+      final SchemaRegistry registry = _registryServing({
+        'https://example.com/a.json': {r'$ref': 'https://example.com/b.json'},
+        'https://example.com/b.json': {'type': 'integer'},
+      });
+      addTearDown(registry.dispose);
+      final schema = Schema.fromMap({r'$ref': 'https://example.com/a.json'});
+
+      expect(
+        await registry.prefetchDependencies(
+          schema,
+          baseUri: Uri.parse('local://schema'),
+        ),
+        isEmpty,
+      );
+      // Both links of the chain are in the registry now, so the synchronous
+      // path can see them.
+      expect(
+        registry.resolveSync(Uri.parse('https://example.com/b.json'))?.value,
+        {'type': 'integer'},
+      );
+    });
+
+    test('prefetchDependencies reports what it could not bring in', () async {
+      final SchemaRegistry registry = _registryServing(const {});
+      addTearDown(registry.dispose);
+      final schema = Schema.fromMap({
+        r'$ref': 'https://example.com/missing.json',
+      });
+
+      final Map<Uri, SchemaFetchException?> unresolved = await registry
+          .prefetchDependencies(schema, baseUri: Uri.parse('local://schema'));
+
+      expect(unresolved.keys, [Uri.parse('https://example.com/missing.json')]);
+      expect(unresolved.values.single, isA<SchemaFetchException>());
     });
 
     test('resolve reports a fetch that produces no schema as null', () async {

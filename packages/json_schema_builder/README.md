@@ -162,6 +162,16 @@ await schema.validate(firstValue, schemaRegistry: registry);
 final errors = schema.validateSync(secondValue, schemaRegistry: registry);
 ```
 
+To fetch those schemas without validating anything, prepare the registry with
+`prefetchDependencies`, which fetches everything the schema refers to, and
+everything those schemas refer to in turn, in parallel:
+
+```dart
+final registry = SchemaRegistry();
+await registry.prefetchDependencies(schema, baseUri: sourceUri);
+final errors = schema.validateSync(value, sourceUri: sourceUri, schemaRegistry: registry);
+```
+
 Note that a schema declaring a `$schema` meta-schema needs that meta-schema
 resolved too, so pre-register it (or fetch it with one `validate` call) before
 validating synchronously.

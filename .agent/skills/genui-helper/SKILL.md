@@ -61,3 +61,11 @@ When creating a new UI component in `genui`:
 - To find out details of a specific analyzer lint message, use the following url format to look up the details:
   - https://dart.dev/tools/linter-rules/<lint_rule_id>
   - Example: https://dart.dev/tools/linter-rules/always_declare_return_types
+
+## Code visibility
+
+Make every code element as private as it can be. If tests need access, use the
+language's test-visibility mechanism instead of making it public.
+For example, in Dart, keep
+the `_` prefix and annotate with `@visibleForTesting`.
+

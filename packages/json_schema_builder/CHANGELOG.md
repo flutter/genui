@@ -8,7 +8,9 @@
   asynchronous wrapper around it that fetches remote references into the
   `SchemaRegistry` as they are needed. Behavior of `validate` is unchanged.
 - **Feature**: Add `SchemaRegistry.resolveSync` and `SchemaRegistry.fetch`,
-  which split reference resolution from fetching.
+  which split reference resolution from fetching, and
+  `SchemaRegistry.prefetchDependencies`, which fetches the schemas a schema
+  refers to in parallel so that it can then be validated synchronously.
 - **Feature**: Export `SchemaFetchException` and the new
   `SchemaResolutionRequiredException`, which `validateSync` throws when a
   reference can only be resolved by fetching.

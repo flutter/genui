@@ -26,9 +26,10 @@ class SchemaFetchException implements Exception {
 /// which would silently turn a missing fetch into a passing validation, it
 /// throws this exception.
 ///
-/// To fix it, either add the schema at [uri] to the registry before
-/// validating, or use the asynchronous `validate` method, which fetches
-/// remote schemas as it needs them.
+/// To fix it, either bring the schema at [uri] into the registry before
+/// validating (with `SchemaRegistry.addSchema` or
+/// `SchemaRegistry.prefetchDependencies`), or use the asynchronous `validate`
+/// method, which fetches the remote schemas it needs before validating.
 class SchemaResolutionRequiredException implements Exception {
   /// The URI of the schema that would have to be fetched, without any fragment.
   final Uri uri;
