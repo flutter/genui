@@ -1,10 +1,12 @@
 # [genui](https://pub.dev/packages/genui) Changelog
 
-## 0.10.2
+## 0.10.3
 
 - Fixed `PluralizeFunction` to use `Intl.pluralLogic` instead of `Intl.plural` to
   avoid message extraction errors when arguments are dynamic runtime
   expressions.
+
+## 0.10.2
 
 - Fixed `A2uiTransportAdapter.incomingText` trimming every streamed chunk, which
   made words run together when chunks were concatenated.
