@@ -56,6 +56,7 @@ class A2UiClientCapabilities {
 
       if (catalog.catalogId != null) {
         supportedIds.add(catalog.catalogId!);
+        supportedIds.addAll(catalog.catalogIdAliases);
       } else {
         if (inlineHandling == InlineCatalogHandling.none) {
           throw StateError(

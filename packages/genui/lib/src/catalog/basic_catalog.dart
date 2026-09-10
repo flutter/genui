@@ -143,6 +143,7 @@ abstract final class BasicCatalogItems {
       ],
       functions: BasicFunctions.all,
       catalogId: basicCatalogId,
+      catalogIdAliases: const [legacyBasicCatalogId],
       systemPromptFragments: [basicCatalogRules, ...systemPromptFragments],
     );
   }
@@ -164,7 +165,7 @@ const String _basicCatalogRules = r'''
   "version": "v0.9",
   "createSurface": {
     "surfaceId": "main",
-    "catalogId": "https://a2ui.org/specification/v0_9/basic_catalog.json",
+    "catalogId": "https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json",
     "sendDataModel": true
   }
 }

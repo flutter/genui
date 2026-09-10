@@ -1,5 +1,12 @@
 # [genui](https://pub.dev/packages/genui) Changelog
 
+## 0.10.4
+
+- Updated `basicCatalogId` to point to the canonical URL: `https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json`.
+- Introduced `catalogIdAliases` in `Catalog` model to support alternate URLs (like the legacy/non-canonical one) for graceful backwards compatibility.
+- Augmented `SurfaceController` so that the protocol processor successfully processes both canonical and secondary aliases transparently.
+
+
 ## 0.10.3
 
 - Fixed `PluralizeFunction` to use `Intl.pluralLogic` instead of `Intl.plural` to
