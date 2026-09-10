@@ -458,6 +458,153 @@ void main() {
       },
     );
   });
+
+  group('$SurfaceController catalog ID aliases', () {
+    const canonicalId = 'canonical_catalog';
+    const legacyId = 'legacy_catalog';
+
+    Catalog aliasedCatalog() => Catalog(
+      [
+        CatalogItem(
+          name: 'StrictWidget',
+          dataSchema: Schema.object(
+            properties: {
+              'component': Schema.string(enumValues: ['StrictWidget']),
+              'requiredProp': Schema.string(),
+            },
+            required: ['component', 'requiredProp'],
+          ),
+          widgetBuilder: _dummyBuilder,
+        ),
+      ],
+      catalogId: canonicalId,
+      catalogIdAliases: const [legacyId],
+    );
+
+    test('a surface created with an alias resolves to the catalog', () {
+      final Catalog catalog = aliasedCatalog();
+      final controller = SurfaceController(catalogs: [catalog]);
+      addTearDown(controller.dispose);
+
+      controller.handleMessage(
+        createSurface(surfaceId: 'aliased', catalogId: legacyId),
+      );
+
+      expect(controller.contextFor('aliased').catalog, same(catalog));
+    });
+
+    test('a surface created with the canonical ID resolves to the catalog', () {
+      final Catalog catalog = aliasedCatalog();
+      final controller = SurfaceController(catalogs: [catalog]);
+      addTearDown(controller.dispose);
+
+      controller.handleMessage(
+        createSurface(surfaceId: 'canonical', catalogId: canonicalId),
+      );
+
+      expect(controller.contextFor('canonical').catalog, same(catalog));
+    });
+
+    test('a surface created with an unrelated ID resolves to no catalog', () {
+      final controller = SurfaceController(catalogs: [aliasedCatalog()]);
+      addTearDown(controller.dispose);
+
+      controller.handleMessage(
+        createSurface(surfaceId: 'other', catalogId: 'some_other_catalog'),
+      );
+
+      expect(controller.contextFor('other').catalog, isNull);
+    });
+
+    test(
+      'components on an alias surface are validated against the catalog',
+      () async {
+        final controller = SurfaceController(catalogs: [aliasedCatalog()]);
+        addTearDown(controller.dispose);
+
+        const surfaceId = 'aliased';
+        controller.handleMessage(
+          createSurface(surfaceId: surfaceId, catalogId: legacyId),
+        );
+
+        final Future<ChatMessage> future = controller.onSubmit.first;
+
+        // Missing the required `requiredProp`.
+        controller.handleMessage(
+          updateComponents(
+            surfaceId: surfaceId,
+            components: [
+              component(id: 'bad', type: 'StrictWidget', properties: {}),
+            ],
+          ),
+        );
+
+        final ChatMessage message = await future;
+        final UiInteractionPart part = message.parts.uiInteractionParts.first;
+        final errorJson = jsonDecode(part.interaction) as Map<String, dynamic>;
+        final errorObj = errorJson['error'] as Map<String, dynamic>;
+
+        expect(errorObj['code'], 'VALIDATION_FAILED');
+        expect(errorObj['message'], contains('Required property'));
+      },
+    );
+
+    test('valid components on an alias surface are accepted', () async {
+      final controller = SurfaceController(catalogs: [aliasedCatalog()]);
+      addTearDown(controller.dispose);
+
+      const surfaceId = 'aliased';
+      final updates = <SurfaceUpdate>[];
+      final StreamSubscription<SurfaceUpdate> updateSub = controller
+          .surfaceUpdates
+          .listen(updates.add);
+      addTearDown(updateSub.cancel);
+
+      final errors = <ChatMessage>[];
+      final StreamSubscription<ChatMessage> errorSub = controller.onSubmit
+          .listen(errors.add);
+      addTearDown(errorSub.cancel);
+
+      controller.handleMessage(
+        createSurface(surfaceId: surfaceId, catalogId: legacyId),
+      );
+      controller.handleMessage(
+        updateComponents(
+          surfaceId: surfaceId,
+          components: [
+            component(
+              id: 'root',
+              type: 'StrictWidget',
+              properties: {'requiredProp': 'ok'},
+            ),
+          ],
+        ),
+      );
+
+      // Let the asynchronous validation settle.
+      await Future<void>.delayed(Duration.zero);
+
+      expect(errors, isEmpty);
+      expect(updates.map((u) => u.surfaceId), contains(surfaceId));
+      expect(controller.registry.getSurface(surfaceId), isNotNull);
+    });
+
+    test('the basic catalog accepts surfaces created with the legacy ID', () {
+      final Catalog catalog = BasicCatalogItems.asCatalog();
+      final controller = SurfaceController(catalogs: [catalog]);
+      addTearDown(controller.dispose);
+
+      controller.handleMessage(
+        createSurface(
+          surfaceId: 'basic',
+          // ignore: deprecated_member_use_from_same_package
+          catalogId: legacyBasicCatalogId,
+        ),
+      );
+
+      expect(controller.contextFor('basic').catalog, same(catalog));
+    });
+  });
 }
 
 Widget _dummyBuilder(CatalogItemContext context) => const SizedBox();

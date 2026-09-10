@@ -45,7 +45,9 @@ class A2UiClientCapabilities {
     Iterable<Catalog> catalogs, {
     InlineCatalogHandling inlineHandling = InlineCatalogHandling.missingIds,
   }) {
-    final supportedIds = <String>[];
+    // A `Set` keeps insertion order while dropping IDs that repeat, so a
+    // catalog whose alias matches another catalog's ID is advertised once.
+    final supportedIds = <String>{};
     final inlineDefinitions = <JsonMap>[];
 
     for (final catalog in catalogs) {
@@ -69,7 +71,7 @@ class A2UiClientCapabilities {
     }
 
     return A2UiClientCapabilities(
-      supportedCatalogIds: supportedIds,
+      supportedCatalogIds: supportedIds.toList(),
       inlineCatalogs: inlineDefinitions.isNotEmpty ? inlineDefinitions : null,
     );
   }

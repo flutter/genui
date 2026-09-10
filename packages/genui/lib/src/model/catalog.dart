@@ -430,19 +430,18 @@ core.Catalog<core.ComponentApi> coreCatalogFor(Catalog catalog) =>
 /// or any of its aliases.
 @internal
 List<core.Catalog<core.ComponentApi>> allCoreCatalogsFor(Catalog catalog) {
-  final components = catalog.items
+  final List<core.ComponentApi> components = catalog.items
       .map<core.ComponentApi>(_CatalogItemComponentApi.new)
       .toList(growable: false);
+  // A `Set` keeps insertion order (canonical ID first) while dropping aliases
+  // that repeat the canonical ID or each other, so `a2ui_core` never sees two
+  // catalogs registered under the same ID.
+  final Set<String> ids = {
+    catalog.effectiveCatalogId,
+    ...catalog.catalogIdAliases,
+  };
   return [
-    core.Catalog<core.ComponentApi>(
-      id: catalog.effectiveCatalogId,
-      components: components,
-    ),
-    for (final alias in catalog.catalogIdAliases)
-      core.Catalog<core.ComponentApi>(
-        id: alias,
-        components: components,
-      ),
+    for (final String id in ids)
+      core.Catalog<core.ComponentApi>(id: id, components: components),
   ];
 }
-

@@ -84,5 +84,82 @@ void main() {
         isTrue,
       );
     });
+
+    test('advertises catalog ID aliases alongside the canonical ID', () {
+      final catalog = Catalog(
+        [BasicCatalogItems.text],
+        catalogId: 'canonical',
+        catalogIdAliases: const ['legacy', 'older'],
+      );
+
+      final capabilities = A2UiClientCapabilities.fromCatalogs([catalog]);
+
+      expect(capabilities.supportedCatalogIds, [
+        'canonical',
+        'legacy',
+        'older',
+      ]);
+      expect(capabilities.inlineCatalogs, isNull);
+    });
+
+    test('advertises both basic catalog IDs by default', () {
+      final capabilities = A2UiClientCapabilities.fromCatalogs([
+        BasicCatalogItems.asCatalog(),
+      ]);
+
+      expect(capabilities.supportedCatalogIds, [
+        basicCatalogId,
+        // ignore: deprecated_member_use_from_same_package
+        legacyBasicCatalogId,
+      ]);
+    });
+
+    test('advertises each ID once when catalogs share an alias', () {
+      final catalog1 = Catalog(
+        [BasicCatalogItems.text],
+        catalogId: 'first',
+        catalogIdAliases: const ['shared'],
+      );
+      final catalog2 = Catalog(
+        [BasicCatalogItems.button],
+        catalogId: 'second',
+        catalogIdAliases: const ['shared'],
+      );
+
+      final capabilities = A2UiClientCapabilities.fromCatalogs([
+        catalog1,
+        catalog2,
+      ]);
+
+      expect(capabilities.supportedCatalogIds, ['first', 'shared', 'second']);
+    });
+
+    test('advertises the canonical ID once when an alias repeats it', () {
+      final catalog = Catalog(
+        [BasicCatalogItems.text],
+        catalogId: 'canonical',
+        catalogIdAliases: const ['canonical'],
+      );
+
+      final capabilities = A2UiClientCapabilities.fromCatalogs([catalog]);
+
+      expect(capabilities.supportedCatalogIds, ['canonical']);
+    });
+
+    test('does not advertise aliases when every catalog is inlined', () {
+      final catalog = Catalog(
+        [BasicCatalogItems.text],
+        catalogId: 'canonical',
+        catalogIdAliases: const ['legacy'],
+      );
+
+      final capabilities = A2UiClientCapabilities.fromCatalogs([
+        catalog,
+      ], inlineHandling: InlineCatalogHandling.all);
+
+      expect(capabilities.supportedCatalogIds, isEmpty);
+      expect(capabilities.inlineCatalogs, hasLength(1));
+      expect(capabilities.inlineCatalogs!.single['catalogId'], 'canonical');
+    });
   });
 }

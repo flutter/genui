@@ -365,9 +365,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
     final core.SurfaceModel<core.ComponentApi>? surface = _registry
         .getLiveSurface(surfaceId);
     if (surface == null) return null;
-    return catalogs.firstWhereOrNull(
-      (c) => c.matchesId(surface.catalog.id),
-    );
+    return catalogs.firstWhereOrNull((c) => c.matchesId(surface.catalog.id));
   }
 
   /// Validates the components currently in [surface] against [catalog]'s
