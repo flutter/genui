@@ -42,7 +42,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
     this.pendingUpdateTimeout = const Duration(minutes: 1),
   }) {
     _processor = core.MessageProcessor<core.ComponentApi>(
-      catalogs: catalogs.map(coreCatalogFor).toList(),
+      catalogs: catalogs.expand(allCoreCatalogsFor).toList(),
     );
     _processor.groupModel.onSurfaceCreated.addListener(_onCoreSurfaceCreated);
     _processor.groupModel.onSurfaceDeleted.addListener(_onCoreSurfaceDeleted);
@@ -225,7 +225,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
         // Validation does not roll back the mutation; we surface the error
         // and let the caller decide.
         final Catalog? genuiCatalog = catalogs.firstWhereOrNull(
-          (c) => c.effectiveCatalogId == surface.catalog.id,
+          (c) => c.matchesId(surface.catalog.id),
         );
         if (genuiCatalog != null) {
           _validateComponents(
@@ -365,9 +365,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
     final core.SurfaceModel<core.ComponentApi>? surface = _registry
         .getLiveSurface(surfaceId);
     if (surface == null) return null;
-    return catalogs.firstWhereOrNull(
-      (c) => c.effectiveCatalogId == surface.catalog.id,
-    );
+    return catalogs.firstWhereOrNull((c) => c.matchesId(surface.catalog.id));
   }
 
   /// Validates the components currently in [surface] against [catalog]'s
