@@ -1,5 +1,16 @@
 # [genui](https://pub.dev/packages/genui) Changelog
 
+## (WIP)
+
+- **Feature**: A component's `accessibility` attributes now reach the semantics
+  tree. `ComponentCommon` gives every A2UI component an optional `label` and
+  `description`; both were accepted and then dropped, so a screen reader
+  announced the visible text where the agent had asked for something else.
+  `Catalog.buildWidget` now applies them, which covers every catalog rather
+  than one component at a time. Both are `DynamicString`s and resolve through
+  `BoundString`, so a label bound to a path follows the data model. A component
+  without the attributes is left exactly as it was.
+
 ## 0.10.3
 
 - Updated `basicCatalogId` to point to the canonical URL: `https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json`.

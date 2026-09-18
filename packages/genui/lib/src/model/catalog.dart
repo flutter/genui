@@ -11,6 +11,7 @@ import 'package:meta/meta.dart' show internal;
 import '../primitives/constants.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
+import '../widgets/accessibility.dart';
 import 'catalog_item.dart';
 import 'client_function.dart';
 import 'data_model.dart';
@@ -146,26 +147,33 @@ interface class Catalog {
     }
 
     genUiLogger.info('Building widget ${item.name} with id ${itemContext.id}');
+    // Every component in every catalog is built here, so the accessibility
+    // attributes `ComponentCommon` gives all of them are applied here too,
+    // rather than one catalog item at a time.
     return KeyedSubtree(
       key: ValueKey(itemContext.id),
-      child: item.widgetBuilder(
-        CatalogItemContext(
-          data: itemContext.data,
-          id: itemContext.id,
-          type: itemContext.type,
-          buildChild: (String childId, [DataContext? childDataContext]) =>
-              itemContext.buildChild(
-                childId,
-                childDataContext ?? itemContext.dataContext,
-              ),
-          dispatchEvent: itemContext.dispatchEvent,
-          buildContext: itemContext.buildContext,
-          dataContext: itemContext.dataContext,
-          getComponent: itemContext.getComponent,
-          getCatalogItem: (String type) =>
-              items.firstWhereOrNull((item) => item.name == type),
-          surfaceId: itemContext.surfaceId,
-          reportError: itemContext.reportError,
+      child: A2uiAccessibility.wrap(
+        componentData: itemContext.data,
+        dataContext: itemContext.dataContext,
+        child: item.widgetBuilder(
+          CatalogItemContext(
+            data: itemContext.data,
+            id: itemContext.id,
+            type: itemContext.type,
+            buildChild: (String childId, [DataContext? childDataContext]) =>
+                itemContext.buildChild(
+                  childId,
+                  childDataContext ?? itemContext.dataContext,
+                ),
+            dispatchEvent: itemContext.dispatchEvent,
+            buildContext: itemContext.buildContext,
+            dataContext: itemContext.dataContext,
+            getComponent: itemContext.getComponent,
+            getCatalogItem: (String type) =>
+                items.firstWhereOrNull((item) => item.name == type),
+            surfaceId: itemContext.surfaceId,
+            reportError: itemContext.reportError,
+          ),
         ),
       ),
     );
