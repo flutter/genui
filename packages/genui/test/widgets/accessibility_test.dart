@@ -50,21 +50,26 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  /// The semantics node assistive technology is handed for the component.
+  SemanticsNode nodeOf(WidgetTester tester) =>
+      tester.getSemantics(find.byType(A2uiAccessibility));
+
   List<JsonMap> textWith(Object? accessibility) => [
     component(
       id: 'root',
       type: 'Text',
-      properties: {
-        'text': 'Status: Active',
-        'accessibility': ?accessibility,
-      },
+      properties: {'text': 'Status: Active', 'accessibility': ?accessibility},
     ),
   ];
 
-  testWidgets('a label is what assistive technology announces', (tester) async {
+  testWidgets('a label is announced ahead of the component itself', (
+    tester,
+  ) async {
     await pumpSurface(tester, textWith({'label': 'Connection status'}));
 
-    expect(find.bySemanticsLabel('Connection status'), findsOneWidget);
+    // One node, the agent's label first: the component's own semantics merge
+    // into it rather than being left as a second stop.
+    expect(nodeOf(tester).label, 'Connection status\nStatus: Active');
   });
 
   testWidgets('a description becomes the hint', (tester) async {
@@ -76,10 +81,7 @@ void main() {
       }),
     );
 
-    final SemanticsNode node = tester.getSemantics(
-      find.bySemanticsLabel('Connection status'),
-    );
-    expect(node.hint, 'Updated every few seconds');
+    expect(nodeOf(tester).hint, 'Updated every few seconds');
   });
 
   testWidgets('a bound label reads from the data model', (tester) async {
@@ -91,7 +93,7 @@ void main() {
       dataModel: {'announcement': 'Connection lost'},
     );
 
-    expect(find.bySemanticsLabel('Connection lost'), findsOneWidget);
+    expect(nodeOf(tester).label, startsWith('Connection lost'));
   });
 
   testWidgets('a bound label follows the data model', (tester) async {
@@ -112,8 +114,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.bySemanticsLabel('Connection lost'), findsNothing);
-    expect(find.bySemanticsLabel('Connection restored'), findsOneWidget);
+    expect(nodeOf(tester).label, startsWith('Connection restored'));
   });
 
   testWidgets('a binding that has not resolved announces nothing', (
@@ -126,7 +127,8 @@ void main() {
       }),
     );
 
-    // The component still renders, announced by its own text alone.
+    // The component still renders, announced by its own text alone: with
+    // nothing to say, the wrapper adds no node of its own.
     expect(find.text('Status: Active'), findsOneWidget);
     expect(
       tester.getSemantics(find.text('Status: Active')).label,
@@ -143,7 +145,7 @@ void main() {
     expect(find.text('Status: Active'), findsOneWidget);
   });
 
-  testWidgets('an interactive component keeps its action', (tester) async {
+  testWidgets('an interactive component stays one control', (tester) async {
     await pumpSurface(tester, [
       component(
         id: 'root',
@@ -162,9 +164,15 @@ void main() {
       component(id: 'label', type: 'Text', properties: {'text': 'Mute'}),
     ]);
 
-    expect(find.bySemanticsLabel('Mute notifications'), findsOneWidget);
-    // The wrapper describes the button; it does not stand in for it.
-    expect(find.byType(ElevatedButton), findsOneWidget);
+    // The label has to land on the node that carries the action. Split across
+    // two nodes, a screen reader user focuses one to hear the label and
+    // another to press it.
+    final SemanticsData data = nodeOf(tester).getSemanticsData();
+    expect(data.label, startsWith('Mute notifications'));
+    expect(data.hint, 'Silences notifications about this conversation');
+    expect(data.flagsCollection.isButton, isTrue);
+    expect(data.hasAction(SemanticsAction.tap), isTrue);
+
     await tester.tap(find.byType(ElevatedButton));
     await tester.pumpAndSettle();
   });

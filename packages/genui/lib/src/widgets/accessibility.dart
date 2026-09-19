@@ -16,6 +16,10 @@ import 'widget_utilities.dart';
 /// a `{"call": ...}` function call, and both resolve through the same
 /// [BoundString] the rest of the catalog binds with.
 ///
+/// The attributes are merged into the component's own semantics node, so the
+/// agent's label is announced ahead of whatever the component says for itself
+/// and anything the component can do stays on the node that says it.
+///
 /// Use [wrap] rather than the constructor: a component without accessibility
 /// attributes — the common case — is left exactly as it was, instead of
 /// gaining a widget that has nothing to do.
@@ -79,17 +83,15 @@ class A2uiAccessibility extends StatelessWidget {
         final String? explained = _orNull(resolvedDescription);
         if (announced == null && explained == null) return child;
 
-        return Semantics(
-          label: announced,
-          hint: explained,
-          container: true,
-          // Without this the component's own semantics merge into this node,
-          // and the agent's label comes back joined to whatever the component
-          // already said. The component keeps its own node — and with it any
-          // action it carries — and this one says only what the agent asked
-          // for.
-          explicitChildNodes: true,
-          child: child,
+        // Merged rather than left as a node of its own. A component that
+        // carries an action keeps it on the same node the label lands on, so
+        // a screen reader user hears what the agent wrote and presses the
+        // control in one place. Left unmerged, the annotation becomes a
+        // second node with the label but no role and no action, and the
+        // node that does have the action still announces the component's own
+        // text.
+        return MergeSemantics(
+          child: Semantics(label: announced, hint: explained, child: child),
         );
       });
     });
