@@ -1,5 +1,13 @@
 # [genui](https://pub.dev/packages/genui) Changelog
 
+## (WIP)
+
+- **Fix**: `CheckBox` shows a literal `value` again. It bound the checkbox to a
+  data model path and never read the literal the model sent, so a component
+  that said the setting was on rendered unchecked, announced itself unchecked,
+  and logged nothing. `Slider` and `TextField` already fall back to their
+  literal until the path holds something; this does the same.
+
 ## 0.10.3
 
 - Updated `basicCatalogId` to point to the canonical URL: `https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json`.
