@@ -75,9 +75,15 @@ final checkBox = CatalogItem(
                 dataContext: itemContext.dataContext,
                 value: {'path': path},
                 builder: (context, value) {
+                  // Nothing has been written to the path yet on the first
+                  // build, so the literal the model sent is what the checkbox
+                  // shows until something does, the way `Slider` and
+                  // `TextField` already treat theirs.
+                  final bool? effectiveValue =
+                      value ?? (valueRef is bool ? valueRef : null);
                   return CheckboxListTile(
                     title: Text(label ?? ''),
-                    value: value ?? false,
+                    value: effectiveValue ?? false,
                     onChanged: (bool? newValue) {
                       if (newValue != null) {
                         itemContext.dataContext.update(

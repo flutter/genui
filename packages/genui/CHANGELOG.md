@@ -7,6 +7,11 @@
   an agent sent was accepted and dropped. An image has nothing inside it to infer a name from, so the result was an
   unnamed node that assistive technology did not even report as an image. The value is a `DynamicString`, so a path
   or a function call resolves like any other property.
+- **Fix**: `CheckBox` shows a literal `value` again. It bound the checkbox to a
+  data model path and never read the literal the model sent, so a component
+  that said the setting was on rendered unchecked, announced itself unchecked,
+  and logged nothing. `Slider` and `TextField` already fall back to their
+  literal until the path holds something; this does the same.
 
 ## 0.10.3
 

@@ -64,4 +64,104 @@ void main() {
       isFalse,
     );
   });
+
+  testWidgets('CheckBox shows a literal value', (WidgetTester tester) async {
+    final surfaceController = SurfaceController(
+      catalogs: [
+        Catalog([BasicCatalogItems.checkBox], catalogId: 'test_catalog'),
+      ],
+    );
+    addTearDown(surfaceController.dispose);
+    const surfaceId = 'testSurface';
+
+    surfaceController.handleMessage(
+      updateComponents(
+        surfaceId: surfaceId,
+        components: [
+          component(
+            id: 'root',
+            type: 'CheckBox',
+            properties: {'label': 'Check me', 'value': true},
+          ),
+        ],
+      ),
+    );
+    surfaceController.handleMessage(
+      createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Surface(
+            surfaceContext: surfaceController.contextFor(surfaceId),
+          ),
+        ),
+      ),
+    );
+
+    expect(
+      tester.widget<CheckboxListTile>(find.byType(CheckboxListTile)).value,
+      isTrue,
+    );
+  });
+
+  testWidgets('CheckBox lets the data model replace the literal', (
+    WidgetTester tester,
+  ) async {
+    final surfaceController = SurfaceController(
+      catalogs: [
+        Catalog([BasicCatalogItems.checkBox], catalogId: 'test_catalog'),
+      ],
+    );
+    addTearDown(surfaceController.dispose);
+    const surfaceId = 'testSurface';
+
+    surfaceController.handleMessage(
+      updateComponents(
+        surfaceId: surfaceId,
+        components: [
+          component(
+            id: 'root',
+            type: 'CheckBox',
+            properties: {
+              'label': 'Check me',
+              'value': {'path': '/myValue'},
+            },
+          ),
+        ],
+      ),
+    );
+    surfaceController.handleMessage(
+      createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Surface(
+            surfaceContext: surfaceController.contextFor(surfaceId),
+          ),
+        ),
+      ),
+    );
+
+    // A binding that has not resolved is not a literal, so the checkbox is
+    // unchecked until the path holds something.
+    expect(
+      tester.widget<CheckboxListTile>(find.byType(CheckboxListTile)).value,
+      isFalse,
+    );
+
+    surfaceController
+        .contextFor(surfaceId)
+        .dataModel
+        .update(DataPath('/myValue'), true);
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.widget<CheckboxListTile>(find.byType(CheckboxListTile)).value,
+      isTrue,
+    );
+  });
 }
