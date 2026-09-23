@@ -184,6 +184,28 @@ void main() {
           .update(DataPath('/myValue'), 0.25);
       await tester.pumpAndSettle();
       expect(find.text('0.25'), findsOneWidget);
+
+      // Sub-unit / high precision values up to 6 decimals should be preserved
+      controller
+          .contextFor('testSurface')
+          .dataModel
+          .update(DataPath('/myValue'), 0.005);
+      await tester.pumpAndSettle();
+      expect(find.text('0.005'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'Slider widget clamps label display when initial value is out of bounds',
+    (WidgetTester tester) async {
+      await _pumpSlider(
+        tester,
+        properties: {'value': -5.0, 'min': 0.0, 'max': 10.0},
+      );
+
+      final Slider slider = tester.widget<Slider>(find.byType(Slider));
+      expect(slider.value, 0.0);
+      expect(find.text('0'), findsOneWidget);
     },
   );
 }

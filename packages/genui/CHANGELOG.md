@@ -2,6 +2,10 @@
 
 ## 0.10.3
 
+- Fixed `Slider` deriving `divisions` from range, allowing continuous sliding
+  by default (`divisions: null`), preventing assertion crashes on sub-unit
+  ranges, adding forward-compatible support for A2UI v1.0 `steps`, and fixing
+  thumb value text formatting and literal value fallback.
 - Updated `basicCatalogId` to point to the canonical URL: `https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json`.
 - Introduced `catalogIdAliases` in `Catalog` model to support alternate URLs (like the legacy/non-canonical one) for graceful backwards compatibility.
 - Augmented `SurfaceController` so that the protocol processor successfully processes both canonical and secondary aliases transparently.
