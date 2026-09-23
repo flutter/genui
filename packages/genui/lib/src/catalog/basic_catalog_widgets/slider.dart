@@ -20,7 +20,8 @@ final _schema = S.object(
     'max': S.number(description: 'The maximum value. Defaults to 1.0.'),
     'steps': S.integer(
       description:
-          'The number of discrete divisions in the slider range. If specified, the slider will snap to discrete values.',
+          'The number of discrete divisions in the slider range. If '
+          'specified, the slider will snap to discrete values.',
       minimum: 1,
     ),
     'label': A2uiSchemas.stringReference(
@@ -50,7 +51,7 @@ extension type _SliderData.fromMap(JsonMap _json) {
   double get min => (_json['min'] as num?)?.toDouble() ?? 0.0;
   double get max => (_json['max'] as num?)?.toDouble() ?? 1.0;
   int? get steps {
-    final num? val = _json['steps'] as num?;
+    final val = _json['steps'] as num?;
     return (val != null && val >= 1) ? val.toInt() : null;
   }
 
@@ -70,8 +71,8 @@ String _formatSliderValue(num val) {
   if (val == val.roundToDouble()) {
     return val.toInt().toString();
   }
-  final fixed = val.toStringAsFixed(6);
-  final trimmed = fixed.replaceAll(RegExp(r'\.?0+$'), '');
+  final String fixed = val.toStringAsFixed(6);
+  final String trimmed = fixed.replaceAll(RegExp(r'\.?0+$'), '');
   return trimmed.isEmpty ? '0' : trimmed;
 }
 
