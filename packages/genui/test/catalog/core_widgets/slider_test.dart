@@ -53,7 +53,7 @@ void main() {
   testWidgets('Slider widget renders and handles changes', (
     WidgetTester tester,
   ) async {
-    final surfaceController = await _pumpSlider(
+    final SurfaceController surfaceController = await _pumpSlider(
       tester,
       properties: {
         'value': {'path': '/myValue'},
@@ -227,7 +227,7 @@ void main() {
   testWidgets(
     'Slider widget formats whole numbers and decimal numbers correctly',
     (WidgetTester tester) async {
-      final controller = await _pumpSlider(
+      final SurfaceController controller = await _pumpSlider(
         tester,
         properties: {
           'value': {'path': '/myValue'},
