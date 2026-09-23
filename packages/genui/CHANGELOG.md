@@ -1,5 +1,11 @@
 # [genui](https://pub.dev/packages/genui) Changelog
 
+## 0.10.4
+
+- Added `AsynchronousClientFunction` base class for single-shot asynchronous
+  client functions returning a `Future` (via `executeAsync`), complementing
+  `SynchronousClientFunction` (`executeSync`).
+
 ## 0.10.3
 
 - Updated `basicCatalogId` to point to the canonical URL: `https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json`.
