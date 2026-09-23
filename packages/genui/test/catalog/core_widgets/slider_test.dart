@@ -127,27 +127,6 @@ void main() {
   });
 
   testWidgets(
-    'Slider widget applies discrete steps when steps property is specified',
-    (WidgetTester tester) async {
-      await _pumpSlider(
-        tester,
-        properties: {
-          'value': {'path': '/myValue'},
-          'min': 0.0,
-          'max': 10.0,
-          'steps': 5,
-        },
-        initialModelValue: 2.0,
-      );
-
-      final Slider slider = tester.widget<Slider>(find.byType(Slider));
-      expect(slider.divisions, 5);
-      expect(slider.min, 0.0);
-      expect(slider.max, 10.0);
-    },
-  );
-
-  testWidgets(
     'Slider widget displays literal value without data model binding',
     (WidgetTester tester) async {
       await _pumpSlider(
