@@ -70,7 +70,7 @@ String _formatSliderValue(num val) {
   if (val == val.roundToDouble()) {
     return val.toInt().toString();
   }
-  final fixed = val.toStringAsFixed(2);
+  final fixed = val.toStringAsFixed(6);
   final trimmed = fixed.replaceAll(RegExp(r'\.?0+$'), '');
   return trimmed.isEmpty ? '0' : trimmed;
 }
@@ -131,7 +131,7 @@ final slider = CatalogItem(
                   },
                 ),
               ),
-              Text(_formatSliderValue(effectiveValue ?? sliderData.min)),
+              Text(_formatSliderValue(currentVal)),
             ],
           ),
         );
