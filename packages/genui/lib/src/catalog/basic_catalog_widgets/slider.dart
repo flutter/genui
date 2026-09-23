@@ -18,6 +18,11 @@ final _schema = S.object(
     'value': A2uiSchemas.numberReference(),
     'min': S.number(description: 'The minimum value. Defaults to 0.0.'),
     'max': S.number(description: 'The maximum value. Defaults to 1.0.'),
+    'steps': S.integer(
+      description:
+          'The number of discrete divisions in the slider range. If specified, the slider will snap to discrete values.',
+      minimum: 1,
+    ),
     'label': A2uiSchemas.stringReference(
       description: 'The label for the slider.',
     ),
@@ -31,17 +36,24 @@ extension type _SliderData.fromMap(JsonMap _json) {
     required JsonMap value,
     double? min,
     double? max,
+    int? steps,
     List<JsonMap>? checks,
   }) => _SliderData.fromMap({
     'value': value,
     'min': min,
     'max': max,
+    'steps': steps,
     'checks': checks,
   });
 
   Object get value => _json['value'] as Object;
   double get min => (_json['min'] as num?)?.toDouble() ?? 0.0;
   double get max => (_json['max'] as num?)?.toDouble() ?? 1.0;
+  int? get steps {
+    final num? val = _json['steps'] as num?;
+    return (val != null && val >= 1) ? val.toInt() : null;
+  }
+
   List<JsonMap>? get checks => (_json['checks'] as List?)?.cast<JsonMap>();
 
   String? get label {
@@ -52,6 +64,15 @@ extension type _SliderData.fromMap(JsonMap _json) {
     }
     return null;
   }
+}
+
+String _formatSliderValue(num val) {
+  if (val == val.roundToDouble()) {
+    return val.toInt().toString();
+  }
+  final fixed = val.toStringAsFixed(2);
+  final trimmed = fixed.replaceAll(RegExp(r'\.?0+$'), '');
+  return trimmed.isEmpty ? '0' : trimmed;
 }
 
 /// A Material Design slider.
@@ -65,6 +86,7 @@ extension type _SliderData.fromMap(JsonMap _json) {
 /// - `value`: The current value of the slider.
 /// - `min`: The minimum value of the slider. Defaults to 0.0.
 /// - `max`: The maximum value of the slider. Defaults to 1.0.
+/// - `steps`: The number of discrete divisions in the slider range.
 /// - `label`: The label for the slider.
 final slider = CatalogItem(
   name: 'Slider',
@@ -89,6 +111,10 @@ final slider = CatalogItem(
           }
         }
 
+        final double currentVal = (effectiveValue ?? sliderData.min)
+            .toDouble()
+            .clamp(sliderData.min, sliderData.max);
+
         final Widget sliderWidget = Padding(
           padding: const EdgeInsetsDirectional.only(end: 16.0),
           child: Row(
@@ -96,18 +122,16 @@ final slider = CatalogItem(
             children: [
               Expanded(
                 child: Slider(
-                  value: (effectiveValue ?? sliderData.min).toDouble(),
+                  value: currentVal,
                   min: sliderData.min,
                   max: sliderData.max,
-                  divisions: (sliderData.max - sliderData.min).toInt(),
+                  divisions: sliderData.steps,
                   onChanged: (newValue) {
                     itemContext.dataContext.update(DataPath(path), newValue);
                   },
                 ),
               ),
-              Text(
-                value?.toStringAsFixed(0) ?? sliderData.min.toStringAsFixed(0),
-              ),
+              Text(_formatSliderValue(effectiveValue ?? sliderData.min)),
             ],
           ),
         );
