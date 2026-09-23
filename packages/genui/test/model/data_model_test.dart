@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:flutter/src/foundation/change_notifier.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/src/model/data_model.dart';
 import 'package:genui/src/primitives/logging.dart';

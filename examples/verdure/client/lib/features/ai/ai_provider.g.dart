@@ -120,7 +120,7 @@ final class AiProvider extends $AsyncNotifierProvider<Ai, AiClientState> {
   Ai create() => Ai();
 }
 
-String _$aiHash() => r'197439febc81783fba9ddf00825e05e418e3c790';
+String _$aiHash() => r'cccf881b4c8d7a8bd7b4635de911d5754456f2bc';
 
 /// The AI provider.
 
@@ -128,7 +128,7 @@ abstract class _$Ai extends $AsyncNotifier<AiClientState> {
   FutureOr<AiClientState> build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<AsyncValue<AiClientState>, AiClientState>;
     final element =
         ref.element
@@ -138,6 +138,6 @@ abstract class _$Ai extends $AsyncNotifier<AiClientState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }
