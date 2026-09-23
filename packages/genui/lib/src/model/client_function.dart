@@ -50,6 +50,10 @@ abstract interface class ExecutionContext {
 /// Functions are reactive, returning a [Stream] of values.
 /// This allows functions to push updates to the UI (e.g. a clock or network
 /// status).
+///
+/// For single-shot synchronous functions, extend [SynchronousClientFunction].
+/// For single-shot asynchronous functions that return a [Future], extend
+/// [AsynchronousClientFunction].
 /// The type of value a client function returns.
 enum ClientFunctionReturnType {
   string('string'),
@@ -101,8 +105,15 @@ abstract interface class ClientFunction {
 /// A base class for synchronous client functions.
 ///
 /// Implementers should override [executeSync] to provide the synchronous logic.
+///
+/// For asynchronous functions returning a [Future], extend
+/// [AsynchronousClientFunction]. For multi-value streaming or reactive
+/// functions, implement [ClientFunction] directly.
 abstract class SynchronousClientFunction implements ClientFunction {
   const SynchronousClientFunction();
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.any;
 
   @override
   Stream<Object?> execute(JsonMap args, ExecutionContext context) {
@@ -115,4 +126,27 @@ abstract class SynchronousClientFunction implements ClientFunction {
 
   /// Executes the function synchronously.
   Object? executeSync(JsonMap args, ExecutionContext context);
+}
+
+/// A base class for asynchronous client functions that return a [Future].
+///
+/// Implementers should override [executeAsync] to provide the asynchronous
+/// logic.
+///
+/// For synchronous logic, extend [SynchronousClientFunction]. For multi-value
+/// streaming or reactive functions (e.g. subscribing to continuous data
+/// updates), implement [ClientFunction] directly.
+abstract class AsynchronousClientFunction implements ClientFunction {
+  const AsynchronousClientFunction();
+
+  @override
+  ClientFunctionReturnType get returnType => ClientFunctionReturnType.any;
+
+  @override
+  Stream<Object?> execute(JsonMap args, ExecutionContext context) async* {
+    yield await executeAsync(args, context);
+  }
+
+  /// Executes the function asynchronously.
+  Future<Object?> executeAsync(JsonMap args, ExecutionContext context);
 }
