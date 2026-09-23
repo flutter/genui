@@ -7,6 +7,9 @@
   - Remove invalid `'functionCall'` envelope from `checksToExpression` and support tolerant unwrapping in `_evaluateStream`.
   - Align truthiness evaluation in `isTruthy` across primitives, data model objects, and structured `ValidationResult` objects, while warning on malformed expressions or missing functions.
   - Migrate `CheckBox`, `Slider`, and `ChoicePicker` to `ValidationHelper.validateStream` to evaluate rules individually and display authored error messages.
+- Fixed `Slider` deriving `divisions` from range, allowing continuous sliding
+  by default (`divisions: null`), preventing assertion crashes on sub-unit
+  ranges, and fixing thumb value text formatting and literal value fallback.
 
 ## 0.10.4
 
@@ -23,10 +26,6 @@
 
 ## 0.10.3
 
-- Fixed `Slider` deriving `divisions` from range, allowing continuous sliding
-  by default (`divisions: null`), preventing assertion crashes on sub-unit
-  ranges, adding forward-compatible support for A2UI v1.0 `steps`, and fixing
-  thumb value text formatting and literal value fallback.
 - Updated `basicCatalogId` to point to the canonical URL: `https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json`.
 - Introduced `catalogIdAliases` in `Catalog` model to support alternate URLs (like the legacy/non-canonical one) for graceful backwards compatibility.
 - Augmented `SurfaceController` so that the protocol processor successfully processes both canonical and secondary aliases transparently.
