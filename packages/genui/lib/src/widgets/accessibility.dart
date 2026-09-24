@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import '../model/data_model.dart';
@@ -83,15 +84,13 @@ class A2uiAccessibility extends StatelessWidget {
         final String? explained = _orNull(resolvedDescription);
         if (announced == null && explained == null) return child;
 
-        // Merged rather than left as a node of its own. A component that
-        // carries an action keeps it on the same node the label lands on, so
-        // a screen reader user hears what the agent wrote and presses the
-        // control in one place. Left unmerged, the annotation becomes a
-        // second node with the label but no role and no action, and the
-        // node that does have the action still announces the component's own
-        // text.
         return MergeSemantics(
-          child: Semantics(label: announced, hint: explained, child: child),
+          child: _A2uiSemanticsLabel(
+            label: announced,
+            hint: explained,
+            textDirection: Directionality.of(context),
+            child: child,
+          ),
         );
       });
     });
@@ -109,4 +108,109 @@ class A2uiAccessibility extends StatelessWidget {
 
   static String? _orNull(String? value) =>
       value == null || value.isEmpty ? null : value;
+}
+
+/// Puts the agent's label on the component, in place of the one the component
+/// would announce for itself.
+///
+/// `accessibility.label` is the component's accessible name, not an addition
+/// to it: the v1.0 text describes it as what assistive technology conveys the
+/// element as. Flutter has no parameter for that. `Semantics` adds a label,
+/// and `excludeSemantics` drops the subtree along with any action it carries,
+/// which for a button means the label arrives and the button stops working.
+///
+/// So the replacement happens where the subtree is still a set of
+/// configurations rather than nodes: `childConfigurationsDelegate` is handed
+/// each child's configuration before it merges up, and clearing its label
+/// there leaves the merged node announcing only what the agent wrote, with
+/// the child's role and actions intact.
+///
+/// A child that builds a semantics node of its own is never offered, so its
+/// label survives and the agent's is announced ahead of it. Every Material
+/// control does that, which is why they take the label themselves instead:
+/// see a2ui-project/a2ui#2697.
+class _A2uiSemanticsLabel extends SingleChildRenderObjectWidget {
+  const _A2uiSemanticsLabel({
+    required this.label,
+    required this.hint,
+    required this.textDirection,
+    required Widget super.child,
+  });
+
+  final String? label;
+  final String? hint;
+  final TextDirection textDirection;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderA2uiSemanticsLabel(
+        label: label,
+        hint: hint,
+        textDirection: textDirection,
+      );
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderA2uiSemanticsLabel renderObject,
+  ) {
+    renderObject
+      ..label = label
+      ..hint = hint
+      ..textDirection = textDirection;
+  }
+}
+
+class _RenderA2uiSemanticsLabel extends RenderProxyBox {
+  _RenderA2uiSemanticsLabel({
+    required String? label,
+    required String? hint,
+    required TextDirection textDirection,
+  }) : _label = label,
+       _hint = hint,
+       _textDirection = textDirection;
+
+  String? _label;
+  set label(String? value) {
+    if (value == _label) return;
+    _label = value;
+    markNeedsSemanticsUpdate();
+  }
+
+  String? _hint;
+  set hint(String? value) {
+    if (value == _hint) return;
+    _hint = value;
+    markNeedsSemanticsUpdate();
+  }
+
+  TextDirection _textDirection;
+  set textDirection(TextDirection value) {
+    if (value == _textDirection) return;
+    _textDirection = value;
+    markNeedsSemanticsUpdate();
+  }
+
+  @override
+  void describeSemanticsConfiguration(SemanticsConfiguration config) {
+    super.describeSemanticsConfiguration(config);
+    config.isSemanticBoundary = true;
+    // A label without one trips an assertion in `SemanticsData`, and the
+    // component's own direction is the one the label is read in.
+    config.textDirection = _textDirection;
+    if (_label case final String label) config.label = label;
+    if (_hint case final String hint) config.hint = hint;
+
+    config.childConfigurationsDelegate =
+        (List<SemanticsConfiguration> children) {
+          final builder = ChildSemanticsConfigurationsResultBuilder();
+          for (final child in children) {
+            // Cleared, not dropped: the child keeps its role, its value and its
+            // actions, and loses only the name the agent is replacing.
+            if (_label != null) child.label = '';
+            builder.markAsMergeUp(child);
+          }
+          return builder.build();
+        };
+  }
 }
