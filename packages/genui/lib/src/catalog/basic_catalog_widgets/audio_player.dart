@@ -178,6 +178,7 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
             Row(
               children: [
                 IconButton(
+                  tooltip: _isPlaying ? 'Pause' : 'Play',
                   icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
                   onPressed: widget.url != null && widget.url!.isNotEmpty
                       ? () {
@@ -194,18 +195,23 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
                   style: theme.textTheme.bodySmall,
                 ),
                 Expanded(
-                  child: Slider(
-                    value: _duration.inMilliseconds > 0
-                        ? _position.inMilliseconds
-                              .clamp(0, _duration.inMilliseconds)
-                              .toDouble()
-                        : 0,
-                    max: _duration.inMilliseconds > 0
-                        ? _duration.inMilliseconds.toDouble()
-                        : 1,
-                    onChanged: (value) {
-                      _player.seek(Duration(milliseconds: value.toInt()));
-                    },
+                  child: MergeSemantics(
+                    child: Semantics(
+                      label: 'Playback position',
+                      child: Slider(
+                        value: _duration.inMilliseconds > 0
+                            ? _position.inMilliseconds
+                                  .clamp(0, _duration.inMilliseconds)
+                                  .toDouble()
+                            : 0,
+                        max: _duration.inMilliseconds > 0
+                            ? _duration.inMilliseconds.toDouble()
+                            : 1,
+                        onChanged: (value) {
+                          _player.seek(Duration(milliseconds: value.toInt()));
+                        },
+                      ),
+                    ),
                   ),
                 ),
                 Text(
@@ -228,12 +234,17 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
                       overlayShape: SliderComponentShape.noOverlay,
                       padding: EdgeInsets.zero,
                     ),
-                    child: Slider(
-                      value: _volume,
-                      onChanged: (value) {
-                        setState(() => _volume = value);
-                        _player.setVolume(value);
-                      },
+                    child: MergeSemantics(
+                      child: Semantics(
+                        label: 'Volume',
+                        child: Slider(
+                          value: _volume,
+                          onChanged: (value) {
+                            setState(() => _volume = value);
+                            _player.setVolume(value);
+                          },
+                        ),
+                      ),
                     ),
                   ),
                 ),
