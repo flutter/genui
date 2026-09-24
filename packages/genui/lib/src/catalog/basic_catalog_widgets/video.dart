@@ -240,6 +240,7 @@ class _BottomControlBar extends StatelessWidget {
         return Row(
           children: [
             IconButton(
+              tooltip: value.isPlaying ? 'Pause' : 'Play',
               icon: Icon(value.isPlaying ? Icons.pause : Icons.play_arrow),
               onPressed: () {
                 if (value.isPlaying) {
