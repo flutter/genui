@@ -1,5 +1,9 @@
 # [genui](https://pub.dev/packages/genui) Changelog
 
+## 0.10.4
+
+- Updated the pub.dev issue tracker link to the A2UI project.
+
 ## 0.10.3
 
 - Updated `basicCatalogId` to point to the canonical URL: `https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json`.
