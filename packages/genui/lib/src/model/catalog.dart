@@ -401,17 +401,6 @@ class CatalogItemNotFoundException implements Exception {
   }
 }
 
-class _CatalogItemComponentApi implements core.ComponentApi {
-  _CatalogItemComponentApi(this._item);
-  final CatalogItem _item;
-
-  @override
-  String get name => _item.name;
-
-  @override
-  Schema get schema => _item.dataSchema;
-}
-
 /// Builds the `a2ui_core` [core.Catalog] for [catalog], used when constructing
 /// a [core.SurfaceModel] so `a2ui_core` lookups see real component metadata
 /// instead of an empty stub.
@@ -419,9 +408,7 @@ class _CatalogItemComponentApi implements core.ComponentApi {
 core.Catalog<core.ComponentApi> coreCatalogFor(Catalog catalog) =>
     core.Catalog<core.ComponentApi>(
       id: catalog.effectiveCatalogId,
-      components: catalog.items
-          .map<core.ComponentApi>(_CatalogItemComponentApi.new)
-          .toList(growable: false),
+      components: catalog.items.toList(growable: false),
     );
 
 /// Builds the `a2ui_core` [core.Catalog] instances for [catalog] and all of its
