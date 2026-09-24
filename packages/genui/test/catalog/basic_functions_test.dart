@@ -72,6 +72,29 @@ void main() {
       expect(await run<int>(func, {'value': null}), 0);
     });
 
+    test('email', () async {
+      final EmailFunction func = BasicFunctions.emailFunction;
+
+      // Valid emails (Gmail)
+      expect(await run<bool>(func, {'value': 'zhangsan@gmail.com'}), isTrue);
+      expect(await run<bool>(func, {'value': 'a@gmail.c'}), isTrue);
+      expect(await run<bool>(func, {'value': 'first.last@gmail.com'}), isTrue);
+      expect(await run<bool>(func, {'value': 'user+tag@gmail.com'}), isTrue);
+
+      // Invalid emails
+      expect(await run<bool>(func, {'value': ''}), isFalse);
+      expect(await run<bool>(func, {'value': 'plainaddress'}), isFalse);
+      expect(await run<bool>(func, {'value': '@gmail.com'}), isFalse);
+      expect(await run<bool>(func, {'value': 'no-domain@'}), isFalse);
+      expect(await run<bool>(func, {'value': 'no-tld@gmail'}), isFalse);
+      expect(await run<bool>(func, {'value': 'a@gmail@gmail.com'}), isFalse);
+
+      // Non-string values return false
+      expect(await run<bool>(func, {'value': null}), isFalse);
+      expect(await run<bool>(func, {'value': 123}), isFalse);
+      expect(await run<bool>(func, <String, Object?>{}), isFalse);
+    });
+
     test('and', () async {
       final AndFunction func = BasicFunctions.andFunction;
       expect(
