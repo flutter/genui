@@ -1,5 +1,13 @@
 # [genui](https://pub.dev/packages/genui) Changelog
 
+## (WIP)
+
+- **Fix**: `Image` now takes the catalog's `description` property and announces it. The property is what the basic
+  catalog defines for accessibility text, and `web_core` declares it, but genui's schema did not have it, so the text
+  an agent sent was accepted and dropped. An image has nothing inside it to infer a name from, so the result was an
+  unnamed node that assistive technology did not even report as an image. The value is a `DynamicString`, so a path
+  or a function call resolves like any other property.
+
 ## 0.10.3
 
 - Updated `basicCatalogId` to point to the canonical URL: `https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json`.

@@ -17,6 +17,9 @@ Schema _schema() {
       description:
           'Asset path (e.g. assets/...) or network URL (e.g. https://...)',
     ),
+    'description': A2uiSchemas.stringReference(
+      description: 'Accessibility text for the image.',
+    ),
     'fit': S.string(
       description: 'How the image should be inscribed into the box.',
       enumValues: BoxFit.values.map((e) => e.name).toList(),
@@ -47,10 +50,20 @@ Schema _schema() {
 }
 
 extension type _ImageData.fromMap(JsonMap _json) {
-  factory _ImageData({required JsonMap url, String? fit, String? variant}) =>
-      _ImageData.fromMap({'url': url, 'fit': fit, 'variant': variant});
+  factory _ImageData({
+    required JsonMap url,
+    JsonMap? description,
+    String? fit,
+    String? variant,
+  }) => _ImageData.fromMap({
+    'url': url,
+    'description': description,
+    'fit': fit,
+    'variant': variant,
+  });
 
   Object get url => _json['url'] as Object;
+  Object? get description => _json['description'];
   BoxFit? get fit => _json['fit'] != null
       ? BoxFit.values.firstWhere((e) => e.name == _json['fit'] as String)
       : null;
@@ -65,6 +78,7 @@ extension type _ImageData.fromMap(JsonMap _json) {
 ///
 /// - `url`: The URL of the image to display. Can be a network URL or a local
 ///   asset path.
+/// - `description`: The text assistive technology announces for the image.
 /// - `fit`: How the image should be inscribed into the box. See [BoxFit] for
 ///   possible values.
 /// - `variant`: A usage hint for the image size and style. One of 'icon',
@@ -81,6 +95,7 @@ final CatalogItem image = CatalogItem(
         "url": {
           "path": "/imageUrl"
         },
+        "description": "A bicycle leaning against a wall",
         "variant": "mediumFeature"
       }
     ]
@@ -179,7 +194,11 @@ final CatalogItem image = CatalogItem(
         }
 
         if (imageData.variant == 'header') {
-          return SizedBox(width: double.infinity, child: child);
+          return _describe(
+            itemContext,
+            imageData.description,
+            SizedBox(width: double.infinity, child: child),
+          );
         }
 
         final double size = switch (imageData.variant) {
@@ -190,8 +209,37 @@ final CatalogItem image = CatalogItem(
           _ => 150.0,
         };
 
-        return SizedBox(width: size, height: size, child: child);
+        return _describe(
+          itemContext,
+          imageData.description,
+          SizedBox(width: size, height: size, child: child),
+        );
       },
     );
   },
 );
+
+/// Announces [child] as an image named [description].
+///
+/// The catalog puts the accessibility text on the component, so it is the only
+/// name assistive technology can have for an image: there is no text inside one
+/// to fall back on. Wrapping here rather than passing `semanticLabel` to the
+/// two `Image` constructors covers both of them, and the `avatar` variant that
+/// puts the image inside a `CircleAvatar`, in one place.
+///
+/// [description] is a `DynamicString`, so a `{"path": ...}` or a
+/// `{"call": ...}` resolves through [BoundString] like any other property.
+Widget _describe(
+  CatalogItemContext itemContext,
+  Object? description,
+  Widget child,
+) {
+  if (description == null) return child;
+  return BoundString(
+    dataContext: itemContext.dataContext,
+    value: description,
+    builder: (context, label) => label == null || label.isEmpty
+        ? child
+        : Semantics(label: label, image: true, child: child),
+  );
+}
