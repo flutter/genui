@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/src/catalog/basic_catalog_widgets/image.dart';
 import 'package:genui/src/model/catalog_item.dart';
@@ -141,6 +142,131 @@ void main() {
         ),
       );
       expect(sizeBoxFinder, findsOneWidget);
+    });
+  });
+
+  testWidgets('Image announces its description', (WidgetTester tester) async {
+    await mockNetworkImagesFor(() async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: image.widgetBuilder(
+                CatalogItemContext(
+                  type: 'Image',
+                  data: {
+                    'url': 'https://example.com/chart.png',
+                    'description': 'Chart of weekly usage',
+                  },
+                  id: 'test_image_description',
+                  buildChild: (_, [_]) => const SizedBox(),
+                  dispatchEvent: (UiEvent event) {},
+                  buildContext: context,
+                  dataContext: DataContext(InMemoryDataModel(), DataPath.root),
+                  getComponent: (String componentId) => null,
+                  getCatalogItem: (String type) => null,
+                  surfaceId: 'surface1',
+                  reportError: (e, s) {},
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      final SemanticsData data = tester
+          .getSemantics(find.byType(Image))
+          .getSemanticsData();
+      expect(data.label, 'Chart of weekly usage');
+      // Without the image role a screen reader reads the name and gives no
+      // hint that it belongs to a picture.
+      expect(data.flagsCollection.isImage, isTrue);
+
+      handle.dispose();
+    });
+  });
+
+  testWidgets('Image takes its description from the data model', (
+    WidgetTester tester,
+  ) async {
+    await mockNetworkImagesFor(() async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+      final model = InMemoryDataModel();
+      model.update(DataPath('/alt'), 'A bicycle leaning against a wall');
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: image.widgetBuilder(
+                CatalogItemContext(
+                  type: 'Image',
+                  data: {
+                    'url': 'https://example.com/bike.png',
+                    'description': {'path': '/alt'},
+                  },
+                  id: 'test_image_bound_description',
+                  buildChild: (_, [_]) => const SizedBox(),
+                  dispatchEvent: (UiEvent event) {},
+                  buildContext: context,
+                  dataContext: DataContext(model, DataPath.root),
+                  getComponent: (String componentId) => null,
+                  getCatalogItem: (String type) => null,
+                  surfaceId: 'surface1',
+                  reportError: (e, s) {},
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.getSemantics(find.byType(Image)).label,
+        'A bicycle leaning against a wall',
+      );
+
+      handle.dispose();
+    });
+  });
+
+  testWidgets('Image without a description announces nothing', (
+    WidgetTester tester,
+  ) async {
+    await mockNetworkImagesFor(() async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: image.widgetBuilder(
+                CatalogItemContext(
+                  type: 'Image',
+                  data: {'url': 'https://example.com/plain.png'},
+                  id: 'test_image_plain',
+                  buildChild: (_, [_]) => const SizedBox(),
+                  dispatchEvent: (UiEvent event) {},
+                  buildContext: context,
+                  dataContext: DataContext(InMemoryDataModel(), DataPath.root),
+                  getComponent: (String componentId) => null,
+                  getCatalogItem: (String type) => null,
+                  surfaceId: 'surface1',
+                  reportError: (e, s) {},
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      // No name is the honest outcome: there is nothing in an image to infer
+      // one from, and inventing one would be worse than silence.
+      expect(tester.getSemantics(find.byType(Image)).label, isEmpty);
+      expect(find.byType(Image), findsOneWidget);
+
+      handle.dispose();
     });
   });
 }
