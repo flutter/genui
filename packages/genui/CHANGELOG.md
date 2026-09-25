@@ -5,7 +5,8 @@
 - **Fix**: The controls of the basic catalog say what they are. `AudioPlayer`'s
   play button had no name at all, and neither did its position and volume
   sliders, so a screen reader announced "button" and a bare percentage.
-  `Video`'s play button had the same gap. `Slider` drew its `label` above the
+  `Video` had the same gaps, in its play button and in both of its sliders.
+  `Slider` drew its `label` above the
   track and left the control itself unnamed, so the value was announced with
   nothing to say what it belonged to; the label now names the slider, merged
   onto the node that carries the value and the actions, and the caption is no

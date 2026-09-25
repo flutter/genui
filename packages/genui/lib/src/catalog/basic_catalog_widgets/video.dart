@@ -255,18 +255,23 @@ class _BottomControlBar extends StatelessWidget {
               style: Theme.of(context).textTheme.bodySmall,
             ),
             Expanded(
-              child: Slider(
-                value: duration.inMilliseconds > 0
-                    ? position.inMilliseconds
-                          .clamp(0, duration.inMilliseconds)
-                          .toDouble()
-                    : 0,
-                max: duration.inMilliseconds > 0
-                    ? duration.inMilliseconds.toDouble()
-                    : 1,
-                onChanged: (v) {
-                  controller.seekTo(Duration(milliseconds: v.toInt()));
-                },
+              child: MergeSemantics(
+                child: Semantics(
+                  label: 'Playback position',
+                  child: Slider(
+                    value: duration.inMilliseconds > 0
+                        ? position.inMilliseconds
+                              .clamp(0, duration.inMilliseconds)
+                              .toDouble()
+                        : 0,
+                    max: duration.inMilliseconds > 0
+                        ? duration.inMilliseconds.toDouble()
+                        : 1,
+                    onChanged: (v) {
+                      controller.seekTo(Duration(milliseconds: v.toInt()));
+                    },
+                  ),
+                ),
               ),
             ),
             Text(
@@ -289,7 +294,15 @@ class _BottomControlBar extends StatelessWidget {
                   overlayShape: SliderComponentShape.noOverlay,
                   padding: EdgeInsets.zero,
                 ),
-                child: Slider(value: volume, onChanged: controller.setVolume),
+                child: MergeSemantics(
+                  child: Semantics(
+                    label: 'Volume',
+                    child: Slider(
+                      value: volume,
+                      onChanged: controller.setVolume,
+                    ),
+                  ),
+                ),
               ),
             ),
             const SizedBox(width: 8),
