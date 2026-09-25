@@ -1,5 +1,15 @@
 # [genui](https://pub.dev/packages/genui) Changelog
 
+## (WIP)
+
+- **Fix**: `Image` accepts the catalog's `description` and passes it to Flutter
+  as `semanticLabel`. The basic catalog declares it as the accessibility text
+  for an image, and every other first-party renderer applies it, but genui's
+  schema left it out and built `Image.network` / `Image.asset` without a label,
+  so an image was the one component whose whole accessible name comes from the
+  agent and the one component that dropped it. It is a `DynamicString`, so a
+  data binding works the same as a literal.
+
 ## 0.10.3
 
 - Updated `basicCatalogId` to point to the canonical URL: `https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json`.

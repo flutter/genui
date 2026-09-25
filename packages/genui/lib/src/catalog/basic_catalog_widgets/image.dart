@@ -17,6 +17,9 @@ Schema _schema() {
       description:
           'Asset path (e.g. assets/...) or network URL (e.g. https://...)',
     ),
+    'description': A2uiSchemas.stringReference(
+      description: 'Accessibility text for the image.',
+    ),
     'fit': S.string(
       description: 'How the image should be inscribed into the box.',
       enumValues: BoxFit.values.map((e) => e.name).toList(),
@@ -47,10 +50,20 @@ Schema _schema() {
 }
 
 extension type _ImageData.fromMap(JsonMap _json) {
-  factory _ImageData({required JsonMap url, String? fit, String? variant}) =>
-      _ImageData.fromMap({'url': url, 'fit': fit, 'variant': variant});
+  factory _ImageData({
+    required JsonMap url,
+    Object? description,
+    String? fit,
+    String? variant,
+  }) => _ImageData.fromMap({
+    'url': url,
+    'description': description,
+    'fit': fit,
+    'variant': variant,
+  });
 
   Object get url => _json['url'] as Object;
+  Object? get description => _json['description'];
   BoxFit? get fit => _json['fit'] != null
       ? BoxFit.values.firstWhere((e) => e.name == _json['fit'] as String)
       : null;
@@ -65,6 +78,8 @@ extension type _ImageData.fromMap(JsonMap _json) {
 ///
 /// - `url`: The URL of the image to display. Can be a network URL or a local
 ///   asset path.
+/// - `description`: Accessibility text for the image, announced by a screen
+///   reader in place of the image itself.
 /// - `fit`: How the image should be inscribed into the box. See [BoxFit] for
 ///   possible values.
 /// - `variant`: A usage hint for the image size and style. One of 'icon',
@@ -91,107 +106,126 @@ final CatalogItem image = CatalogItem(
 
     return BoundString(
       dataContext: itemContext.dataContext,
-      value: imageData.url,
-      builder: (context, value) {
-        if (value == null || value.isEmpty) {
-          genUiLogger.warning(
-            'Image widget created with no URL at path: '
-            '${itemContext.dataContext.path}',
-          );
-          return const SizedBox.shrink();
-        }
-
-        Widget child;
-        if (value.startsWith('http')) {
-          child = Image.network(
-            value,
-            fit: imageData.fit,
-            frameBuilder:
-                (
-                  BuildContext context,
-                  Widget child,
-                  int? frame,
-                  bool wasSynchronouslyLoaded,
-                ) {
-                  if (wasSynchronouslyLoaded) {
-                    return child;
-                  }
-                  return AnimatedOpacity(
-                    opacity: frame == null ? 0 : 1,
-                    duration: const Duration(seconds: 1),
-                    curve: Curves.easeOut,
-                    child: child,
-                  );
-                },
-            loadingBuilder:
-                (
-                  BuildContext context,
-                  Widget child,
-                  ImageChunkEvent? loadingProgress,
-                ) {
-                  if (loadingProgress == null) {
-                    return child;
-                  }
-                  return Center(
-                    child: CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
-                          : null,
-                    ),
-                  );
-                },
-            errorBuilder:
-                (BuildContext context, Object error, StackTrace? stackTrace) {
-                  return const Icon(Icons.broken_image);
-                },
-          );
-        } else {
-          child = Image.asset(
-            value,
-            fit: imageData.fit,
-            frameBuilder:
-                (
-                  BuildContext context,
-                  Widget child,
-                  int? frame,
-                  bool wasSynchronouslyLoaded,
-                ) {
-                  if (wasSynchronouslyLoaded) {
-                    return child;
-                  }
-                  return AnimatedOpacity(
-                    opacity: frame == null ? 0 : 1,
-                    duration: const Duration(seconds: 1),
-                    curve: Curves.easeOut,
-                    child: child,
-                  );
-                },
-            errorBuilder:
-                (BuildContext context, Object error, StackTrace? stackTrace) {
-                  return const Icon(Icons.broken_image);
-                },
-          );
-        }
-
-        if (imageData.variant == 'avatar') {
-          child = CircleAvatar(child: child);
-        }
-
-        if (imageData.variant == 'header') {
-          return SizedBox(width: double.infinity, child: child);
-        }
-
-        final double size = switch (imageData.variant) {
-          'icon' || 'avatar' => 32.0,
-          'smallFeature' => 50.0,
-          'mediumFeature' => 150.0,
-          'largeFeature' => 400.0,
-          _ => 150.0,
-        };
-
-        return SizedBox(width: size, height: size, child: child);
+      value: imageData.description ?? '',
+      builder: (context, description) {
+        final String? semanticLabel = description == null || description.isEmpty
+            ? null
+            : description;
+        return _buildImage(itemContext, imageData, semanticLabel);
       },
     );
   },
 );
+
+Widget _buildImage(
+  CatalogItemContext itemContext,
+  _ImageData imageData,
+  String? semanticLabel,
+) {
+  return BoundString(
+    dataContext: itemContext.dataContext,
+    value: imageData.url,
+    builder: (context, value) {
+      if (value == null || value.isEmpty) {
+        genUiLogger.warning(
+          'Image widget created with no URL at path: '
+          '${itemContext.dataContext.path}',
+        );
+        return const SizedBox.shrink();
+      }
+
+      Widget child;
+      if (value.startsWith('http')) {
+        child = Image.network(
+          value,
+          fit: imageData.fit,
+          semanticLabel: semanticLabel,
+          frameBuilder:
+              (
+                BuildContext context,
+                Widget child,
+                int? frame,
+                bool wasSynchronouslyLoaded,
+              ) {
+                if (wasSynchronouslyLoaded) {
+                  return child;
+                }
+                return AnimatedOpacity(
+                  opacity: frame == null ? 0 : 1,
+                  duration: const Duration(seconds: 1),
+                  curve: Curves.easeOut,
+                  child: child,
+                );
+              },
+          loadingBuilder:
+              (
+                BuildContext context,
+                Widget child,
+                ImageChunkEvent? loadingProgress,
+              ) {
+                if (loadingProgress == null) {
+                  return child;
+                }
+                return Center(
+                  child: CircularProgressIndicator(
+                    value: loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                        : null,
+                  ),
+                );
+              },
+          errorBuilder:
+              (BuildContext context, Object error, StackTrace? stackTrace) {
+                return const Icon(Icons.broken_image);
+              },
+        );
+      } else {
+        child = Image.asset(
+          value,
+          fit: imageData.fit,
+          semanticLabel: semanticLabel,
+          frameBuilder:
+              (
+                BuildContext context,
+                Widget child,
+                int? frame,
+                bool wasSynchronouslyLoaded,
+              ) {
+                if (wasSynchronouslyLoaded) {
+                  return child;
+                }
+                return AnimatedOpacity(
+                  opacity: frame == null ? 0 : 1,
+                  duration: const Duration(seconds: 1),
+                  curve: Curves.easeOut,
+                  child: child,
+                );
+              },
+          errorBuilder:
+              (BuildContext context, Object error, StackTrace? stackTrace) {
+                return const Icon(Icons.broken_image);
+              },
+        );
+      }
+
+      if (imageData.variant == 'avatar') {
+        child = CircleAvatar(child: child);
+      }
+
+      if (imageData.variant == 'header') {
+        return SizedBox(width: double.infinity, child: child);
+      }
+
+      final double size = switch (imageData.variant) {
+        'icon' || 'avatar' => 32.0,
+        'smallFeature' => 50.0,
+        'mediumFeature' => 150.0,
+        'largeFeature' => 400.0,
+        _ => 150.0,
+      };
+
+      return SizedBox(width: size, height: size, child: child);
+    },
+  );
+}

@@ -118,6 +118,120 @@ void main() {
       debugNetworkImageHttpClientProvider = null;
     }
   });
+
+  testWidgets('the catalog description names the image', (
+    WidgetTester tester,
+  ) async {
+    debugNetworkImageHttpClientProvider = _FakeSuccessHttpClient.new;
+    try {
+      await HttpOverrides.runZoned(() async {
+        await tester.pumpWidget(
+          _surface([
+            component(
+              id: 'root',
+              type: 'Image',
+              properties: {
+                'url': 'https://example.com/image.png',
+                'description': 'A golden retriever puppy',
+              },
+            ),
+          ]),
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          tester.widget<Image>(find.byType(Image)).semanticLabel,
+          'A golden retriever puppy',
+        );
+      });
+    } finally {
+      debugNetworkImageHttpClientProvider = null;
+    }
+  });
+
+  testWidgets('the description may come from the data model', (
+    WidgetTester tester,
+  ) async {
+    debugNetworkImageHttpClientProvider = _FakeSuccessHttpClient.new;
+    try {
+      await HttpOverrides.runZoned(() async {
+        await tester.pumpWidget(
+          _surface(
+            [
+              component(
+                id: 'root',
+                type: 'Image',
+                properties: {
+                  'url': 'https://example.com/image.png',
+                  'description': {'path': '/alt'},
+                },
+              ),
+            ],
+            data: {'alt': 'The chart for this quarter'},
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          tester.widget<Image>(find.byType(Image)).semanticLabel,
+          'The chart for this quarter',
+        );
+      });
+    } finally {
+      debugNetworkImageHttpClientProvider = null;
+    }
+  });
+
+  testWidgets('an image with no description is left as it was', (
+    WidgetTester tester,
+  ) async {
+    debugNetworkImageHttpClientProvider = _FakeSuccessHttpClient.new;
+    try {
+      await HttpOverrides.runZoned(() async {
+        await tester.pumpWidget(
+          _surface([
+            component(
+              id: 'root',
+              type: 'Image',
+              properties: {'url': 'https://example.com/image.png'},
+            ),
+          ]),
+        );
+        await tester.pumpAndSettle();
+
+        expect(tester.widget<Image>(find.byType(Image)).semanticLabel, isNull);
+      });
+    } finally {
+      debugNetworkImageHttpClientProvider = null;
+    }
+  });
+}
+
+/// Renders [components] on one surface built from the image catalog item.
+Widget _surface(List<JsonMap> components, {JsonMap? data}) {
+  final surfaceController = SurfaceController(
+    catalogs: [
+      Catalog([BasicCatalogItems.image], catalogId: 'test_catalog'),
+    ],
+  );
+  addTearDown(surfaceController.dispose);
+  const surfaceId = 'testSurface';
+  surfaceController.handleMessage(
+    updateComponents(surfaceId: surfaceId, components: components),
+  );
+  surfaceController.handleMessage(
+    createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+  );
+  if (data != null) {
+    surfaceController.handleMessage(
+      updateDataModel(surfaceId: surfaceId, value: data),
+    );
+  }
+  return MaterialApp(
+    home: Scaffold(
+      body: Surface(surfaceContext: surfaceController.contextFor(surfaceId)),
+    ),
+  );
 }
 
 class _FakeSuccessHttpClient extends Fake implements HttpClient {
