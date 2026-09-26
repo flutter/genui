@@ -104,13 +104,17 @@ final CatalogItem image = CatalogItem(
   widgetBuilder: (itemContext) {
     final imageData = _ImageData.fromMap(itemContext.data as JsonMap);
 
+    // Most images carry no description, and that path needs no binding.
+    final Object? description = imageData.description;
+    if (description == null) return _buildImage(itemContext, imageData, null);
+
     return BoundString(
       dataContext: itemContext.dataContext,
-      value: imageData.description ?? '',
-      builder: (context, description) {
-        final String? semanticLabel = description == null || description.isEmpty
+      value: description,
+      builder: (context, resolved) {
+        final String? semanticLabel = resolved == null || resolved.isEmpty
             ? null
-            : description;
+            : resolved;
         return _buildImage(itemContext, imageData, semanticLabel);
       },
     );
