@@ -1,6 +1,6 @@
 # [genui](https://pub.dev/packages/genui) Changelog
 
-## (WIP)
+## 0.10.4
 
 - **Fix**: `Image` now takes the catalog's `description` property and announces it. The property is what the basic
   catalog defines for accessibility text, and `web_core` declares it, but genui's schema did not have it, so the text
