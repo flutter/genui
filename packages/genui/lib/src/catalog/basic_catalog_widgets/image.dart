@@ -51,8 +51,8 @@ Schema _schema() {
 
 extension type _ImageData.fromMap(JsonMap _json) {
   factory _ImageData({
-    required JsonMap url,
-    JsonMap? description,
+    required Object url,
+    Object? description,
     String? fit,
     String? variant,
   }) => _ImageData.fromMap({
