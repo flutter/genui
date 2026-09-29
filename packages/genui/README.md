@@ -1,3 +1,5 @@
+ANNOUNCEMENT: the library [`genui`](https://pub.dev/packages/genui) is going to be replaced by the currently developed library [`a2ui_flutter`](https://pub.dev/packages/a2ui_flutter), with different API.
+
 # genui
 
 A Flutter package for building dynamic, conversational user interfaces powered by generative AI models.
