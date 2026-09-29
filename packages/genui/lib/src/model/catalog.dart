@@ -416,20 +416,22 @@ class _CatalogItemComponentApi implements core.ComponentApi {
 /// a [core.SurfaceModel] so `a2ui_core` lookups see real component metadata
 /// instead of an empty stub.
 @internal
-core.Catalog<core.ComponentApi> coreCatalogFor(Catalog catalog) =>
-    core.Catalog<core.ComponentApi>(
-      id: catalog.effectiveCatalogId,
-      components: catalog.items
-          .map<core.ComponentApi>(_CatalogItemComponentApi.new)
-          .toList(growable: false),
-    );
+core.Catalog<core.ComponentApi, core.FunctionImplementation> coreCatalogFor(
+  Catalog catalog,
+) => core.Catalog<core.ComponentApi, core.FunctionImplementation>(
+  id: catalog.effectiveCatalogId,
+  components: catalog.items
+      .map<core.ComponentApi>(_CatalogItemComponentApi.new)
+      .toList(growable: false),
+);
 
 /// Builds the `a2ui_core` [core.Catalog] instances for [catalog] and all of its
 /// [Catalog.catalogIdAliases], used when constructing a [core.MessageProcessor]
 /// so `a2ui_core` can resolve surfaces whether they specify the canonical ID
 /// or any of its aliases.
 @internal
-List<core.Catalog<core.ComponentApi>> allCoreCatalogsFor(Catalog catalog) {
+List<core.Catalog<core.ComponentApi, core.FunctionImplementation>>
+allCoreCatalogsFor(Catalog catalog) {
   final List<core.ComponentApi> components = catalog.items
       .map<core.ComponentApi>(_CatalogItemComponentApi.new)
       .toList(growable: false);
@@ -442,6 +444,9 @@ List<core.Catalog<core.ComponentApi>> allCoreCatalogsFor(Catalog catalog) {
   };
   return [
     for (final String id in ids)
-      core.Catalog<core.ComponentApi>(id: id, components: components),
+      core.Catalog<core.ComponentApi, core.FunctionImplementation>(
+        id: id,
+        components: components,
+      ),
   ];
 }

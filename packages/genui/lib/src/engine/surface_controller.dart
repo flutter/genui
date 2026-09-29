@@ -43,6 +43,13 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   }) {
     _processor = core.MessageProcessor<core.ComponentApi>(
       catalogs: catalogs.expand(allCoreCatalogsFor).toList(),
+      protocolVersion: core.A2uiProtocolVersion.v0_9,
+      // A surface reaches this controller one message at a time, and updates
+      // buffered for a surface replay while its createSurface is still being
+      // processed, so the per-payload graph checks (root present, references
+      // resolved, no orphans) would run against partial surfaces. Schema,
+      // duplicate-id, cycle and depth checks still apply.
+      validationConfig: core.ValidationConfig.relaxed,
     );
     _processor.groupModel.onSurfaceCreated.addListener(_onCoreSurfaceCreated);
     _processor.groupModel.onSurfaceDeleted.addListener(_onCoreSurfaceDeleted);
@@ -73,7 +80,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   }
 
   final _onSubmit = StreamController<ChatMessage>.broadcast();
-  final _pendingUpdates = <String, List<core.A2uiMessage>>{};
+  final _pendingUpdates = <String, List<core.AgentToRendererMessage>>{};
   final _pendingUpdateTimers = <String, Timer>{};
 
   @override
@@ -123,14 +130,14 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
 
   /// Processes a message from the AI service.
   @override
-  void handleMessage(core.A2uiMessage message) {
+  void handleMessage(core.AgentToRendererMessage message) {
     genUiLogger.info(
       'SurfaceController.handleMessage received: ${message.runtimeType}',
     );
     _handleCoreMessage(message);
   }
 
-  void _handleCoreMessage(core.A2uiMessage coreMessage) {
+  void _handleCoreMessage(core.AgentToRendererMessage coreMessage) {
     // Reject an empty surfaceId on any message that carries one. CreateSurface
     // would otherwise create a surface with id ""; updates and deletes would
     // buffer under "" until they time out, since a surface "" can never exist.
@@ -159,7 +166,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
       final core.CreateSurfaceMessage createMessage = coreMessage;
       if (!_processor.catalogs.any((c) => c.id == createMessage.catalogId)) {
         _processor.catalogs.add(
-          core.Catalog<core.ComponentApi>(
+          core.Catalog<core.ComponentApi, core.FunctionImplementation>(
             id: createMessage.catalogId,
             components: const [],
           ),
@@ -168,7 +175,9 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
     }
 
     try {
-      _processor.processMessages([coreMessage]);
+      _processor.processMessages(
+        core.AgentToRendererMessagePayload.of(coreMessage),
+      );
     } on core.A2uiStateError catch (e) {
       genUiLogger.warning('State error from MessageProcessor: ${e.message}');
       reportError(
@@ -187,6 +196,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
         A2uiValidationException(
           e.message,
           surfaceId: _surfaceIdOf(coreMessage),
+          path: _componentPathOf(e.details),
         ),
         StackTrace.current,
       );
@@ -198,6 +208,18 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
           e.message,
           surfaceId: _surfaceIdOf(coreMessage),
           path: e.path,
+        ),
+        StackTrace.current,
+      );
+      return;
+    } on core.A2uiError catch (e) {
+      genUiLogger.warning(
+        '${e.runtimeType} from MessageProcessor: ${e.message}',
+      );
+      reportError(
+        A2uiValidationException(
+          e.message,
+          surfaceId: _surfaceIdOf(coreMessage),
         ),
         StackTrace.current,
       );
@@ -255,7 +277,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
 
   /// If [message] targets a surface that does not yet exist, returns that
   /// surfaceId so the caller can buffer the message. Otherwise returns null.
-  String? _bufferSurfaceIdIfNoSurface(core.A2uiMessage message) {
+  String? _bufferSurfaceIdIfNoSurface(core.AgentToRendererMessage message) {
     final String? targetId = switch (message) {
       core.UpdateComponentsMessage(:final surfaceId) => surfaceId,
       core.UpdateDataModelMessage(:final surfaceId) => surfaceId,
@@ -266,20 +288,30 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
     return targetId;
   }
 
-  String? _surfaceIdOf(core.A2uiMessage message) => switch (message) {
-    core.CreateSurfaceMessage(:final surfaceId) => surfaceId,
-    core.UpdateComponentsMessage(:final surfaceId) => surfaceId,
-    core.UpdateDataModelMessage(:final surfaceId) => surfaceId,
-    core.DeleteSurfaceMessage(:final surfaceId) => surfaceId,
+  String? _surfaceIdOf(core.AgentToRendererMessage message) =>
+      switch (message) {
+        core.CreateSurfaceMessage(:final surfaceId) => surfaceId,
+        core.UpdateComponentsMessage(:final surfaceId) => surfaceId,
+        core.UpdateDataModelMessage(:final surfaceId) => surfaceId,
+        core.DeleteSurfaceMessage(:final surfaceId) => surfaceId,
+        _ => null,
+      };
+
+  /// The path of the component a core validation error names in its
+  /// [core.A2uiValidationError.details], if it names one.
+  String? _componentPathOf(Object? details) => switch (details) {
+    {'id': final String id, 'component': String()} => '/components/$id',
     _ => null,
   };
 
   void _onCoreSurfaceCreated(core.SurfaceModel<core.ComponentApi> surface) {
     _registry.addSurface(surface);
-    final List<core.A2uiMessage>? pending = _pendingUpdates.remove(surface.id);
+    final List<core.AgentToRendererMessage>? pending = _pendingUpdates.remove(
+      surface.id,
+    );
     _pendingUpdateTimers.remove(surface.id)?.cancel();
     if (pending != null) {
-      for (final core.A2uiMessage message in pending) {
+      for (final core.AgentToRendererMessage message in pending) {
         _handleCoreMessage(message);
       }
     }
@@ -335,7 +367,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
     };
   }
 
-  void _bufferMessage(String surfaceId, core.A2uiMessage message) {
+  void _bufferMessage(String surfaceId, core.AgentToRendererMessage message) {
     _pendingUpdates.putIfAbsent(surfaceId, () => []).add(message);
     if (!_pendingUpdateTimers.containsKey(surfaceId)) {
       _pendingUpdateTimers[surfaceId] = Timer(pendingUpdateTimeout, () {

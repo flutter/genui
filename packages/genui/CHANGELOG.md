@@ -1,5 +1,21 @@
 # [genui](https://pub.dev/packages/genui) Changelog
 
+## 0.11.0
+
+- **BREAKING**: Depend on `a2ui_core` 0.2.2, which renames `A2uiMessage` to
+  `AgentToRendererMessage`. `A2uiMessageSink.handleMessage`,
+  `Transport.incomingMessages`, `A2uiTransportAdapter.addMessage` and
+  `A2uiMessageEvent.message` use the new name.
+- **Behavior change**: `SurfaceController` has `a2ui_core` validate each message
+  before applying it. A message with a component that does not match its
+  catalog's schema is rejected whole instead of rendered, and is still reported
+  to the agent as `VALIDATION_FAILED`. A surface that names a catalog the
+  controller does not hold renders nothing instead of a fallback widget, and is
+  reported the same way.
+- **Behavior change**: A data model write below a primitive value, such as
+  `/a/b` when `/a` holds a string, throws `A2uiDataError` instead of being
+  ignored.
+
 ## 0.10.4
 
 - **Fix**: `Image` now takes the catalog's `description` property and announces it. The property is what the basic

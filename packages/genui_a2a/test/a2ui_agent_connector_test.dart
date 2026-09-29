@@ -104,7 +104,7 @@ void main() {
       ];
       fakeClient.messageStreamHandler = (_) => Stream.fromIterable(responses);
 
-      final messages = <core.A2uiMessage>[];
+      final messages = <core.AgentToRendererMessage>[];
       connector.stream.listen(messages.add);
 
       final userMessage = genui.ChatMessage.user(

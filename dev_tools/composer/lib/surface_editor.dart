@@ -208,7 +208,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
 
         final obj = jsonDecode(trimmedChunk);
         if (obj is Map<String, Object?>) {
-          final message = core.A2uiMessage.fromJson(obj);
+          final message = core.AgentToRendererMessage.fromJson(obj);
           _surfaceController.handleMessage(message);
         }
       }
@@ -233,7 +233,7 @@ class _SurfaceEditorViewState extends State<SurfaceEditorView> {
       if (parsed is Map<String, Object?>) {
         final surfaceId = _surfaceIds.first;
         _surfaceController.handleMessage(
-          core.A2uiMessage.fromJson({
+          core.AgentToRendererMessage.fromJson({
             'version': kProtocolVersion,
             'updateDataModel': {
               'surfaceId': surfaceId,

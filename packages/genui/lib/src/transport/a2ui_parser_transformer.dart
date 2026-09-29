@@ -232,9 +232,9 @@ class _A2uiParserStream {
     }
   }
 
-  core.A2uiMessage _parseMessage(Map<String, Object?> json) {
+  core.AgentToRendererMessage _parseMessage(Map<String, Object?> json) {
     try {
-      return core.A2uiMessage.fromJson(json);
+      return core.AgentToRendererMessage.fromJson(json);
     } on core.A2uiValidationError catch (e) {
       final String message = e.message.contains("'version'")
           ? 'A2UI message must have version "v0.9"'

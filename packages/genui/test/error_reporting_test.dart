@@ -25,23 +25,21 @@ void main() {
       logger.onRecord.listen((record) => logs.add(record));
     });
 
-    test(
-      'A2uiMessage.fromJson throws A2uiValidationException for unknown message '
-      'type',
-      () {
-        final json = <String, Object?>{
-          'version': 'v0.9',
-          'unknownAction': <String, Object?>{},
-        };
+    test('AgentToRendererMessage.fromJson throws A2uiValidationException for '
+        'unknown message '
+        'type', () {
+      final json = <String, Object?>{
+        'version': 'v0.9',
+        'unknownAction': <String, Object?>{},
+      };
 
-        try {
-          core.A2uiMessage.fromJson(json);
-          fail('Should have thrown A2uiValidationError');
-        } on core.A2uiValidationError catch (e) {
-          expect(e.message, contains('Unknown A2UI message type'));
-        }
-      },
-    );
+      try {
+        core.AgentToRendererMessage.fromJson(json);
+        fail('Should have thrown A2uiValidationError');
+      } on core.A2uiValidationError catch (e) {
+        expect(e.message, contains('Unknown A2UI message type'));
+      }
+    });
 
     testWidgets('Surface reports error when catalog item is missing', (
       tester,

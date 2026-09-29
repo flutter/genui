@@ -18,11 +18,11 @@ class TextEvent extends GenerationEvent {
   final String text;
 }
 
-/// An event containing a parsed [core.A2uiMessage].
+/// An event containing a parsed [core.AgentToRendererMessage].
 class A2uiMessageEvent extends GenerationEvent {
   /// Creates an [A2uiMessageEvent] with the given [message].
   const A2uiMessageEvent(this.message);
 
   /// The parsed message.
-  final core.A2uiMessage message;
+  final core.AgentToRendererMessage message;
 }

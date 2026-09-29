@@ -10,8 +10,8 @@ import 'package:simple_chat/agent/ai_client.dart';
 
 /// A fake implementation of [AiClient] for testing.
 class FakeAiClient implements AiClient {
-  final StreamController<core.A2uiMessage> _a2uiMessageController =
-      StreamController<core.A2uiMessage>.broadcast();
+  final StreamController<core.AgentToRendererMessage> _a2uiMessageController =
+      StreamController<core.AgentToRendererMessage>.broadcast();
 
   final StreamController<String> _textResponseController =
       StreamController<String>.broadcast();
@@ -22,7 +22,7 @@ class FakeAiClient implements AiClient {
   final List<String> _receivedPrompts = [];
   List<String> get receivedPrompts => List.unmodifiable(_receivedPrompts);
 
-  Stream<core.A2uiMessage> get a2uiMessageStream =>
+  Stream<core.AgentToRendererMessage> get a2uiMessageStream =>
       _a2uiMessageController.stream;
 
   Stream<String> get textResponseStream => _textResponseController.stream;
