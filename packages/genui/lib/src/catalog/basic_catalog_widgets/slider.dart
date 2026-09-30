@@ -11,6 +11,7 @@ import '../../model/data_model.dart';
 import '../../model/validation_helper.dart';
 import '../../primitives/simple_items.dart';
 import '../../widgets/widget_utilities.dart';
+import 'widget_helpers.dart';
 
 final _schema = S.object(
   description: 'A slider for selecting a value from a range.',
@@ -40,9 +41,9 @@ extension type _SliderData.fromMap(JsonMap _json) {
   });
 
   Object get value => _json['value'] as Object;
-  double get min => (_json['min'] as num?)?.toDouble() ?? 0.0;
-  double get max => (_json['max'] as num?)?.toDouble() ?? 1.0;
-  List<JsonMap>? get checks => (_json['checks'] as List?)?.cast<JsonMap>();
+  double get min => asNumOrNull(_json['min'])?.toDouble() ?? 0.0;
+  double get max => asNumOrNull(_json['max'])?.toDouble() ?? 1.0;
+  List<JsonMap>? get checks => asJsonMapListOrNull(_json['checks']);
 
   String? get label {
     final Object? val = _json['label'];
