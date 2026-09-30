@@ -250,4 +250,21 @@ void main() {
       expect(find.text('0'), findsOneWidget);
     },
   );
+
+  testWidgets(
+    'Slider widget handles inverted range (max < min) by clamping to min',
+    (WidgetTester tester) async {
+      await _pumpSlider(
+        tester,
+        properties: {'value': 5.0, 'min': 10.0, 'max': 0.0},
+      );
+
+      expect(tester.takeException(), isNull);
+      final Slider slider = tester.widget<Slider>(find.byType(Slider));
+      expect(slider.min, 10.0);
+      expect(slider.max, 10.0);
+      expect(slider.value, 10.0);
+      expect(find.text('10'), findsOneWidget);
+    },
+  );
 }

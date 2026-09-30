@@ -98,9 +98,12 @@ final slider = CatalogItem(
           }
         }
 
-        final double currentVal = (effectiveValue ?? sliderData.min)
-            .toDouble()
-            .clamp(sliderData.min, sliderData.max);
+        final double min = sliderData.min;
+        final double max = sliderData.max < min ? min : sliderData.max;
+        final double currentVal = (effectiveValue ?? min).toDouble().clamp(
+          min,
+          max,
+        );
 
         final Widget sliderWidget = Padding(
           padding: const EdgeInsetsDirectional.only(end: 16.0),
@@ -110,8 +113,8 @@ final slider = CatalogItem(
               Expanded(
                 child: Slider(
                   value: currentVal,
-                  min: sliderData.min,
-                  max: sliderData.max,
+                  min: min,
+                  max: max,
                   onChanged: (newValue) {
                     itemContext.dataContext.update(DataPath(path), newValue);
                   },

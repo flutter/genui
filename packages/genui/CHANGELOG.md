@@ -9,7 +9,8 @@
   - Migrate `CheckBox`, `Slider`, and `ChoicePicker` to `ValidationHelper.validateStream` to evaluate rules individually and display authored error messages.
 - Fixed `Slider` deriving `divisions` from range, allowing continuous sliding
   by default (`divisions: null`), preventing assertion crashes on sub-unit
-  ranges, and fixing thumb value text formatting and literal value fallback.
+  ranges, fixing thumb value text formatting and literal value fallback, and
+  handling inverted ranges (`max < min`).
 
 ## 0.10.4
 
