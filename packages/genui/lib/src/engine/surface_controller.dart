@@ -47,8 +47,10 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
       // A surface reaches this controller one message at a time, and updates
       // buffered for a surface replay while its createSurface is still being
       // processed, so the per-payload graph checks (root present, references
-      // resolved, no orphans) would run against partial surfaces. Schema,
-      // duplicate-id, cycle and depth checks still apply.
+      // resolved, no orphans) would run against partial surfaces. Schema and
+      // duplicate-id checks still apply. Cycle and depth checks follow `child`
+      // references, but not `children` lists, whose schemas a2ui_core does not
+      // recognize as references.
       validationConfig: core.ValidationConfig.relaxed,
     );
     _processor.groupModel.onSurfaceCreated.addListener(_onCoreSurfaceCreated);
@@ -160,8 +162,9 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
       return;
     }
 
-    // Tolerate unknown catalogIds by registering an empty stub rather than
-    // rejecting the surface.
+    // Register an empty catalog for an unknown catalogId so the surface is
+    // still created. Every component sent to it then fails validation and is
+    // reported.
     if (coreMessage is core.CreateSurfaceMessage) {
       final core.CreateSurfaceMessage createMessage = coreMessage;
       if (!_processor.catalogs.any((c) => c.id == createMessage.catalogId)) {
