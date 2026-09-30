@@ -10,6 +10,7 @@ import '../../model/catalog_item.dart';
 import '../../model/data_model.dart';
 import '../../primitives/simple_items.dart';
 import '../../widgets/widget_utilities.dart';
+import 'widget_helpers.dart';
 
 final _schema = S.object(
   description: 'A tab layout to navigate between different child components.',
@@ -40,7 +41,7 @@ extension type _TabsData.fromMap(JsonMap _json) {
       _TabsData.fromMap({'tabs': tabs, 'activeTab': activeTab});
 
   List<JsonMap> get tabs {
-    return (_json['tabs'] as List).cast<JsonMap>();
+    return asJsonMapListOrNull(_json['tabs']) ?? const <JsonMap>[];
   }
 
   Object? get activeTab => _json['activeTab'];
@@ -153,8 +154,12 @@ class _TabsWidgetState extends State<_TabsWidget>
                 index: index,
                 sizing: StackFit.loose,
                 children: widget.tabs.map((tabItem) {
-                  final contentId =
-                      (tabItem['content'] ?? tabItem['child']) as String;
+                  // A tab that names no content is an empty tab, not a
+                  // reason to take the rest of them down.
+                  final String? contentId = asStringOrNull(
+                    tabItem['content'] ?? tabItem['child'],
+                  );
+                  if (contentId == null) return const SizedBox.shrink();
                   return widget.itemContext.buildChild(contentId);
                 }).toList(),
               );
@@ -182,6 +187,11 @@ final tabs = CatalogItem(
   dataSchema: _schema,
   widgetBuilder: (itemContext) {
     final tabsData = _TabsData.fromMap(itemContext.data as JsonMap);
+    // `TabController` throws on a length of zero, and it is built in
+    // `initState`, so the check has to happen before the widget exists. An
+    // agent that sends a `Tabs` with nothing in it has asked for nothing to
+    // be shown.
+    if (tabsData.tabs.isEmpty) return const SizedBox.shrink();
     final Object? activeTabRef = tabsData.activeTab;
     final path = (activeTabRef is Map && activeTabRef.containsKey('path'))
         ? activeTabRef['path'] as String
