@@ -383,4 +383,80 @@ void main() {
     );
     expect(checkboxNumber.value, false); // 123 does not match option1
   });
+
+  testWidgets(
+    'ChoicePicker validation checks show error message when failing',
+    (WidgetTester tester) async {
+      final surfaceController = SurfaceController(
+        catalogs: [BasicCatalogItems.asCatalog()],
+      );
+      addTearDown(surfaceController.dispose);
+      const surfaceId = 'validationTest';
+      surfaceController.handleMessage(
+        updateDataModel(
+          surfaceId: surfaceId,
+          path: DataPath('/selected'),
+          value: '',
+        ),
+      );
+
+      final List<JsonMap> components = [
+        component(
+          id: 'root',
+          type: 'ChoicePicker',
+          properties: {
+            'label': 'Pick one',
+            'variant': 'mutuallyExclusive',
+            'options': [
+              {'label': 'A', 'value': 'a'},
+              {'label': 'B', 'value': 'b'},
+            ],
+            'value': {'path': '/selected'},
+            'checks': [
+              {
+                'message': 'Selection required',
+                'condition': {
+                  'call': 'required',
+                  'args': {
+                    'value': {'path': '/selected'},
+                  },
+                },
+              },
+            ],
+          },
+        ),
+      ];
+
+      surfaceController.handleMessage(
+        updateComponents(surfaceId: surfaceId, components: components),
+      );
+      surfaceController.handleMessage(
+        createSurface(surfaceId: surfaceId, catalogId: basicCatalogId),
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Surface(
+              surfaceContext: surfaceController.contextFor(surfaceId),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Selection required'), findsOneWidget);
+
+      surfaceController.handleMessage(
+        updateDataModel(
+          surfaceId: surfaceId,
+          path: DataPath('/selected'),
+          value: 'a',
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Selection required'), findsNothing);
+    },
+  );
 }

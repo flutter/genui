@@ -115,6 +115,16 @@ class DataContext implements cf.ExecutionContext {
       if (value.containsKey('call')) {
         return _evaluateFunctionCall(value as JsonMap);
       }
+      if (value.containsKey('functionCall') && value['functionCall'] is Map) {
+        return _evaluateStream(value['functionCall']);
+      }
+    }
+    if (value is List) {
+      if (value.isEmpty) return Stream.value(<Object?>[]);
+      final List<Stream<Object?>> itemStreams = value
+          .map(_evaluateStream)
+          .toList();
+      return itemStreams.combineLatestAll();
     }
     if (value is Stream) return value.cast<Object?>();
     return Stream.value(value);
@@ -123,6 +133,9 @@ class DataContext implements cf.ExecutionContext {
   Stream<Object?> _evaluateFunctionCall(JsonMap callDefinition) {
     final name = callDefinition['call'] as String?;
     if (name == null) {
+      genUiLogger.warning(
+        'Function call missing "call" property: $callDefinition',
+      );
       return Stream.value(null);
     }
 
@@ -167,12 +180,33 @@ class DataContext implements cf.ExecutionContext {
     if (condition == null) return Stream.value(false);
     if (condition is bool) return Stream.value(condition);
 
+    if (condition is Map &&
+        !condition.containsKey('path') &&
+        !condition.containsKey('call') &&
+        !condition.containsKey('functionCall')) {
+      genUiLogger.warning('Invalid condition expression: $condition');
+      return Stream.value(false);
+    }
+
     final Stream<Object?> resultStream = _evaluateStream(condition);
-    return resultStream.map((v) {
-      if (v is bool) return v;
-      return v != null;
-    });
+    return resultStream.map(isTruthy);
   }
+}
+
+/// Helper to determine truthiness according to A2UI expression semantics.
+bool isTruthy(Object? value) {
+  if (value is bool) return value;
+  if (value == null) return false;
+  if (value is String) return value.isNotEmpty;
+  if (value is num) return value != 0 && !value.isNaN;
+  if (value is List) return value.isNotEmpty;
+  if (value is Map) {
+    if (value.containsKey('valid') && value['valid'] is bool) {
+      return value['valid'] as bool;
+    }
+    return value.isNotEmpty;
+  }
+  return false;
 }
 
 /// Resolves a context map definition against a [DataContext].

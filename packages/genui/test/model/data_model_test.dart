@@ -6,8 +6,11 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:genui/src/catalog/basic_catalog.dart';
+import 'package:genui/src/catalog/basic_catalog_widgets/widget_helpers.dart';
 import 'package:genui/src/model/data_model.dart';
 import 'package:genui/src/primitives/logging.dart';
+import 'package:genui/src/primitives/simple_items.dart';
 import 'package:logging/logging.dart';
 
 void main() {
@@ -400,14 +403,159 @@ void main() {
       expect(await stream.first, isTrue);
     });
 
+    test('evaluateConditionStream treats non-null non-bool objects as true '
+        'only if truthy', () async {
+      dataModel.update(DataPath('/str'), 'hello');
+      final condition = {'path': '/str'};
+      final Stream<bool> stream = context.evaluateConditionStream(condition);
+      expect(await stream.first, isTrue); // 'hello' is non-empty
+
+      dataModel.update(DataPath('/str'), '');
+      expect(await context.evaluateConditionStream(condition).first, isFalse);
+
+      // Map truthiness: non-empty map is true, empty map is false
+      dataModel.update(DataPath('/user'), {'name': 'Ada'});
+      final userCondition = {'path': '/user'};
+      expect(
+        await context.evaluateConditionStream(userCondition).first,
+        isTrue,
+      );
+
+      dataModel.update(DataPath('/user'), <String, Object?>{});
+      expect(
+        await context.evaluateConditionStream(userCondition).first,
+        isFalse,
+      );
+
+      // ValidationResult map: valid flag determines truthiness
+      dataModel.update(DataPath('/valResult'), {'valid': true});
+      final valResultCondition = {'path': '/valResult'};
+      expect(
+        await context.evaluateConditionStream(valResultCondition).first,
+        isTrue,
+      );
+
+      dataModel.update(DataPath('/valResult'), {
+        'valid': false,
+        'message': 'err',
+      });
+      expect(
+        await context.evaluateConditionStream(valResultCondition).first,
+        isFalse,
+      );
+    });
+
+    test('evaluateConditionStream treats unknown functions and invalid maps as '
+        'false', () async {
+      final JsonMap unknownFunc = {
+        'call': 'noSuchFunction',
+        'args': <String, Object?>{},
+      };
+      expect(await context.evaluateConditionStream(unknownFunc).first, isFalse);
+
+      final invalidMap = {'invalid': 'structure'};
+      expect(await context.evaluateConditionStream(invalidMap).first, isFalse);
+    });
+
     test(
-      'evaluateConditionStream treats non-null non-bool objects as true',
+      'evaluateConditionStream resolves and/or functions with nested paths and function calls',
       () async {
-        dataModel.update(DataPath('/str'), 'hello');
-        final condition = {'path': '/str'};
-        final Stream<bool> stream = context.evaluateConditionStream(condition);
-        expect(await stream.first, isTrue); // 'hello' != null
+        final contextWithFuncs = DataContext(
+          dataModel,
+          DataPath.root,
+          functions: BasicCatalogItems.asCatalog().functions,
+        );
+
+        dataModel.update(DataPath('/no'), false);
+        dataModel.update(DataPath('/yes'), true);
+
+        final JsonMap andCondition = {
+          'call': 'and',
+          'args': {
+            'values': [
+              {'path': '/no'},
+              {'path': '/yes'},
+            ],
+          },
+        };
+        expect(
+          await contextWithFuncs.evaluateConditionStream(andCondition).first,
+          isFalse,
+        );
+
+        dataModel.update(DataPath('/no'), true);
+        expect(
+          await contextWithFuncs.evaluateConditionStream(andCondition).first,
+          isTrue,
+        );
+
+        final JsonMap orCondition = {
+          'call': 'or',
+          'args': {
+            'values': [
+              false,
+              {'path': '/yes'},
+            ],
+          },
+        };
+        expect(
+          await contextWithFuncs.evaluateConditionStream(orCondition).first,
+          isTrue,
+        );
       },
     );
+
+    test('evaluateConditionStream and checksToExpression correctly validate '
+        'check rules (Issue 2853)', () async {
+      final contextWithFuncs = DataContext(
+        dataModel,
+        DataPath.root,
+        functions: BasicCatalogItems.asCatalog().functions,
+      );
+
+      dataModel.update(DataPath('/email'), '');
+      final checks = <JsonMap>[
+        {
+          'condition': {
+            'call': 'required',
+            'args': {
+              'value': {'path': '/email'},
+            },
+          },
+          'message': 'Required.',
+        },
+      ];
+
+      // Single check condition alone evaluates to false when empty
+      expect(
+        await contextWithFuncs
+            .evaluateConditionStream(checks.first['condition'])
+            .first,
+        isFalse,
+      );
+
+      // checksToExpression combined expression evaluates to false when empty
+      expect(
+        await contextWithFuncs
+            .evaluateConditionStream(checksToExpression(checks))
+            .first,
+        isFalse,
+      );
+
+      // When populated, both evaluate to true
+      dataModel.update(DataPath('/email'), 'ada@example.com');
+      expect(
+        await contextWithFuncs
+            .evaluateConditionStream(checks.first['condition'])
+            .first,
+        isTrue,
+      );
+      expect(
+        await contextWithFuncs
+            .evaluateConditionStream(checksToExpression(checks))
+            .first,
+        isTrue,
+      );
+    });
   });
 }

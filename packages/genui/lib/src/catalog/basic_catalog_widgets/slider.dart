@@ -8,9 +8,9 @@ import 'package:json_schema_builder/json_schema_builder.dart';
 import '../../model/a2ui_schemas.dart';
 import '../../model/catalog_item.dart';
 import '../../model/data_model.dart';
+import '../../model/validation_helper.dart';
 import '../../primitives/simple_items.dart';
 import '../../widgets/widget_utilities.dart';
-import 'widget_helpers.dart';
 
 final _schema = S.object(
   description: 'A slider for selecting a value from a range.',
@@ -116,14 +116,14 @@ final slider = CatalogItem(
           dataContext: itemContext.dataContext,
           value: sliderData.label,
           builder: (context, label) {
-            return StreamBuilder<bool>(
-              stream: itemContext.dataContext.evaluateConditionStream(
-                checksToExpression(sliderData.checks),
+            return StreamBuilder<String?>(
+              stream: ValidationHelper.validateStream(
+                sliderData.checks,
+                itemContext.dataContext,
               ),
-              initialData: true,
               builder: (context, snapshot) {
-                final bool isValid = snapshot.data ?? true;
-                final bool isError = !isValid;
+                final String? errorMessage = snapshot.data;
+                final isError = errorMessage != null;
 
                 final List<Widget> children = [
                   if (label != null)
@@ -142,7 +142,7 @@ final slider = CatalogItem(
                     Padding(
                       padding: const EdgeInsets.only(left: 16.0, top: 4.0),
                       child: Text(
-                        'Invalid value',
+                        errorMessage,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.error,
                           fontSize: 12,

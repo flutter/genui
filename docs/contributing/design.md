@@ -54,6 +54,9 @@ This layer defines the data structures that represent the dynamic UI and the con
 - **`UiDefinition` and `UiEvent`**: `UiDefinition` represents a complete UI tree to be rendered, including the root widget and a map of all widget definitions. `UiEvent` is a data object representing a user interaction. `UserActionEvent` is a subtype used for events that should trigger a submission to the AI, like a button tap.
 - **`ChatMessage`**: A sealed class representing the different types of messages in a conversation: `UserMessage`, `AiTextMessage`, `ToolResponseMessage`, `AiUiMessage`, `InternalMessage`, and `UserUiInteractionMessage`.
 - **`DataModel` and `DataContext`**: The `DataModel` is a centralized, observable key-value store that holds the entire dynamic state of the UI. Widgets receive a `DataContext`, which is a view into the `DataModel` that understands the widget's current scope. This allows widgets to subscribe to changes in the data model and rebuild reactively. This separation of data and UI structure is a core principle of the architecture.
+- **`ClientFunction`**: The base interface for client-side functions registered in a `Catalog` and invoked by expressions. It provides reactive stream execution via `execute(JsonMap args, ExecutionContext context)`. Implementations include:
+  - `SynchronousClientFunction`: A base class for synchronous client functions overriding `executeSync`.
+  - `AsynchronousClientFunction`: A base class for single-shot asynchronous client functions overriding `executeAsync`.
 
 ### 4. Widget Catalog Layer (`lib/src/catalog/`)
 

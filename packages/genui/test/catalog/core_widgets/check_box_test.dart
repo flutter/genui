@@ -164,4 +164,69 @@ void main() {
       isTrue,
     );
   });
+
+  testWidgets('CheckBox validation checks show error message when failing', (
+    WidgetTester tester,
+  ) async {
+    final surfaceController = SurfaceController(
+      catalogs: [BasicCatalogItems.asCatalog()],
+    );
+    addTearDown(surfaceController.dispose);
+    const surfaceId = 'validationTest';
+    surfaceController.handleMessage(
+      updateDataModel(
+        surfaceId: surfaceId,
+        path: DataPath('/accepted'),
+        value: false,
+      ),
+    );
+
+    final List<JsonMap> components = [
+      component(
+        id: 'root',
+        type: 'CheckBox',
+        properties: {
+          'label': 'I agree',
+          'value': {'path': '/accepted'},
+          'checks': [
+            {
+              'message': 'You must accept the terms',
+              'condition': {'path': '/accepted'},
+            },
+          ],
+        },
+      ),
+    ];
+
+    surfaceController.handleMessage(
+      updateComponents(surfaceId: surfaceId, components: components),
+    );
+    surfaceController.handleMessage(
+      createSurface(surfaceId: surfaceId, catalogId: basicCatalogId),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Surface(
+            surfaceContext: surfaceController.contextFor(surfaceId),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('You must accept the terms'), findsOneWidget);
+
+    surfaceController.handleMessage(
+      updateDataModel(
+        surfaceId: surfaceId,
+        path: DataPath('/accepted'),
+        value: true,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('You must accept the terms'), findsNothing);
+  });
 }

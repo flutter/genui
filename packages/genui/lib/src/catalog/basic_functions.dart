@@ -9,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../functions/format_string.dart';
 import '../model/a2ui_schemas.dart';
 import '../model/client_function.dart';
+import '../model/data_model.dart';
 import '../primitives/simple_items.dart';
 
 // ignore: avoid_classes_with_only_static_members
@@ -48,13 +49,6 @@ class BasicFunctions {
   ];
 }
 
-/// Helper to check for truthiness.
-bool _isTruthy(Object? value) {
-  if (value is bool) return value;
-  if (value == null) return false;
-  return true;
-}
-
 /// Checks if all values in a list are truthy.
 class AndFunction extends SynchronousClientFunction {
   const AndFunction();
@@ -78,7 +72,7 @@ class AndFunction extends SynchronousClientFunction {
     final Object? values = args['values'];
     if (values is! List) return false;
     for (final Object? element in values) {
-      if (!_isTruthy(element)) return false;
+      if (!isTruthy(element)) return false;
     }
     return true;
   }
@@ -108,7 +102,7 @@ class OrFunction extends SynchronousClientFunction {
     final Object? values = args['values'];
     if (values is! List) return false;
     for (final Object? element in values) {
-      if (_isTruthy(element)) return true;
+      if (isTruthy(element)) return true;
     }
     return false;
   }
@@ -134,7 +128,7 @@ class NotFunction extends SynchronousClientFunction {
   @override
   Object? executeSync(JsonMap args, ExecutionContext _) {
     if (!args.containsKey('value')) return false;
-    return !_isTruthy(args['value']);
+    return !isTruthy(args['value']);
   }
 }
 

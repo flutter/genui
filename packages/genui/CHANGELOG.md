@@ -16,6 +16,20 @@
   `/a/b` when `/a` holds a string, throws `A2uiDataError` instead of being
   ignored.
 
+## 0.10.6
+
+- Added `AsynchronousClientFunction` base class for single-shot asynchronous
+  client functions returning a `Future` (via `executeAsync`), complementing
+  `SynchronousClientFunction` (`executeSync`).
+
+## 0.10.5
+
+- **Fix**: Resolve validation checks and preserve error messages across basic catalog components.
+  - Recursively evaluate `List` arguments in `DataContext._evaluateStream` so logical functions (`and`, `or`) receive resolved values.
+  - Remove invalid `'functionCall'` envelope from `checksToExpression` and support tolerant unwrapping in `_evaluateStream`.
+  - Align truthiness evaluation in `isTruthy` across primitives, data model objects, and structured `ValidationResult` objects, while warning on malformed expressions or missing functions.
+  - Migrate `CheckBox`, `Slider`, and `ChoicePicker` to `ValidationHelper.validateStream` to evaluate rules individually and display authored error messages.
+
 ## 0.10.4
 
 - **Fix**: `Image` now takes the catalog's `description` property and announces it. The property is what the basic
