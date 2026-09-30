@@ -184,6 +184,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
         A2uiValidationException(
           e.message,
           surfaceId: _surfaceIdOf(coreMessage),
+          path: _errorPathOf(e, coreMessage),
         ),
         StackTrace.current,
       );
@@ -196,7 +197,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
         A2uiValidationException(
           e.message,
           surfaceId: _surfaceIdOf(coreMessage),
-          path: _componentPathOf(e.details),
+          path: _errorPathOf(e, coreMessage),
         ),
         StackTrace.current,
       );
@@ -207,7 +208,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
         A2uiValidationException(
           e.message,
           surfaceId: _surfaceIdOf(coreMessage),
-          path: e.path,
+          path: _errorPathOf(e, coreMessage),
         ),
         StackTrace.current,
       );
@@ -220,6 +221,7 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
         A2uiValidationException(
           e.message,
           surfaceId: _surfaceIdOf(coreMessage),
+          path: _errorPathOf(e, coreMessage),
         ),
         StackTrace.current,
       );
@@ -297,12 +299,30 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
         _ => null,
       };
 
-  /// The path of the component a core validation error names in its
-  /// [core.A2uiValidationError.details], if it names one.
-  String? _componentPathOf(Object? details) => switch (details) {
-    {'id': final String id, 'component': String()} => '/components/$id',
-    _ => null,
-  };
+  /// The path to report for [error], thrown while processing [message]: the
+  /// component the error names, else the data path, else the part of the
+  /// message that failed.
+  String _errorPathOf(
+    core.A2uiError error,
+    core.AgentToRendererMessage message,
+  ) {
+    final String? componentId = switch (error) {
+      core.A2uiValidationError(
+        details: {'id': final String id, 'component': String()},
+      ) =>
+        id,
+      core.A2uiIntegrityError(componentIds: [final String id, ...]) => id,
+      core.A2uiRecursionError(cycle: [final String id, ...]) => id,
+      _ => null,
+    };
+    if (componentId != null) return '/components/$componentId';
+    if (error case core.A2uiDataError(path: final String path)) return path;
+    return switch (message) {
+      core.UpdateComponentsMessage() => '/components',
+      core.UpdateDataModelMessage() => '/value',
+      _ => '/',
+    };
+  }
 
   void _onCoreSurfaceCreated(core.SurfaceModel<core.ComponentApi> surface) {
     _registry.addSurface(surface);

@@ -165,5 +165,97 @@ void main() {
         await future;
       },
     );
+
+    group('reports a path for every rejected message', () {
+      late SurfaceController controller;
+      late List<Map<String, Object?>> errors;
+
+      setUp(() {
+        controller = SurfaceController(
+          catalogs: [BasicCatalogItems.asCatalog()],
+        );
+        errors = [];
+        controller.onSubmit.listen((ChatMessage message) {
+          final UiInteractionPart part = message.parts.uiInteractionParts.first;
+          final json = jsonDecode(part.interaction) as Map<String, Object?>;
+          errors.add(json['error']! as Map<String, Object?>);
+        });
+        controller.handleMessage(
+          createSurface(surfaceId: 'surf1', catalogId: basicCatalogId),
+        );
+      });
+
+      tearDown(() => controller.dispose());
+
+      Future<Map<String, Object?>> onlyError() async {
+        await Future<void>.delayed(Duration.zero);
+        expect(errors, hasLength(1));
+        expect(errors.single['code'], 'VALIDATION_FAILED');
+        return errors.single;
+      }
+
+      test('duplicate component ids', () async {
+        controller.handleMessage(
+          updateComponents(
+            surfaceId: 'surf1',
+            components: [
+              component(id: 'dup', type: 'Text', properties: {'text': 'a'}),
+              component(id: 'dup', type: 'Text', properties: {'text': 'b'}),
+            ],
+          ),
+        );
+
+        expect((await onlyError())['path'], '/components/dup');
+      });
+
+      test('a component that references itself', () async {
+        controller.handleMessage(
+          updateComponents(
+            surfaceId: 'surf1',
+            components: [
+              component(
+                id: 'loop',
+                type: 'Card',
+                properties: {'child': 'loop'},
+              ),
+            ],
+          ),
+        );
+
+        expect((await onlyError())['path'], '/components/loop');
+      });
+
+      test('a binding with invalid path syntax', () async {
+        controller.handleMessage(
+          updateComponents(
+            surfaceId: 'surf1',
+            components: [
+              component(
+                id: 'root',
+                type: 'Text',
+                properties: {
+                  'text': {'path': '/a~2b'},
+                },
+              ),
+            ],
+          ),
+        );
+
+        expect((await onlyError())['path'], '/components');
+      });
+
+      test('a data model value with invalid path syntax', () async {
+        controller.handleMessage(
+          updateDataModel(
+            surfaceId: 'surf1',
+            value: {
+              'file': {'path': '~/photos'},
+            },
+          ),
+        );
+
+        expect((await onlyError())['path'], '/value');
+      });
+    });
   });
 }
