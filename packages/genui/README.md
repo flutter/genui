@@ -29,7 +29,7 @@ The package is built around the following main components:
 
 5.  **`A2uiTransportAdapter`**: An implementation of `Transport` that wraps `A2uiParserTransformer` to parse raw text chunks (e.g. from an LLM stream) into structured `GenerationEvent`s.
 
-6.  **`A2uiMessage`**: A message sent from the AI to the UI, instructing it to perform actions like `createSurface`, `updateComponents`, `updateDataModel`, or `deleteSurface`.
+6.  **`AgentToRendererMessage`**: A message sent from the AI to the UI, instructing it to perform actions like `createSurface`, `updateComponents`, `updateDataModel`, or `deleteSurface`.
 
 ## How It Works
 

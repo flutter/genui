@@ -17,7 +17,7 @@ The architecture of `genui_a2a` revolves around two main classes:
     -   Constructs and sends A2A messages (including user input and UI events).
     -   Receives `A2AStreamEvent`s from the server.
     -   Parses `A2ADataPart`s within the events to extract JSON-encoded A2UI messages.
-    -   Exposes streams of `A2uiMessage` and text events that can be piped into a `SurfaceController`.
+    -   Exposes streams of `AgentToRendererMessage` and text events that can be piped into a `SurfaceController`.
     -   Manages conversation state like `taskId` and `contextId` as provided by the A2A server.
 
 ### Data Flow
@@ -29,7 +29,7 @@ graph TD
     Conversation -- onSend --> A2uiAgentConnector
     A2uiAgentConnector -- A2AClient --> A2AServer[A2A Server]
     A2AServer -- A2AStreamEvent --> A2uiAgentConnector
-    A2uiAgentConnector -- A2uiMessage --> FlutterApp
+    A2uiAgentConnector -- AgentToRendererMessage --> FlutterApp
     FlutterApp -- pipes to --> SurfaceController[SurfaceController \n genui]
     SurfaceController -- update state --> Surface[Surface \n genui]
     Surface --> FlutterApp
@@ -40,7 +40,7 @@ graph TD
 1.  User input is sent via `Conversation.sendRequest`, which triggers the `onSend` callback.
 2.  The callback delegates to `A2uiAgentConnector` to send the message to the A2A Server.
 3.  The server streams back `A2AStreamEvent`s containing A2UI messages.
-4.  `A2uiAgentConnector` parses these into `A2uiMessage` objects.
+4.  `A2uiAgentConnector` parses these into `AgentToRendererMessage` objects.
 5.  The application (via manual piping) forwards these messages to `SurfaceController`.
 6.  `SurfaceController` processes the message and updates the surface state.
 7.  The state change causes `Surface` to re-render.

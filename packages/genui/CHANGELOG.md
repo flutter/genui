@@ -5,16 +5,27 @@
 - **BREAKING**: Depend on `a2ui_core` 0.2.2, which renames `A2uiMessage` to
   `AgentToRendererMessage`. `A2uiMessageSink.handleMessage`,
   `Transport.incomingMessages`, `A2uiTransportAdapter.addMessage` and
-  `A2uiMessageEvent.message` use the new name.
+  `A2uiMessageEvent.message` use the new name. See
+  [the migration guide](../../docs/usage/migration/migration_0.10.x_to_0.11.0.md).
 - **Behavior change**: `SurfaceController` has `a2ui_core` validate each message
   before applying it. A message with a component that does not match its
   catalog's schema is rejected whole instead of rendered, and is still reported
-  to the agent as `VALIDATION_FAILED`. A surface that names a catalog the
-  controller does not hold renders nothing instead of a fallback widget, and is
-  reported the same way.
+  to the agent as `VALIDATION_FAILED`; an update that omits `component` is
+  applied as before. `Tabs` items that use the specification's `title` and
+  `child` are rejected this way. A surface that names a catalog the controller
+  does not hold renders nothing instead of a fallback widget, and its updates
+  are reported.
+- **Behavior change**: Duplicate component ids in one message, a component that
+  references itself, and a `path` string that is not a valid data path,
+  including inside `updateDataModel` values, are rejected and reported as
+  `VALIDATION_FAILED`. Every report for a message `a2ui_core` rejects carries a
+  `path`.
 - **Behavior change**: A data model write below a primitive value, such as
   `/a/b` when `/a` holds a string, throws `A2uiDataError` instead of being
   ignored.
+- **Behavior change**: `DataModel` subscribers no longer fire when a write
+  leaves their value unchanged, and deleting a list index past its end leaves
+  the list unchanged instead of padding it with `null`.
 
 ## 0.10.6
 
