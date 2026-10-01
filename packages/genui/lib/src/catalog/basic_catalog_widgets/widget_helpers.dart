@@ -139,28 +139,3 @@ Widget buildWeightedChild({
   }
   return childWidget;
 }
-
-/// Converts a list of validation checks into a single expression that evaluates
-/// to true if all checks pass.
-Object? checksToExpression(List<JsonMap>? checks) {
-  if (checks == null || checks.isEmpty) {
-    return true;
-  }
-
-  final List<Object?> conditions = checks
-      .map((c) => c['condition'])
-      .where((c) => c != null)
-      .toList();
-  if (conditions.isEmpty) {
-    return true;
-  }
-  if (conditions.length == 1) {
-    return conditions.first;
-  }
-
-  // Combine all checks into a single 'and' condition
-  return {
-    'call': 'and',
-    'args': {'values': conditions},
-  };
-}

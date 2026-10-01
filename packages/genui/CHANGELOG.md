@@ -29,6 +29,13 @@
   leaves their value unchanged, and deleting a list index past its end leaves
   the list unchanged instead of padding it with `null`.
 
+## 0.10.7
+
+- **Fix**: Validation `checks` on `CheckBox`, `Slider` and `ChoicePicker` now fail when their condition is false, and show the check's `message` instead of a generic "Invalid value".
+- **Fix**: `and`/`or` now evaluate bindings and function calls inside `values`, so a failing nested check fails the rule.
+- **Behavior change**: Conditions use truthiness instead of a null check. `0`, `''`, `[]`, `{}` and unknown functions evaluate to `false`, and malformed condition expressions log a warning.
+- **Behavior change**: `resolve()` and `resolveContext()` recursively resolve dynamic values inside lists.
+
 ## 0.10.6
 
 - Added `AsynchronousClientFunction` base class for single-shot asynchronous
@@ -42,9 +49,17 @@
   - Remove invalid `'functionCall'` envelope from `checksToExpression` and support tolerant unwrapping in `_evaluateStream`.
   - Align truthiness evaluation in `isTruthy` across primitives, data model objects, and structured `ValidationResult` objects, while warning on malformed expressions or missing functions.
   - Migrate `CheckBox`, `Slider`, and `ChoicePicker` to `ValidationHelper.validateStream` to evaluate rules individually and display authored error messages.
+- Fixed `Slider` deriving `divisions` from range, allowing continuous sliding
+  by default (`divisions: null`), preventing assertion crashes on sub-unit
+  ranges, fixing thumb value text formatting and literal value fallback, and
+  handling inverted ranges (`max < min`).
 
 ## 0.10.4
 
+- **Docs**: Added an announcement to the README that `genui` is being
+  redesigned as modular packages: [`a2ui_core`](https://pub.dev/packages/a2ui_core),
+  [`a2ui_agent`](https://pub.dev/packages/a2ui_agent), and
+  [`a2ui_flutter`](https://pub.dev/packages/a2ui_flutter).
 - **Fix**: `Image` now takes the catalog's `description` property and announces it. The property is what the basic
   catalog defines for accessibility text, and `web_core` declares it, but genui's schema did not have it, so the text
   an agent sent was accepted and dropped. An image has nothing inside it to infer a name from, so the result was an

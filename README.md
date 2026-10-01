@@ -1,3 +1,9 @@
+**Announcement:** `genui` is being redesigned as a set of modular packages:
+[`a2ui_core`](https://pub.dev/packages/a2ui_core),
+[`a2ui_agent`](https://pub.dev/packages/a2ui_agent), and
+[`a2ui_flutter`](https://pub.dev/packages/a2ui_flutter).
+The new packages will have a different API.
+
 # Generative UI SDK for Flutter (genui)
 
 A Flutter library to enable developers to easily add interactive

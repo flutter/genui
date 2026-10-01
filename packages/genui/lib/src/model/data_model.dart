@@ -115,9 +115,6 @@ class DataContext implements cf.ExecutionContext {
       if (value.containsKey('call')) {
         return _evaluateFunctionCall(value as JsonMap);
       }
-      if (value.containsKey('functionCall') && value['functionCall'] is Map) {
-        return _evaluateStream(value['functionCall']);
-      }
     }
     if (value is List) {
       if (value.isEmpty) return Stream.value(<Object?>[]);
@@ -152,7 +149,52 @@ class DataContext implements cf.ExecutionContext {
       for (final Object? key in argsJson.keys) {
         final argName = key.toString();
         final Object? val = argsJson[key];
-        args[argName] = _evaluateStream(val);
+        if ((name == 'and' || name == 'or') &&
+            argName == 'values' &&
+            val is List) {
+          final List<Stream<Object?>> itemStreams = val.map((item) {
+            if (item is Map) {
+              if (item.containsKey('functionCall')) {
+                final Object? fc = item['functionCall'];
+                if (fc is Map && _isValidConditionShape(fc)) {
+                  return _evaluateStream(fc);
+                } else {
+                  genUiLogger.warning('Invalid condition expression: $item');
+                  return Stream<Object?>.value(false);
+                }
+              }
+              if (!_isValidConditionShape(item)) {
+                genUiLogger.warning('Invalid condition expression: $item');
+                return Stream<Object?>.value(false);
+              }
+            }
+            return _evaluateStream(item);
+          }).toList();
+          args[argName] = itemStreams.isEmpty
+              ? Stream.value(<Object?>[])
+              : itemStreams.combineLatestAll();
+        } else if (name == 'not' && argName == 'value') {
+          if (val is Map) {
+            if (val.containsKey('functionCall')) {
+              final Object? fc = val['functionCall'];
+              if (fc is Map && _isValidConditionShape(fc)) {
+                args[argName] = _evaluateStream(fc);
+              } else {
+                genUiLogger.warning('Invalid condition expression: $val');
+                args[argName] = Stream<Object?>.value(true);
+              }
+            } else if (!_isValidConditionShape(val)) {
+              genUiLogger.warning('Invalid condition expression: $val');
+              args[argName] = Stream<Object?>.value(true);
+            } else {
+              args[argName] = _evaluateStream(val);
+            }
+          } else {
+            args[argName] = _evaluateStream(val);
+          }
+        } else {
+          args[argName] = _evaluateStream(val);
+        }
       }
     }
 
@@ -180,12 +222,20 @@ class DataContext implements cf.ExecutionContext {
     if (condition == null) return Stream.value(false);
     if (condition is bool) return Stream.value(condition);
 
-    if (condition is Map &&
-        !condition.containsKey('path') &&
-        !condition.containsKey('call') &&
-        !condition.containsKey('functionCall')) {
-      genUiLogger.warning('Invalid condition expression: $condition');
-      return Stream.value(false);
+    if (condition is Map) {
+      if (condition.containsKey('functionCall')) {
+        final Object? fc = condition['functionCall'];
+        if (fc is Map && _isValidConditionShape(fc)) {
+          return evaluateConditionStream(fc);
+        } else {
+          genUiLogger.warning('Invalid condition expression: $condition');
+          return Stream.value(false);
+        }
+      }
+      if (!_isValidConditionShape(condition)) {
+        genUiLogger.warning('Invalid condition expression: $condition');
+        return Stream.value(false);
+      }
     }
 
     final Stream<Object?> resultStream = _evaluateStream(condition);
@@ -193,20 +243,25 @@ class DataContext implements cf.ExecutionContext {
   }
 }
 
+bool _isValidConditionShape(Map<Object?, Object?> map) {
+  if (map.containsKey('path') || map.containsKey('call')) return true;
+  if (map.containsKey('functionCall')) {
+    final Object? fc = map['functionCall'];
+    return fc is Map && _isValidConditionShape(fc);
+  }
+  return false;
+}
+
 /// Helper to determine truthiness according to A2UI expression semantics.
+@internal
 bool isTruthy(Object? value) {
-  if (value is bool) return value;
   if (value == null) return false;
+  if (value is bool) return value;
   if (value is String) return value.isNotEmpty;
   if (value is num) return value != 0 && !value.isNaN;
   if (value is List) return value.isNotEmpty;
-  if (value is Map) {
-    if (value.containsKey('valid') && value['valid'] is bool) {
-      return value['valid'] as bool;
-    }
-    return value.isNotEmpty;
-  }
-  return false;
+  if (value is Map) return value.isNotEmpty;
+  return true;
 }
 
 /// Resolves a context map definition against a [DataContext].

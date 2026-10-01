@@ -7,7 +7,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/src/catalog/basic_catalog.dart';
-import 'package:genui/src/catalog/basic_catalog_widgets/widget_helpers.dart';
 import 'package:genui/src/model/data_model.dart';
 import 'package:genui/src/primitives/logging.dart';
 import 'package:genui/src/primitives/simple_items.dart';
@@ -427,35 +426,188 @@ void main() {
         isFalse,
       );
 
-      // ValidationResult map: valid flag determines truthiness
-      dataModel.update(DataPath('/valResult'), {'valid': true});
-      final valResultCondition = {'path': '/valResult'};
+      // Custom non-null objects are truthy
+      dataModel.update(DataPath('/custom'), DateTime(2025));
+      final customCondition = {'path': '/custom'};
       expect(
-        await context.evaluateConditionStream(valResultCondition).first,
+        await context.evaluateConditionStream(customCondition).first,
         isTrue,
-      );
-
-      dataModel.update(DataPath('/valResult'), {
-        'valid': false,
-        'message': 'err',
-      });
-      expect(
-        await context.evaluateConditionStream(valResultCondition).first,
-        isFalse,
       );
     });
 
     test('evaluateConditionStream treats unknown functions and invalid maps as '
-        'false', () async {
+        'false and logs warnings', () async {
+      final List<LogRecord> logs = [];
+      final StreamSubscription<LogRecord> sub = genUiLogger.onRecord.listen(
+        logs.add,
+      );
+      addTearDown(sub.cancel);
+
       final JsonMap unknownFunc = {
         'call': 'noSuchFunction',
         'args': <String, Object?>{},
       };
       expect(await context.evaluateConditionStream(unknownFunc).first, isFalse);
+      expect(
+        logs.any(
+          (r) =>
+              r.level == Level.WARNING &&
+              r.message.contains('Function not found: noSuchFunction'),
+        ),
+        isTrue,
+      );
 
-      final invalidMap = {'invalid': 'structure'};
+      final JsonMap missingCall = {'call': null, 'args': <String, Object?>{}};
+      expect(await context.evaluateConditionStream(missingCall).first, isFalse);
+      expect(
+        logs.any(
+          (r) =>
+              r.level == Level.WARNING &&
+              r.message.contains('Function call missing "call" property'),
+        ),
+        isTrue,
+      );
+
+      final JsonMap invalidMap = {'invalid': 'structure'};
       expect(await context.evaluateConditionStream(invalidMap).first, isFalse);
+      expect(
+        logs.any(
+          (r) =>
+              r.level == Level.WARNING &&
+              r.message.contains('Invalid condition expression'),
+        ),
+        isTrue,
+      );
+
+      final JsonMap invalidFc = {'functionCall': 'notAMap'};
+      expect(await context.evaluateConditionStream(invalidFc).first, isFalse);
+      expect(
+        logs.any(
+          (r) =>
+              r.level == Level.WARNING &&
+              r.message.contains('Invalid condition expression'),
+        ),
+        isTrue,
+      );
     });
+
+    test(
+      'nested malformed expressions inside and, or, not fail and log warning',
+      () async {
+        final contextWithFuncs = DataContext(
+          dataModel,
+          DataPath.root,
+          functions: BasicCatalogItems.asCatalog().functions,
+        );
+
+        final List<LogRecord> logs = [];
+        final StreamSubscription<LogRecord> sub = genUiLogger.onRecord.listen(
+          logs.add,
+        );
+        addTearDown(sub.cancel);
+
+        // Typo in nested function call inside `and`
+        final JsonMap andMalformed = {
+          'call': 'and',
+          'args': {
+            'values': [
+              {'cal': 'required', 'args': <String, Object?>{}},
+              true,
+            ],
+          },
+        };
+        expect(
+          await contextWithFuncs.evaluateConditionStream(andMalformed).first,
+          isFalse,
+        );
+        expect(
+          logs.any(
+            (r) =>
+                r.level == Level.WARNING &&
+                r.message.contains('Invalid condition expression'),
+          ),
+          isTrue,
+        );
+
+        // Typo in nested function call inside `not`
+        final JsonMap notMalformed = {
+          'call': 'not',
+          'args': {
+            'value': {'cal': 'required', 'args': <String, Object?>{}},
+          },
+        };
+        expect(
+          await contextWithFuncs.evaluateConditionStream(notMalformed).first,
+          isFalse,
+        );
+
+        // Malformed inner map inside functionCall wrapper in `and`
+        final JsonMap andMalformedFc = {
+          'call': 'and',
+          'args': {
+            'values': [
+              {
+                'functionCall': {
+                  'cal': 'required',
+                  'args': <String, Object?>{},
+                },
+              },
+              true,
+            ],
+          },
+        };
+        expect(
+          await contextWithFuncs.evaluateConditionStream(andMalformedFc).first,
+          isFalse,
+        );
+
+        // Malformed inner map inside functionCall wrapper in `not`
+        final JsonMap notMalformedFc = {
+          'call': 'not',
+          'args': {
+            'value': {
+              'functionCall': {'cal': 'required', 'args': <String, Object?>{}},
+            },
+          },
+        };
+        expect(
+          await contextWithFuncs.evaluateConditionStream(notMalformedFc).first,
+          isFalse,
+        );
+
+        // Top-level functionCall with malformed inner map
+        final JsonMap topMalformedFc = {
+          'functionCall': {'cal': 'required', 'args': <String, Object?>{}},
+        };
+        expect(
+          await contextWithFuncs.evaluateConditionStream(topMalformedFc).first,
+          isFalse,
+        );
+
+        // Unknown function inside `and`
+        final JsonMap andUnknown = {
+          'call': 'and',
+          'args': {
+            'values': [
+              {'call': 'nope', 'args': <String, Object?>{}},
+              true,
+            ],
+          },
+        };
+        expect(
+          await contextWithFuncs.evaluateConditionStream(andUnknown).first,
+          isFalse,
+        );
+        expect(
+          logs.any(
+            (r) =>
+                r.level == Level.WARNING &&
+                r.message.contains('Function not found: nope'),
+          ),
+          isTrue,
+        );
+      },
+    );
 
     test(
       'evaluateConditionStream resolves and/or functions with nested paths and function calls',
@@ -505,57 +657,16 @@ void main() {
       },
     );
 
-    test('evaluateConditionStream and checksToExpression correctly validate '
-        'check rules (Issue 2853)', () async {
-      final contextWithFuncs = DataContext(
-        dataModel,
-        DataPath.root,
-        functions: BasicCatalogItems.asCatalog().functions,
-      );
-
-      dataModel.update(DataPath('/email'), '');
-      final checks = <JsonMap>[
-        {
-          'condition': {
-            'call': 'required',
-            'args': {
-              'value': {'path': '/email'},
-            },
-          },
-          'message': 'Required.',
-        },
-      ];
-
-      // Single check condition alone evaluates to false when empty
-      expect(
-        await contextWithFuncs
-            .evaluateConditionStream(checks.first['condition'])
-            .first,
-        isFalse,
-      );
-
-      // checksToExpression combined expression evaluates to false when empty
-      expect(
-        await contextWithFuncs
-            .evaluateConditionStream(checksToExpression(checks))
-            .first,
-        isFalse,
-      );
-
-      // When populated, both evaluate to true
-      dataModel.update(DataPath('/email'), 'ada@example.com');
-      expect(
-        await contextWithFuncs
-            .evaluateConditionStream(checks.first['condition'])
-            .first,
-        isTrue,
-      );
-      expect(
-        await contextWithFuncs
-            .evaluateConditionStream(checksToExpression(checks))
-            .first,
-        isTrue,
-      );
+    test('resolveContext resolves dynamic values inside lists', () async {
+      dataModel.update(DataPath('/n'), 42);
+      final JsonMap contextDef = {
+        'items': [
+          {'path': '/n'},
+          'literal',
+        ],
+      };
+      final JsonMap resolved = await resolveContext(context, contextDef);
+      expect(resolved['items'], [42, 'literal']);
     });
   });
 }

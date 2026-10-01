@@ -13,7 +13,7 @@ export 'model/catalog.dart';
 export 'model/catalog_item.dart';
 export 'model/chat_message.dart';
 export 'model/client_function.dart';
-export 'model/data_model.dart';
+export 'model/data_model.dart' hide isTruthy;
 export 'model/data_path.dart';
 export 'model/generation_events.dart';
 export 'model/parts.dart';
