@@ -17,19 +17,10 @@ import 'src/sample_locator.dart';
 import 'src/test_http_client.dart';
 
 /// Samples that a2ui_core rejects at the processor because they do not match
-/// genui's catalog schemas, with the reason. genui's own validation only
-/// reported these; the core refuses the batch, so nothing renders.
+/// the catalog schema, with the reason.
 const Map<String, String> _rejectedByCore = {
-  'animalKingdomExplorer.sample':
-      'Tabs items use the spec names title/child; genui requires '
-      'label/content',
-  'restaurantMenu.sample':
-      'Tabs items use the spec names title/child; genui requires '
-      'label/content',
-  'settingsPage.sample':
-      'Tabs items use the spec names title/child; genui requires '
-      'label/content',
-  'weatherForecast.sample': "Icon name is outside genui's icon enum",
+  'weatherForecast.sample':
+      'Icon names cloud, wbSunny and rainy are not in the catalog',
 };
 
 void main() {

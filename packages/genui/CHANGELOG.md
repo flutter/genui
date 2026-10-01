@@ -7,14 +7,16 @@
   `Transport.incomingMessages`, `A2uiTransportAdapter.addMessage` and
   `A2uiMessageEvent.message` use the new name. See
   [the migration guide](../../docs/usage/migration/migration_0.10.x_to_0.11.0.md).
+- **BREAKING**: `Tabs` items take the specification's `title` and `child`
+  instead of `label` and `content`, so messages that follow the specification's
+  basic catalog are no longer rejected.
 - **Behavior change**: `SurfaceController` has `a2ui_core` validate each message
   before applying it. A message with a component that does not match its
   catalog's schema is rejected whole instead of rendered, and is still reported
   to the agent as `VALIDATION_FAILED`; an update that omits `component` is
-  applied as before. `Tabs` items that use the specification's `title` and
-  `child` are rejected this way. A surface that names a catalog the controller
-  does not hold renders nothing instead of a fallback widget, and its updates
-  are reported.
+  applied as before. A surface that names a catalog the controller does not
+  hold renders nothing instead of a fallback widget, and its updates are
+  reported.
 - **Behavior change**: Duplicate component ids in one message, a component that
   references itself, and a `path` string that is not a valid data path,
   including inside `updateDataModel` values, are rejected and reported as

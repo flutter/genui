@@ -42,8 +42,9 @@ The new name appears in `A2uiMessageSink.handleMessage` (and so
   duplicate component ids in one message, a component that references itself,
   and any `path` string that is not a valid data path, including inside
   `updateDataModel` values.
-- **`Tabs` items must use `label` and `content`.** Items that use the
-  specification's `title` and `child` rendered before; they are now rejected.
+- **`Tabs` items use the specification's `title` and `child`.** genui's catalog
+  schema used to name them `label` and `content`. An agent that still sends
+  those has its message rejected.
 - **A surface that names a catalog the controller does not hold renders
   nothing**, where it used to show a fallback widget, and every update sent to
   it is reported.

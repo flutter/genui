@@ -28,8 +28,8 @@ void main() {
         properties: {
           'component': 'Tabs',
           'tabs': [
-            {'label': 'Tab 1', 'content': 'text1'},
-            {'label': 'Tab 2', 'content': 'text2'},
+            {'title': 'Tab 1', 'child': 'text1'},
+            {'title': 'Tab 2', 'child': 'text2'},
           ],
         },
       ),
@@ -101,8 +101,8 @@ void main() {
           'component': 'Tabs',
           'activeTab': {'path': 'currentTab'},
           'tabs': [
-            {'label': 'Tab 1', 'content': 'text1'},
-            {'label': 'Tab 2', 'content': 'text2'},
+            {'title': 'Tab 1', 'child': 'text1'},
+            {'title': 'Tab 2', 'child': 'text2'},
           ],
         },
       ),
