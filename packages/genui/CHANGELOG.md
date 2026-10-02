@@ -17,12 +17,15 @@
   hold renders nothing instead of a fallback widget, and each component update
   sent to it is reported.
 - **Behavior change**: These are now rejected and reported as
-  `VALIDATION_FAILED`: duplicate component ids in one message; a component whose
-  `child` references lead back to itself (cycles through `children` lists are
-  not detected); a component chain or a message nested more than 50 levels deep;
-  function calls nested more than 5 deep; and a `path` string that is not a
-  valid data path, including inside `updateDataModel` values. Every report for a
-  message `a2ui_core` rejects carries a `path`.
+  `VALIDATION_FAILED`: duplicate component ids in one message; component
+  references that form a cycle, through `child` or `children`; a component
+  chain or a message nested more than 50 levels deep; function calls nested
+  more than 5 deep; and a `path` string that is not a valid data path, including
+  inside `updateDataModel` values. Every report for a message `a2ui_core`
+  rejects carries a `path`.
+- `children` properties in the basic catalog reference the specification's
+  `ChildList` type instead of an inline schema; the accepted shapes are the
+  same.
 - **Behavior change**: A data model write below a primitive value, such as
   `/a/b` when `/a` holds a string, throws `A2uiDataError` instead of being
   ignored. This includes an input widget writing the user's input back to a

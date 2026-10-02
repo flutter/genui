@@ -225,6 +225,33 @@ void main() {
         expect((await onlyError())['path'], '/components/loop');
       });
 
+      test('a cycle through children lists', () async {
+        controller.handleMessage(
+          updateComponents(
+            surfaceId: 'surf1',
+            components: [
+              component(
+                id: 'root',
+                type: 'Column',
+                properties: {
+                  'children': ['inner'],
+                },
+              ),
+              component(
+                id: 'inner',
+                type: 'Column',
+                properties: {
+                  'children': ['root'],
+                },
+              ),
+            ],
+          ),
+        );
+
+        expect((await onlyError())['path'], startsWith('/components/'));
+        expect(controller.registry.getSurface('surf1')!.components, isEmpty);
+      });
+
       test('a binding with invalid path syntax', () async {
         controller.handleMessage(
           updateComponents(
