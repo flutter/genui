@@ -85,6 +85,50 @@ void main() {
       expect(await stream.first, input);
     });
   });
+
+  group('A DataContext built from another one', () {
+    late DataContext context;
+
+    setUp(() {
+      context = DataContext(
+        InMemoryDataModel(),
+        DataPath.root,
+        functions: BasicFunctions.all,
+      );
+    });
+
+    test('functions lists the ones the context was created with', () {
+      expect(
+        context.functions.map((f) => f.name).toSet(),
+        BasicFunctions.all.map((f) => f.name).toSet(),
+      );
+    });
+
+    test('a nested context keeps the same functions', () {
+      expect(
+        context.nested(DataPath('a')).functions,
+        orderedEquals(context.functions),
+      );
+    });
+
+    test('a wrapper that passes them on resolves function calls', () async {
+      final wrapper = _DelegatingDataContext(context);
+      final Map<String, Object> check = {
+        'call': 'required',
+        'args': {'value': 'filled in'},
+      };
+
+      expect(await eval<bool>(check, wrapper), isTrue);
+      expect(await wrapper.evaluateConditionStream(check).first, isTrue);
+    });
+  });
+}
+
+/// The wrapper from a2ui-project/a2ui#2830, which had no way to pass the
+/// functions on.
+class _DelegatingDataContext extends DataContext {
+  _DelegatingDataContext(DataContext delegate)
+    : super(delegate.dataModel, delegate.path, functions: delegate.functions);
 }
 
 Future<T> eval<T>(Object? input, DataContext context) async {

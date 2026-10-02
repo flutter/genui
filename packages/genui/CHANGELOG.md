@@ -13,6 +13,10 @@
 - **Fix**: `and`/`or`/`not` logical functions now evaluate nested bindings and function calls inside `values`/`value`, so a failing nested check fails the rule and malformed condition shapes log a warning.
 - **Behavior change**: Conditions use truthiness instead of a null check. `0`, `''`, `[]`, `{}` and unknown functions evaluate to `false`, and malformed condition expressions log a warning.
 - **Behavior change**: `resolve()` and `resolveContext()` recursively resolve dynamic values inside lists.
+- Added `DataContext.functions`, so a `DataContext` built from another one, such
+  as a wrapper that observes writes, can keep its client functions. Without
+  them every function call in it resolved to null: checks failed and conditions
+  were false, with only a warning in the log.
 - **Fix**: Made `Slider` continuous (`divisions: null`) by default, preventing assertion crashes on sub-unit ranges, fixing thumb value text formatting and literal value fallback, and handling inverted ranges (`max < min`).
 - **Fix**: `CheckBox` shows a literal `value` again. It bound the checkbox to a
   data model path and never read the literal the model sent, so a component
