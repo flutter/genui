@@ -244,6 +244,46 @@ void main() {
         expect((await onlyError())['path'], '/components');
       });
 
+      test(
+        'leaves the surface unchanged when one component is invalid',
+        () async {
+          controller.handleMessage(
+            updateComponents(
+              surfaceId: 'surf1',
+              components: [
+                component(
+                  id: 'root',
+                  type: 'Text',
+                  properties: {'text': 'old'},
+                ),
+              ],
+            ),
+          );
+          await Future<void>.delayed(Duration.zero);
+
+          controller.handleMessage(
+            updateComponents(
+              surfaceId: 'surf1',
+              components: [
+                component(
+                  id: 'root',
+                  type: 'Text',
+                  properties: {'text': 'new'},
+                ),
+                component(id: 'bad', type: 'Text', properties: {}),
+              ],
+            ),
+          );
+
+          expect((await onlyError())['path'], '/components/bad');
+          final Map<String, Component> components = controller.registry
+              .getSurface('surf1')!
+              .components;
+          expect(components.keys, ['root']);
+          expect(components['root']!.properties['text'], 'old');
+        },
+      );
+
       test('a data model value with invalid path syntax', () async {
         controller.handleMessage(
           updateDataModel(
@@ -257,5 +297,39 @@ void main() {
         expect((await onlyError())['path'], '/value');
       });
     });
+  });
+
+  test('applies an update that omits the component type', () async {
+    final controller = SurfaceController(
+      catalogs: [BasicCatalogItems.asCatalog()],
+    );
+    addTearDown(controller.dispose);
+    controller.handleMessage(
+      createSurface(surfaceId: 'surf1', catalogId: basicCatalogId),
+    );
+    controller.handleMessage(
+      updateComponents(
+        surfaceId: 'surf1',
+        components: [
+          component(id: 'root', type: 'Text', properties: {'text': 'old'}),
+        ],
+      ),
+    );
+
+    controller.handleMessage(
+      updateComponents(
+        surfaceId: 'surf1',
+        components: [
+          {'id': 'root', 'text': 'new'},
+        ],
+      ),
+    );
+    await Future<void>.delayed(Duration.zero);
+
+    final Component root = controller.registry
+        .getSurface('surf1')!
+        .components['root']!;
+    expect(root.type, 'Text');
+    expect(root.properties['text'], 'new');
   });
 }
