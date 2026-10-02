@@ -23,7 +23,8 @@ class SimpleChatA2aTransport implements Transport {
   final A2uiTransportAdapter _adapter = A2uiTransportAdapter();
 
   @override
-  Stream<core.A2uiMessage> get incomingMessages => _adapter.incomingMessages;
+  Stream<core.AgentToRendererMessage> get incomingMessages =>
+      _adapter.incomingMessages;
 
   @override
   Stream<String> get incomingText => _adapter.incomingText;

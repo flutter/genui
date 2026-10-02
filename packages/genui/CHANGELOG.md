@@ -1,5 +1,39 @@
 # [genui](https://pub.dev/packages/genui) Changelog
 
+## 0.11.0
+
+- **BREAKING**: Depend on `a2ui_core` 0.2.2, which renames `A2uiMessage` to
+  `AgentToRendererMessage`. `A2uiMessageSink.handleMessage`,
+  `Transport.incomingMessages`, `A2uiTransportAdapter.addMessage` and
+  `A2uiMessageEvent.message` use the new name. See
+  [the migration guide](../../docs/usage/migration/migration_0.10.x_to_0.11.0.md).
+- `Tabs` items accept the specification's `title` and `child`, which the schema
+  now lists first; `label` and `content` still work.
+- **Behavior change**: `SurfaceController` has `a2ui_core` validate each message
+  before applying it. A message with a component that does not match its
+  catalog's schema is rejected whole instead of rendered, and is still reported
+  to the agent as `VALIDATION_FAILED`; an update that omits `component` is
+  applied as before. A surface that names a catalog the controller does not
+  hold renders nothing instead of a fallback widget, and each component update
+  sent to it is reported.
+- **Behavior change**: These are now rejected and reported as
+  `VALIDATION_FAILED`: duplicate component ids in one message; component
+  references that form a cycle, through `child` or `children`; a component
+  chain or a message nested more than 50 levels deep; function calls nested
+  more than 5 deep; and a `path` string that is not a valid data path, including
+  inside `updateDataModel` values. Every report for a message `a2ui_core`
+  rejects carries a `path`.
+- `children` properties in the basic catalog reference the specification's
+  `ChildList` type instead of an inline schema; the accepted shapes are the
+  same.
+- **Behavior change**: A data model write below a primitive value, such as
+  `/a/b` when `/a` holds a string, throws `A2uiDataError` instead of being
+  ignored. This includes an input widget writing the user's input back to a
+  path like that.
+- **Behavior change**: `DataModel` subscribers no longer fire when a write
+  leaves their value unchanged, and deleting a list index past its end leaves
+  the list unchanged instead of padding it with `null`.
+
 ## 0.10.5
 
 - **Announcement**: `genui` is being redesigned as a set of modular packages:

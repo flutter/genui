@@ -1,5 +1,11 @@
 # [genui_a2a](https://pub.dev/packages/genui_a2a) Changelog
 
+## 0.11.0
+
+- **BREAKING**: Depend on `a2ui_core` 0.2.2 and `genui` 0.11.0.
+  `A2uiAgentConnector.stream` emits `AgentToRendererMessage`, the new name for
+  `a2ui_core`'s `A2uiMessage`.
+
 ## 0.10.1
 
 - Depend on `a2ui_core` 0.1.0, its first non-pre-release version.

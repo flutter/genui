@@ -79,7 +79,8 @@ void main() {
       );
 
       try {
-        await for (final core.A2uiMessage message in sample.messages) {
+        await for (final core.AgentToRendererMessage message
+            in sample.messages) {
           controller.handleMessage(message);
           await tester.pump();
         }

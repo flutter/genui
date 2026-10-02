@@ -12,7 +12,7 @@ class Sample {
   final String name;
   final String description;
   final String rawJsonl;
-  final Stream<core.A2uiMessage> messages;
+  final Stream<core.AgentToRendererMessage> messages;
 
   Sample({
     required this.name,
@@ -50,14 +50,14 @@ class SampleParser {
     final String name = header['name'] as String? ?? 'Untitled Sample';
     final String description = header['description'] as String? ?? '';
 
-    final Stream<core.A2uiMessage> messages = Stream.fromIterable(
+    final Stream<core.AgentToRendererMessage> messages = Stream.fromIterable(
       const LineSplitter()
           .convert(jsonlBody)
           .where((line) => line.trim().isNotEmpty)
           .map((line) {
             final Object? json = jsonDecode(line);
             if (json is Map<String, Object?>) {
-              return core.A2uiMessage.fromJson(json);
+              return core.AgentToRendererMessage.fromJson(json);
             }
             throw FormatException('Invalid JSON line: $line');
           }),

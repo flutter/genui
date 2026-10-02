@@ -12,9 +12,8 @@ void main() {
     test('returns a single core catalog when there are no aliases', () {
       final catalog = Catalog([BasicCatalogItems.text], catalogId: 'canonical');
 
-      final List<core.Catalog<core.ComponentApi>> cores = allCoreCatalogsFor(
-        catalog,
-      );
+      final List<core.Catalog<core.ComponentApi, core.FunctionImplementation>>
+      cores = allCoreCatalogsFor(catalog);
 
       expect(cores, hasLength(1));
       expect(cores.single.id, 'canonical');
@@ -27,9 +26,8 @@ void main() {
         catalogIdAliases: const ['legacy', 'older'],
       );
 
-      final List<core.Catalog<core.ComponentApi>> cores = allCoreCatalogsFor(
-        catalog,
-      );
+      final List<core.Catalog<core.ComponentApi, core.FunctionImplementation>>
+      cores = allCoreCatalogsFor(catalog);
 
       expect(cores.map((c) => c.id), ['canonical', 'legacy', 'older']);
     });
@@ -41,15 +39,14 @@ void main() {
         catalogIdAliases: const ['legacy'],
       );
 
-      final List<core.Catalog<core.ComponentApi>> cores = allCoreCatalogsFor(
-        catalog,
-      );
+      final List<core.Catalog<core.ComponentApi, core.FunctionImplementation>>
+      cores = allCoreCatalogsFor(catalog);
 
       final Iterable<String> canonicalNames = cores.first.components.keys;
       expect(canonicalNames, containsAll(<String>['Text', 'Button']));
-      for (final core.Catalog<core.ComponentApi> aliasCatalog in cores.skip(
-        1,
-      )) {
+      for (final core.Catalog<core.ComponentApi, core.FunctionImplementation>
+          aliasCatalog
+          in cores.skip(1)) {
         expect(aliasCatalog.components.keys, canonicalNames);
       }
     });
@@ -61,9 +58,8 @@ void main() {
         catalogIdAliases: const ['canonical', 'legacy'],
       );
 
-      final List<core.Catalog<core.ComponentApi>> cores = allCoreCatalogsFor(
-        catalog,
-      );
+      final List<core.Catalog<core.ComponentApi, core.FunctionImplementation>>
+      cores = allCoreCatalogsFor(catalog);
 
       expect(cores.map((c) => c.id), ['canonical', 'legacy']);
     });
@@ -75,9 +71,8 @@ void main() {
         catalogIdAliases: const ['legacy', 'legacy'],
       );
 
-      final List<core.Catalog<core.ComponentApi>> cores = allCoreCatalogsFor(
-        catalog,
-      );
+      final List<core.Catalog<core.ComponentApi, core.FunctionImplementation>>
+      cores = allCoreCatalogsFor(catalog);
 
       expect(cores.map((c) => c.id), ['canonical', 'legacy']);
     });
@@ -85,9 +80,8 @@ void main() {
     test('uses effectiveCatalogId for a catalog without an explicit ID', () {
       final catalog = Catalog([BasicCatalogItems.text]);
 
-      final List<core.Catalog<core.ComponentApi>> cores = allCoreCatalogsFor(
-        catalog,
-      );
+      final List<core.Catalog<core.ComponentApi, core.FunctionImplementation>>
+      cores = allCoreCatalogsFor(catalog);
 
       expect(cores.single.id, catalog.effectiveCatalogId);
       expect(cores.single.id, startsWith('inline_catalog_'));

@@ -87,7 +87,7 @@ void main() {
       final Future<void> expectation = expectLater(
         adapter.incomingMessages,
         emits(
-          predicate<core.A2uiMessage>((m) {
+          predicate<core.AgentToRendererMessage>((m) {
             return m is core.UpdateComponentsMessage &&
                 m.components.length == 1 &&
                 m.components.first['id'] == 'root';

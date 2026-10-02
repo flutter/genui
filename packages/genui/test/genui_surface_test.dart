@@ -2,10 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
-import 'package:logging/logging.dart';
 
 import 'test_infra/message_builders.dart';
 
@@ -91,22 +92,23 @@ void main() {
   });
 
   testWidgets(
-    'SurfaceWidget renders container and logs error on catalog miss',
+    'SurfaceWidget stays empty when the surface names an unknown catalog',
     (WidgetTester tester) async {
       const surfaceId = 'testSurface';
       final List<JsonMap> components = [
         component(id: 'root', type: 'Text', properties: {'text': 'Hello'}),
       ];
+      final Future<ChatMessage> report = controller.onSubmit.first;
       controller.handleMessage(
         updateComponents(surfaceId: surfaceId, components: components),
       );
-      // Request a catalogId that doesn't exist in the controller.
+      // Request a catalogId that doesn't exist in the controller. The
+      // controller registers an empty stand-in catalog under that id, so
+      // a2ui_core rejects every component the surface receives and reports
+      // the failure instead of rendering a fallback.
       controller.handleMessage(
         createSurface(surfaceId: surfaceId, catalogId: 'non_existent_catalog'),
       );
-
-      final logs = <LogRecord>[];
-      genUiLogger.onRecord.listen(logs.add);
 
       await tester.pumpWidget(
         MaterialApp(
@@ -114,24 +116,16 @@ void main() {
         ),
       );
 
-      // Should build an FallbackWidget instead of the widget tree.
-      expect(find.byType(FallbackWidget), findsOneWidget);
-      expect(
-        find.textContaining('Catalog with id "non_existent_catalog" not found'),
-        findsOneWidget,
-      );
+      expect(find.text('Hello'), findsNothing);
+      expect(find.byType(FallbackWidget), findsNothing);
+      expect(controller.registry.getSurface(surfaceId)!.components, isEmpty);
 
-      // Should log a severe error.
-      expect(
-        logs.any(
-          (r) =>
-              r.level == Level.SEVERE &&
-              r.message.contains(
-                'Catalog with id "non_existent_catalog" not found',
-              ),
-        ),
-        isTrue,
-      );
+      final ChatMessage message = await report;
+      final UiInteractionPart part = message.parts.uiInteractionParts.first;
+      final json = jsonDecode(part.interaction) as Map<String, dynamic>;
+      final error = json['error'] as Map<String, dynamic>;
+      expect(error['code'], 'VALIDATION_FAILED');
+      expect(error['message'], contains('non_existent_catalog'));
     },
   );
 
