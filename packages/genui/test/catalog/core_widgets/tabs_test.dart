@@ -73,6 +73,57 @@ void main() {
     expect(find.text('This is the second tab.'), findsOneWidget);
   });
 
+  testWidgets('Tabs items still accept label and content', (
+    WidgetTester tester,
+  ) async {
+    final surfaceController = SurfaceController(
+      catalogs: [
+        Catalog([
+          BasicCatalogItems.tabs,
+          BasicCatalogItems.text,
+        ], catalogId: 'test_catalog'),
+      ],
+    );
+    const surfaceId = 'testSurface';
+    surfaceController.handleMessage(
+      createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+    );
+    surfaceController.handleMessage(
+      updateComponents(
+        surfaceId: surfaceId,
+        components: [
+          component(
+            id: 'root',
+            type: 'Tabs',
+            properties: {
+              'tabs': [
+                {'label': 'Old tab', 'content': 'text1'},
+              ],
+            },
+          ),
+          component(
+            id: 'text1',
+            type: 'Text',
+            properties: {'text': 'Old content.'},
+          ),
+        ],
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Surface(
+            surfaceContext: surfaceController.contextFor(surfaceId),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Old tab'), findsOneWidget);
+    expect(find.text('Old content.'), findsOneWidget);
+  });
+
   testWidgets('Tabs activeTab binding works', (WidgetTester tester) async {
     final surfaceController = SurfaceController(
       catalogs: [

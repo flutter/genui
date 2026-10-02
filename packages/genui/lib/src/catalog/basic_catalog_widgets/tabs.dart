@@ -15,14 +15,28 @@ final _schema = S.object(
   description: 'A tab layout to navigate between different child components.',
   properties: {
     'tabs': S.list(
-      items: S.object(
-        properties: {
-          'title': A2uiSchemas.stringReference(description: 'The tab title.'),
-          'child': A2uiSchemas.componentReference(
-            description: 'The ID of the child component.',
+      items: S.combined(
+        anyOf: [
+          S.object(
+            properties: {
+              'title': A2uiSchemas.stringReference(
+                description: 'The tab title.',
+              ),
+              'child': A2uiSchemas.componentReference(
+                description: 'The ID of the child component.',
+              ),
+            },
+            required: ['title', 'child'],
           ),
-        },
-        required: ['title', 'child'],
+          S.object(
+            description: 'Deprecated: use title and child.',
+            properties: {
+              'label': A2uiSchemas.stringReference(),
+              'content': A2uiSchemas.componentReference(),
+            },
+            required: ['label', 'content'],
+          ),
+        ],
       ),
     ),
     'activeTab': A2uiSchemas.numberReference(
@@ -131,7 +145,7 @@ class _TabsWidgetState extends State<_TabsWidget>
         TabBar(
           controller: _tabController,
           tabs: widget.tabs.map((tabItem) {
-            final Object? labelRef = tabItem['title'];
+            final Object? labelRef = tabItem['title'] ?? tabItem['label'];
             return BoundString(
               dataContext: widget.itemContext.dataContext,
               value: labelRef,
@@ -150,7 +164,8 @@ class _TabsWidgetState extends State<_TabsWidget>
                 index: index,
                 sizing: StackFit.loose,
                 children: widget.tabs.map((tabItem) {
-                  final contentId = tabItem['child'] as String;
+                  final contentId =
+                      (tabItem['child'] ?? tabItem['content']) as String;
                   return widget.itemContext.buildChild(contentId);
                 }).toList(),
               );
