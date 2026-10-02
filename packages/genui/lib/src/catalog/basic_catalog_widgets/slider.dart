@@ -105,6 +105,9 @@ final slider = CatalogItem(
           max,
         );
 
+        // The label is drawn above the track for someone looking at the
+        // screen. It has to name the slider as well, or a screen reader
+        // announces a value with nothing to say what it belongs to.
         final Widget sliderWidget = Padding(
           padding: const EdgeInsetsDirectional.only(end: 16.0),
           child: Row(
@@ -120,7 +123,9 @@ final slider = CatalogItem(
                   },
                 ),
               ),
-              Text(_formatSliderValue(currentVal)),
+              // Excluded: the slider announces the same number as its own
+              // value, so read on its own this would be said twice.
+              ExcludeSemantics(child: Text(_formatSliderValue(currentVal))),
             ],
           ),
         );
@@ -142,12 +147,25 @@ final slider = CatalogItem(
                   if (label != null)
                     Padding(
                       padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
-                      child: Text(
-                        label,
-                        style: Theme.of(context).textTheme.titleSmall,
+                      // Excluded because the slider announces the same label
+                      // below: read as a caption as well, a screen reader
+                      // user would hear it twice.
+                      child: ExcludeSemantics(
+                        child: Text(
+                          label,
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
                       ),
                     ),
-                  sliderWidget,
+                  if (label == null)
+                    sliderWidget
+                  else
+                    // Merged so the name lands on the node that carries the
+                    // value and the actions. Left unmerged, the slider stays
+                    // a node of its own and still announces a bare number.
+                    MergeSemantics(
+                      child: Semantics(label: label, child: sliderWidget),
+                    ),
                 ];
 
                 if (isError) {

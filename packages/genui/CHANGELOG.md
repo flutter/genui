@@ -20,6 +20,14 @@
   and logged nothing. `Slider` and `TextField` already fall back to their
   literal until the path holds something; this does the same.
 - **Fix**: Corrected email validation regex in `EmailFunction` to match the end-of-string anchor instead of a literal `$` character.
+- **Fix**: Added accessible names to the controls of the basic catalog: the
+  play buttons and both sliders in `AudioPlayer` and `Video`, and `Slider`'s
+  own label. They had none, so a screen reader announced "button" or a bare
+  percentage with nothing to say what it belonged to. `Slider` already drew
+  its `label` above the track, but as a separate node: the label now names the
+  control, merged onto the node that carries the value and the actions, and
+  the caption is no longer read a second time.
+
 
 ## 0.10.4
 
