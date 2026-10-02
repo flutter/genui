@@ -1,8 +1,10 @@
 # Migration Guide: 0.10.x to 0.11.0
 
-`package:genui` now depends on `a2ui_core` 0.2.2. Most apps need no changes. You
-only need to act if you **depend on `a2ui_core` yourself, implement a custom
-`Transport`, or construct or parse A2UI messages directly**.
+`package:genui` now depends on `a2ui_core` 0.2.2. Most apps need no code
+changes. You need to change code only if you **depend on `a2ui_core` yourself,
+implement a custom `Transport`, or construct or parse A2UI messages directly**.
+Every app should check its agent's output against the stricter validation below:
+messages that 0.10.x rendered can now be rejected.
 
 ## What you have to change
 
@@ -36,18 +38,20 @@ The new name appears in `A2uiMessageSink.handleMessage` (and so
 - **Messages are validated before they are applied.** A message with a
   component that does not match its catalog's schema is rejected whole: none of
   its components render. The agent still receives a `VALIDATION_FAILED` error
-  naming the component. An update that omits `component` is applied and
-  reported as before.
+  naming the component. An update that omits `component` is applied as
+  before.
 - **More messages are rejected**, each reported as `VALIDATION_FAILED`:
-  duplicate component ids in one message, a component that references itself,
-  and any `path` string that is not a valid data path, including inside
-  `updateDataModel` values.
+  duplicate component ids in one message; a component whose `child` references
+  lead back to itself (cycles through `children` lists are not detected); a
+  component chain or a message nested more than 50 levels deep; function calls
+  nested more than 5 deep; and any `path` string that is not a valid data path,
+  including inside `updateDataModel` values.
 - **`Tabs` items use the specification's `title` and `child`.** genui's catalog
   schema used to name them `label` and `content`. An agent that still sends
   those has its message rejected.
 - **A surface that names a catalog the controller does not hold renders
-  nothing**, where it used to show a fallback widget, and every update sent to
-  it is reported.
+  nothing**, where it used to show a fallback widget, and each component update
+  sent to it is reported. Data model updates to it still apply.
 - **A `DataModel` write below a primitive value throws `A2uiDataError`**, such
   as writing `/a/b` when `/a` holds a string. It used to be ignored.
 - **`DataModel` subscribers no longer fire when a write leaves their value
