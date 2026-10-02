@@ -131,7 +131,7 @@ class _TabsWidgetState extends State<_TabsWidget>
         TabBar(
           controller: _tabController,
           tabs: widget.tabs.map((tabItem) {
-            final Object? labelRef = tabItem['label'] ?? tabItem['title'];
+            final Object? labelRef = tabItem['title'];
             return BoundString(
               dataContext: widget.itemContext.dataContext,
               value: labelRef,
@@ -150,8 +150,7 @@ class _TabsWidgetState extends State<_TabsWidget>
                 index: index,
                 sizing: StackFit.loose,
                 children: widget.tabs.map((tabItem) {
-                  final contentId =
-                      (tabItem['content'] ?? tabItem['child']) as String;
+                  final contentId = tabItem['child'] as String;
                   return widget.itemContext.buildChild(contentId);
                 }).toList(),
               );
