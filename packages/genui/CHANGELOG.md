@@ -9,6 +9,12 @@
 - Added `AsynchronousClientFunction` base class for single-shot asynchronous
   client functions returning a `Future` (via `executeAsync`), complementing
   `SynchronousClientFunction` (`executeSync`).
+- Added `CatalogItem.copyWith`, so an item can be wrapped (for example to add
+  theming or analytics around its widget) or renamed without rebuilding it
+  from its `dataSchema`.
+- **Fix**: `CatalogItem.dataSchema` lists `component` once in `required` when
+  the schema it was given already has it, as a schema taken from another
+  item's `dataSchema` does. Before, each rebuild added another `component`.
 - **Fix**: Validation `checks` on `CheckBox`, `Slider`, and `ChoicePicker` now fail when their condition is false, and show the check's `message` instead of a generic "Invalid value".
 - **Fix**: `and`/`or`/`not` logical functions now evaluate nested bindings and function calls inside `values`/`value`, so a failing nested check fails the rule and malformed condition shapes log a warning.
 - **Behavior change**: Conditions use truthiness instead of a null check. `0`, `''`, `[]`, `{}` and unknown functions evaluate to `false`, and malformed condition expressions log a warning.
