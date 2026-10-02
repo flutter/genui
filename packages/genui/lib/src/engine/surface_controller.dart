@@ -194,10 +194,6 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
         StackTrace.current,
       );
       return;
-    } on A2uiValidationException catch (e) {
-      genUiLogger.warning('Validation failed for surface ${e.surfaceId}: $e');
-      reportError(e, StackTrace.current);
-      return;
     } catch (exception, stackTrace) {
       genUiLogger.severe(
         'Error handling message: $coreMessage',
@@ -214,8 +210,8 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
           .getSurface(coreMessage.surfaceId);
       if (surface != null) {
         _registry.notifyUpdated(surface);
-        // Validation does not roll back the mutation; we surface the error
-        // and let the caller decide.
+        // genui's own schemas check what a2ui_core cannot, such as function
+        // calls. This runs after the update is applied and does not undo it.
         final Catalog? genuiCatalog = catalogs.firstWhereOrNull(
           (c) => c.matchesId(surface.catalog.id),
         );
