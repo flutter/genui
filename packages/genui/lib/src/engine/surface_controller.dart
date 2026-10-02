@@ -181,41 +181,6 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
       _processor.processMessages(
         core.AgentToRendererMessagePayload.of(coreMessage),
       );
-    } on core.A2uiStateError catch (e) {
-      genUiLogger.warning('State error from MessageProcessor: ${e.message}');
-      reportError(
-        A2uiValidationException(
-          e.message,
-          surfaceId: _surfaceIdOf(coreMessage),
-          path: _errorPathOf(e, coreMessage),
-        ),
-        StackTrace.current,
-      );
-      return;
-    } on core.A2uiValidationError catch (e) {
-      genUiLogger.warning(
-        'Validation error from MessageProcessor: ${e.message}',
-      );
-      reportError(
-        A2uiValidationException(
-          e.message,
-          surfaceId: _surfaceIdOf(coreMessage),
-          path: _errorPathOf(e, coreMessage),
-        ),
-        StackTrace.current,
-      );
-      return;
-    } on core.A2uiDataError catch (e) {
-      genUiLogger.warning('Data error from MessageProcessor: ${e.message}');
-      reportError(
-        A2uiValidationException(
-          e.message,
-          surfaceId: _surfaceIdOf(coreMessage),
-          path: _errorPathOf(e, coreMessage),
-        ),
-        StackTrace.current,
-      );
-      return;
     } on core.A2uiError catch (e) {
       genUiLogger.warning(
         '${e.runtimeType} from MessageProcessor: ${e.message}',
