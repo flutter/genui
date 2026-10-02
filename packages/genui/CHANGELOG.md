@@ -27,6 +27,22 @@
   its `label` above the track, but as a separate node: the label now names the
   control, merged onto the node that carries the value and the actions, and
   the caption is no longer read a second time.
+- **Feature**: A component's `accessibility` attributes now reach the semantics
+  tree. `ComponentCommon` gives every A2UI component an optional `label` and
+  `description`; both were accepted and then dropped, so a screen reader
+  announced the visible text where the agent had asked for something else.
+  `Catalog.buildWidget` now applies them, which covers every catalog rather
+  than one component at a time. Both are `DynamicString`s and resolve through
+  `BoundString`, so a label bound to a path follows the data model. A component
+  without the attributes is left exactly as it was.
+- **Feature**: The label replaces what the component announces for itself,
+  rather than being added to it, which is what the v1.0 spec describes it as.
+  Each child's configuration is cleared through `childConfigurationsDelegate`
+  before it merges up, so the node keeps the child's role and actions and
+  announces only the agent's name. A child that builds a semantics node of its
+  own is never offered for that, so its own label survives and the agent's is
+  announced ahead of it; every Material control does that, and those take the
+  label themselves instead.
 
 
 ## 0.10.4
