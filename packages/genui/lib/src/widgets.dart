@@ -9,6 +9,7 @@
 /// Widgets used to display GenUI surfaces.
 library;
 
+export 'widgets/accessibility.dart';
 export 'widgets/fallback_widget.dart';
 export 'widgets/surface.dart';
 export 'widgets/widget_utilities.dart';
