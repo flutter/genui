@@ -7,10 +7,8 @@
   `Transport.incomingMessages`, `A2uiTransportAdapter.addMessage` and
   `A2uiMessageEvent.message` use the new name. See
   [the migration guide](../../docs/usage/migration/migration_0.10.x_to_0.11.0.md).
-- **BREAKING**: `Tabs` items take `title` and `child` instead of `label` and
-  `content`, matching the specification's basic catalog. Now that messages are
-  validated before they are applied, a message that uses `label` and `content`
-  is rejected.
+- `Tabs` items accept the specification's `title` and `child`, which the schema
+  now lists first; `label` and `content` still work.
 - **Behavior change**: `SurfaceController` has `a2ui_core` validate each message
   before applying it. A message with a component that does not match its
   catalog's schema is rejected whole instead of rendered, and is still reported
@@ -20,11 +18,11 @@
   sent to it is reported.
 - **Behavior change**: These are now rejected and reported as
   `VALIDATION_FAILED`: duplicate component ids in one message; a component whose
-  `child` references lead back to itself (cycles through `children` lists are not
-  detected); a component chain or a message nested more than 50 levels deep;
+  `child` references lead back to itself (cycles through `children` lists are
+  not detected); a component chain or a message nested more than 50 levels deep;
   function calls nested more than 5 deep; and a `path` string that is not a
-  valid data path, including inside `updateDataModel` values. Every report for a message `a2ui_core` rejects carries a
-  `path`.
+  valid data path, including inside `updateDataModel` values. Every report for a
+  message `a2ui_core` rejects carries a `path`.
 - **Behavior change**: A data model write below a primitive value, such as
   `/a/b` when `/a` holds a string, throws `A2uiDataError` instead of being
   ignored.

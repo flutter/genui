@@ -46,9 +46,6 @@ The new name appears in `A2uiMessageSink.handleMessage` (and so
   component chain or a message nested more than 50 levels deep; function calls
   nested more than 5 deep; and any `path` string that is not a valid data path,
   including inside `updateDataModel` values.
-- **`Tabs` items use the specification's `title` and `child`.** genui's catalog
-  schema used to name them `label` and `content`. An agent that still sends
-  those has its message rejected.
 - **A surface that names a catalog the controller does not hold renders
   nothing**, where it used to show a fallback widget, and each component update
   sent to it is reported. Data model updates to it still apply.
