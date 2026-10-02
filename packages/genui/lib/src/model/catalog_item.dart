@@ -119,7 +119,10 @@ final class CatalogItem {
           'enum': <String>[name],
         },
       },
-      'required': <Object?>['component', ...requiredProps],
+      // A set keeps `component` first and lists everything once. A schema
+      // taken from another item's [dataSchema] already lists `component`, and
+      // JSON Schema requires the entries of `required` to be unique.
+      'required': <Object?>{'component', ...requiredProps}.toList(),
       'additionalProperties': true,
     });
     return schema;
@@ -127,6 +130,25 @@ final class CatalogItem {
 
   /// The builder for this widget.
   final CatalogWidgetBuilder widgetBuilder;
+
+  /// Returns a copy of this item with the given fields replaced.
+  ///
+  /// The copy keeps the schema this item was created with, not [dataSchema],
+  /// which has the `component` discriminator injected for [name]. Renaming the
+  /// copy therefore renames its discriminator too.
+  CatalogItem copyWith({
+    String? name,
+    Schema? dataSchema,
+    CatalogWidgetBuilder? widgetBuilder,
+    List<ExampleBuilderCallback>? exampleData,
+    bool? isImplicitlyFlexible,
+  }) => CatalogItem(
+    name: name ?? this.name,
+    dataSchema: dataSchema ?? _originalSchema,
+    widgetBuilder: widgetBuilder ?? this.widgetBuilder,
+    exampleData: exampleData ?? this.exampleData,
+    isImplicitlyFlexible: isImplicitlyFlexible ?? this.isImplicitlyFlexible,
+  );
 
   /// Whether this component should be implicitly flexible when placed in a flex
   /// container (like Row/Column).
