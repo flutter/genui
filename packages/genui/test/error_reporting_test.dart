@@ -25,9 +25,8 @@ void main() {
       logger.onRecord.listen((record) => logs.add(record));
     });
 
-    test('AgentToRendererMessage.fromJson throws A2uiValidationException for '
-        'unknown message '
-        'type', () {
+    test('AgentToRendererMessage.fromJson throws A2uiValidationError for an '
+        'unknown message type', () {
       final json = <String, Object?>{
         'version': 'v0.9',
         'unknownAction': <String, Object?>{},
