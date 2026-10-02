@@ -50,7 +50,9 @@ The new name appears in `A2uiMessageSink.handleMessage` (and so
   nothing**, where it used to show a fallback widget, and each component update
   sent to it is reported. Data model updates to it still apply.
 - **A `DataModel` write below a primitive value throws `A2uiDataError`**, such
-  as writing `/a/b` when `/a` holds a string. It used to be ignored.
+  as writing `/a/b` when `/a` holds a string. It used to be ignored. An input
+  widget bound to such a path throws from its change handler when the user
+  edits it.
 - **`DataModel` subscribers no longer fire when a write leaves their value
   unchanged.**
 - **Deleting a list index past its end leaves the list unchanged**, where it

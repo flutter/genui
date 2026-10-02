@@ -25,7 +25,8 @@
   message `a2ui_core` rejects carries a `path`.
 - **Behavior change**: A data model write below a primitive value, such as
   `/a/b` when `/a` holds a string, throws `A2uiDataError` instead of being
-  ignored.
+  ignored. This includes an input widget writing the user's input back to a
+  path like that.
 - **Behavior change**: `DataModel` subscribers no longer fire when a write
   leaves their value unchanged, and deleting a list index past its end leaves
   the list unchanged instead of padding it with `null`.
