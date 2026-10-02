@@ -19,6 +19,21 @@
   that said the setting was on rendered unchecked, announced itself unchecked,
   and logged nothing. `Slider` and `TextField` already fall back to their
   literal until the path holds something; this does the same.
+- **Fix**: Read component properties tolerantly instead of casting them. A
+  property arrives from a model, which composes against the published schema
+  rather than against what the widget happens to accept, so `as String?` on
+  anything else threw and took the whole surface down. `Slider`, `TextField`,
+  `DateTimeInput` and `Tabs` now fall back to their defaults, and a shared set
+  of readers (`asStringOrNull`, `asNumOrNull`, `asBoolOrNull`,
+  `asJsonMapOrNull`, `asJsonMapListOrNull`) is available to any catalog that
+  wants the same behaviour.
+- **Fix**: A `Tabs` with no tabs renders nothing rather than throwing.
+  `TabController` rejects a length of zero and is built in `initState`, so the
+  component never reached its own `build`. A tab that names no content is now
+  an empty tab rather than a null cast.
+- **Fix**: A `Tabs` entry that is not an object is skipped without moving the
+  tabs after it. `activeTab` counts positions in the list as the agent sent it,
+  so both the selected tab and the index written back on a tap stay the same.
 - **Fix**: Corrected email validation regex in `EmailFunction` to match the end-of-string anchor instead of a literal `$` character.
 - **Fix**: Added accessible names to the controls of the basic catalog: the
   play buttons and both sliders in `AudioPlayer` and `Video`, and `Slider`'s
