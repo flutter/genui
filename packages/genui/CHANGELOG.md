@@ -43,6 +43,12 @@
   own is never offered for that, so its own label survives and the agent's is
   announced ahead of it; every Material control does that, and those take the
   label themselves instead.
+- **Behavior change**: `openUrl` only opens absolute `http`, `https`, `mailto`
+  and `tel` URLs. Any other URL, including a relative one, is refused with a
+  logged warning and the function returns `false` without calling
+  `url_launcher`. The URL comes from the agent, and the A2UI basic catalog
+  guide requires `openUrl` to check the scheme before opening anything. Apps
+  that need other schemes can register their own `openUrl` client function.
 
 
 ## 0.10.4
