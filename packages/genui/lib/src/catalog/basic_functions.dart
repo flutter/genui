@@ -10,6 +10,7 @@ import '../functions/format_string.dart';
 import '../model/a2ui_schemas.dart';
 import '../model/client_function.dart';
 import '../model/data_model.dart';
+import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 
 // ignore: avoid_classes_with_only_static_members
@@ -309,8 +310,22 @@ class EmailFunction extends SynchronousClientFunction {
 }
 
 /// Opens a URL.
+///
+/// Only absolute `http`, `https`, `mailto` and `tel` URLs are opened. Any
+/// other URL is refused: the function logs a warning and returns `false`
+/// without calling the platform URL launcher. The URL comes from the agent,
+/// so the scheme is checked here rather than left to whichever handlers the
+/// platform has registered. Apps that need other schemes can register their
+/// own `openUrl` client function.
 class OpenUrlFunction extends SynchronousClientFunction {
   const OpenUrlFunction();
+
+  static const Set<String> _allowedSchemes = {
+    'http',
+    'https',
+    'mailto',
+    'tel',
+  };
 
   @override
   String get name => 'openUrl';
@@ -332,13 +347,19 @@ class OpenUrlFunction extends SynchronousClientFunction {
     final Object? urlStr = args['url'];
     if (urlStr is! String) return false;
     final Uri? uri = Uri.tryParse(urlStr);
-    if (uri != null) {
-      canLaunchUrl(uri).then((can) {
-        if (can) launchUrl(uri);
-      });
-      return true;
+    if (uri == null) return false;
+    // Uri.scheme is already lowercase.
+    if (!_allowedSchemes.contains(uri.scheme)) {
+      genUiLogger.warning(
+        'openUrl refused a URL with scheme "${uri.scheme}". Only '
+        'absolute ${_allowedSchemes.join(', ')} URLs are opened.',
+      );
+      return false;
     }
-    return false;
+    canLaunchUrl(uri).then((can) {
+      if (can) launchUrl(uri);
+    });
+    return true;
   }
 }
 

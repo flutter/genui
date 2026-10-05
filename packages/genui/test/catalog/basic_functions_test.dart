@@ -8,6 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/src/catalog/basic_functions.dart';
 import 'package:genui/src/model/client_function.dart';
 import 'package:genui/src/model/data_model.dart';
+import 'package:url_launcher_platform_interface/link.dart';
+import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
 
 void main() {
   group('BasicFunctions', () {
@@ -179,5 +181,90 @@ void main() {
       // Test return empty string if count is not a number
       expect(await run<String>(func, {'value': 'not a number'}), '');
     });
+
+    group('openUrl', () {
+      final OpenUrlFunction func = BasicFunctions.openUrlFunction;
+      late UrlLauncherPlatform originalLauncher;
+      late _FakeUrlLauncher launcher;
+
+      setUp(() {
+        originalLauncher = UrlLauncherPlatform.instance;
+        launcher = _FakeUrlLauncher();
+        UrlLauncherPlatform.instance = launcher;
+      });
+
+      tearDown(() {
+        UrlLauncherPlatform.instance = originalLauncher;
+      });
+
+      // executeSync launches without awaiting, so let the launch run.
+      Future<bool> openAndSettle(String url) async {
+        final bool result = await run<bool>(func, {'url': url});
+        await Future<void>.delayed(Duration.zero);
+        return result;
+      }
+
+      test('opens http, https, mailto and tel URLs', () async {
+        const urls = [
+          'https://example.com/a',
+          'http://example.com/b',
+          'HTTPS://example.com/c',
+          'mailto:someone@example.com',
+          'tel:+15555550100',
+        ];
+        for (final url in urls) {
+          expect(await openAndSettle(url), isTrue, reason: url);
+        }
+        expect(launcher.launched, [
+          'https://example.com/a',
+          'http://example.com/b',
+          'https://example.com/c',
+          'mailto:someone@example.com',
+          'tel:+15555550100',
+        ]);
+      });
+
+      test('refuses other schemes and relative URLs', () async {
+        const urls = [
+          'javascript:void(0)',
+          'data:text/html,hello',
+          'file:///tmp/example.txt',
+          'intent://example#Intent;end',
+          'someapp://action',
+          '/relative/path',
+          '',
+        ];
+        for (final url in urls) {
+          expect(await openAndSettle(url), isFalse, reason: url);
+        }
+        expect(launcher.checked, isEmpty);
+        expect(launcher.launched, isEmpty);
+      });
+
+      test('returns false for a non-string url', () async {
+        expect(await run<bool>(func, {'url': 42}), isFalse);
+        expect(launcher.launched, isEmpty);
+      });
+    });
   });
+}
+
+class _FakeUrlLauncher extends UrlLauncherPlatform {
+  final List<String> checked = [];
+  final List<String> launched = [];
+
+  @override
+  LinkDelegate? get linkDelegate => null;
+
+  @override
+  Future<bool> canLaunch(String url) async {
+    checked.add(url);
+    return true;
+  }
+
+  @override
+  Future<bool> launchUrl(String url, LaunchOptions options) async {
+    launched.add(url);
+    return true;
+  }
 }
