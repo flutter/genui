@@ -16,7 +16,7 @@ See the [Getting started with GenUI](https://www.youtube.com/watch?v=nWr6eZKM6no
 ## Status: highly experimental
 
 This is a highly experimental package, which means the API will change (sometimes drastically).
-[Feedback is very welcome](https://github.com/flutter/genui/issues/new/choose).
+[Feedback is very welcome](https://github.com/a2ui-project/a2ui/issues/new/choose).
 
 ## Summary
 
