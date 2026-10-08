@@ -27,6 +27,12 @@
   its `label` above the track, but as a separate node: the label now names the
   control, merged onto the node that carries the value and the actions, and
   the caption is no longer read a second time.
+- **Behavior change**: `openUrl` only opens absolute `http`, `https`, `mailto`
+  and `tel` URLs. Any other URL, including a relative one, is refused with a
+  logged warning and the function returns `false` without calling
+  `url_launcher`. The URL comes from the agent, and the A2UI basic catalog
+  guide requires `openUrl` to check the scheme before opening anything. Apps
+  that need other schemes can register their own `openUrl` client function.
 
 
 ## 0.10.4
