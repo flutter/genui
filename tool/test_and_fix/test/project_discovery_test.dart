@@ -46,6 +46,7 @@ void main() {
         'build',
         'ephemeral',
         'firebase_core',
+        'packages/archive/a2ui_core',
         'packages/spikes',
         'tool/fix_copyright',
         'tool/test_and_fix',

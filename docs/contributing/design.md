@@ -46,11 +46,11 @@ This is the central nervous system of the package, orchestrating the state of al
 This layer defines the data structures that represent the dynamic UI and the conversation.
 
 - **`Catalog` and `CatalogItem`**: These classes define the registry of available UI components. The `Catalog` holds a list of `CatalogItem`s, and each `CatalogItem` defines a widget's name, its data schema, and a builder function to render it.
-- **`A2uiMessage`**: A sealed class (`lib/src/model/a2ui_message.dart`) representing the commands the AI sends to the UI. It has the following subtypes:
-  - `CreateSurface`: Signals the start of rendering for a surface, specifying the root component and optionally requests the client to send the data model (`sendDataModel`).
-  - `UpdateComponents`: Adds or updates components on a surface.
-  - `UpdateDataModel`: Modifies data within the `DataModel` for a surface.
-  - `DeleteSurface`: Requests the removal of a surface. The schemas for these messages are defined in `lib/src/model/a2ui_schemas.dart`.
+- **`AgentToRendererMessage`**: A sealed class from `package:a2ui_core` representing the commands the AI sends to the UI. It has the following subtypes:
+  - `CreateSurfaceMessage`: Signals the start of rendering for a surface, specifying the root component and optionally requests the client to send the data model (`sendDataModel`).
+  - `UpdateComponentsMessage`: Adds or updates components on a surface.
+  - `UpdateDataModelMessage`: Modifies data within the `DataModel` for a surface.
+  - `DeleteSurfaceMessage`: Requests the removal of a surface. The schemas for these messages are defined in `lib/src/model/a2ui_schemas.dart`.
 - **`UiDefinition` and `UiEvent`**: `UiDefinition` represents a complete UI tree to be rendered, including the root widget and a map of all widget definitions. `UiEvent` is a data object representing a user interaction. `UserActionEvent` is a subtype used for events that should trigger a submission to the AI, like a button tap.
 - **`ChatMessage`**: A sealed class representing the different types of messages in a conversation: `UserMessage`, `AiTextMessage`, `ToolResponseMessage`, `AiUiMessage`, `InternalMessage`, and `UserUiInteractionMessage`.
 - **`DataModel` and `DataContext`**: The `DataModel` is a centralized, observable key-value store that holds the entire dynamic state of the UI. Widgets receive a `DataContext`, which is a view into the `DataModel` that understands the widget's current scope. This allows widgets to subscribe to changes in the data model and rebuild reactively. This separation of data and UI structure is a core principle of the architecture.
@@ -125,9 +125,9 @@ llmStream.listen((chunk) => transport.addChunk(chunk));
 ##### `A2uiTransportAdapter`
 
 - `void addChunk(String text)`: Feed text from LLM.
-- `void addMessage(A2uiMessage message)`: Feed a raw A2UI message directly (e.g. from tool output).
+- `void addMessage(AgentToRendererMessage message)`: Feed a raw A2UI message directly (e.g. from tool output).
 - `Stream<String> incomingText`: Stream of text content (markdown) with UI JSON blocks stripped out.
-- `Stream<A2uiMessage> incomingMessages`: Stream of parsed A2UI messages.
+- `Stream<AgentToRendererMessage> incomingMessages`: Stream of parsed A2UI messages.
 - `void dispose()`: Closes streams and cleans up resources.
 
 #### `lib/src/engine/surface_controller.dart`
@@ -160,7 +160,7 @@ controller.handleMessage(
 - `Stream<SurfaceUpdate> get surfaceUpdates`: Stream of events when surfaces change.
 - `SurfaceContext contextFor(String surfaceId)`: Get a scoped context for a specific surface.
 - `void dispose()`: Cleans up surface notifiers and streams.
-- `void handleMessage(A2uiMessage message)`: Processes an incoming `A2uiMessage` (create, update, delete surface).
+- `void handleMessage(AgentToRendererMessage message)`: Processes an incoming `AgentToRendererMessage` (create, update, delete surface).
 - `void handleUiEvent(UiEvent event)`: Handle a UI event from a surface.
 
 ##### `SurfaceHost` (Interface)
@@ -268,9 +268,9 @@ These classes define the data structures and protocol used by GenUI.
 **Purpose:** Defines the messages exchanged in the A2UI protocol.
 **Used For:** Parsing server responses.
 
-##### `A2uiMessage` (Sealed Class)
+##### `AgentToRendererMessage` (Sealed Class)
 
-- Subclasses: `CreateSurface`, `UpdateComponents`, `UpdateDataModel`, `DeleteSurface`.
+- Subclasses: `CreateSurfaceMessage`, `UpdateComponentsMessage`, `UpdateDataModelMessage`, `DeleteSurfaceMessage`.
 - `factory fromJson(JsonMap json)`: Parses any A2UI message.
 
 #### `lib/src/model/generation_events.dart`
@@ -583,7 +583,7 @@ Measure the "A2UI Compliance Rate" of different models when given standard promp
     *   **Syntax Validity:** Is the output valid JSON?
     *   **Protocol Compliance:** Does it adhere to the A2UI schema (correct message types, `version: "v0.9"`)?
     *   **Logic Correctness:** Does the generated UI match the intent? (e.g., does the login form actually have a password field?)
-    *   **Round-Trip Validity:** Can the generated output be successfully parsed by `A2uiMessage.fromJson` without throwing?
+    *   **Round-Trip Validity:** Can the generated output be successfully parsed by `AgentToRendererMessage.fromJson` without throwing?
 
 #### CI Integration
 *   Run a lightweight subset of evals (using a fast model) on PRs to catch regressions in the system prompts or schema definitions.

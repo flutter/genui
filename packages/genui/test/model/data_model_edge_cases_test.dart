@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/src/model/data_model.dart';
@@ -51,14 +52,16 @@ void main() {
       expect((matrix?[0] as List<Object?>)[0], 1);
     });
 
-    test('Type Mismatch: Overwriting primitive with map fails silently', () {
+    test('Type Mismatch: Writing below a primitive throws and keeps it', () {
       // Setup: /a is a String
       dataModel.update(DataPath('/a'), 'hello');
 
-      // Attempt to write /a/b (treating /a as map)
-      // Implementation check: _updateValue checks "if (current is Map)".
-      // If current is String, it does nothing.
-      dataModel.update(DataPath('/a/b'), 'world');
+      // Attempt to write /a/b (treating /a as map). a2ui_core rejects a
+      // write through a primitive intermediate instead of ignoring it.
+      expect(
+        () => dataModel.update(DataPath('/a/b'), 'world'),
+        throwsA(isA<core.A2uiDataError>()),
+      );
 
       // Verify /a is still 'hello'
       expect(dataModel.getValue<String>(DataPath('/a')), 'hello');

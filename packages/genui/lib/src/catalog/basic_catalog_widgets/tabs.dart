@@ -15,17 +15,28 @@ final _schema = S.object(
   description: 'A tab layout to navigate between different child components.',
   properties: {
     'tabs': S.list(
-      items: S.object(
-        properties: {
-          'label': A2uiSchemas.stringReference(
-            description: 'The label for the tab.',
+      items: S.combined(
+        anyOf: [
+          S.object(
+            properties: {
+              'title': A2uiSchemas.stringReference(
+                description: 'The tab title.',
+              ),
+              'child': A2uiSchemas.componentReference(
+                description: 'The ID of the child component.',
+              ),
+            },
+            required: ['title', 'child'],
           ),
-          'content': A2uiSchemas.componentReference(
-            description:
-                'The content (widget ID) to display when this tab is active.',
+          S.object(
+            description: 'Deprecated: use title and child.',
+            properties: {
+              'label': A2uiSchemas.stringReference(),
+              'content': A2uiSchemas.componentReference(),
+            },
+            required: ['label', 'content'],
           ),
-        },
-        required: ['label', 'content'],
+        ],
       ),
     ),
     'activeTab': A2uiSchemas.numberReference(
@@ -134,7 +145,7 @@ class _TabsWidgetState extends State<_TabsWidget>
         TabBar(
           controller: _tabController,
           tabs: widget.tabs.map((tabItem) {
-            final Object? labelRef = tabItem['label'] ?? tabItem['title'];
+            final Object? labelRef = tabItem['title'] ?? tabItem['label'];
             return BoundString(
               dataContext: widget.itemContext.dataContext,
               value: labelRef,
@@ -154,7 +165,7 @@ class _TabsWidgetState extends State<_TabsWidget>
                 sizing: StackFit.loose,
                 children: widget.tabs.map((tabItem) {
                   final contentId =
-                      (tabItem['content'] ?? tabItem['child']) as String;
+                      (tabItem['child'] ?? tabItem['content']) as String;
                   return widget.itemContext.buildChild(contentId);
                 }).toList(),
               );
@@ -169,12 +180,12 @@ class _TabsWidgetState extends State<_TabsWidget>
 /// A Material Design tab layout.
 ///
 /// This widget displays a [TabBar] and a view area to allow navigation
-/// between different child components. Each tab in `tabs` has a label and
+/// between different child components. Each tab in `tabs` has a title and
 /// a corresponding child component ID to display when selected.
 ///
 /// ## Parameters:
 ///
-/// - `tabs`: A list of tabs to display, each with a `label` and a `content`
+/// - `tabs`: A list of tabs to display, each with a `title` and a `child`
 ///   widget ID.
 /// - `activeTab`: (Optional) Binding to the current tab index.
 final tabs = CatalogItem(
@@ -215,12 +226,12 @@ final tabs = CatalogItem(
           "activeTab": { "path": "/currentTab" },
           "tabs": [
             {
-              "label": "Overview",
-              "content": "text1"
+              "title": "Overview",
+              "child": "text1"
             },
             {
-              "label": "Details",
-              "content": "text2"
+              "title": "Details",
+              "child": "text2"
             }
           ]
         },
