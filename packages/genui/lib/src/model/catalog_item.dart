@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
@@ -81,7 +82,7 @@ final class CatalogItemContext {
 
 /// Defines a UI layout type, its schema, and how to build its widget.
 @immutable
-final class CatalogItem {
+final class CatalogItem implements core.ComponentApi {
   /// Creates a new [CatalogItem].
   const CatalogItem({
     required this.name,
@@ -92,9 +93,14 @@ final class CatalogItem {
   }) : _originalSchema = dataSchema;
 
   /// The widget type name used in JSON, e.g., 'TextChatMessage'.
+  @override
   final String name;
 
   final Schema _originalSchema;
+
+  /// `core.ComponentApi` names this `schema`; genui exposes it as [dataSchema].
+  @override
+  Schema get schema => dataSchema;
 
   /// The schema definition for this widget's data.
   ///
