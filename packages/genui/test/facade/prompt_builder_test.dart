@@ -28,25 +28,211 @@ void main() {
   );
 
   group('Chat prompt', () {
-    test(
-      'is equivalent to custom prompt with create only operations',
-      () async {
-        final systemPromptFragments = [
-          'You are a chat assistant.',
-          'You sometimes tell jokes to the user',
-        ];
-        final PromptBuilder chatBuilder = PromptBuilder.chat(
-          catalog: testCatalog,
-          systemPromptFragments: systemPromptFragments,
-        );
-        final PromptBuilder customBuilder = PromptBuilder.custom(
-          catalog: testCatalog,
-          allowedOperations: SurfaceOperations.createOnly(dataModel: false),
-          systemPromptFragments: systemPromptFragments,
-        );
-        expect(chatBuilder.systemPrompt(), customBuilder.systemPrompt());
-      },
-    );
+    test('is equivalent to custom prompt with create only operations', () {
+      final systemPromptFragments = [
+        'You are a chat assistant.',
+        'You sometimes tell jokes to the user',
+      ];
+      final PromptBuilder chatBuilder = PromptBuilder.chat(
+        catalog: testCatalog,
+        systemPromptFragments: systemPromptFragments,
+      );
+      final PromptBuilder customBuilder = PromptBuilder.custom(
+        catalog: testCatalog,
+        allowedOperations: SurfaceOperations.createOnly(dataModel: false),
+        systemPromptFragments: systemPromptFragments,
+      );
+      expect(chatBuilder.systemPrompt(), customBuilder.systemPrompt());
+    });
+
+    test('defaults to full-schema catalog prompt mode', () {
+      final String prompt = PromptBuilder.chat(
+        catalog: testCatalog,
+      ).systemPromptJoined();
+
+      expect(prompt, contains('COMMON_TYPES'));
+      expect(prompt, contains('CATALOG_SCHEMA'));
+      expect(prompt, contains('MESSAGE_SCHEMA'));
+      expect(prompt, isNot(contains('A2UI_CATALOG_MANIFEST')));
+    });
+
+    test('custom prompts also default to full-schema catalog prompt mode', () {
+      final String prompt = PromptBuilder.custom(
+        catalog: testCatalog,
+        allowedOperations: SurfaceOperations.createOnly(dataModel: false),
+      ).systemPromptJoined();
+
+      expect(prompt, contains('COMMON_TYPES'));
+      expect(prompt, contains('CATALOG_SCHEMA'));
+      expect(prompt, contains('MESSAGE_SCHEMA'));
+      expect(prompt, isNot(contains('A2UI_CATALOG_MANIFEST')));
+    });
+  });
+
+  group('Incremental catalog prompt mode', () {
+    final systemPromptFragments = <String>['You are a chat assistant.'];
+
+    String incrementalPromptFor(Catalog catalog) => PromptBuilder.chat(
+      catalog: catalog,
+      systemPromptFragments: systemPromptFragments,
+      catalogPromptMode: CatalogPromptMode.incremental,
+    ).systemPromptJoined();
+
+    test('includes a catalog manifest section and omits the full schema', () {
+      final String prompt = incrementalPromptFor(testCatalog);
+
+      expect(prompt, contains('COMMON_TYPES'));
+      expect(prompt, contains('A2UI_CATALOG_MANIFEST'));
+      expect(prompt, contains('CATALOG_FUNCTIONS'));
+      expect(prompt, contains('MESSAGE_SCHEMA'));
+      expect(prompt, isNot(contains('CATALOG_SCHEMA')));
+    });
+
+    test('custom prompts can use incremental catalog prompt mode', () {
+      final String prompt = PromptBuilder.custom(
+        catalog: testCatalog,
+        allowedOperations: SurfaceOperations.createOnly(dataModel: false),
+        catalogPromptMode: CatalogPromptMode.incremental,
+      ).systemPromptJoined();
+
+      expect(prompt, contains('A2UI_CATALOG_MANIFEST'));
+      expect(prompt, contains('loadCatalogItems'));
+      expect(prompt, isNot(contains('CATALOG_SCHEMA')));
+    });
+
+    test('describes the required A2UI message envelope', () {
+      final catalogWithoutPromptFragments = Catalog([
+        BasicCatalogItems.text,
+      ], catalogId: 'minimal_catalog');
+      final String prompt = PromptBuilder.chat(
+        catalog: catalogWithoutPromptFragments,
+        catalogPromptMode: CatalogPromptMode.incremental,
+      ).systemPromptJoined();
+
+      expect(prompt, contains('MESSAGE_SCHEMA'));
+      expect(prompt, contains('"const": "v0.9"'));
+    });
+
+    test('uses active manifest names in the loadCatalogItems example', () {
+      final textOnlyCatalog = Catalog([
+        BasicCatalogItems.text,
+      ], catalogId: 'text_only_catalog');
+      final String prompt = incrementalPromptFor(textOnlyCatalog);
+
+      expect(prompt, contains('loadCatalogItems'));
+      expect(prompt, contains('{"items": ["Text"]}'));
+      expect(prompt, isNot(contains('{"items": ["Card", "Text"]}')));
+    });
+
+    test('includes catalog functions and anyFunction', () {
+      final functionsCatalog = Catalog(
+        <CatalogItem>[BasicCatalogItems.text],
+        functions: <ClientFunction>[BasicFunctions.requiredFunction],
+        catalogId: 'functions_catalog',
+      );
+      final String prompt = incrementalPromptFor(functionsCatalog);
+
+      expect(prompt, contains('CATALOG_FUNCTIONS'));
+      expect(prompt, contains('"required"'));
+      expect(prompt, contains('"anyFunction"'));
+      expect(prompt, contains(r'"$ref": "#/functions/required"'));
+    });
+
+    test('includes an impossible anyFunction when functions are empty', () {
+      final String prompt = incrementalPromptFor(testCatalog);
+
+      expect(prompt, contains('"functions": {}'));
+      expect(prompt, contains('"anyFunction"'));
+      expect(prompt, contains('"not": {}'));
+    });
+
+    test('describes the component envelope (id and component)', () {
+      final String prompt = incrementalPromptFor(testCatalog);
+
+      expect(prompt, contains('id:'));
+      expect(prompt, contains('component:'));
+      expect(prompt, contains('"root"'));
+    });
+
+    test('auto-injects the loadCatalogItems carve-out policy', () {
+      final String prompt = incrementalPromptFor(testCatalog);
+
+      expect(prompt, contains(PromptFragments.incrementalCatalogToolPolicy()));
+      expect(prompt, contains('context loading, not UI generation'));
+    });
+
+    test('omits the blanket no-tools restriction', () {
+      final String prompt = incrementalPromptFor(testCatalog);
+
+      expect(
+        prompt,
+        isNot(contains('do not have the ability to use tools for UI')),
+      );
+      expect(
+        prompt,
+        isNot(contains('do not have the ability to use function calls')),
+      );
+    });
+
+    test('keeps unrelated technical restrictions', () {
+      final String prompt = incrementalPromptFor(testCatalog);
+
+      expect(prompt, contains('do not have the ability to execute code'));
+    });
+
+    test('full-schema mode still keeps the no-tools restriction', () {
+      final String prompt = PromptBuilder.chat(
+        catalog: testCatalog,
+      ).systemPromptJoined();
+
+      expect(prompt, contains('do not have the ability to use tools for UI'));
+    });
+
+    test('still includes surface operation instructions', () {
+      final String prompt = incrementalPromptFor(testCatalog);
+
+      expect(prompt, contains(ProtocolMessages.createSurface.name));
+      expect(prompt, contains(ProtocolMessages.updateComponents.name));
+    });
+
+    test('preserves caller-provided system prompt fragments', () {
+      final String prompt = incrementalPromptFor(testCatalog);
+
+      for (final fragment in systemPromptFragments) {
+        expect(prompt, contains(fragment));
+      }
+    });
+
+    test('includes the client data model when provided', () {
+      final String prompt = PromptBuilder.chat(
+        catalog: testCatalog,
+        catalogPromptMode: CatalogPromptMode.incremental,
+        clientDataModel: {'foo': 'bar'},
+      ).systemPromptJoined();
+
+      expect(prompt, contains('Client Data Model:'));
+      expect(prompt, contains('"foo": "bar"'));
+    });
+
+    test('throws when incremental + create has no catalogId', () {
+      final anonymousCatalog = Catalog([BasicCatalogItems.text]);
+
+      expect(
+        () => PromptBuilder.chat(
+          catalog: anonymousCatalog,
+          catalogPromptMode: CatalogPromptMode.incremental,
+        ).systemPrompt(),
+        throwsStateError,
+      );
+    });
+
+    test('matches the golden for the test catalog', () {
+      final String prompt = PromptBuilder.chat(
+        catalog: testCatalog,
+        catalogPromptMode: CatalogPromptMode.incremental,
+      ).systemPromptJoined();
+      verifyGoldenText(prompt, 'incremental_test_catalog.txt');
+    });
   });
 
   group('Custom prompt', () {
