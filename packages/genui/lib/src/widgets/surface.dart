@@ -12,6 +12,7 @@ import '../model/data_model.dart';
 import '../model/ui_models.dart';
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
+import 'accessibility.dart';
 import 'fallback_widget.dart';
 
 /// A callback for when a user interacts with a widget.
@@ -108,27 +109,34 @@ class _SurfaceState extends State<Surface> {
 
       final JsonMap widgetData = data.properties;
       genUiLogger.finest('Building widget $widgetId');
-      return catalog.buildWidget(
-        CatalogItemContext(
-          id: widgetId,
-          data: widgetData,
-          type: data.type,
-          buildChild: (String childId, [DataContext? childDataContext]) =>
-              _buildWidget(
-                definition,
-                catalog,
-                childId,
-                childDataContext ?? dataContext,
-              ),
-          dispatchEvent: _dispatchEvent,
-          buildContext: context,
-          dataContext: dataContext,
-          getComponent: (String componentId) =>
-              definition.components[componentId],
-          getCatalogItem: (String type) =>
-              catalog.items.firstWhereOrNull((item) => item.name == type),
-          surfaceId: widget.surfaceContext.surfaceId,
-          reportError: widget.surfaceContext.reportError,
+      // Every component a surface shows is built here, whatever its catalog,
+      // so the accessibility attributes `ComponentCommon` gives all of them
+      // are applied here too, rather than one catalog item at a time.
+      return A2uiAccessibility.wrap(
+        componentData: widgetData,
+        dataContext: dataContext,
+        child: catalog.buildWidget(
+          CatalogItemContext(
+            id: widgetId,
+            data: widgetData,
+            type: data.type,
+            buildChild: (String childId, [DataContext? childDataContext]) =>
+                _buildWidget(
+                  definition,
+                  catalog,
+                  childId,
+                  childDataContext ?? dataContext,
+                ),
+            dispatchEvent: _dispatchEvent,
+            buildContext: context,
+            dataContext: dataContext,
+            getComponent: (String componentId) =>
+                definition.components[componentId],
+            getCatalogItem: (String type) =>
+                catalog.items.firstWhereOrNull((item) => item.name == type),
+            surfaceId: widget.surfaceContext.surfaceId,
+            reportError: widget.surfaceContext.reportError,
+          ),
         ),
       );
     } catch (exception, stackTrace) {

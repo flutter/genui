@@ -31,10 +31,10 @@
   tree. `ComponentCommon` gives every A2UI component an optional `label` and
   `description`; both were accepted and then dropped, so a screen reader
   announced the visible text where the agent had asked for something else.
-  `Catalog.buildWidget` now applies them, which covers every catalog rather
-  than one component at a time. Both are `DynamicString`s and resolve through
-  `BoundString`, so a label bound to a path follows the data model. A component
-  without the attributes is left exactly as it was.
+  `Surface` now applies them as it builds each component, which covers every
+  catalog rather than one component at a time. Both are `DynamicString`s and
+  resolve through `BoundString`, so a label bound to a path follows the data
+  model. A component without the attributes is left exactly as it was.
 - **Feature**: The label replaces what the component announces for itself,
   rather than being added to it, which is what the v1.0 spec describes it as.
   Each child's configuration is cleared through `childConfigurationsDelegate`
