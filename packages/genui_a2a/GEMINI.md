@@ -8,7 +8,7 @@ This document provides context for AI agents making changes to the `genui_a2a` p
 
 -   **Content Generator Integration:** `genui_a2a` provides the `A2uiAgentConnector` which is designed to be used with `genui`'s `SurfaceController`.
 -   **A2A Communication:** All direct communication with the A2A server happens within this package, mainly in `A2uiAgentConnector` using the `package:a2a` client library.
--   **A2UI Message Parsing:** This package is responsible for taking the raw data from the A2A server and converting it into the structured `A2uiMessage` objects defined in `genui`.
+-   **A2UI Message Parsing:** This package is responsible for taking the raw data from the A2A server and converting it into the structured `AgentToRendererMessage` objects defined in `a2ui_core`.
 -   **UI Event Submission:** It also handles sending UI interaction events from `genui` back to the A2A server.
 
 ## Core Classes to Understand
@@ -18,7 +18,7 @@ This document provides context for AI agents making changes to the `genui_a2a` p
     -   Manages connection state, task ID, and context ID.
     -   `connectAndSend()`: Key method to send a `ChatMessage` and process the streamed response. This involves parsing `A2ADataPart` for A2UI messages.
     -   `sendEvent()`: Sends user interaction data back to the server.
-    -   `_processA2uiMessages()`: Crucial for converting raw JSON data into `genui.A2uiMessage` objects.
+    -   `_processA2uiMessages()`: Crucial for converting raw JSON data into `a2ui_core`'s `AgentToRendererMessage` objects.
 
 2.  **`AgentCard`** (`lib/src/a2ui_agent_connector.dart`):
     -   Simple data class for agent metadata.

@@ -21,7 +21,8 @@ description: A test description
     expect(sample.name, 'Test Sample');
     expect(sample.description, 'A test description');
 
-    final List<core.A2uiMessage> messages = await sample.messages.toList();
+    final List<core.AgentToRendererMessage> messages = await sample.messages
+        .toList();
     expect(messages.length, 2);
     expect(messages.first, isA<core.UpdateComponentsMessage>());
     expect(messages.last, isA<core.CreateSurfaceMessage>());
@@ -47,7 +48,8 @@ description: A description
 ''';
       final Sample sample = SampleParser.parseString(sampleContent);
       expect(sample.name, 'Frontmatter Sample');
-      final List<core.A2uiMessage> messages = await sample.messages.toList();
+      final List<core.AgentToRendererMessage> messages = await sample.messages
+          .toList();
       expect(messages.length, 1);
     },
   );
@@ -60,7 +62,8 @@ description: A description
 ''';
     final Sample sample = SampleParser.parseString(sampleContent);
     expect(sample.name, 'Untitled Sample');
-    final List<core.A2uiMessage> messages = await sample.messages.toList();
+    final List<core.AgentToRendererMessage> messages = await sample.messages
+        .toList();
     expect(messages.length, 1);
   });
 

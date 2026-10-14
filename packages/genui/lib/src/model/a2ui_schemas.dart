@@ -349,17 +349,10 @@ abstract final class A2uiSchemas {
   /// Schema for a property that holds a list of child components,
   /// either as an explicit list of IDs or a data-bound template.
   static Schema componentArrayReference({String? description}) {
-    final idList = S.list(items: S.string(description: 'Component ID'));
-    final template = S.object(
-      properties: {
-        'componentId': componentReference(),
-        'path': S.string(
-          description: 'A relative or absolute path in the data model.',
-        ),
-      },
-      required: ['componentId', 'path'],
+    return S.combined(
+      $ref: '$_commonTypesUri#/\$defs/ChildList',
+      description: description,
     );
-    return S.combined(oneOf: [idList, template], description: description);
   }
 
   /// Schema for a list of validation checks.

@@ -33,7 +33,7 @@ class _SamplesViewState extends State<SamplesView> {
   final List<String> _surfaceIds = [];
   int _currentSurfaceIndex = 0;
   StreamSubscription<SurfaceUpdate>? _surfaceSubscription;
-  StreamSubscription<core.A2uiMessage>? _messageSubscription;
+  StreamSubscription<core.AgentToRendererMessage>? _messageSubscription;
 
   @override
   void initState() {

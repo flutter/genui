@@ -24,7 +24,7 @@ The application's logic is contained almost entirely within `lib/chat_session.da
    - The user's text is immediately added to the local message list.
    - The request is sent to the `AiClient`.
 4. **AI Response**:
-   - The `AiClient` streams `A2uiMessage`s back.
+   - The `AiClient` streams `AgentToRendererMessage`s back.
    - These messages are piped into the `SurfaceController`.
 5. **UI Rendering**:
    - The UI listens to `SurfaceController.surfaceUpdates` or `A2uiTransportAdapter` streams.

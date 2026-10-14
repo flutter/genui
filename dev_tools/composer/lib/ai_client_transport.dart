@@ -21,7 +21,8 @@ class AiClientTransport implements Transport {
   final Logger _logger = Logger('AiClientTransport');
 
   @override
-  Stream<core.A2uiMessage> get incomingMessages => _adapter.incomingMessages;
+  Stream<core.AgentToRendererMessage> get incomingMessages =>
+      _adapter.incomingMessages;
 
   @override
   Stream<String> get incomingText => _adapter.incomingText;

@@ -53,7 +53,7 @@ class A2uiAgentConnector {
         );
   }
 
-  final _controller = StreamController<core.A2uiMessage>.broadcast();
+  final _controller = StreamController<core.AgentToRendererMessage>.broadcast();
   final _textController = StreamController<String>.broadcast();
   final _errorController = StreamController<Object>.broadcast();
   @visibleForTesting
@@ -69,7 +69,7 @@ class A2uiAgentConnector {
   String? get contextId => _contextId;
 
   /// The stream of A2UI messages.
-  Stream<core.A2uiMessage> get stream => _controller.stream;
+  Stream<core.AgentToRendererMessage> get stream => _controller.stream;
 
   /// The stream of text responses.
   Stream<String> get textStream => _textController.stream;
@@ -339,7 +339,7 @@ class A2uiAgentConnector {
         data.containsKey('deleteSurface')) {
       if (!_controller.isClosed) {
         _log.finest('Adding message to stream: $prettyJson');
-        _controller.add(core.A2uiMessage.fromJson(data));
+        _controller.add(core.AgentToRendererMessage.fromJson(data));
       }
     } else {
       _log.warning('A2A data part did not contain any known A2UI messages.');

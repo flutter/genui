@@ -18,7 +18,17 @@ void main() {
     late SurfaceController controller;
 
     setUp(() {
-      controller = SurfaceController(catalogs: [BasicCatalogItems.asCatalog()]);
+      // a2ui_core validates every component against the catalog its surface
+      // names, so the catalog must carry the id the tests create surfaces
+      // with.
+      controller = SurfaceController(
+        catalogs: [
+          Catalog(
+            BasicCatalogItems.asCatalog().items,
+            catalogId: 'test_catalog',
+          ),
+        ],
+      );
     });
 
     tearDown(() {

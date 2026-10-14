@@ -39,7 +39,7 @@ void main() {
       catalogs: [BasicCatalogItems.asCatalog()],
     );
 
-    await for (final core.A2uiMessage message in sample.messages) {
+    await for (final core.AgentToRendererMessage message in sample.messages) {
       var messageToProcess = message;
       if (message is core.CreateSurfaceMessage) {
         // We manually inject the basic catalog since createSurface might ref
@@ -82,7 +82,7 @@ void main() {
         catalogs: [BasicCatalogItems.asCatalog()],
       );
 
-      await for (final core.A2uiMessage message in sample.messages) {
+      await for (final core.AgentToRendererMessage message in sample.messages) {
         controller.handleMessage(message);
       }
 

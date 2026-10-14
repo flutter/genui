@@ -363,6 +363,7 @@ class TestAndFix {
       'firebase_core',
       'build',
       'submodules',
+      if (!all) 'archive',
       if (!all) 'spikes',
       if (!all) 'fix_copyright',
       if (!all) 'release',

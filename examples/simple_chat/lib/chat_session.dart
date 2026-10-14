@@ -202,7 +202,7 @@ class A2uiChatSession extends ChatSession {
   @override
   SurfaceController get surfaceController => _surfaceController;
 
-  late final StreamSubscription<core.A2uiMessage> _messageSub;
+  late final StreamSubscription<core.AgentToRendererMessage> _messageSub;
   late final StreamSubscription<String> _textSub;
   late final StreamSubscription<ChatMessage> _submitSub;
   late final StreamSubscription<SurfaceUpdate> _surfaceSub;

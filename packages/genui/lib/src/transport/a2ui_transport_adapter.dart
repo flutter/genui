@@ -38,7 +38,7 @@ class A2uiTransportAdapter implements Transport {
   final ManualSendCallback? onSend;
 
   final StreamController<String> _inputStream = StreamController();
-  final StreamController<core.A2uiMessage> _messageStream =
+  final StreamController<core.AgentToRendererMessage> _messageStream =
       StreamController.broadcast();
   late final Stream<GenerationEvent> _pipeline;
   StreamSubscription<GenerationEvent>? _pipelineSubscription;
@@ -56,7 +56,7 @@ class A2uiTransportAdapter implements Transport {
   }
 
   /// Feeds a raw A2UI message (e.g. from a tool output or separate channel).
-  void addMessage(core.A2uiMessage message) {
+  void addMessage(core.AgentToRendererMessage message) {
     _messageStream.add(message);
   }
 
@@ -73,7 +73,8 @@ class A2uiTransportAdapter implements Transport {
 
   /// A stream of A2UI messages parsed from the input.
   @override
-  Stream<core.A2uiMessage> get incomingMessages => _messageStream.stream;
+  Stream<core.AgentToRendererMessage> get incomingMessages =>
+      _messageStream.stream;
 
   @override
   Future<void> sendRequest(ChatMessage message) async {

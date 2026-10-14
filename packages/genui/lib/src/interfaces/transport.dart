@@ -19,8 +19,9 @@ abstract interface class Transport {
   /// up over time.
   Stream<String> get incomingText;
 
-  /// A stream of parsed [core.A2uiMessage]s received from the AI service.
-  Stream<core.A2uiMessage> get incomingMessages;
+  /// A stream of parsed [core.AgentToRendererMessage]s received from the AI
+  /// service.
+  Stream<core.AgentToRendererMessage> get incomingMessages;
 
   /// Sends a request to the AI service.
   Future<void> sendRequest(ChatMessage message);

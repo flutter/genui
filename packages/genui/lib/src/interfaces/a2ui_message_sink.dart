@@ -4,8 +4,8 @@
 
 import 'package:a2ui_core/a2ui_core.dart' as core;
 
-/// An interface for a message sink that accepts [core.A2uiMessage]s.
+/// An interface for a message sink that accepts [core.AgentToRendererMessage]s.
 abstract interface class A2uiMessageSink {
   /// Handles a message from the client.
-  void handleMessage(core.A2uiMessage message);
+  void handleMessage(core.AgentToRendererMessage message);
 }
