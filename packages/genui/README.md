@@ -78,7 +78,7 @@ graph TD
     Conversation -- "loops back" --> ExternalLLM;
 ```
 
-See [DESIGN.md](./DESIGN.md) for more detailed information about the design.
+See [design.md](../../docs/contributing/design.md) for more detailed information about the design.
 
 ## Getting Started with `genui`
 
@@ -417,7 +417,7 @@ Check out the [examples](../../examples) included in this repo! The
 `Catalog` that the agent can use to generate domain-specific UI.
 
 If something is unclear or missing, please
-[create an issue](https://github.com/flutter/genui/issues/new/choose).
+[create an issue](https://github.com/a2ui-project/a2ui/issues/new/choose).
 
 
 ### Troubleshooting / FAQ
