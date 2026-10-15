@@ -6,8 +6,7 @@ import 'dart:io';
 
 import 'package:catalog_gallery/sample_parser.dart';
 import 'package:file/file.dart' as file_pkg;
-// TODO(https://github.com/a2ui-project/a2ui/issues/3235): Migrate to material_ui.
-// ignore: deprecated_member_use
+// ignore: deprecated_member_use, see https://github.com/a2ui-project/a2ui/issues/3235
 import 'package:flutter/material.dart';
 
 import 'package:flutter_test/flutter_test.dart';
