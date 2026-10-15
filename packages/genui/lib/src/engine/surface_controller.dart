@@ -5,11 +5,11 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
+import '../a2ui_core/a2ui_core.dart' as core;
 import '../interfaces/a2ui_message_sink.dart';
 import '../interfaces/surface_context.dart';
 import '../interfaces/surface_host.dart';

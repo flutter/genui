@@ -5,8 +5,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:a2ui_core/a2ui_core.dart' as core;
-
+import '../a2ui_core/a2ui_core.dart' as core;
 import '../model/generation_events.dart';
 import '../primitives/a2ui_validation_exception.dart';
 

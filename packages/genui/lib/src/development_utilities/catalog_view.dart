@@ -5,9 +5,9 @@
 import 'dart:async' show StreamSubscription;
 import 'dart:convert';
 
-import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:flutter/material.dart';
 
+import '../a2ui_core/a2ui_core.dart' as core;
 import '../engine/surface_controller.dart';
 import '../model/catalog.dart';
 import '../model/catalog_item.dart';

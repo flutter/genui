@@ -4,9 +4,9 @@
 
 import 'dart:async';
 
-import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:flutter/foundation.dart';
 
+import '../a2ui_core/a2ui_core.dart' as core;
 import '../primitives/logging.dart';
 import '../primitives/simple_items.dart';
 import '../utils/stream_extensions.dart';

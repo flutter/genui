@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:a2ui_core/src/core/data_model.dart';
-import 'package:a2ui_core/src/primitives/errors.dart';
-import 'package:a2ui_core/src/primitives/reactivity.dart';
+import 'package:genui/src/a2ui_core/core/data_model.dart';
+import 'package:genui/src/a2ui_core/primitives/errors.dart';
+import 'package:genui/src/a2ui_core/primitives/reactivity.dart';
 import 'package:test/test.dart';
 
 void main() {

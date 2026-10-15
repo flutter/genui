@@ -4,8 +4,8 @@
 
 import 'dart:async';
 
-import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:flutter/material.dart';
+import 'package:genui/a2ui_core.dart' as core;
 import 'package:genui/genui.dart';
 
 import 'sample_parser.dart';

@@ -4,9 +4,9 @@
 
 import 'dart:async';
 
-import 'package:a2ui_core/a2ui_core.dart' hide Catalog, DataContext;
 import 'package:flutter/foundation.dart';
 
+import '../a2ui_core/a2ui_core.dart' hide Catalog, DataContext;
 import '../model/ui_models.dart' as genui_model;
 import '../primitives/logging.dart';
 

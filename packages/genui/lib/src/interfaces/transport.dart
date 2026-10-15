@@ -4,8 +4,7 @@
 
 import 'dart:async';
 
-import 'package:a2ui_core/a2ui_core.dart' as core;
-
+import '../a2ui_core/a2ui_core.dart' as core;
 import '../model/chat_message.dart';
 
 /// An interface for transporting messages between GenUI and an AI service.

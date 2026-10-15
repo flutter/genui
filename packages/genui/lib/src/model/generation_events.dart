@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:a2ui_core/a2ui_core.dart' as core;
+import '../a2ui_core/a2ui_core.dart' as core;
 
 /// A base class for events related to the GenUI generation process.
 sealed class GenerationEvent {

@@ -1,5 +1,14 @@
 # [genui](https://pub.dev/packages/genui) Changelog
 
+## 0.10.6
+
+- **Refactoring**: `a2ui_core` is inlined into this package.
+- **BREAKING**: genui no longer depends on `package:a2ui_core`. It runs on its
+  own copy of `a2ui_core` 0.1.0, exported as `package:genui/a2ui_core.dart`.
+  Import that library instead of `package:a2ui_core/a2ui_core.dart` for the
+  messages and other A2UI types you pass to or get from genui: types from
+  `package:a2ui_core` are no longer accepted.
+
 ## 0.10.5
 
 - **Announcement**: `genui` is being redesigned as a set of modular packages:

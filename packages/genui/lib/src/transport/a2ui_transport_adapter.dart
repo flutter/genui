@@ -4,8 +4,7 @@
 
 import 'dart:async';
 
-import 'package:a2ui_core/a2ui_core.dart' as core;
-
+import '../a2ui_core/a2ui_core.dart' as core;
 import '../interfaces/transport.dart';
 import '../model/chat_message.dart';
 import '../model/generation_events.dart';

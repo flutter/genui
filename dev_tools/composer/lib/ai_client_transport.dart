@@ -4,8 +4,8 @@
 
 import 'dart:async';
 
-import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:dartantic_ai/dartantic_ai.dart' as dartantic;
+import 'package:genui/a2ui_core.dart' as core;
 import 'package:genui/genui.dart';
 import 'package:logging/logging.dart';
 

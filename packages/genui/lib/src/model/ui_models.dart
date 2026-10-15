@@ -4,11 +4,11 @@
 
 import 'dart:convert';
 
-import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:collection/collection.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:meta/meta.dart' show internal;
 
+import '../a2ui_core/a2ui_core.dart' as core;
 import '../primitives/constants.dart';
 import '../primitives/embedded_schemas.g.dart';
 import '../primitives/simple_items.dart';

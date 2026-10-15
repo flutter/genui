@@ -1,5 +1,12 @@
 # [genui_a2a](https://pub.dev/packages/genui_a2a) Changelog
 
+## 0.10.2
+
+- **BREAKING**: `A2uiAgentConnector.stream` now emits message types from
+  `package:genui/a2ui_core.dart` instead of `package:a2ui_core`, because genui
+  0.10.6 no longer depends on `a2ui_core`.
+- Bumped dependent genui version to 0.10.6.
+
 ## 0.10.1
 
 - Depend on `a2ui_core` 0.1.0, its first non-pre-release version.

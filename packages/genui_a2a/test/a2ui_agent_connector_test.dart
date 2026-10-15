@@ -5,8 +5,8 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:genui/a2ui_core.dart' as core;
 import 'package:genui/genui.dart' as genui;
 import 'package:genui_a2a/genui_a2a.dart';
 import 'package:genui_a2a/src/a2a/a2a.dart' as a2a;

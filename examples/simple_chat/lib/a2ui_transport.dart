@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'package:a2ui_core/a2ui_core.dart' as core;
+import 'package:genui/a2ui_core.dart' as core;
 import 'package:genui/genui.dart';
 
 import 'agent/agent.dart';

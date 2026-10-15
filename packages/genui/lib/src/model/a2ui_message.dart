@@ -9,8 +9,9 @@ import 'catalog.dart';
 
 /// Returns the JSON schema for an A2UI message, parameterized by [catalog].
 ///
-/// The message types themselves live in `package:a2ui_core`; this schema is
-/// GenUI-specific because it is parameterized by the renderer's [Catalog].
+/// The message types themselves live in `package:genui/a2ui_core.dart`; this
+/// schema is GenUI-specific because it is parameterized by the renderer's
+/// [Catalog].
 Schema a2uiMessageSchema(Catalog catalog) {
   return S.combined(
     title: 'A2UI Message Schema',

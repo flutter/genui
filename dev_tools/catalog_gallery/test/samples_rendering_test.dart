@@ -4,13 +4,13 @@
 
 import 'dart:io';
 
-import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:catalog_gallery/sample_parser.dart';
 import 'package:file/file.dart';
 import 'package:file/local.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:genui/a2ui_core.dart' as core;
 import 'package:genui/genui.dart';
 
 import 'src/sample_locator.dart';

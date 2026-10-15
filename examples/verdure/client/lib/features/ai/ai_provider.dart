@@ -5,9 +5,9 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:a2ui_core/a2ui_core.dart' as core;
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:genui/a2ui_core.dart' as core;
 import 'package:genui/genui.dart';
 import 'package:genui_a2a/genui_a2a.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
