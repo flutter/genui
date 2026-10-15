@@ -5,6 +5,8 @@
 /// @docImport '../../widgets/surface.dart';
 library;
 
+// TODO(https://github.com/a2ui-project/a2ui/issues/3235): Migrate to material_ui.
+// ignore: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 

@@ -6,6 +6,8 @@ import 'package:catalog_gallery/main.dart';
 import 'package:catalog_gallery/sample_source.dart';
 import 'package:file/file.dart';
 import 'package:file/local.dart';
+// TODO(https://github.com/a2ui-project/a2ui/issues/3235): Migrate to material_ui.
+// ignore: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/genui.dart';
