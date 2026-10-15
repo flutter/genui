@@ -16,6 +16,7 @@ import '../../model/validation_helper.dart';
 import '../../primitives/logging.dart';
 import '../../primitives/simple_items.dart';
 import '../../widgets/widget_utilities.dart';
+import 'widget_helpers.dart';
 
 class _Fields {
   static const String value = 'value';
@@ -82,12 +83,12 @@ extension type _TextFieldData.fromMap(JsonMap _json) {
 
   Object? get value => _json[_Fields.value];
   Object? get label => _json[_Fields.label];
-  List<JsonMap>? get checks =>
-      (_json[_Fields.checks] as List?)?.cast<JsonMap>();
-  String? get variant => _json[_Fields.variant] as String?;
-  String? get validationRegexp => _json[_Fields.validationRegexp] as String?;
+  List<JsonMap>? get checks => asJsonMapListOrNull(_json[_Fields.checks]);
+  String? get variant => asStringOrNull(_json[_Fields.variant]);
+  String? get validationRegexp =>
+      asStringOrNull(_json[_Fields.validationRegexp]);
   JsonMap? get onSubmittedAction =>
-      _json[_Fields.onSubmittedAction] as JsonMap?;
+      asJsonMapOrNull(_json[_Fields.onSubmittedAction]);
 }
 
 /// Matches a number, as well as the partial input it is typed through, such as

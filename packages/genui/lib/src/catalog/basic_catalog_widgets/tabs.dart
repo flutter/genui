@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
@@ -10,6 +11,7 @@ import '../../model/catalog_item.dart';
 import '../../model/data_model.dart';
 import '../../primitives/simple_items.dart';
 import '../../widgets/widget_utilities.dart';
+import 'widget_helpers.dart';
 
 final _schema = S.object(
   description: 'A tab layout to navigate between different child components.',
@@ -39,8 +41,20 @@ extension type _TabsData.fromMap(JsonMap _json) {
   factory _TabsData({required List<JsonMap> tabs, Object? activeTab}) =>
       _TabsData.fromMap({'tabs': tabs, 'activeTab': activeTab});
 
-  List<JsonMap> get tabs {
-    return (_json['tabs'] as List).cast<JsonMap>();
+  /// The tabs that can be drawn, each with its position in the list as the
+  /// agent sent it.
+  ///
+  /// An entry that is not an object is left out. `activeTab` counts positions
+  /// in the list as sent, so the tabs that remain keep theirs: leaving one out
+  /// must not move the selection onto its neighbour.
+  List<(int, JsonMap)> get tabs {
+    final Object? value = _json['tabs'];
+    if (value is! List) return const <(int, JsonMap)>[];
+    return <(int, JsonMap)>[
+      for (var i = 0; i < value.length; i++)
+        if (value[i] case final Map<Object?, Object?> entry)
+          (i, entry.cast<String, Object?>()),
+    ];
   }
 
   Object? get activeTab => _json['activeTab'];
@@ -49,6 +63,7 @@ extension type _TabsData.fromMap(JsonMap _json) {
 class _TabsWidget extends StatefulWidget {
   const _TabsWidget({
     required this.tabs,
+    required this.positions,
     required this.itemContext,
     required this.activeTab,
     this.initialTab = 0,
@@ -56,6 +71,10 @@ class _TabsWidget extends StatefulWidget {
   });
 
   final List<JsonMap> tabs;
+
+  /// Where each of [tabs] sits in the list the agent sent. [activeTab], and
+  /// the value [onTabChanged] writes back, count positions there.
+  final List<int> positions;
   final CatalogItemContext itemContext;
   final int? activeTab;
   final int initialTab;
@@ -69,13 +88,17 @@ class _TabsWidgetState extends State<_TabsWidget>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
+  /// The drawn tab for [position] in the list as sent, or the next one after
+  /// it when the entry there was left out.
+  int _indexFor(int position) => widget.positions
+      .where((int p) => p < position)
+      .length
+      .clamp(0, widget.tabs.length - 1);
+
   @override
   void initState() {
     super.initState();
-    final int initialIndex = (widget.activeTab ?? widget.initialTab).clamp(
-      0,
-      widget.tabs.length - 1,
-    );
+    final int initialIndex = _indexFor(widget.activeTab ?? widget.initialTab);
     _tabController = TabController(
       length: widget.tabs.length,
       vsync: this,
@@ -87,12 +110,9 @@ class _TabsWidgetState extends State<_TabsWidget>
   @override
   void didUpdateWidget(_TabsWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.tabs.length != oldWidget.tabs.length) {
+    if (!listEquals(widget.positions, oldWidget.positions)) {
       _tabController.dispose();
-      final int initialIndex = (widget.activeTab ?? widget.initialTab).clamp(
-        0,
-        widget.tabs.length - 1,
-      );
+      final int initialIndex = _indexFor(widget.activeTab ?? widget.initialTab);
       _tabController = TabController(
         length: widget.tabs.length,
         vsync: this,
@@ -106,17 +126,17 @@ class _TabsWidgetState extends State<_TabsWidget>
 
   void _handleTabSelection() {
     if (!_tabController.indexIsChanging) {
-      widget.onTabChanged(_tabController.index);
+      widget.onTabChanged(widget.positions[_tabController.index]);
     }
   }
 
   void _handleExternalChange() {
-    final int? newIndex = widget.activeTab;
-    if (newIndex != null &&
-        newIndex >= 0 &&
-        newIndex < widget.tabs.length &&
-        newIndex != _tabController.index) {
-      _tabController.animateTo(newIndex);
+    final int? position = widget.activeTab;
+    if (position == null) return;
+    // A position with no drawn tab, out of range or left out, moves nothing.
+    final int index = widget.positions.indexOf(position);
+    if (index >= 0 && index != _tabController.index) {
+      _tabController.animateTo(index);
     }
   }
 
@@ -153,8 +173,12 @@ class _TabsWidgetState extends State<_TabsWidget>
                 index: index,
                 sizing: StackFit.loose,
                 children: widget.tabs.map((tabItem) {
-                  final contentId =
-                      (tabItem['content'] ?? tabItem['child']) as String;
+                  // A tab that names no content is an empty tab, not a
+                  // reason to take the rest of them down.
+                  final String? contentId = asStringOrNull(
+                    tabItem['content'] ?? tabItem['child'],
+                  );
+                  if (contentId == null) return const SizedBox.shrink();
                   return widget.itemContext.buildChild(contentId);
                 }).toList(),
               );
@@ -182,6 +206,12 @@ final tabs = CatalogItem(
   dataSchema: _schema,
   widgetBuilder: (itemContext) {
     final tabsData = _TabsData.fromMap(itemContext.data as JsonMap);
+    final List<(int, JsonMap)> drawn = tabsData.tabs;
+    // `TabController` throws on a length of zero, and it is built in
+    // `initState`, so the check has to happen before the widget exists. An
+    // agent that sends a `Tabs` with nothing in it has asked for nothing to
+    // be shown.
+    if (drawn.isEmpty) return const SizedBox.shrink();
     final Object? activeTabRef = tabsData.activeTab;
     final path = (activeTabRef is Map && activeTabRef.containsKey('path'))
         ? activeTabRef['path'] as String
@@ -195,7 +225,8 @@ final tabs = CatalogItem(
         // updating the TabController when it changes.
         // We no longer pass a ValueNotifier.
         return _TabsWidget(
-          tabs: tabsData.tabs,
+          tabs: [for (final (_, tab) in drawn) tab],
+          positions: [for (final (position, _) in drawn) position],
           itemContext: itemContext,
           activeTab: value?.toInt(),
           initialTab: activeTabRef is num ? activeTabRef.toInt() : 0,

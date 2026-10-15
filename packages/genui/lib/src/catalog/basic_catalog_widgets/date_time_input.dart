@@ -13,6 +13,7 @@ import '../../model/data_model.dart';
 import '../../model/validation_helper.dart';
 import '../../primitives/simple_items.dart';
 import '../../widgets/widget_utilities.dart';
+import 'widget_helpers.dart';
 
 final _schema = S.object(
   description: 'A widget for selecting a date and/or time.',
@@ -58,14 +59,16 @@ extension type _DateTimeInputData.fromMap(JsonMap _json) {
   });
 
   Object get value => _json['value'] as Object;
-  String? get variant => _json['variant'] as String?;
+  String? get variant => asStringOrNull(_json['variant']);
   Object? get label => _json['label'];
-  List<JsonMap>? get checks => (_json['checks'] as List?)?.cast<JsonMap>();
+  List<JsonMap>? get checks => asJsonMapListOrNull(_json['checks']);
 
   bool get enableDate {
     final String? v = variant;
     if (v == null) {
-      if (_json.containsKey('enableDate')) return _json['enableDate'] as bool;
+      if (_json.containsKey('enableDate')) {
+        return asBoolOrNull(_json['enableDate']) ?? true;
+      }
       return true;
     }
     return v == 'date' || v == 'datetime';
@@ -74,16 +77,18 @@ extension type _DateTimeInputData.fromMap(JsonMap _json) {
   bool get enableTime {
     final String? v = variant;
     if (v == null) {
-      if (_json.containsKey('enableTime')) return _json['enableTime'] as bool;
+      if (_json.containsKey('enableTime')) {
+        return asBoolOrNull(_json['enableTime']) ?? true;
+      }
       return true;
     }
     return v == 'time' || v == 'datetime';
   }
 
   DateTime get firstDate =>
-      DateTime.tryParse((_json['min'] as String?) ?? '') ?? DateTime(-9999);
+      DateTime.tryParse(asStringOrNull(_json['min']) ?? '') ?? DateTime(-9999);
   DateTime get lastDate =>
-      DateTime.tryParse((_json['max'] as String?) ?? '') ??
+      DateTime.tryParse(asStringOrNull(_json['max']) ?? '') ??
       DateTime(9999, 12, 31);
 }
 
@@ -311,7 +316,7 @@ final dateTimeInput = CatalogItem(
         if (effectiveValue == null) {
           final Object val = dateTimeInputData.value;
           if (val is! Map || !val.containsKey('path')) {
-            effectiveValue = val as String?;
+            effectiveValue = asStringOrNull(val);
           }
         }
 

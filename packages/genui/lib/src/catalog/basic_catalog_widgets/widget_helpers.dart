@@ -139,3 +139,36 @@ Widget buildWeightedChild({
   }
   return childWidget;
 }
+
+/// Reads [value] as a [String], or `null` when it is anything else.
+///
+/// A component's properties come from a model, which composes against the
+/// published schema rather than against what the widget happens to tolerate.
+/// `as String?` turns everything the schema did not pin down into an
+/// exception, and an exception here takes the whole surface with it. Reading
+/// tolerantly lets the property fall back to its default and leaves the rest
+/// of the screen standing.
+String? asStringOrNull(Object? value) => value is String ? value : null;
+
+/// Reads [value] as a [num], or `null` when it is anything else.
+num? asNumOrNull(Object? value) => value is num ? value : null;
+
+/// Reads [value] as a [bool], or `null` when it is anything else.
+bool? asBoolOrNull(Object? value) => value is bool ? value : null;
+
+/// Reads [value] as a list of [JsonMap], keeping only the entries that are
+/// maps, or `null` when [value] is not a list at all.
+///
+/// A `cast` would defer the failure to the first entry that is read, which is
+/// somewhere else entirely by then.
+List<JsonMap>? asJsonMapListOrNull(Object? value) {
+  if (value is! List) return null;
+  return <JsonMap>[
+    for (final Object? entry in value)
+      if (entry is Map) entry.cast<String, Object?>(),
+  ];
+}
+
+/// Reads [value] as a [JsonMap], or `null` when it is anything else.
+JsonMap? asJsonMapOrNull(Object? value) =>
+    value is Map ? value.cast<String, Object?>() : null;

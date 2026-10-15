@@ -165,4 +165,107 @@ void main() {
         .dataModel;
     expect(dataModel.getValue<num>(DataPath('currentTab')), 1);
   });
+
+  testWidgets('a malformed tab does not move the ones after it', (
+    WidgetTester tester,
+  ) async {
+    // `activeTab` counts positions in the list the agent sent. The entry
+    // that is not an object is left out, and the tabs after it have to keep
+    // their positions, both when the selection is read and when a tap writes
+    // it back.
+    final surfaceController = SurfaceController(
+      catalogs: [
+        Catalog([
+          BasicCatalogItems.tabs,
+          BasicCatalogItems.text,
+        ], catalogId: 'test_catalog'),
+      ],
+    );
+    addTearDown(surfaceController.dispose);
+    const surfaceId = 'testSurface';
+
+    surfaceController.handleMessage(
+      updateDataModel(
+        surfaceId: surfaceId,
+        path: DataPath('/'),
+        value: {'currentTab': 2},
+      ),
+    );
+    surfaceController.handleMessage(
+      updateComponents(
+        surfaceId: surfaceId,
+        components: [
+          component(
+            id: 'root',
+            type: 'Tabs',
+            properties: {
+              'component': 'Tabs',
+              'activeTab': {'path': 'currentTab'},
+              'tabs': [
+                {'label': 'First', 'content': 'first'},
+                42,
+                {'label': 'Third', 'content': 'third'},
+                {'label': 'Fourth', 'content': 'fourth'},
+              ],
+            },
+          ),
+          for (final String id in ['first', 'third', 'fourth'])
+            component(
+              id: id,
+              type: 'Text',
+              properties: {'component': 'Text', 'text': 'Content $id'},
+            ),
+        ],
+      ),
+    );
+    surfaceController.handleMessage(
+      createSurface(surfaceId: surfaceId, catalogId: 'test_catalog'),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Surface(
+            surfaceContext: surfaceController.contextFor(surfaceId),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Position 2 is the third entry the agent sent, not the third drawn.
+    expect(find.text('Content third'), findsOneWidget);
+    expect(find.text('Content fourth'), findsNothing);
+
+    final DataModel dataModel = surfaceController
+        .contextFor(surfaceId)
+        .dataModel;
+
+    // A tap writes back the position in the list as sent.
+    await tester.tap(find.text('Fourth'));
+    await tester.pumpAndSettle();
+    expect(find.text('Content fourth'), findsOneWidget);
+    expect(dataModel.getValue<num>(DataPath('currentTab')), 3);
+
+    // A position that names the entry that was left out moves nothing.
+    surfaceController.handleMessage(
+      updateDataModel(
+        surfaceId: surfaceId,
+        path: DataPath('/currentTab'),
+        value: 1,
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Content fourth'), findsOneWidget);
+
+    surfaceController.handleMessage(
+      updateDataModel(
+        surfaceId: surfaceId,
+        path: DataPath('/currentTab'),
+        value: 0,
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Content first'), findsOneWidget);
+  });
 }
