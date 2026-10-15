@@ -9,6 +9,7 @@ import 'package:catalog_gallery/sample_source.dart';
 import 'package:file/memory.dart';
 import 'package:file/src/interface/directory.dart';
 import 'package:file/src/interface/file.dart';
+// ignore: deprecated_member_use, see https://github.com/a2ui-project/a2ui/issues/3235
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

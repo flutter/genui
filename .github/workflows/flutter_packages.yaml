@@ -188,12 +188,7 @@ jobs:
         run: dart format --output=none --set-exit-if-changed .
       - name: Analyze code
         working-directory: ${{ matrix.package.path }}
-        # Beta deprecates APIs before stable has their replacements (for
-        # example, package:flutter/material.dart in favor of
-        # package:material_ui), so infos only fail the stable run.
-        env:
-          FATAL_INFOS: ${{ matrix.flutter_version == 'stable' && '--fatal-infos' || '--no-fatal-infos' }}
-        run: flutter analyze "$FATAL_INFOS"
+        run: flutter analyze --fatal-infos
       - name: Run tests
         working-directory: ${{ matrix.package.path }}
         run: |

@@ -8,6 +8,8 @@
   Import that library instead of `package:a2ui_core/a2ui_core.dart` for the
   messages and other A2UI types you pass to or get from genui: types from
   `package:a2ui_core` are no longer accepted.
+- **Internal**: Ignore the deprecation of `package:flutter/material.dart` on
+  Flutter beta until genui can migrate to `package:material_ui` (#1062).
 
 ## 0.10.5
 
