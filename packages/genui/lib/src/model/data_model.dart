@@ -41,6 +41,16 @@ class DataContext implements cf.ExecutionContext {
   /// The underlying data model for this context.
   DataModel get dataModel => _dataModel;
 
+  /// The client functions that function calls in this context resolve to.
+  ///
+  /// Pass them on when building a [DataContext] from this one, or every
+  /// function call in the new context resolves to null:
+  ///
+  /// ```dart
+  /// DataContext(context.dataModel, context.path, functions: context.functions)
+  /// ```
+  Iterable<cf.ClientFunction> get functions => _functions.values;
+
   /// Retrieves a function by name from this context.
   @override
   cf.ClientFunction? getFunction(String name) => _functions[name];
