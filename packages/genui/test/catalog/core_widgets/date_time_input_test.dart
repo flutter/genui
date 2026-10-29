@@ -59,7 +59,116 @@ void main() {
     robot.expectInputText('datetime_time_only', 'Select a time');
   });
 
+  group('display', () {
+    testWidgets('shows only the date for a date-only value', (tester) async {
+      final robot = DateTimeInputRobot(tester);
+      final (SurfaceHost surfaceController, String surfaceId) = setup(
+        'date_only_value',
+        {
+          'value': {'path': '/myDateTime'},
+        },
+      );
+
+      surfaceController
+          .contextFor(surfaceId)
+          .dataModel
+          .update(DataPath('/myDateTime'), '2026-05-15');
+
+      await robot.pumpSurface(surfaceController, surfaceId);
+
+      robot.expectInputText('date_only_value', 'Friday, May 15, 2026');
+    });
+
+    testWidgets('shows a UTC value in local time', (tester) async {
+      final robot = DateTimeInputRobot(tester);
+      final (SurfaceHost surfaceController, String surfaceId) = setup(
+        'utc_value',
+        {
+          'value': {'path': '/myDateTime'},
+        },
+      );
+
+      surfaceController
+          .contextFor(surfaceId)
+          .dataModel
+          .update(DataPath('/myDateTime'), '2026-05-15T23:30:00Z');
+
+      await robot.pumpSurface(surfaceController, surfaceId);
+
+      final DateTime local = DateTime.parse('2026-05-15T23:30:00Z').toLocal();
+      const localizations = DefaultMaterialLocalizations();
+      robot.expectInputText(
+        'utc_value',
+        '${localizations.formatFullDate(local)} '
+            '${localizations.formatTimeOfDay(TimeOfDay.fromDateTime(local))}',
+      );
+    });
+
+    testWidgets('respects 24-hour format', (tester) async {
+      final robot = DateTimeInputRobot(tester);
+      final (SurfaceHost surfaceController, String surfaceId) = setup(
+        'twenty_four_hour',
+        {
+          'value': {'path': '/myDateTime'},
+        },
+      );
+
+      surfaceController
+          .contextFor(surfaceId)
+          .dataModel
+          .update(DataPath('/myDateTime'), '2026-05-15T14:30:00');
+
+      await robot.pumpSurface(
+        surfaceController,
+        surfaceId,
+        alwaysUse24HourFormat: true,
+      );
+
+      robot.expectInputText('twenty_four_hour', 'Friday, May 15, 2026 14:30');
+    });
+  });
+
   group('combined mode', () {
+    testWidgets('opens the pickers on a UTC value in local time', (
+      tester,
+    ) async {
+      final robot = DateTimeInputRobot(tester);
+      final (SurfaceHost surfaceController, String surfaceId) = setup(
+        'combined_utc',
+        {
+          'value': {'path': '/myDateTime'},
+        },
+      );
+
+      surfaceController
+          .contextFor(surfaceId)
+          .dataModel
+          .update(DataPath('/myDateTime'), '2026-05-15T23:30:00Z');
+
+      await robot.pumpSurface(surfaceController, surfaceId);
+
+      await robot.openPicker('combined_utc');
+      await robot.confirmPicker();
+      robot.expectTimePickerVisible();
+      await robot.confirmPicker();
+
+      final DateTime local = DateTime.parse('2026-05-15T23:30:00Z').toLocal();
+      final String? value = surfaceController
+          .contextFor(surfaceId)
+          .dataModel
+          .getValue<String>(DataPath('/myDateTime'));
+      expect(
+        value,
+        DateTime(
+          local.year,
+          local.month,
+          local.day,
+          local.hour,
+          local.minute,
+        ).toIso8601String(),
+      );
+    });
+
     testWidgets('aborts update when time picker is cancelled', (tester) async {
       final robot = DateTimeInputRobot(tester);
       final (SurfaceHost surfaceController, String surfaceId) = setup(
@@ -199,6 +308,35 @@ void main() {
       await robot.cancelPicker();
     });
 
+    testWidgets('opens the date picker on a value outside the range', (
+      tester,
+    ) async {
+      final robot = DateTimeInputRobot(tester);
+      final (SurfaceHost surfaceController, String surfaceId) = setup(
+        'out_of_range',
+        {
+          'value': {'path': '/myDate'},
+          'min': '2020-01-01',
+          'max': '2030-12-31',
+        },
+      );
+
+      surfaceController
+          .contextFor(surfaceId)
+          .dataModel
+          .update(DataPath('/myDate'), '2035-06-15');
+
+      await robot.pumpSurface(surfaceController, surfaceId);
+      await robot.openPicker('out_of_range');
+
+      final DatePickerDialog dialog = tester.widget(
+        find.byType(DatePickerDialog),
+      );
+      expect(dialog.initialDate, DateTime(2030, 12, 31));
+
+      await robot.cancelPicker();
+    });
+
     testWidgets('defaults to -9999 to 9999 when not specified', (tester) async {
       final robot = DateTimeInputRobot(tester);
       final (SurfaceHost surfaceController, String surfaceId) = setup(
@@ -286,10 +424,17 @@ class DateTimeInputRobot {
 
   Future<void> pumpSurface(
     SurfaceHost surfaceController,
-    String surfaceId,
-  ) async {
+    String surfaceId, {
+    bool alwaysUse24HourFormat = false,
+  }) async {
     await tester.pumpWidget(
       MaterialApp(
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(alwaysUse24HourFormat: alwaysUse24HourFormat),
+          child: child!,
+        ),
         home: Scaffold(
           body: Surface(
             surfaceContext: surfaceController.contextFor(surfaceId),
@@ -307,6 +452,11 @@ class DateTimeInputRobot {
 
   Future<void> selectDate(String day) async {
     await tester.tap(find.text(day));
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> confirmPicker() async {
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
   }
