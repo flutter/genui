@@ -308,6 +308,35 @@ void main() {
       await robot.cancelPicker();
     });
 
+    testWidgets('opens the date picker on a value outside the range', (
+      tester,
+    ) async {
+      final robot = DateTimeInputRobot(tester);
+      final (SurfaceHost surfaceController, String surfaceId) = setup(
+        'out_of_range',
+        {
+          'value': {'path': '/myDate'},
+          'min': '2020-01-01',
+          'max': '2030-12-31',
+        },
+      );
+
+      surfaceController
+          .contextFor(surfaceId)
+          .dataModel
+          .update(DataPath('/myDate'), '2035-06-15');
+
+      await robot.pumpSurface(surfaceController, surfaceId);
+      await robot.openPicker('out_of_range');
+
+      final DatePickerDialog dialog = tester.widget(
+        find.byType(DatePickerDialog),
+      );
+      expect(dialog.initialDate, DateTime(2030, 12, 31));
+
+      await robot.cancelPicker();
+    });
+
     testWidgets('defaults to -9999 to 9999 when not specified', (tester) async {
       final robot = DateTimeInputRobot(tester);
       final (SurfaceHost surfaceController, String surfaceId) = setup(

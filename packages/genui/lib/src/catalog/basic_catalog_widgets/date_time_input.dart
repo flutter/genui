@@ -188,11 +188,19 @@ class _DateTimeInputState extends State<_DateTimeInput> {
     var resultTime = TimeOfDay.fromDateTime(initialDate);
 
     if (widget.data.enableDate) {
+      final DateTime firstDate = widget.data.firstDate;
+      final DateTime lastDate = widget.data.lastDate;
+      // showDatePicker asserts that initialDate lies within the range.
+      final initialPickerDate = initialDate.isBefore(firstDate)
+          ? firstDate
+          : initialDate.isAfter(lastDate)
+          ? lastDate
+          : initialDate;
       final DateTime? pickedDate = await showDatePicker(
         context: context,
-        initialDate: initialDate,
-        firstDate: widget.data.firstDate,
-        lastDate: widget.data.lastDate,
+        initialDate: initialPickerDate,
+        firstDate: firstDate,
+        lastDate: lastDate,
       );
       if (pickedDate == null) {
         return;
