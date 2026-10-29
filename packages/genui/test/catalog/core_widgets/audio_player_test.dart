@@ -92,7 +92,7 @@ void main() {
   });
 }
 
-/// Shows an [BasicCatalogItems.audioPlayer] in a view [width] logical pixels
+/// Shows a [BasicCatalogItems.audioPlayer] in a view [width] logical pixels
 /// wide, with its text scaled by [textScale].
 ///
 /// The caller disposes the returned handle.

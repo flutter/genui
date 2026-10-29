@@ -174,24 +174,24 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
   /// The row holds the play button, both times, a seek bar at least
   /// [_minSeekBarWidth] wide, and the volume controls. The times are measured
   /// with the ambient text scaler, so large text wraps the controls too.
+  ///
+  /// Both times are measured as the longer of the two, which is the duration
+  /// once it is known, so the layout doesn't change while the audio plays.
   bool _fitsOnOneRow(BuildContext context, double maxWidth, TextStyle style) {
-    double timeWidth(Duration duration) {
-      final painter = TextPainter(
-        text: TextSpan(text: formatDuration(duration), style: style),
-        textDirection: Directionality.of(context),
-        textScaler: MediaQuery.textScalerOf(context),
-        maxLines: 1,
-      )..layout();
-      final double width = painter.width;
-      painter.dispose();
-      return width;
-    }
+    final Duration longest = _position > _duration ? _position : _duration;
+    final painter = TextPainter(
+      text: TextSpan(text: formatDuration(longest), style: style),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    final double timeWidth = painter.width;
+    painter.dispose();
 
     final double width =
         kMinInteractiveDimension +
-        timeWidth(_position) +
+        2 * timeWidth +
         _minSeekBarWidth +
-        timeWidth(_duration) +
         _volumeGap +
         _volumeIconSize +
         _volumeSliderWidth +
