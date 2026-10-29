@@ -89,6 +89,9 @@ const double _volumeSliderWidth = 100;
 /// The narrowest the seek bar gets before the controls wrap.
 const double _minSeekBarWidth = 96;
 
+/// Matches one digit of a time label.
+final _digit = RegExp(r'\d');
+
 class _AudioPlayerWidget extends StatefulWidget {
   const _AudioPlayerWidget({required this.url, this.description});
 
@@ -176,11 +179,13 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
   /// with the ambient text scaler, so large text wraps the controls too.
   ///
   /// Both times are measured as the longer of the two, which is the duration
-  /// once it is known, so the layout doesn't change while the audio plays.
+  /// once it is known, with every digit as `0`, so the layout doesn't change
+  /// while the audio plays, even with proportional digits.
   bool _fitsOnOneRow(BuildContext context, double maxWidth, TextStyle style) {
     final Duration longest = _position > _duration ? _position : _duration;
+    final String label = formatDuration(longest).replaceAll(_digit, '0');
     final painter = TextPainter(
-      text: TextSpan(text: formatDuration(longest), style: style),
+      text: TextSpan(text: label, style: style),
       textDirection: Directionality.of(context),
       textScaler: MediaQuery.textScalerOf(context),
       maxLines: 1,
