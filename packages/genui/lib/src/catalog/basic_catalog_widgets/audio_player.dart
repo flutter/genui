@@ -74,6 +74,24 @@ final audioPlayer = CatalogItem(
   ],
 );
 
+/// The padding inside the player's card.
+const _contentPadding = EdgeInsets.all(12);
+
+/// The space between the time labels and the volume controls.
+const double _volumeGap = 12;
+
+/// The size of the volume icon.
+const double _volumeIconSize = 20;
+
+/// The width of the inline volume slider.
+const double _volumeSliderWidth = 100;
+
+/// The narrowest the seek bar gets before the controls wrap.
+const double _minSeekBarWidth = 96;
+
+/// Matches one digit of a time label.
+final _digit = RegExp(r'\d');
+
 class _AudioPlayerWidget extends StatefulWidget {
   const _AudioPlayerWidget({required this.url, this.description});
 
@@ -91,6 +109,10 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
   Duration _position = Duration.zero;
   Duration _duration = Duration.zero;
   double _volume = 0.5;
+
+  /// The last measured time label, cached by [_measureTime] because the
+  /// position changes many times a second during playback.
+  TextPainter? _timePainter;
 
   @override
   void initState() {
@@ -151,17 +173,142 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
       sub.cancel();
     }
     _player.dispose();
+    _timePainter?.dispose();
     super.dispose();
+  }
+
+  /// Whether all the controls fit on one row [maxWidth] wide.
+  ///
+  /// The row holds the play button, both times, a seek bar at least
+  /// [_minSeekBarWidth] wide, and the volume controls. The times are measured
+  /// with the ambient text scaler, so large text wraps the controls too.
+  ///
+  /// Both times are measured as the longer of the two, which is the duration
+  /// once it is known, with every digit as `0`, so the layout doesn't change
+  /// while the audio plays, even with proportional digits.
+  bool _fitsOnOneRow(BuildContext context, double maxWidth, TextStyle style) {
+    final Duration longest = _position > _duration ? _position : _duration;
+    final String label = formatDuration(longest).replaceAll(_digit, '0');
+    final double timeWidth = _measureTime(context, label, style);
+
+    final double width =
+        kMinInteractiveDimension +
+        2 * timeWidth +
+        _minSeekBarWidth +
+        _volumeGap +
+        _volumeIconSize +
+        _volumeSliderWidth +
+        _contentPadding.right;
+    return width <= maxWidth;
+  }
+
+  /// The width of [label] in [style], laid out again only when the label,
+  /// style, text direction or text scaler changes.
+  double _measureTime(BuildContext context, String label, TextStyle style) {
+    final span = TextSpan(text: label, style: style);
+    final TextDirection direction = Directionality.of(context);
+    final TextScaler scaler = MediaQuery.textScalerOf(context);
+    final TextPainter? cached = _timePainter;
+    if (cached != null &&
+        cached.text == span &&
+        cached.textDirection == direction &&
+        cached.textScaler == scaler) {
+      return cached.width;
+    }
+    cached?.dispose();
+    final painter = TextPainter(
+      text: span,
+      textDirection: direction,
+      textScaler: scaler,
+      maxLines: 1,
+    )..layout();
+    _timePainter = painter;
+    return painter.width;
+  }
+
+  Widget _buildPlayButton() {
+    return IconButton(
+      tooltip: _isPlaying ? 'Pause' : 'Play',
+      icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
+      onPressed: widget.url != null && widget.url!.isNotEmpty
+          ? () {
+              if (_isPlaying) {
+                _player.pause();
+              } else {
+                _player.resume();
+              }
+            }
+          : null,
+    );
+  }
+
+  Widget _buildSeekBar() {
+    return MergeSemantics(
+      child: Semantics(
+        label: 'Playback position',
+        child: Slider(
+          value: _duration.inMilliseconds > 0
+              ? _position.inMilliseconds
+                    .clamp(0, _duration.inMilliseconds)
+                    .toDouble()
+              : 0,
+          max: _duration.inMilliseconds > 0
+              ? _duration.inMilliseconds.toDouble()
+              : 1,
+          onChanged: (value) {
+            _player.seek(Duration(milliseconds: value.toInt()));
+          },
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildVolumeControls(BuildContext context) {
+    return [
+      const SizedBox(width: _volumeGap),
+      Icon(
+        _volume == 0
+            ? Icons.volume_off
+            : _volume < 0.5
+            ? Icons.volume_down
+            : Icons.volume_up,
+        size: _volumeIconSize,
+      ),
+      SizedBox(
+        width: _volumeSliderWidth,
+        child: SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+            overlayShape: SliderComponentShape.noOverlay,
+            padding: EdgeInsets.zero,
+          ),
+          child: MergeSemantics(
+            child: Semantics(
+              label: 'Volume',
+              child: Slider(
+                value: _volume,
+                onChanged: (value) {
+                  setState(() => _volume = value);
+                  _player.setVolume(value);
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+      SizedBox(width: _contentPadding.right),
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    const contentPadding = EdgeInsets.all(12);
+    final TextStyle timeStyle = DefaultTextStyle.of(
+      context,
+    ).style.merge(theme.textTheme.bodySmall);
 
     return Card(
       child: Padding(
-        padding: contentPadding,
+        padding: _contentPadding,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,81 +323,46 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-            Row(
-              children: [
-                IconButton(
-                  tooltip: _isPlaying ? 'Pause' : 'Play',
-                  icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
-                  onPressed: widget.url != null && widget.url!.isNotEmpty
-                      ? () {
-                          if (_isPlaying) {
-                            _player.pause();
-                          } else {
-                            _player.resume();
-                          }
-                        }
-                      : null,
-                ),
-                Text(
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final position = Text(
                   formatDuration(_position),
-                  style: theme.textTheme.bodySmall,
-                ),
-                Expanded(
-                  child: MergeSemantics(
-                    child: Semantics(
-                      label: 'Playback position',
-                      child: Slider(
-                        value: _duration.inMilliseconds > 0
-                            ? _position.inMilliseconds
-                                  .clamp(0, _duration.inMilliseconds)
-                                  .toDouble()
-                            : 0,
-                        max: _duration.inMilliseconds > 0
-                            ? _duration.inMilliseconds.toDouble()
-                            : 1,
-                        onChanged: (value) {
-                          _player.seek(Duration(milliseconds: value.toInt()));
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-                Text(
+                  style: timeStyle,
+                );
+                final duration = Text(
                   formatDuration(_duration),
-                  style: theme.textTheme.bodySmall,
-                ),
-                const SizedBox(width: 12),
-                Icon(
-                  _volume == 0
-                      ? Icons.volume_off
-                      : _volume < 0.5
-                      ? Icons.volume_down
-                      : Icons.volume_up,
-                  size: 20,
-                ),
-                SizedBox(
-                  width: 100,
-                  child: SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      overlayShape: SliderComponentShape.noOverlay,
-                      padding: EdgeInsets.zero,
+                  style: timeStyle,
+                );
+                if (_fitsOnOneRow(context, constraints.maxWidth, timeStyle)) {
+                  return Row(
+                    children: [
+                      _buildPlayButton(),
+                      position,
+                      Expanded(child: _buildSeekBar()),
+                      duration,
+                      ..._buildVolumeControls(context),
+                    ],
+                  );
+                }
+                // Too narrow for one row: the times go under the seek bar,
+                // and the volume is left to the device's own controls.
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        _buildPlayButton(),
+                        Expanded(child: _buildSeekBar()),
+                      ],
                     ),
-                    child: MergeSemantics(
-                      child: Semantics(
-                        label: 'Volume',
-                        child: Slider(
-                          value: _volume,
-                          onChanged: (value) {
-                            setState(() => _volume = value);
-                            _player.setVolume(value);
-                          },
-                        ),
-                      ),
+                    Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      children: [position, duration],
                     ),
-                  ),
-                ),
-                SizedBox(width: contentPadding.right),
-              ],
+                  ],
+                );
+              },
             ),
           ],
         ),

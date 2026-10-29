@@ -10,6 +10,12 @@
   `package:a2ui_core` are no longer accepted.
 - **Internal**: Ignore the deprecation of `package:flutter/material.dart` on
   Flutter beta until genui can migrate to `package:material_ui` (#1062).
+- **Fix**: `AudioPlayer` no longer overflows in narrow or large-text layouts.
+  Its controls sat on one row with two time labels and a fixed 100 px volume
+  slider next to the seek bar, so a 320 px wide phone overflowed by 28 px at
+  normal text size and by 148 px at 2x. When that row doesn't fit, the times
+  now go on a line under the seek bar and the inline volume slider is left
+  out, as the device's own volume still works.
 
 ## 0.10.5
 
