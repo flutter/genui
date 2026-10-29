@@ -110,6 +110,10 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
   Duration _duration = Duration.zero;
   double _volume = 0.5;
 
+  /// The last measured time label, cached by [_measureTime] because the
+  /// position changes many times a second during playback.
+  TextPainter? _timePainter;
+
   @override
   void initState() {
     super.initState();
@@ -169,6 +173,7 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
       sub.cancel();
     }
     _player.dispose();
+    _timePainter?.dispose();
     super.dispose();
   }
 
@@ -184,14 +189,7 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
   bool _fitsOnOneRow(BuildContext context, double maxWidth, TextStyle style) {
     final Duration longest = _position > _duration ? _position : _duration;
     final String label = formatDuration(longest).replaceAll(_digit, '0');
-    final painter = TextPainter(
-      text: TextSpan(text: label, style: style),
-      textDirection: Directionality.of(context),
-      textScaler: MediaQuery.textScalerOf(context),
-      maxLines: 1,
-    )..layout();
-    final double timeWidth = painter.width;
-    painter.dispose();
+    final double timeWidth = _measureTime(context, label, style);
 
     final double width =
         kMinInteractiveDimension +
@@ -202,6 +200,30 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
         _volumeSliderWidth +
         _contentPadding.right;
     return width <= maxWidth;
+  }
+
+  /// The width of [label] in [style], laid out again only when the label,
+  /// style, text direction or text scaler changes.
+  double _measureTime(BuildContext context, String label, TextStyle style) {
+    final span = TextSpan(text: label, style: style);
+    final TextDirection direction = Directionality.of(context);
+    final TextScaler scaler = MediaQuery.textScalerOf(context);
+    final TextPainter? cached = _timePainter;
+    if (cached != null &&
+        cached.text == span &&
+        cached.textDirection == direction &&
+        cached.textScaler == scaler) {
+      return cached.width;
+    }
+    cached?.dispose();
+    final painter = TextPainter(
+      text: span,
+      textDirection: direction,
+      textScaler: scaler,
+      maxLines: 1,
+    )..layout();
+    _timePainter = painter;
+    return painter.width;
   }
 
   Widget _buildPlayButton() {
