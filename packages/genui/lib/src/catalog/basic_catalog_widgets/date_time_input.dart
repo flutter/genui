@@ -88,6 +88,25 @@ extension type _DateTimeInputData.fromMap(JsonMap _json) {
       DateTime(9999, 12, 31);
 }
 
+/// Parses [value] as an ISO 8601 date, date-time or time, in local time.
+///
+/// Returns null if [value] is none of these. `hasTime` is false for a
+/// date-only value such as `2026-05-15`.
+({DateTime dateTime, bool hasTime})? _parseValue(String value) {
+  final DateTime? dateTime = DateTime.tryParse(value);
+  if (dateTime != null) {
+    return (
+      dateTime: dateTime.toLocal(),
+      hasTime: value.contains(RegExp('[Tt ]')),
+    );
+  }
+  final DateTime? time = DateTime.tryParse('1970-01-01T$value');
+  if (time == null) {
+    return null;
+  }
+  return (dateTime: time.toLocal(), hasTime: true);
+}
+
 class _DateTimeInput extends StatefulWidget {
   const _DateTimeInput({
     required this.id,
@@ -163,9 +182,7 @@ class _DateTimeInputState extends State<_DateTimeInput> {
 
   Future<void> _handleTap(BuildContext context) async {
     final DateTime initialDate =
-        DateTime.tryParse(widget.value ?? '') ??
-        DateTime.tryParse('1970-01-01T${widget.value}') ??
-        DateTime.now();
+        _parseValue(widget.value ?? '')?.dateTime ?? DateTime.now();
 
     var resultDate = initialDate;
     var resultTime = TimeOfDay.fromDateTime(initialDate);
@@ -218,23 +235,31 @@ class _DateTimeInputState extends State<_DateTimeInput> {
     widget.onChanged();
   }
 
-  String _getDisplayText(MaterialLocalizations localizations) {
+  String _getDisplayText(
+    MaterialLocalizations localizations, {
+    required bool alwaysUse24HourFormat,
+  }) {
     if (widget.value == null) {
       return _getPlaceholderText();
     }
 
-    final DateTime? date =
-        DateTime.tryParse(widget.value!) ??
-        DateTime.tryParse('1970-01-01T${widget.value}');
+    final ({DateTime dateTime, bool hasTime})? parsed = _parseValue(
+      widget.value!,
+    );
 
-    if (date == null) {
+    if (parsed == null) {
       return widget.value!;
     }
 
+    // A date-only value has no time to show, so it is shown as its date.
     final List<String> parts = [
-      if (widget.data.enableDate) localizations.formatFullDate(date),
-      if (widget.data.enableTime)
-        localizations.formatTimeOfDay(TimeOfDay.fromDateTime(date)),
+      if (widget.data.enableDate || !parsed.hasTime)
+        localizations.formatFullDate(parsed.dateTime),
+      if (widget.data.enableTime && parsed.hasTime)
+        localizations.formatTimeOfDay(
+          TimeOfDay.fromDateTime(parsed.dateTime),
+          alwaysUse24HourFormat: alwaysUse24HourFormat,
+        ),
     ];
     return parts.join(' ');
   }
@@ -255,7 +280,10 @@ class _DateTimeInputState extends State<_DateTimeInput> {
     final MaterialLocalizations localizations = MaterialLocalizations.of(
       context,
     );
-    final String displayText = _getDisplayText(localizations);
+    final String displayText = _getDisplayText(
+      localizations,
+      alwaysUse24HourFormat: MediaQuery.alwaysUse24HourFormatOf(context),
+    );
 
     return InputDecorator(
       decoration: InputDecoration(

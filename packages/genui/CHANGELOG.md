@@ -10,6 +10,11 @@
   `package:a2ui_core` are no longer accepted.
 - **Internal**: Ignore the deprecation of `package:flutter/material.dart` on
   Flutter beta until genui can migrate to `package:material_ui` (#1062).
+- **Fix**: `DateTimeInput` shows its value in local time. A value with a UTC
+  offset, such as `2026-05-15T10:30:00Z`, was shown and opened in the pickers
+  at its UTC wall-clock time. A date-only value such as `2026-05-15` no longer
+  gets an invented `12:00 AM` when the input also takes a time, and the time
+  follows the platform's 24-hour setting.
 
 ## 0.10.5
 
