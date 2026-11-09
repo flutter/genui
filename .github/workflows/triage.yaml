@@ -52,7 +52,7 @@ jobs:
     steps:
       # Always run the rules from main, never from a PR's copy of the script.
       - name: Checkout repository
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           ref: main
           persist-credentials: false
