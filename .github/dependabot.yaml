@@ -14,6 +14,9 @@ updates:
   - package-ecosystem: "pub"
     directories:
       - "/**"
+    # genui is deprecated in favor of the a2ui packages, so it gets no updates.
+    exclude-paths:
+      - "packages/genui/**"
     schedule:
       interval: "daily"
     labels:
