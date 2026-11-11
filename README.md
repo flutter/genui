@@ -1,8 +1,9 @@
-**Announcement:** `genui` is being redesigned as a set of modular packages:
+**Important update:** `genui` is deprecated in favor of the set of modular packages:
 [`a2ui_core`](https://pub.dev/packages/a2ui_core),
 [`a2ui_agent`](https://pub.dev/packages/a2ui_agent), and
 [`a2ui_flutter`](https://pub.dev/packages/a2ui_flutter).
-The new packages will have a different API.
+The new packages have a different API. Use
+[the migration skill](https://github.com/a2ui-project/a2ui/blob/main/.agents/skills/a2ui-migration/SKILL.md) to migrate your packages.
 
 # Generative UI SDK for Flutter (genui)
 
@@ -16,7 +17,7 @@ See the [Getting started with GenUI](https://www.youtube.com/watch?v=nWr6eZKM6no
 ## Status: highly experimental
 
 This is a highly experimental package, which means the API will change (sometimes drastically).
-[Feedback is very welcome](https://github.com/a2ui-project/a2ui/issues/new/choose).
+[Feedback is very welcome](https://github.com/flutter/genui/issues/new/choose).
 
 ## Summary
 
