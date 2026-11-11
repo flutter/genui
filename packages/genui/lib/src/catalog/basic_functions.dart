@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:intl/intl.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -308,7 +310,9 @@ class EmailFunction extends SynchronousClientFunction {
   }
 }
 
-/// Opens a URL.
+const _allowedUrlSchemes = {'http', 'https'};
+
+/// Opens an HTTP or HTTPS URL.
 class OpenUrlFunction extends SynchronousClientFunction {
   const OpenUrlFunction();
 
@@ -331,14 +335,26 @@ class OpenUrlFunction extends SynchronousClientFunction {
   Object? executeSync(JsonMap args, ExecutionContext _) {
     final Object? urlStr = args['url'];
     if (urlStr is! String) return false;
-    final Uri? uri = Uri.tryParse(urlStr);
-    if (uri != null) {
-      canLaunchUrl(uri).then((can) {
-        if (can) launchUrl(uri);
-      });
-      return true;
+    final Uri? uri = Uri.tryParse(urlStr.trim());
+    if (uri == null ||
+        !_allowedUrlSchemes.contains(uri.scheme.toLowerCase()) ||
+        !uri.hasAuthority ||
+        uri.host.isEmpty) {
+      return false;
     }
-    return false;
+    unawaited(_launchUrl(uri));
+    return true;
+  }
+
+  static Future<void> _launchUrl(Uri uri) async {
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri);
+      }
+    } on Exception {
+      // Ignore platform channel failures so asynchronous launch errors do not
+      // surface as unhandled zone exceptions.
+    }
   }
 }
 

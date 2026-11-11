@@ -4,12 +4,17 @@
 
 import 'dart:async';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genui/src/catalog/basic_functions.dart';
 import 'package:genui/src/model/client_function.dart';
 import 'package:genui/src/model/data_model.dart';
 
+const _urlLauncherChannel = MethodChannel('plugins.flutter.io/url_launcher');
+
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('BasicFunctions', () {
     late DataContext context;
     late DataModel dataModel;
@@ -178,6 +183,138 @@ void main() {
 
       // Test return empty string if count is not a number
       expect(await run<String>(func, {'value': 'not a number'}), '');
+    });
+
+    group('openUrl', () {
+      final OpenUrlFunction func = BasicFunctions.openUrlFunction;
+      late List<String> checkedUrls;
+      late List<String> launchedUrls;
+      var canLaunchResult = true;
+
+      setUp(() {
+        checkedUrls = <String>[];
+        launchedUrls = <String>[];
+        canLaunchResult = true;
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(_urlLauncherChannel, (
+              MethodCall call,
+            ) async {
+              final args = call.arguments as Map<Object?, Object?>;
+              final url = args['url'] as String;
+              if (call.method == 'canLaunch') {
+                checkedUrls.add(url);
+                return canLaunchResult;
+              }
+              if (call.method == 'launch') {
+                launchedUrls.add(url);
+                return true;
+              }
+              return null;
+            });
+      });
+
+      tearDown(() {
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(_urlLauncherChannel, null);
+      });
+
+      test('allows http and https URLs case-insensitively', () async {
+        expect(
+          await run<bool>(func, {'url': 'https://example.com/docs'}),
+          isTrue,
+        );
+        expect(
+          await run<bool>(func, {'url': 'http://localhost:8080/path'}),
+          isTrue,
+        );
+        expect(
+          await run<bool>(func, {'url': 'HTTPS://Example.COM/upper'}),
+          isTrue,
+        );
+        await Future<void>.delayed(Duration.zero);
+
+        expect(checkedUrls, <String>[
+          'https://example.com/docs',
+          'http://localhost:8080/path',
+          'https://example.com/upper',
+        ]);
+        expect(launchedUrls, <String>[
+          'https://example.com/docs',
+          'http://localhost:8080/path',
+          'https://example.com/upper',
+        ]);
+      });
+
+      test('does not launch when canLaunchUrl returns false', () async {
+        canLaunchResult = false;
+        expect(await run<bool>(func, {'url': 'https://example.com'}), isTrue);
+        await Future<void>.delayed(Duration.zero);
+
+        expect(checkedUrls, <String>['https://example.com']);
+        expect(launchedUrls, isEmpty);
+      });
+
+      test(
+        'ignores asynchronous PlatformException from url_launcher',
+        () async {
+          var throwOnCanLaunch = true;
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+              .setMockMethodCallHandler(_urlLauncherChannel, (
+                MethodCall call,
+              ) async {
+                if (call.method == 'canLaunch' && throwOnCanLaunch) {
+                  throw PlatformException(code: 'CHANNEL_ERROR');
+                }
+                if (call.method == 'canLaunch') {
+                  return true;
+                }
+                if (call.method == 'launch') {
+                  throw PlatformException(code: 'LAUNCH_FAILED');
+                }
+                return null;
+              });
+
+          expect(await run<bool>(func, {'url': 'https://example.com'}), isTrue);
+          await Future<void>.delayed(Duration.zero);
+
+          throwOnCanLaunch = false;
+          expect(await run<bool>(func, {'url': 'https://example.com'}), isTrue);
+          await Future<void>.delayed(Duration.zero);
+        },
+      );
+
+      test('rejects disallowed schemes and malformed URLs', () async {
+        const disallowedUrls = <Object?>[
+          'intent://scan/#Intent;scheme=example;package=com.example.app;end',
+          'file:///etc/hosts',
+          'javascript:alert(1)',
+          'data:text/html,<script>alert(1)</script>',
+          'mailto:user@example.com',
+          'tel:+15551234567',
+          'custom-scheme://open',
+          '/relative/path',
+          'example.com/no-scheme',
+          'https:',
+          'http:///missing-host',
+          '',
+          '   ',
+          '://invalid',
+          null,
+          42,
+        ];
+
+        for (final url in disallowedUrls) {
+          expect(
+            await run<bool>(func, {'url': url}),
+            isFalse,
+            reason: 'Expected $url to be rejected',
+          );
+        }
+        await Future<void>.delayed(Duration.zero);
+
+        expect(checkedUrls, isEmpty);
+        expect(launchedUrls, isEmpty);
+      });
     });
   });
 }
