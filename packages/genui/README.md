@@ -1,8 +1,9 @@
-**Announcement:** `genui` is being redesigned as a set of modular packages:
+**Important update:** `genui` is deprecated in favor of these modular packages:
 [`a2ui_core`](https://pub.dev/packages/a2ui_core),
 [`a2ui_agent`](https://pub.dev/packages/a2ui_agent), and
 [`a2ui_flutter`](https://pub.dev/packages/a2ui_flutter).
-The new packages will have a different API.
+The new packages have a different API. To migrate your code, use the
+[A2UI migration skill](https://github.com/a2ui-project/a2ui/blob/main/.agents/skills/a2ui-migration/SKILL.md).
 
 # genui
 
