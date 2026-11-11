@@ -1,9 +1,9 @@
-**Important update:** `genui` is deprecated in favor of the set of modular packages:
+**Important update:** `genui` is deprecated in favor of these modular packages:
 [`a2ui_core`](https://pub.dev/packages/a2ui_core),
 [`a2ui_agent`](https://pub.dev/packages/a2ui_agent), and
 [`a2ui_flutter`](https://pub.dev/packages/a2ui_flutter).
-The new packages have a different API. Use
-[the migration skill](https://github.com/a2ui-project/a2ui/blob/main/.agents/skills/a2ui-migration/SKILL.md) to migrate your packages.
+The new packages have a different API. To migrate your code, use the
+[A2UI migration skill](https://github.com/a2ui-project/a2ui/blob/main/.agents/skills/a2ui-migration/SKILL.md).
 
 # Generative UI SDK for Flutter (genui)
 
