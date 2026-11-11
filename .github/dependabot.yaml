@@ -12,11 +12,13 @@ updates:
     labels:
       - "autosubmit"
   - package-ecosystem: "pub"
+    # genui is deprecated in favor of the a2ui packages, so genui and the
+    # packages that depend on it are left out of this list.
     directories:
-      - "/**"
-    # genui is deprecated in favor of the a2ui packages, so it gets no updates.
-    exclude-paths:
-      - "packages/genui/**"
+      - "/packages/genai_primitives"
+      - "/packages/json_schema_builder"
+      - "/tool/fix_copyright"
+      - "/tool/test_and_fix"
     schedule:
       interval: "daily"
     labels:
