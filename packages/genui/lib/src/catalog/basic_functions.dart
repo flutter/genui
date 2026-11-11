@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:intl/intl.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -340,10 +342,19 @@ class OpenUrlFunction extends SynchronousClientFunction {
         uri.host.isEmpty) {
       return false;
     }
-    canLaunchUrl(uri).then((can) {
-      if (can) launchUrl(uri);
-    });
+    unawaited(_launchUrl(uri));
     return true;
+  }
+
+  static Future<void> _launchUrl(Uri uri) async {
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri);
+      }
+    } on Exception {
+      // Ignore platform channel failures so asynchronous launch errors do not
+      // surface as unhandled zone exceptions.
+    }
   }
 }
 

@@ -254,6 +254,35 @@ void main() {
         expect(launchedUrls, isEmpty);
       });
 
+      test(
+        'ignores asynchronous PlatformException from url_launcher',
+        () async {
+          var throwOnCanLaunch = true;
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+              .setMockMethodCallHandler(_urlLauncherChannel, (
+                MethodCall call,
+              ) async {
+                if (call.method == 'canLaunch' && throwOnCanLaunch) {
+                  throw PlatformException(code: 'CHANNEL_ERROR');
+                }
+                if (call.method == 'canLaunch') {
+                  return true;
+                }
+                if (call.method == 'launch') {
+                  throw PlatformException(code: 'LAUNCH_FAILED');
+                }
+                return null;
+              });
+
+          expect(await run<bool>(func, {'url': 'https://example.com'}), isTrue);
+          await Future<void>.delayed(Duration.zero);
+
+          throwOnCanLaunch = false;
+          expect(await run<bool>(func, {'url': 'https://example.com'}), isTrue);
+          await Future<void>.delayed(Duration.zero);
+        },
+      );
+
       test('rejects disallowed schemes and malformed URLs', () async {
         const disallowedUrls = <Object?>[
           'intent://scan/#Intent;scheme=example;package=com.example.app;end',
