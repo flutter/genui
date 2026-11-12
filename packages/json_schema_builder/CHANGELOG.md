@@ -7,6 +7,11 @@
   `$anchor` or `$dynamicAnchor`. The anchor search now looks only inside
   subschemas, so it no longer reads the `properties` map, or data under
   keywords such as `const`, `enum` and `default`, as a schema.
+- **Behavior change**: An `$anchor` or `$dynamicAnchor` under a keyword that
+  doesn't take a schema, such as an unknown keyword or the pre-2020-12
+  `definitions`, `dependencies`, array `items` and `additionalItems`, is no
+  longer found. JSON Schema 2020-12 Core §9.4.2 leaves those targets undefined.
+  JSON Pointer references such as `#/definitions/a` still resolve.
 
 ## 0.1.7
 

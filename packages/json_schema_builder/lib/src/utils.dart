@@ -34,12 +34,14 @@ HashSet<ValidationError> createHashSet() {
   );
 }
 
-/// The subschemas that [schema] holds directly, under the keywords whose
-/// values are schemas.
+/// The object subschemas that [schema] holds directly, under `$defs` and
+/// every other JSON Schema 2020-12 keyword that takes subschemas, including
+/// `contentSchema`.
 ///
-/// No other value is a schema, even when it is a map: the keys of
-/// `properties` are property names, and keywords such as `const`, `enum`,
-/// `default` and `examples` hold instance data.
+/// Nothing else is read as a schema, even when it is a map: the keys of
+/// `properties` are property names, keywords such as `const`, `enum`,
+/// `default` and `examples` hold instance data, and unknown keywords are
+/// skipped.
 Iterable<Schema> subschemasOf(Schema schema) sync* {
   // Keywords with map-of-schemas values
   const mapOfSchemasKeywords = <String>[
@@ -70,6 +72,7 @@ Iterable<Schema> subschemasOf(Schema schema) sync* {
     'if',
     'then',
     'else',
+    'contentSchema',
   ];
   for (final keyword in schemaKeywords) {
     if (schema.value[keyword] case final Map<String, Object?> map) {
