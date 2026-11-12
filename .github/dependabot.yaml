@@ -9,12 +9,23 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    # Wait a week after a release before proposing it.
+    cooldown:
+      default-days: 7
     labels:
       - "autosubmit"
   - package-ecosystem: "pub"
+    # genui is deprecated in favor of the a2ui packages, so genui and the
+    # packages that depend on it are left out of this list.
     directories:
-      - "/**"
+      - "/packages/genai_primitives"
+      - "/packages/json_schema_builder"
+      - "/tool/fix_copyright"
+      - "/tool/test_and_fix"
     schedule:
       interval: "daily"
+    # Wait a week after a release before proposing it.
+    cooldown:
+      default-days: 7
     labels:
       - "autosubmit"
