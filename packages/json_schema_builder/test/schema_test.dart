@@ -433,4 +433,185 @@ void main() {
       );
     });
   });
+
+  group('Anchor resolution', () {
+    // An anchor is looked up only in subschemas. The keys of `properties` are
+    // property names, not keywords, so a property can be called `$id`,
+    // `$anchor` or `$dynamicAnchor`. Looking up an anchor must not read them
+    // as identifiers.
+    final Uri treeUri = Uri.parse('https://example.com/tree.json');
+
+    /// A schema that declares [property] and reaches the anchors in its
+    /// `$defs` through [reference].
+    Schema oneResource(String property, Map<String, Object?> reference) =>
+        Schema.fromMap({
+          r'$id': 'https://example.com/root.json',
+          'type': 'object',
+          'properties': {
+            property: {'type': 'string'},
+            'child': reference,
+          },
+          r'$defs': {
+            'node': {
+              r'$anchor': 'plain',
+              r'$dynamicAnchor': 'dynamic',
+              'type': 'object',
+            },
+          },
+        });
+
+    /// A schema that declares [property] and refers to a recursive schema
+    /// whose `$dynamicRef` is resolved through the dynamic scope.
+    Schema twoResources(String property) => Schema.fromMap({
+      r'$id': 'https://example.com/root.json',
+      'type': 'object',
+      'properties': {
+        property: {'type': 'string'},
+        'child': {r'$ref': '$treeUri'},
+      },
+    });
+
+    SchemaRegistry registryWithTree() => SchemaRegistry()
+      ..addSchema(
+        treeUri,
+        Schema.fromMap({
+          r'$id': '$treeUri',
+          r'$dynamicAnchor': 'node',
+          'type': 'object',
+          'properties': {
+            'children': {
+              'type': 'array',
+              'items': {r'$dynamicRef': '#node'},
+            },
+          },
+        }),
+      );
+
+    Future<List<ValidationErrorType>> errorTypes(
+      Schema schema,
+      Object? data, [
+      SchemaRegistry? registry,
+    ]) async => (await schema.validate(
+      data,
+      schemaRegistry: registry,
+    )).map((ValidationError e) => e.error).toList();
+
+    for (final name in ['name', r'$id', r'$anchor', r'$dynamicAnchor']) {
+      test('property "$name" with a \$ref to an \$anchor', () async {
+        final Schema schema = oneResource(name, {r'$ref': '#plain'});
+
+        expect(
+          await errorTypes(schema, {'child': <String, Object?>{}}),
+          isEmpty,
+        );
+        expect(await errorTypes(schema, {'child': 'x'}), [
+          ValidationErrorType.typeMismatch,
+        ]);
+      });
+
+      test('property "$name" with a \$dynamicRef in the same schema', () async {
+        final Schema schema = oneResource(name, {r'$dynamicRef': '#dynamic'});
+
+        expect(
+          await errorTypes(schema, {'child': <String, Object?>{}}),
+          isEmpty,
+        );
+        expect(await errorTypes(schema, {'child': 'x'}), [
+          ValidationErrorType.typeMismatch,
+        ]);
+      });
+
+      // A property named `$anchor` passes this one even before the fix:
+      // `_findDynamicAnchorInSchema` reads only `$id` and `$dynamicAnchor`.
+      test(
+        'property "$name" with a \$dynamicRef resolved in another resource',
+        () async {
+          final Schema schema = twoResources(name);
+          final SchemaRegistry registry = registryWithTree();
+          addTearDown(registry.dispose);
+
+          expect(
+            await errorTypes(schema, {
+              'child': {
+                'children': [<String, Object?>{}],
+              },
+            }, registry),
+            isEmpty,
+          );
+          expect(
+            await errorTypes(schema, {
+              'child': {
+                'children': ['x'],
+              },
+            }, registry),
+            [ValidationErrorType.typeMismatch],
+          );
+        },
+      );
+    }
+
+    test('an \$anchor inside contentSchema', () async {
+      final schema = Schema.fromMap({
+        r'$id': 'https://example.com/root.json',
+        'type': 'object',
+        'properties': {
+          'payload': {
+            'type': 'string',
+            'contentMediaType': 'application/json',
+            'contentSchema': {r'$anchor': 'payload', 'type': 'object'},
+          },
+          'child': {r'$ref': '#payload'},
+        },
+      });
+
+      expect(await errorTypes(schema, {'child': <String, Object?>{}}), isEmpty);
+      expect(await errorTypes(schema, {'child': 'x'}), [
+        ValidationErrorType.typeMismatch,
+      ]);
+    });
+
+    // Ported from the JSON-Schema-Test-Suite case in
+    // draft2020-12/optional/anchor.json, which test_suite_test.dart skips with
+    // the rest of optional/. It leaves out `$schema` so that validation does
+    // not fetch the meta-schema.
+    test('\$anchor inside an enum is not a real identifier', () async {
+      final schema = Schema.fromMap({
+        r'$defs': {
+          'anchor_in_enum': {
+            'enum': [
+              {r'$anchor': 'my_anchor', 'type': 'null'},
+            ],
+          },
+          'real_identifier_in_schema': {
+            r'$anchor': 'my_anchor',
+            'type': 'string',
+          },
+          'zzz_anchor_in_const': {
+            'const': {r'$anchor': 'my_anchor', 'type': 'null'},
+          },
+        },
+        'anyOf': [
+          {r'$ref': r'#/$defs/anchor_in_enum'},
+          {r'$ref': '#my_anchor'},
+        ],
+      });
+
+      // Exact match to enum, and type matches.
+      expect(
+        await errorTypes(schema, {r'$anchor': 'my_anchor', 'type': 'null'}),
+        isEmpty,
+      );
+      // Could match either `$defs` entry only if `$anchor` were stripped.
+      expect(await errorTypes(schema, {'type': 'null'}), [
+        ValidationErrorType.anyOfNotMet,
+      ]);
+      // Match `$ref` to `$anchor`.
+      expect(
+        await errorTypes(schema, r'a string to match #/$defs/anchor_in_enum'),
+        isEmpty,
+      );
+      // No match on enum or `$ref` to `$anchor`.
+      expect(await errorTypes(schema, 1), [ValidationErrorType.anyOfNotMet]);
+    });
+  });
 }

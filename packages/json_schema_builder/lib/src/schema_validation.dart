@@ -1427,12 +1427,8 @@ extension SchemaValidation on Schema {
           return;
         }
 
-        for (final Object? value in current.values) {
-          visit(value, isRootOfResource: false);
-        }
-      } else if (current is List) {
-        for (final Object? item in current) {
-          visit(item, isRootOfResource: false);
+        for (final Schema subschema in subschemasOf(currentSchema)) {
+          visit(subschema.value, isRootOfResource: false);
         }
       }
     }
