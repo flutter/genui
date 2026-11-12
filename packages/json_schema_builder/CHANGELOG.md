@@ -1,5 +1,13 @@
 # [json_schema_builder](https://pub.dev/packages/json_schema_builder) Change Log
 
+## 0.1.8
+
+- **Fix**: Resolving a `$ref` to an `$anchor`, or a `$dynamicRef`, no longer
+  throws a `TypeError` when the schema declares a property named `$id`,
+  `$anchor` or `$dynamicAnchor`. The anchor search now looks only inside
+  subschemas, so it no longer reads the `properties` map, or data under
+  keywords such as `const`, `enum` and `default`, as a schema.
+
 ## 0.1.7
 
 - **Feature**: Add `Schema.validateSync`, a synchronous validation entry point

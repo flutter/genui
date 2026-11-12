@@ -433,4 +433,118 @@ void main() {
       );
     });
   });
+
+  group('Anchor resolution with properties named like keywords', () {
+    // The keys of `properties` are property names, not keywords, so a property
+    // can be called `$id`, `$anchor` or `$dynamicAnchor`. Looking up an anchor
+    // must not read them as identifiers.
+    final Uri treeUri = Uri.parse('https://example.com/tree.json');
+
+    /// A schema that declares [property] and reaches the anchors in its
+    /// `$defs` through [reference].
+    Schema oneResource(String property, Map<String, Object?> reference) =>
+        Schema.fromMap({
+          r'$id': 'https://example.com/root.json',
+          'type': 'object',
+          'properties': {
+            property: {'type': 'string'},
+            'child': reference,
+          },
+          r'$defs': {
+            'node': {
+              r'$anchor': 'plain',
+              r'$dynamicAnchor': 'dynamic',
+              'type': 'object',
+            },
+          },
+        });
+
+    /// A schema that declares [property] and refers to a recursive schema
+    /// whose `$dynamicRef` is resolved through the dynamic scope.
+    Schema twoResources(String property) => Schema.fromMap({
+      r'$id': 'https://example.com/root.json',
+      'type': 'object',
+      'properties': {
+        property: {'type': 'string'},
+        'child': {r'$ref': '$treeUri'},
+      },
+    });
+
+    SchemaRegistry registryWithTree() => SchemaRegistry()
+      ..addSchema(
+        treeUri,
+        Schema.fromMap({
+          r'$id': '$treeUri',
+          r'$dynamicAnchor': 'node',
+          'type': 'object',
+          'properties': {
+            'children': {
+              'type': 'array',
+              'items': {r'$dynamicRef': '#node'},
+            },
+          },
+        }),
+      );
+
+    Future<List<ValidationErrorType>> errorTypes(
+      Schema schema,
+      Object? data, [
+      SchemaRegistry? registry,
+    ]) async => (await schema.validate(
+      data,
+      schemaRegistry: registry,
+    )).map((ValidationError e) => e.error).toList();
+
+    for (final name in ['name', r'$id', r'$anchor', r'$dynamicAnchor']) {
+      test('property "$name" with a \$ref to an \$anchor', () async {
+        final Schema schema = oneResource(name, {r'$ref': '#plain'});
+
+        expect(
+          await errorTypes(schema, {'child': <String, Object?>{}}),
+          isEmpty,
+        );
+        expect(await errorTypes(schema, {'child': 'x'}), [
+          ValidationErrorType.typeMismatch,
+        ]);
+      });
+
+      test('property "$name" with a \$dynamicRef in the same schema', () async {
+        final Schema schema = oneResource(name, {r'$dynamicRef': '#dynamic'});
+
+        expect(
+          await errorTypes(schema, {'child': <String, Object?>{}}),
+          isEmpty,
+        );
+        expect(await errorTypes(schema, {'child': 'x'}), [
+          ValidationErrorType.typeMismatch,
+        ]);
+      });
+
+      test(
+        'property "$name" with a \$dynamicRef resolved in another resource',
+        () async {
+          final Schema schema = twoResources(name);
+          final SchemaRegistry registry = registryWithTree();
+          addTearDown(registry.dispose);
+
+          expect(
+            await errorTypes(schema, {
+              'child': {
+                'children': [<String, Object?>{}],
+              },
+            }, registry),
+            isEmpty,
+          );
+          expect(
+            await errorTypes(schema, {
+              'child': {
+                'children': ['x'],
+              },
+            }, registry),
+            [ValidationErrorType.typeMismatch],
+          );
+        },
+      );
+    }
+  });
 }

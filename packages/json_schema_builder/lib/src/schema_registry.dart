@@ -260,12 +260,8 @@ class SchemaRegistry {
           return;
         }
 
-        for (final Object? value in current.values) {
-          visit(value, isRootOfResource: false);
-        }
-      } else if (current is List) {
-        for (final Object? item in current) {
-          visit(item, isRootOfResource: false);
+        for (final Schema subschema in subschemasOf(currentSchema)) {
+          visit(subschema.value, isRootOfResource: false);
         }
       }
     }
@@ -295,60 +291,7 @@ void _walkSchema(
     }
   }
   visit(schema, currentBaseUri);
-
-  void recurseOnMap(Map<String, Object?> map) {
-    _walkSchema(Schema.fromMap(map), currentBaseUri, visit);
-  }
-
-  void recurseOnList(List<Object?> list) {
-    for (final item in list) {
-      if (item is Map<String, Object?>) {
-        recurseOnMap(item);
-      }
-    }
-  }
-
-  // Keywords with map-of-schemas values
-  const mapOfSchemasKeywords = <String>[
-    'properties',
-    'patternProperties',
-    'dependentSchemas',
-    '\$defs',
-  ];
-  for (final keyword in mapOfSchemasKeywords) {
-    if (schema.value[keyword] case final Map<String, Object?> map?) {
-      for (final Object? value in map.values) {
-        if (value is Map<String, Object?>) {
-          recurseOnMap(value);
-        }
-      }
-    }
-  }
-
-  // Keywords with schema values
-  const schemaKeywords = [
-    'additionalProperties',
-    'unevaluatedProperties',
-    'items',
-    'unevaluatedItems',
-    'contains',
-    'propertyNames',
-    'not',
-    'if',
-    'then',
-    'else',
-  ];
-  for (final keyword in schemaKeywords) {
-    if (schema.value[keyword] case final Map<String, Object?> map) {
-      recurseOnMap(map);
-    }
-  }
-
-  // Keywords with list-of-schemas values
-  const listOfSchemasKeywords = ['allOf', 'anyOf', 'oneOf', 'prefixItems'];
-  for (final keyword in listOfSchemasKeywords) {
-    if (schema.value[keyword] case final List<Object?> list) {
-      recurseOnList(list);
-    }
+  for (final Schema subschema in subschemasOf(schema)) {
+    _walkSchema(subschema, currentBaseUri, visit);
   }
 }
