@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# A CI configuration to auto-publish pub packages.
+# A CI configuration to auto-publish pub packages via OSS Exit Gate.
 
 name: Publish
 
@@ -14,11 +14,12 @@ on:
     # Match <package-name>-v<version> publish tags
     tags: [ '[A-z0-9]+-v[0-9]+.[0-9]+.[0-9]+' ]
 
+permissions: {}
+
 jobs:
   publish:
-    if: ${{ github.repository_owner == 'flutter' }}
-    # Ignored because dart-lang ecosystem reusable workflows are designed to run from @main.
-    uses: dart-lang/ecosystem/.github/workflows/publish.yaml@main # zizmor: ignore[unpinned-uses]
+    if: ${{ github.repository_owner == 'flutter' && github.event_name == 'pull_request' }}
+    uses: dart-lang/ecosystem/.github/workflows/publish.yaml@54e16739d9c15ef0b77e050242c16226ad9235f9 # main
     with:
       # See https://github.com/dart-lang/ecosystem/tree/main/pkgs/firehose#options
       sdk: beta # version of dart sdk to use for publishing
@@ -28,3 +29,83 @@ jobs:
     permissions:
       id-token: write
       pull-requests: write
+
+  stage-exit-gate:
+    if: ${{ github.repository_owner == 'flutter' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: 'projects/305452601764/locations/global/workloadIdentityPools/builders/providers/github'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3
+
+      - name: Clean up stale releases from staging repository
+        run: |
+          packages=$(gcloud artifacts packages list \
+            --project="oss-exit-gate-prod" \
+            --location="us" \
+            --repository="genui--pubdev" \
+            --format="value(name)" 2>/dev/null || true)
+          if [ -n "${packages}" ]; then
+            echo "${packages}" | xargs -r -I {} gcloud artifacts packages delete "{}" \
+              --project="oss-exit-gate-prod" \
+              --location="us" \
+              --repository="genui--pubdev" \
+              --quiet
+          fi
+
+      - name: Stage package archive and trigger OSS Exit Gate release
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          PKG_NAME="${TAG_NAME%-v*}"
+          VERSION="${TAG_NAME##*-v}"
+          if [ -d "packages/${PKG_NAME}" ]; then
+            PKG_DIR="packages/${PKG_NAME}"
+          elif [ -d "${PKG_NAME}" ]; then
+            PKG_DIR="${PKG_NAME}"
+          else
+            echo "ERROR: Package directory for '${PKG_NAME}' not found." >&2
+            exit 1
+          fi
+          ARCHIVE="${PKG_NAME}-${VERSION}.tar.gz"
+          tar -czf "${ARCHIVE}" -C "${PKG_DIR}" .
+          gcloud artifacts generic upload \
+            --project=oss-exit-gate-prod \
+            --location=us \
+            --repository=genui--pubdev \
+            --package="${PKG_NAME}" \
+            --version="${VERSION}" \
+            --source="${ARCHIVE}"
+          cat <<EOF > manifest.json
+          {
+            "publish_all": false,
+            "publishing_groups": [
+              {
+                "packages": [
+                  {
+                    "name": "${PKG_NAME}",
+                    "version": "${VERSION}"
+                  }
+                ]
+              }
+            ]
+          }
+          EOF
+          gcloud storage cp manifest.json \
+            "gs://oss-exit-gate-prod-projects-bucket/genui/pubdev/manifests/manifest-${RUN_ID}-${RUN_ATTEMPT}.json"
