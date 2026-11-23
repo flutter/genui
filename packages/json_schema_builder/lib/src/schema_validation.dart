@@ -890,7 +890,7 @@ extension SchemaValidation on Schema {
               );
             }
             if (stringSchema.pattern case final p?) {
-              if (!RegExp(p).hasMatch(data as String)) {
+              if (!_patternRegExp(p).hasMatch(data as String)) {
                 errors.add(
                   ValidationError(
                     ValidationErrorType.patternMismatch,
@@ -1094,7 +1094,7 @@ extension SchemaValidation on Schema {
 
     if (objectSchema.patternProperties case final patternProps?) {
       for (final MapEntry<String, Schema> entry in patternProps.entries) {
-        final pattern = RegExp(entry.key);
+        final RegExp pattern = _patternRegExp(entry.key);
         for (final String dataKey in data.keys) {
           if (pattern.hasMatch(dataKey)) {
             final newPath = [...currentPath, dataKey];
@@ -1439,5 +1439,20 @@ extension SchemaValidation on Schema {
 
     visit(schema.value, isRootOfResource: true);
     return result;
+  }
+}
+
+/// Compiles a `pattern` or `patternProperties` regular expression.
+///
+/// JSON Schema patterns follow ECMA-262 with unicode semantics, so `\p{...}`
+/// property escapes and non-BMP characters work as they do with the `u` flag.
+/// Dart's [RegExp] applies those semantics only with `unicode: true`. A
+/// pattern that unicode mode rejects, such as one with an identity escape
+/// like `\-` outside a class, keeps the non-unicode reading it had before.
+RegExp _patternRegExp(String pattern) {
+  try {
+    return RegExp(pattern, unicode: true);
+  } on FormatException {
+    return RegExp(pattern);
   }
 }
