@@ -223,9 +223,9 @@ class A2uiChatSession extends ChatSession {
 
   void _onSurfaceUpdate(SurfaceUpdate update) {
     switch (update) {
-      case SurfaceAdded(:final surfaceId):
+      case SurfaceAdded(:final String surfaceId):
         _addSurfaceMessage(surfaceId);
-      case SurfaceRemoved(:final surfaceId):
+      case SurfaceRemoved(:final String surfaceId):
         _reportError(
           'Surface $surfaceId removed, that should not happen in chat.',
           showInChat: false,

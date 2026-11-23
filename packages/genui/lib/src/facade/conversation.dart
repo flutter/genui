@@ -129,7 +129,10 @@ interface class Conversation {
     // Listen to controller updates and emit events
     _engineSubscription = controller.surfaceUpdates.listen((update) {
       switch (update) {
-        case SurfaceAdded(:final surfaceId, :final definition):
+        case SurfaceAdded(
+          :final String surfaceId,
+          :final SurfaceDefinition definition,
+        ):
           _eventController.add(ConversationSurfaceAdded(surfaceId, definition));
           _updateState((s) {
             if (!s.surfaces.contains(surfaceId)) {
@@ -137,11 +140,14 @@ interface class Conversation {
             }
             return s;
           });
-        case ComponentsUpdated(:final surfaceId, :final definition):
+        case ComponentsUpdated(
+          :final String surfaceId,
+          :final SurfaceDefinition definition,
+        ):
           _eventController.add(
             ConversationComponentsUpdated(surfaceId, definition),
           );
-        case SurfaceRemoved(:final surfaceId):
+        case SurfaceRemoved(:final String surfaceId):
           _eventController.add(ConversationSurfaceRemoved(surfaceId));
           _updateState(
             (s) => s.copyWith(

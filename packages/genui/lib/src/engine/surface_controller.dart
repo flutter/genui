@@ -79,11 +79,19 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   @override
   Stream<SurfaceUpdate> get surfaceUpdates => _registry.events.map(
     (e) => switch (e) {
-      surface_reg.SurfaceAdded(:final surfaceId, :final surface) =>
+      surface_reg.SurfaceAdded(
+        :final String surfaceId,
+        :final core.SurfaceModel<core.ComponentApi> surface,
+      ) =>
         SurfaceAdded.fromCore(surfaceId, surface),
-      surface_reg.SurfaceUpdated(:final surfaceId, :final surface) =>
+      surface_reg.SurfaceUpdated(
+        :final String surfaceId,
+        :final core.SurfaceModel<core.ComponentApi> surface,
+      ) =>
         ComponentsUpdated.fromCore(surfaceId, surface),
-      surface_reg.SurfaceRemoved(:final surfaceId) => SurfaceRemoved(surfaceId),
+      surface_reg.SurfaceRemoved(:final String surfaceId) => SurfaceRemoved(
+        surfaceId,
+      ),
     },
   );
 
@@ -257,8 +265,8 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   /// surfaceId so the caller can buffer the message. Otherwise returns null.
   String? _bufferSurfaceIdIfNoSurface(core.A2uiMessage message) {
     final String? targetId = switch (message) {
-      core.UpdateComponentsMessage(:final surfaceId) => surfaceId,
-      core.UpdateDataModelMessage(:final surfaceId) => surfaceId,
+      core.UpdateComponentsMessage(:final String surfaceId) => surfaceId,
+      core.UpdateDataModelMessage(:final String surfaceId) => surfaceId,
       _ => null,
     };
     if (targetId == null) return null;
@@ -267,10 +275,10 @@ interface class SurfaceController implements SurfaceHost, A2uiMessageSink {
   }
 
   String? _surfaceIdOf(core.A2uiMessage message) => switch (message) {
-    core.CreateSurfaceMessage(:final surfaceId) => surfaceId,
-    core.UpdateComponentsMessage(:final surfaceId) => surfaceId,
-    core.UpdateDataModelMessage(:final surfaceId) => surfaceId,
-    core.DeleteSurfaceMessage(:final surfaceId) => surfaceId,
+    core.CreateSurfaceMessage(:final String surfaceId) => surfaceId,
+    core.UpdateComponentsMessage(:final String surfaceId) => surfaceId,
+    core.UpdateDataModelMessage(:final String surfaceId) => surfaceId,
+    core.DeleteSurfaceMessage(:final String surfaceId) => surfaceId,
     _ => null,
   };
 

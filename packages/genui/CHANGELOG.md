@@ -10,6 +10,8 @@
   `package:a2ui_core` are no longer accepted.
 - **Internal**: Ignore the deprecation of `package:flutter/material.dart` on
   Flutter beta until genui can migrate to `package:material_ui` (#1062).
+- **Internal**: Add explicit types to pattern variables that the
+  `specify_nonobvious_local_variable_types` lint flags on Flutter beta.
 - **Fix**: Restrict `OpenUrlFunction` to absolute `http` and `https` URLs with a
   non-empty host authority, and guard against unhandled asynchronous platform
   exceptions when launching URLs (#1079).
