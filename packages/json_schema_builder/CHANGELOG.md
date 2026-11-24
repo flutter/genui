@@ -1,5 +1,17 @@
 # [json_schema_builder](https://pub.dev/packages/json_schema_builder) Change Log
 
+## 0.1.8
+
+- **Fix**: `pattern` and `patternProperties` now compile their regular
+  expressions with Unicode semantics, as JSON Schema 2020-12 recommends, so
+  `\p{...}` property escapes match. Before, a pattern such as
+  `^[\p{XID_Start}_][\p{XID_Continue}]*$` rejected valid strings like
+  `trace_id` and `café`.
+- **Behavior change**: Under Unicode semantics, `.` and character classes
+  match a whole code point outside the Basic Multilingual Plane, and
+  `\u{...}` is a code point escape. A pattern that Unicode semantics reject,
+  such as one with `\-` outside a character class, keeps its old reading.
+
 ## 0.1.7
 
 - **Feature**: Add `Schema.validateSync`, a synchronous validation entry point
