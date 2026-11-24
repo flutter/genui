@@ -31,6 +31,16 @@ void main() {
       expect(escaped.validateSync('a-b'), isEmpty);
       expect(escaped.validateSync('ab'), isNotEmpty);
     });
+
+    test('uses the new pattern after the schema map changes', () {
+      final map = {'type': 'string', 'pattern': r'^a$'};
+      final schema = Schema.fromMap(map);
+      expect(schema.validateSync('a'), isEmpty);
+
+      map['pattern'] = r'^b$';
+      expect(schema.validateSync('b'), isEmpty);
+      expect(schema.validateSync('a'), isNotEmpty);
+    });
   });
 
   group('patternProperties', () {

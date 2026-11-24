@@ -890,7 +890,7 @@ extension SchemaValidation on Schema {
               );
             }
             if (stringSchema.pattern case final p?) {
-              if (!_patternRegExp(p).hasMatch(data as String)) {
+              if (!_patternRegExp(this, p).hasMatch(data as String)) {
                 errors.add(
                   ValidationError(
                     ValidationErrorType.patternMismatch,
@@ -1094,7 +1094,7 @@ extension SchemaValidation on Schema {
 
     if (objectSchema.patternProperties case final patternProps?) {
       for (final MapEntry<String, Schema> entry in patternProps.entries) {
-        final RegExp pattern = _patternRegExp(entry.key);
+        final RegExp pattern = _patternRegExp(this, entry.key);
         for (final String dataKey in data.keys) {
           if (pattern.hasMatch(dataKey)) {
             final newPath = [...currentPath, dataKey];
@@ -1442,6 +1442,17 @@ extension SchemaValidation on Schema {
   }
 }
 
+/// Compiled `pattern` and `patternProperties` expressions, keyed by the
+/// schema's backing map and then by pattern source.
+///
+/// Keying by the map keeps entries only as long as the schema lives. Keying by
+/// source means a pattern changed in a mutable map compiles again.
+final Expando<Map<String, RegExp>> _patternCache = Expando();
+
+RegExp _patternRegExp(Schema schema, String pattern) =>
+    (_patternCache[schema.value] ??= <String, RegExp>{})[pattern] ??=
+        _compilePattern(pattern);
+
 /// Compiles a `pattern` or `patternProperties` regular expression.
 ///
 /// JSON Schema patterns follow ECMA-262 with unicode semantics, so `\p{...}`
@@ -1449,7 +1460,7 @@ extension SchemaValidation on Schema {
 /// Dart's [RegExp] applies those semantics only with `unicode: true`. A
 /// pattern that unicode mode rejects, such as one with an identity escape
 /// like `\-` outside a class, keeps the non-unicode reading it had before.
-RegExp _patternRegExp(String pattern) {
+RegExp _compilePattern(String pattern) {
   try {
     return RegExp(pattern, unicode: true);
   } on FormatException {
