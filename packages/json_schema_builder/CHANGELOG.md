@@ -1,5 +1,10 @@
 # [json_schema_builder](https://pub.dev/packages/json_schema_builder) Change Log
 
+## 0.1.8-wip
+
+- **Internal**: Add explicit types to pattern variables that the
+  `specify_nonobvious_local_variable_types` lint flags on Flutter beta.
+
 ## 0.1.7
 
 - **Feature**: Add `Schema.validateSync`, a synchronous validation entry point

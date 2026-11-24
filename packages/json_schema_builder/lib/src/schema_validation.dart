@@ -865,7 +865,7 @@ extension SchemaValidation on Schema {
                   .vocabularies['https://json-schema.org/draft/2020-12/vocab/validation'] ==
               true) {
             final stringSchema = this as StringSchema;
-            if (stringSchema.maxLength case final max?
+            if (stringSchema.maxLength case final int max?
                 when (data as String).characters.length > max) {
               errors.add(
                 ValidationError(
@@ -877,7 +877,7 @@ extension SchemaValidation on Schema {
                 ),
               );
             }
-            if (stringSchema.minLength case final min?
+            if (stringSchema.minLength case final int min?
                 when (data as String).characters.length < min) {
               errors.add(
                 ValidationError(
@@ -889,7 +889,7 @@ extension SchemaValidation on Schema {
                 ),
               );
             }
-            if (stringSchema.pattern case final p?) {
+            if (stringSchema.pattern case final String p?) {
               if (!RegExp(p).hasMatch(data as String)) {
                 errors.add(
                   ValidationError(
@@ -901,7 +901,7 @@ extension SchemaValidation on Schema {
               }
             }
           }
-          if ((this as StringSchema).format case final format?
+          if ((this as StringSchema).format case final String format?
               when context.strictFormat) {
             final FormatValidator? validator = formatValidators[format];
             if (validator != null && !validator(data as String)) {
@@ -923,7 +923,7 @@ extension SchemaValidation on Schema {
               true) {
             final numSchema = this as NumberSchema;
             final numData = data as num;
-            if (numSchema.multipleOf case final mOf?
+            if (numSchema.multipleOf case final num mOf?
                 when (Decimal.parse(numData.toString()) %
                         Decimal.parse(mOf.toString())) !=
                     Decimal.zero) {
@@ -935,7 +935,7 @@ extension SchemaValidation on Schema {
                 ),
               );
             }
-            if (numSchema.maximum case final max? when numData > max) {
+            if (numSchema.maximum case final num max? when numData > max) {
               errors.add(
                 ValidationError(
                   ValidationErrorType.maximumExceeded,
@@ -944,7 +944,7 @@ extension SchemaValidation on Schema {
                 ),
               );
             }
-            if (numSchema.exclusiveMaximum case final exMax?
+            if (numSchema.exclusiveMaximum case final num exMax?
                 when numData >= exMax) {
               errors.add(
                 ValidationError(
@@ -954,7 +954,7 @@ extension SchemaValidation on Schema {
                 ),
               );
             }
-            if (numSchema.minimum case final min? when numData < min) {
+            if (numSchema.minimum case final num min? when numData < min) {
               errors.add(
                 ValidationError(
                   ValidationErrorType.minimumNotMet,
@@ -963,7 +963,7 @@ extension SchemaValidation on Schema {
                 ),
               );
             }
-            if (numSchema.exclusiveMinimum case final exMin?
+            if (numSchema.exclusiveMinimum case final num exMin?
                 when numData <= exMin) {
               errors.add(
                 ValidationError(
